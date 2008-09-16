@@ -6,18 +6,15 @@
 <%@ page import="java.util.Date" %>
 
 <%
-    String report;
-    String graph;
-    long startTime;
-    long endTime;
-    long now = new Date().getTime();
-    
+    // Graph parameters
     String param;
-    report = (param = request.getParameter("report")) != null ? param : "totals";
-    graph = (param = request.getParameter("graph")) != null ? param : "cumul";
-    startTime = (param = request.getParameter("start")) != null ? Long.parseLong(param) : now - 240 * 60000;
-    endTime = (param = request.getParameter("end")) != null ? Long.parseLong(param) : now;
+    String report = (param = request.getParameter("report")) != null ? param : "totals";
+    String graph = (param = request.getParameter("graph")) != null ? param : "cumul";
+    long now = new Date().getTime();
+    long startTime = (param = request.getParameter("start")) != null ? Long.parseLong(param) : now - 240 * 60000;
+    long endTime = (param = request.getParameter("end")) != null ? Long.parseLong(param) : now;
     
+    // URLs to resources requiring further parameters
     String indexURL = "/pmgraph/index.jsp";
     String servletURL = "/pmgraph/graphservlet";
     String legendURL = "/include/legend.jsp";
@@ -36,7 +33,8 @@
             </div>
             
             <div id="main">
-                <!-- <jsp:include page="/include/controls.jsp" /> -->
+                <!-- Graph parameter controls not yet functional -->
+                <!-- <jsp:include page="/include/params.jsp" /> -->
                 
                 <div id="graph">
                     <img id="graphimage" alt="Bandwith Graph" 
@@ -79,8 +77,7 @@
                 </div>
             </div>
             
-            <div id="footer">
-            </div>
+            <!-- <div id="footer"></div> -->
         </div>
     </body>
 </html>

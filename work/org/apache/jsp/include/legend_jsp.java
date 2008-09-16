@@ -57,6 +57,8 @@ public final class legend_jsp extends org.apache.jasper.runtime.HttpJspBase
       out = pageContext.getOut();
       _jspx_out = out;
 
+      out.write("<!-- Table which reads database to produce legend corresponding to graph -->\n");
+      out.write("\n");
       out.write("\n");
       out.write("\n");
       out.write("\n");

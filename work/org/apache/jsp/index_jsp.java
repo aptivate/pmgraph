@@ -59,18 +59,15 @@ public final class index_jsp extends org.apache.jasper.runtime.HttpJspBase
       out.write("\n");
       out.write("\n");
 
-    String report;
-    String graph;
-    long startTime;
-    long endTime;
-    long now = new Date().getTime();
-    
+    // Graph parameters
     String param;
-    report = (param = request.getParameter("report")) != null ? param : "totals";
-    graph = (param = request.getParameter("graph")) != null ? param : "cumul";
-    startTime = (param = request.getParameter("start")) != null ? Long.parseLong(param) : now - 240 * 60000;
-    endTime = (param = request.getParameter("end")) != null ? Long.parseLong(param) : now;
+    String report = (param = request.getParameter("report")) != null ? param : "totals";
+    String graph = (param = request.getParameter("graph")) != null ? param : "cumul";
+    long now = new Date().getTime();
+    long startTime = (param = request.getParameter("start")) != null ? Long.parseLong(param) : now - 240 * 60000;
+    long endTime = (param = request.getParameter("end")) != null ? Long.parseLong(param) : now;
     
+    // URLs to resources requiring further parameters
     String indexURL = "/pmgraph/index.jsp";
     String servletURL = "/pmgraph/graphservlet";
     String legendURL = "/include/legend.jsp";
@@ -90,8 +87,9 @@ public final class index_jsp extends org.apache.jasper.runtime.HttpJspBase
       out.write("            </div>\n");
       out.write("            \n");
       out.write("            <div id=\"main\">\n");
+      out.write("                <!-- Graph parameter controls not yet functional -->\n");
       out.write("                <!-- ");
-      org.apache.jasper.runtime.JspRuntimeLibrary.include(request, response, "/include/controls.jsp", out, false);
+      org.apache.jasper.runtime.JspRuntimeLibrary.include(request, response, "/include/params.jsp", out, false);
       out.write(" -->\n");
       out.write("                \n");
       out.write("                <div id=\"graph\">\n");
@@ -147,8 +145,7 @@ public final class index_jsp extends org.apache.jasper.runtime.HttpJspBase
       out.write("                </div>\n");
       out.write("            </div>\n");
       out.write("            \n");
-      out.write("            <div id=\"footer\">\n");
-      out.write("            </div>\n");
+      out.write("            <!-- <div id=\"footer\"></div> -->\n");
       out.write("        </div>\n");
       out.write("    </body>\n");
       out.write("</html>");
