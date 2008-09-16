@@ -25,22 +25,34 @@ import org.jfree.data.xy.DefaultTableXYDataset;
 import org.jfree.data.xy.XYSeries;
 
 /**
- * The GraphBuilder class provides methods which return JFreeChart objects
- * (which can then be served as web content or saved as images) representing 
- * network traffic logged by pmacct on the BMO Box. Note that in the current
- * version, the graphs produced are prototypes.
+ * The GraphFactory class provides static methods which return JFreeChart 
+ * objects (which can then be served as web content or saved as images) 
+ * representing network traffic logged by pmacct on the BMO Box.
  * 
  * @author Thomas Sharp
  * @version 0.1
  */
 public class GraphFactory {
 	
-	// Key SQL table fields
+	// MySQL table fields
 	private static final String DOWNLOADED = "downloaded";
 	private static final String IP = "local_ip";
 	private static final String TIME = "stamp_inserted";
 	private static final String UPLOADED = "uploaded";
 
+	/**
+	 * Produces a JFreeChart showing total upload and download throughput
+	 * for the time period between start and end. 
+	 * 
+	 * @param start
+	 * @param end
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws IOException
+	 * @throws SQLException
+	 */
     public static JFreeChart totalThroughput(long start, long end)
 					throws ClassNotFoundException, IllegalAccessException, 
 							InstantiationException, IOException, SQLException {
@@ -114,7 +126,20 @@ public class GraphFactory {
     	return chart;
     }
     
-
+    /**
+     * Produces a JFreeChart showing total upload and download throughput for
+     * each IP as a cumulative stacked graph for the time period between start 
+     * and end. 
+	 * 
+     * @param start
+     * @param end
+     * @return
+     * @throws ClassNotFoundException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws IOException
+     * @throws SQLException
+     */
     public static JFreeChart stackedThroughput(long start, long end)
     				throws ClassNotFoundException, IllegalAccessException, 
     						InstantiationException, IOException, SQLException {
@@ -190,6 +215,7 @@ public class GraphFactory {
       	DefaultTableXYDataset dataset = new DefaultTableXYDataset();
       	StackedXYAreaRenderer2 renderer = new StackedXYAreaRenderer2();
       	//XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false);
+      	
       	ipResults.beforeFirst();
       	int i = 0;
       	// Add each series in order to the container, using first query as iterator
@@ -200,7 +226,7 @@ public class GraphFactory {
       		dataset.addSeries(downSeries);
       		dataset.addSeries(upSeries);
       		
-      		// Use SHA1 hash of IP address to give series a unique colour
+      		// Use SHA1 hash of IP address to give each series a unique colour
       		try {
       			byte[] ipBytes = ip.getBytes();
       			MessageDigest algorithm = MessageDigest.getInstance("SHA1");
@@ -242,9 +268,6 @@ public class GraphFactory {
     }
 }
 	
-
-
-////TODO Automatic colour wheel
 //Color[] colours = {
 //		new Color(255,0,0), new Color(255,127,0), new Color(255,255,0), 
 //		new Color(127,255,0), new Color(0,255,0), new Color(0,255,127), 

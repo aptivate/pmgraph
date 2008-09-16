@@ -1,3 +1,5 @@
+<!-- Table which reads database to produce legend corresponding to graph -->
+
 <%@ page import="java.awt.Color" %>
 <%@ page import="java.security.MessageDigest" %>
 <%@ page import="java.sql.Connection" %>
