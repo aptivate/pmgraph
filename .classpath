@@ -6,10 +6,10 @@
 	<classpathentry kind="var" path="TOMCAT_HOME/lib/jsp-api.jar"/>
 	<classpathentry kind="var" path="TOMCAT_HOME/lib/el-api.jar"/>
 	<classpathentry kind="var" path="TOMCAT_HOME/lib/annotations-api.jar"/>
-	<classpathentry kind="src" path="web/WEB-INF/src"/>
-	<classpathentry kind="src" output="work" path="work"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jcommon-1.0.13.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jfreechart-1.0.10.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/mysql-connector-java-5.1.6-bin.jar"/>
+	<classpathentry kind="src" path="web/WEB-INF/src"/>
+	<classpathentry kind="src" output="work" path="work"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>

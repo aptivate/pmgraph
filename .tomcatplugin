@@ -4,7 +4,7 @@
     <exportSource>false</exportSource>
     <reloadable>true</reloadable>
     <redirectLogger>false</redirectLogger>
-    <updateXml>true</updateXml>
+    <updateXml>false</updateXml>
     <warLocation></warLocation>
     <extraInfo></extraInfo>
     <webPath>/pmgraph</webPath>
