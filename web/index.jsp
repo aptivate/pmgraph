@@ -14,6 +14,9 @@
     long startTime = (param = request.getParameter("start")) != null ? Long.parseLong(param) : now - 240 * 60000;
     long endTime = (param = request.getParameter("end")) != null ? Long.parseLong(param) : now;
     
+    long scrollAmount = (endTime - startTime) / 3;
+    long zoomAmount = (endTime - startTime) / 4;
+    
     // URLs to resources requiring further parameters
     String indexURL = "/pmgraph/index.jsp";
     String servletURL = "/pmgraph/graphservlet";
@@ -51,25 +54,25 @@
                     <a href="<%=indexURL +
                                 "?report=" + report +
                                 "&graph=" + graph +
-                                "&start=" + (startTime - 120 * 60000) +
-                                "&end=" + (endTime - 120 * 60000)%>" class="control">Prev.</a>
+                                "&start=" + (startTime - scrollAmount) +
+                                "&end=" + (endTime - scrollAmount)%>" class="control">Prev.</a>
                     <div id="controlscenter">
                         <a href="<%=indexURL +
                                     "?report=" + report +
                                     "&graph=" + graph +
-                                    "&start=" + (startTime - 60 * 60000) +
-                                    "&end=" + (endTime + 60 * 60000)%>" class="control">Zoom -</a>
+                                    "&start=" + (startTime - zoomAmount) +
+                                    "&end=" + (endTime + zoomAmount)%>" class="control">Zoom -</a>
                         <a href="<%=indexURL +
                                     "?report=" + report +
                                     "&graph=" + graph +
-                                    "&start=" + (startTime + 60 * 60000) +
-                                    "&end=" + (endTime - 60 * 60000)%>" class="control">Zoom +</a>
+                                    "&start=" + (startTime + zoomAmount) +
+                                    "&end=" + (endTime - zoomAmount)%>" class="control">Zoom +</a>
                     </div>
                     <a href="<%=indexURL +
                                 "?report=" + report +
                                 "&graph=" + graph +
-                                "&start=" + (startTime + 120 * 60000) +
-                                "&end=" + (endTime + 120 * 60000)%>" class="control">Next</a>
+                                "&start=" + (startTime + scrollAmount) +
+                                "&end=" + (endTime + scrollAmount)%>" class="control">Next</a>
                 </div>    
     
                 <div id="legend">

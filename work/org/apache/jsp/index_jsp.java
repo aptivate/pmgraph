@@ -67,6 +67,9 @@ public final class index_jsp extends org.apache.jasper.runtime.HttpJspBase
     long startTime = (param = request.getParameter("start")) != null ? Long.parseLong(param) : now - 240 * 60000;
     long endTime = (param = request.getParameter("end")) != null ? Long.parseLong(param) : now;
     
+    long scrollAmount = (endTime - startTime) / 3;
+    long zoomAmount = (endTime - startTime) / 4;
+    
     // URLs to resources requiring further parameters
     String indexURL = "/pmgraph/index.jsp";
     String servletURL = "/pmgraph/graphservlet";
@@ -110,31 +113,31 @@ public final class index_jsp extends org.apache.jasper.runtime.HttpJspBase
       out.print(indexURL +
                                 "?report=" + report +
                                 "&graph=" + graph +
-                                "&start=" + (startTime - 120 * 60000) +
-                                "&end=" + (endTime - 120 * 60000));
+                                "&start=" + (startTime - scrollAmount) +
+                                "&end=" + (endTime - scrollAmount));
       out.write("\" class=\"control\">Prev.</a>\n");
       out.write("                    <div id=\"controlscenter\">\n");
       out.write("                        <a href=\"");
       out.print(indexURL +
                                     "?report=" + report +
                                     "&graph=" + graph +
-                                    "&start=" + (startTime - 60 * 60000) +
-                                    "&end=" + (endTime + 60 * 60000));
+                                    "&start=" + (startTime - zoomAmount) +
+                                    "&end=" + (endTime + zoomAmount));
       out.write("\" class=\"control\">Zoom -</a>\n");
       out.write("                        <a href=\"");
       out.print(indexURL +
                                     "?report=" + report +
                                     "&graph=" + graph +
-                                    "&start=" + (startTime + 60 * 60000) +
-                                    "&end=" + (endTime - 60 * 60000));
+                                    "&start=" + (startTime + zoomAmount) +
+                                    "&end=" + (endTime - zoomAmount));
       out.write("\" class=\"control\">Zoom +</a>\n");
       out.write("                    </div>\n");
       out.write("                    <a href=\"");
       out.print(indexURL +
                                 "?report=" + report +
                                 "&graph=" + graph +
-                                "&start=" + (startTime + 120 * 60000) +
-                                "&end=" + (endTime + 120 * 60000));
+                                "&start=" + (startTime + scrollAmount) +
+                                "&end=" + (endTime + scrollAmount));
       out.write("\" class=\"control\">Next</a>\n");
       out.write("                </div>    \n");
       out.write("    \n");

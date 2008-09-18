@@ -249,7 +249,7 @@ public class GraphFactory {
       	
       	// Configure the chart elements and create and return the chart
       	DateAxis xAxis = new DateAxis("Time (minutes)");
-  		xAxis.setLowerMargin(0);
+  		xAxis.setLowerMargin(-0.01); // Shave a little whitespace off
   		xAxis.setUpperMargin(0);
   		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
   		XYPlot plot = new XYPlot(dataset, xAxis, yAxis, null);
