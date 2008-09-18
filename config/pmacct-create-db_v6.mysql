@@ -1,7 +1,7 @@
-grant all on pmacct.* to pmacct identified by 'ytogl4dfh7';
-
 drop database if exists pmacct;
 create database pmacct;
+
+grant all on pmacct.* to pmacct identified by 'ytogl4dfh7';
 
 use pmacct;
 

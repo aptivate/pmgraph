@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tomcatProjectProperties>
     <rootDir>/web</rootDir>
-    <exportSource>false</exportSource>
+    <exportSource>true</exportSource>
     <reloadable>true</reloadable>
     <redirectLogger>false</redirectLogger>
     <updateXml>false</updateXml>
-    <warLocation></warLocation>
+    <warLocation>/tmp/pmgraph.war</warLocation>
     <extraInfo></extraInfo>
     <webPath>/pmgraph</webPath>
 </tomcatProjectProperties>
