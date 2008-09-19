@@ -236,14 +236,15 @@ public class GraphFactory {
       			renderer.setSeriesPaint(i, new Color(sha1[0] & 0xFF, 
       												 sha1[1] & 0xFF, 
       												 sha1[2] & 0xFF));
-      			renderer.setSeriesPaint(i+1, new Color(sha1[0] & 0xFF, 
+      			i++;
+      			renderer.setSeriesPaint(i, new Color(sha1[0] & 0xFF, 
       												   sha1[1] & 0xFF, 
       												   sha1[2] & 0xFF));
+      			i++;
       		}
       		catch(NoSuchAlgorithmException excep) {
       			excep.printStackTrace();
       		}
-      		i++;i++;
       	}
       	ipStatement.close();
       	
