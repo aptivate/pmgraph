@@ -63,8 +63,8 @@
     <tr class="row<%=ipResults.getRow() % 2%>">
         <td style="background-color: <%=fillColour%>; width: 5px"> </td>
         <td><%=ip%></td>
-        <td class="numval"><%=(ipResults.getInt("downloaded") / 1048576)%></td>
-        <td class="numval"><%=(ipResults.getInt("uploaded") / 1048576)%></td>
+        <td class="numval"><%=(ipResults.getLong("downloaded") / 1048576)%></td>
+        <td class="numval"><%=(ipResults.getLong("uploaded") / 1048576)%></td>
     </tr>
     <%
     }
