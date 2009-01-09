@@ -1,5 +1,7 @@
 package org.aptivate.pmGraph.test;
 
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,6 +13,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -28,18 +32,27 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.ui.Layer;
 
 import com.meterware.httpunit.GetMethodWebRequest;
+import com.meterware.httpunit.HTMLElement;
 import com.meterware.httpunit.HttpInternalErrorException;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebImage;
+import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
+
 
 public class DataBaseTest extends TestCase 
 {
 	// The connection to the MySQL database
 	private Connection conn;
+	
 	long l = (System.currentTimeMillis()/ 60000);
+	
+	static final Timestamp t1 = new Timestamp(60000);
+	static final Timestamp t2 = new Timestamp(120000);
+	static final Timestamp t3 = new Timestamp(180000);
+	static final Timestamp t4 = new Timestamp(240000);
 			
 	private static final String TABLE_NAME = "acct_v6";
 	
@@ -50,8 +63,6 @@ public class DataBaseTest extends TestCase
 	private static final String TIME = "stamp_inserted";
 		
 	// SQL query strings
-	//private static final String CREATE_DATABASE = "CREATE DATABASE test;";
-	//private static final String DELETE_DATABASE = "DROP DATABASE test;";
 	private static final String SELECT_DATABASE = "USE test;";
 	private static final String CREATE_TABLE = 
 		"CREATE TABLE " + TABLE_NAME + "( " + 
@@ -127,49 +138,250 @@ public class DataBaseTest extends TestCase
     	
 	}  
     
+    /* This test tests the next button */
+    public void testCheckNextButton() throws Exception
+    {
+    	WebConversation wc;
+    	WebRequest request, requestImg;
+    	WebResponse response, responseImg;
+    	String nextURL;
+    	WebLink link;
+    	WebImage webImg;
+    	URL urlObj = new URL(m_urlPmgraph);
+    	InputStream inputStr;
+    	BufferedImage theActualImg, theExpectedImg;
+    	
+    	// Create a table and insert rows into it
+    	CreateTable();
+    	InsertSampleData();
+    	
+        // Create a conversation  
+        wc = new WebConversation();	
+	
+		// Obtain the upload page on web site
+    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
+		response = wc.getResponse(request);
+		
+		/* Test the Next Button First Press */ 
+		// nextStart = start + (end-start)/3 = 0 + (300000 - 0)/3 = 100000
+		// nextEnd = end + (end-start)/3 = 300000 + (300000-0)/3 = 400000
+		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=100000&end=400000";
+		
+		// Find the "next" link
+		link = response.getLinkWithName("next");
+		assertEquals("Compare the next link.", nextURL, link.getURLString());
+		
+		// Load the page after press the Next Button 
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=100000&end=400000");
+		response = wc.getResponse(request);
+		
+		// Get the image from the graph page
+		webImg = response.getImageWithAltText("Bandwith Graph");
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		requestImg = new GetMethodWebRequest(urlObj.toString());
+		responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		theActualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		theExpectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphFirstNext.png"));
+
+		CompareImages(theExpectedImg, theActualImg);
+		
+		/* ------------------------------------ */
+		
+		/* Test the Next Button Second Press */ 
+		// nextStart = start + (end-start)/3 = 100000 + (400000 - 100000)/3 = 200000
+		// nextEnd = end + (end-start)/3 = 400000 + (400000-100000)/3 = 500000
+		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=200000&end=500000";
+		
+		// Find the "next" link
+		link = response.getLinkWithName("next");
+		assertEquals("Compare the next link.", nextURL, link.getURLString());
+		
+		// Load the page after press the Next Button 
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=200000&end=500000");
+		response = wc.getResponse(request);
+		
+		// Get the image from the graph page
+		webImg = response.getImageWithAltText("Bandwith Graph");
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		requestImg = new GetMethodWebRequest(urlObj.toString());
+		responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		theActualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		theExpectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphSecondNext.png"));
+
+		CompareImages(theExpectedImg, theActualImg);
+    }
+    
+    /* This test tests the prev button */
+    public void testCheckPrevButton() throws Exception
+    {
+    	WebConversation wc;
+    	WebRequest request, requestImg;
+    	WebResponse response, responseImg;
+    	String prevURL;
+    	WebLink link;
+    	WebImage webImg;
+    	URL urlObj = new URL(m_urlPmgraph);
+    	InputStream inputStr;
+    	BufferedImage theActualImg, theExpectedImg;
+    	
+    	// Create a table and insert rows into it
+    	CreateTable();
+    	InsertSampleData();
+    	
+        // Create a conversation  
+        wc = new WebConversation();	
+	
+		// Obtain the upload page on web site
+    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
+		response = wc.getResponse(request);
+		
+		/* Test the Prev Button First Press */ 
+		// prevStart = start - (end-start)/3 = 0 - (300000 - 0)/3 = -100000
+		// prevEnd = end - (end-start)/3 = 300000 - (300000-0)/3 = 200000
+		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-100000&end=200000";
+		
+		// Find the "prev" link
+		link = response.getLinkWithName("prev");
+		assertEquals("Compare the prev link.", prevURL, link.getURLString());
+		
+		// Load the page after press the Prev Button 
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=-100000&end=200000");
+		response = wc.getResponse(request);
+		
+		// Get the image from the graph page
+		webImg = response.getImageWithAltText("Bandwith Graph");
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		requestImg = new GetMethodWebRequest(urlObj.toString());
+		responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		theActualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		theExpectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphFirstPrev.png"));
+
+		CompareImages(theExpectedImg, theActualImg);
+		
+		/* ------------------------------------ */
+		
+		/* Test the Prev Button Second Press */ 
+		// prevStart = start - (end-start)/3 = -100000 - (200000 -(-100000))/3 = -200000
+		// prevEnd = end - (end-start)/3 = 200000 - (200000 - (-100000))/3 = 100000
+		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-200000&end=100000";
+		
+		// Find the "next" link
+		link = response.getLinkWithName("prev");
+		assertEquals("Compare the prev link.", prevURL, link.getURLString());
+		
+		// Load the page after press the Next Button 
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=-200000&end=100000");
+		response = wc.getResponse(request);
+		
+		// Get the image from the graph page
+		webImg = response.getImageWithAltText("Bandwith Graph");
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		requestImg = new GetMethodWebRequest(urlObj.toString());
+		responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		theActualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		theExpectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphSecondPrev.png"));
+
+		CompareImages(theExpectedImg, theActualImg);
+    }
+    
+    /* Compare the pixels of the two images */
+    void CompareImages(BufferedImage expectedImg, BufferedImage actualImg)
+	{
+		// Compare the height and the width of the images
+		assertEquals("Compare the height of the images.", expectedImg.getHeight(), actualImg.getHeight());
+		assertEquals("Compare the width of the images.", expectedImg.getWidth(), actualImg.getWidth());
+		
+    	for(int y = 0; y < expectedImg.getHeight(); y++)
+    	{
+    		for(int x = 0; x < expectedImg.getWidth(); x++)
+    		{
+    			assertEquals("Compare the image's pixels.", expectedImg.getRGB(x, y), actualImg.getRGB(x, y));
+    		}
+    	}
+	}
+    
     /* This test tests the graph image */
     public void testCheckGraphImage() throws Exception
     {
     	CreateTable();
     	
     	// Insert rows into table
-    	for (int i=0; i < 100; i++) 
-    	{
-    		//Set the values
-       		insertNewRow(500000, new Timestamp((l-5) * 60000), "224.0.0.255", "10.0.156.10");
-    		insertNewRow(500000, new Timestamp((l-5) * 60000), "10.0.156.10", "224.0.0.255");
-    		
-    		insertNewRow(100000, new Timestamp((l-5) * 60000), "224.0.0.251", "10.0.156.1");
-    		insertNewRow(100000, new Timestamp((l-5) * 60000), "10.0.156.1", "224.0.0.251");
-    		
-    		insertNewRow(500000, new Timestamp((l-5) * 60000), "10.0.156.110", "10.0.156.120");
-    		insertNewRow(500000, new Timestamp((l-5) * 60000), "10.0.156.120", "10.0.156.110");    		
-    	} 
+    	InsertSampleData();
     	
     	// Open a graph page
         // Create a conversation  
         WebConversation wc = new WebConversation();	
 	
 		// Obtain the upload page on web site
-		WebRequest request = new GetMethodWebRequest(m_urlPmgraph);
+    	WebRequest request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
 		WebResponse response = wc.getResponse(request);
-		WebImage img = response.getImageWithAltText("Bandwith Graph");
+		// Get the image from the graph page
+		WebImage webImg = response.getImageWithAltText("Bandwith Graph");
 		
-		//Image i = response.getImageWithAltText("Bandwith Graph"); 
+		URL urlObj = new URL(m_urlPmgraph);
+		urlObj = new URL(urlObj, webImg.getSource());
 				
-		//BufferedImage image = img; //WebImage.create();
-		//image.
-		/*ire = WebImage.create("<web page URL>", 800, 600);
-//		You can convert the BufferedImage to 
-		any format that you wish, jpg I thought was the best format
-		ImageIO.write(ire, "jpg", new File
-		("c:\\Temp\\tt.jpg"));
-
-		*/
+		// Create new request for the image
+		WebRequest requestImg = new GetMethodWebRequest(urlObj.toString());
+		WebResponse responseImg = wc.getResponse(requestImg);
 		
-		//BufferedImage newImg = new BufferedImage();
-		//newImg. = 
-		//img = 
+		// Get the input strem of the image
+		InputStream inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		BufferedImage actualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		BufferedImage expectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graph1.png"));
+		
+		// Compare the height and the width of the images
+		assertEquals("Compare the height of the images.", expectedImg.getHeight(), actualImg.getHeight());
+		assertEquals("Compare the width of the images.", expectedImg.getWidth(), actualImg.getWidth());
+		
+		// Compare the pixels of the two images
+		for(int y = 0; y < expectedImg.getHeight(); y++)
+		{
+			for(int x = 0; x < expectedImg.getWidth(); x++)
+			{
+				assertEquals("Compare the image's pixels.", expectedImg.getRGB(x, y), actualImg.getRGB(x, y));
+			}
+		}
     }
     
     /* This test tests the legend table in the pmGraph page */
@@ -213,6 +425,8 @@ public class DataBaseTest extends TestCase
 		String uploaded2 = tables[0].getCellAsText(3,3);
 		
 		// Check the table data
+		// 47 = 500000*100/1024/1024
+		// 9  = 100000*100/1024/1024
 		assertEquals("Check the IP Address", hostIP1, "10.0.156.10");
 		assertEquals("Check the Downloaded Value", downloaded1, "47");
 		assertEquals("Check the Downloaded Value", uploaded1, "47");
@@ -311,6 +525,7 @@ public class DataBaseTest extends TestCase
     	}
 	}
 
+    /* Prints the table in the console window, only for debug purposes */
     private void DisplayTableData() throws SQLException
     {
     	try
@@ -339,55 +554,7 @@ public class DataBaseTest extends TestCase
     public void testCumulativeGraph() throws Exception
     {
     	CreateTable();
-    	
-    	Timestamp t1 = new Timestamp(60000);
-    	Timestamp t2 = new Timestamp(120000);
-    	Timestamp t3 = new Timestamp(180000);
-    	Timestamp t4 = new Timestamp(240000);
-    	
-    	// convert all values into something nice and large in kbps
-    	// all values divided by 128 and 60 in GraphFactory to convert
-    	// bytes into kbps.
-    	insertRow("10.0.156.110", "10.0.156.120", 1, 1, 9999 * 128 * 60, t1);
-    	insertRow("10.0.156.120", "10.0.156.110", 1, 1, 9999 * 128 * 60, t1);
-    	insertRow("10.0.156.110", "4.2.2.2", 12300, 80,  2000 * 128 * 60, t1);
-    	insertRow("4.2.2.2",  "10.0.156.110", 80, 12300, 90 * 128 * 60,   t1);
-    	insertRow("4.2.2.2",  "10.0.156.110", 80, 12300, 80 * 128 * 60,   t2);
-    	insertRow("4.2.2.2",  "10.0.156.110", 80, 12300, 70 * 128 * 60,   t4);
-    	insertRow("4.2.2.2",  "10.0.156.120", 80, 23400, 50 * 128 * 60,   t2);
-    	insertRow("4.2.2.2",  "10.0.156.120", 80, 23500, 75 * 128 * 60,   t4);
-    	insertRow("10.0.156.120",  "4.2.2.2", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120",  "4.2.2.3", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120",  "4.2.2.4", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120",  "4.2.2.5", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120",  "4.2.2.6", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120",  "4.2.2.7", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120",  "4.2.2.8", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120",  "4.2.2.9", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120", "4.2.2.10", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120", "4.2.2.11", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("10.0.156.120", "4.2.2.12", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("4.2.2.3",  "10.0.156.120", 90, 10000, 1000 * 128 * 60, t2);
-    	insertRow("4.2.2.4",  "10.0.156.120", 90, 10000, 900 * 128 * 60,  t2);
-    	insertRow("4.2.2.5",  "10.0.156.120", 90, 10000, 800 * 128 * 60,  t2);
-    	insertRow("4.2.2.6",  "10.0.156.120", 90, 10000, 700 * 128 * 60,  t2);
-    	insertRow("4.2.2.7",  "10.0.156.120", 90, 10000, 600 * 128 * 60,  t2);
-    	insertRow("4.2.2.8",  "10.0.156.120", 90, 10000, 500 * 128 * 60,  t2);
-    	insertRow("4.2.2.9",  "10.0.156.120", 90, 10000, 400 * 128 * 60,  t2);
-    	insertRow("4.2.2.10", "10.0.156.120", 90, 10000, 300 * 128 * 60,  t2);
-    	insertRow("4.2.2.11", "10.0.156.120", 90, 10000, 200 * 128 * 60,  t2);
-    	insertRow("4.2.2.12", "10.0.156.120", 90, 10000, 100 * 128 * 60,  t2);
-    	insertRow("10.0.156.131",  "4.2.2.2", 90, 10000, 1050 * 128 * 60, t4);
-    	insertRow("10.0.156.132",  "4.2.2.2", 90, 10000, 950 * 128 * 60,  t4);
-    	insertRow("10.0.156.133",  "4.2.2.2", 90, 10000, 850 * 128 * 60,  t4);
-    	insertRow("10.0.156.134",  "4.2.2.2", 90, 10000, 750 * 128 * 60,  t4);
-    	insertRow("10.0.156.135",  "4.2.2.2", 90, 10000, 650 * 128 * 60,  t4);
-    	insertRow("10.0.156.136",  "4.2.2.2", 90, 10000, 550 * 128 * 60,  t4);
-    	insertRow("10.0.156.137",  "4.2.2.2", 90, 10000, 450 * 128 * 60,  t4);
-    	insertRow("10.0.156.138",  "4.2.2.2", 90, 10000, 350 * 128 * 60,  t4);
-    	insertRow("10.0.156.139",  "4.2.2.2", 90, 10000, 250 * 128 * 60,  t4);
-    	insertRow("10.0.156.140",  "4.2.2.2", 90, 10000, 150 * 128 * 60,  t4);
-
+    	    	
     	JFreeChart chart = GraphFactory.stackedThroughput(t1.getTime(), t4.getTime());
     	assertEquals("Network Throughput Per IP", chart.getTitle().getText());
     	
@@ -486,6 +653,52 @@ public class DataBaseTest extends TestCase
   		}
     }
 
+    private void InsertSampleData() throws SQLException
+    {   	
+    	// convert all values into something nice and large in kbps
+    	// all values divided by 128 and 60 in GraphFactory to convert
+    	// bytes into kbps.
+    	insertRow("10.0.156.110", "10.0.156.120", 1, 1, 9999 * 128 * 60, t1);
+    	insertRow("10.0.156.120", "10.0.156.110", 1, 1, 9999 * 128 * 60, t1);
+    	insertRow("10.0.156.110", "4.2.2.2", 12300, 80,  2000 * 128 * 60, t1);
+    	insertRow("4.2.2.2",  "10.0.156.110", 80, 12300, 90 * 128 * 60,   t1);
+    	insertRow("4.2.2.2",  "10.0.156.110", 80, 12300, 80 * 128 * 60,   t2);
+    	insertRow("4.2.2.2",  "10.0.156.110", 80, 12300, 70 * 128 * 60,   t4);
+    	insertRow("4.2.2.2",  "10.0.156.120", 80, 23400, 50 * 128 * 60,   t2);
+    	insertRow("4.2.2.2",  "10.0.156.120", 80, 23500, 75 * 128 * 60,   t4);
+    	insertRow("10.0.156.120",  "4.2.2.2", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120",  "4.2.2.3", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120",  "4.2.2.4", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120",  "4.2.2.5", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120",  "4.2.2.6", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120",  "4.2.2.7", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120",  "4.2.2.8", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120",  "4.2.2.9", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120", "4.2.2.10", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120", "4.2.2.11", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("10.0.156.120", "4.2.2.12", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("4.2.2.3",  "10.0.156.120", 90, 10000, 1000 * 128 * 60, t2);
+    	insertRow("4.2.2.4",  "10.0.156.120", 90, 10000, 900 * 128 * 60,  t2);
+    	insertRow("4.2.2.5",  "10.0.156.120", 90, 10000, 800 * 128 * 60,  t2);
+    	insertRow("4.2.2.6",  "10.0.156.120", 90, 10000, 700 * 128 * 60,  t2);
+    	insertRow("4.2.2.7",  "10.0.156.120", 90, 10000, 600 * 128 * 60,  t2);
+    	insertRow("4.2.2.8",  "10.0.156.120", 90, 10000, 500 * 128 * 60,  t2);
+    	insertRow("4.2.2.9",  "10.0.156.120", 90, 10000, 400 * 128 * 60,  t2);
+    	insertRow("4.2.2.10", "10.0.156.120", 90, 10000, 300 * 128 * 60,  t2);
+    	insertRow("4.2.2.11", "10.0.156.120", 90, 10000, 200 * 128 * 60,  t2);
+    	insertRow("4.2.2.12", "10.0.156.120", 90, 10000, 100 * 128 * 60,  t2);
+    	insertRow("10.0.156.131",  "4.2.2.2", 90, 10000, 1050 * 128 * 60, t4);
+    	insertRow("10.0.156.132",  "4.2.2.2", 90, 10000, 950 * 128 * 60,  t4);
+    	insertRow("10.0.156.133",  "4.2.2.2", 90, 10000, 850 * 128 * 60,  t4);
+    	insertRow("10.0.156.134",  "4.2.2.2", 90, 10000, 750 * 128 * 60,  t4);
+    	insertRow("10.0.156.135",  "4.2.2.2", 90, 10000, 650 * 128 * 60,  t4);
+    	insertRow("10.0.156.136",  "4.2.2.2", 90, 10000, 550 * 128 * 60,  t4);
+    	insertRow("10.0.156.137",  "4.2.2.2", 90, 10000, 450 * 128 * 60,  t4);
+    	insertRow("10.0.156.138",  "4.2.2.2", 90, 10000, 350 * 128 * 60,  t4);
+    	insertRow("10.0.156.139",  "4.2.2.2", 90, 10000, 250 * 128 * 60,  t4);
+    	insertRow("10.0.156.140",  "4.2.2.2", 90, 10000, 150 * 128 * 60,  t4);
+    }
+    
     public static Test suite()
     {
     	return new TestSuite(DataBaseTest.class);
