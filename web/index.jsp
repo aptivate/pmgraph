@@ -25,8 +25,72 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
-      <title>pmGraph</title>
-      <link rel="Stylesheet" href="styles/main.css" type="text/css" />
+        <title>pmGraph</title>
+        <link rel="Stylesheet" href="styles/main.css" type="text/css" />
+        <script type="text/javascript">
+			var dragging = false, drag_start_x = 0, drag_start_y = 0;
+			function getevent(e)
+			{
+				if (!e)
+				{
+					e = window.event;
+				}
+
+				return e;
+			}
+			function x(e)
+			{
+				return e.pageX; // event.x;
+			}
+			function y(e)
+			{
+				return e.pageY; // event.y;
+			}
+			function target(e)
+			{
+				if (e.target)
+				{
+				  targ = e.target;
+				}
+				else if (e.srcElement)
+				{
+				  targ = e.srcElement;
+				}
+				if (targ.nodeType == 3) // defeat Safari bug
+				{
+				  targ = targ.parentNode;
+				}
+				return targ;
+			}
+			function mousedown(e)
+			{
+				e = getevent(e);
+				dragging = true;
+				drag_start_x = x(e);
+				drag_start_y = y(e);
+				return false; // stop drag
+			}
+			function mousemove(e)
+			{
+				e = getevent(e);
+
+				if (dragging)
+				{
+					target(e).style.position = "relative";
+					target(e).style.left = x(e) - drag_start_x;
+				}
+			}
+			function mouseup(e)
+			{
+				e = getevent(e);
+				if (!dragging) return true;
+				var off_x = x(e) - drag_start_x;
+				var off_y = y(e) - drag_start_y;
+				//alert(off_x + "," + off_y);
+				dragging = false;
+				return true;
+			}
+        </script>
     </head>
   
     <body>
@@ -46,33 +110,42 @@
                                     "&start=" + startTime +
                                     "&end=" + endTime +
                                     "&width=760" +
-                                    "&height=350"%>" width="760" height="350" />     
+                                    "&height=350"%>"
+                            width="760" height="350"
+                            onmousedown="return mousedown(event);"
+                            onmousemove="return mousemove(event);"
+                            onmouseup="return mouseup(event);"
+                            />
                 </div>
                 
                 <!-- Move back/forward or zoom in/out by 2 hours-->
                 <div id="controls">
-                    <a href="<%=indexURL +
+                    <a name="prev"
+                       href="<%=indexURL +
                                 "?report=" + report +
                                 "&graph=" + graph +
                                 "&start=" + (startTime - scrollAmount) +
-                                "&end=" + (endTime - scrollAmount)%>" class="control">Prev.</a>
+                                "&end=" + (endTime - scrollAmount)%>" class="control">Prev.(2h)</a>
                     <div id="controlscenter">
-                        <a href="<%=indexURL +
+                        <a name="zoomOut"
+                           href="<%=indexURL +
                                     "?report=" + report +
                                     "&graph=" + graph +
                                     "&start=" + (startTime - zoomAmount) +
                                     "&end=" + (endTime + zoomAmount)%>" class="control">Zoom -</a>
-                        <a href="<%=indexURL +
+                        <a name="zoomIn"
+                           href="<%=indexURL +
                                     "?report=" + report +
                                     "&graph=" + graph +
                                     "&start=" + (startTime + zoomAmount) +
                                     "&end=" + (endTime - zoomAmount)%>" class="control">Zoom +</a>
                     </div>
-                    <a href="<%=indexURL +
+                    <a name="next" 
+                       href="<%=indexURL +
                                 "?report=" + report +
                                 "&graph=" + graph +
                                 "&start=" + (startTime + scrollAmount) +
-                                "&end=" + (endTime + scrollAmount)%>" class="control">Next</a>
+                                "&end=" + (endTime + scrollAmount)%>" class="control">Next (2h)</a>
                 </div>    
     
                 <div id="legend">
