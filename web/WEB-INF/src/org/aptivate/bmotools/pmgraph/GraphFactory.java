@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -32,7 +33,8 @@ import org.jfree.data.xy.XYSeries;
  * @author Thomas Sharp
  * @version 0.1
  */
-public class GraphFactory {
+public class GraphFactory 
+{
 	
 	// MySQL table fields
 	private static final String DOWNLOADED = "downloaded";
@@ -54,8 +56,9 @@ public class GraphFactory {
 	 * @throws SQLException
 	 */
     public static JFreeChart totalThroughput(long start, long end)
-					throws ClassNotFoundException, IllegalAccessException, 
-							InstantiationException, IOException, SQLException {
+	throws ClassNotFoundException, IllegalAccessException, 
+		   InstantiationException, IOException, SQLException
+    {
     	// Round our times to the nearest minute
     	start = start - (start % 60000);
     	end = end - (end % 60000);
@@ -68,7 +71,9 @@ public class GraphFactory {
     	XYSeries downSeries = new XYSeries("Downloaded", true, false);
     	XYSeries upSeries = new XYSeries("Uploaded", true, false);
     	int minutes = (int) (end - start) / 60000;
-    	for(int i = 0; i < minutes; i++) {
+    	
+    	for(int i = 0; i <= minutes; i++) 
+    	{
     		downSeries.add(start + i * 60000, 0);
     		upSeries.add(start + i * 60000, 0);
     	}
@@ -87,11 +92,13 @@ public class GraphFactory {
     	
     	// Step though query results, updating as appropriate
     	results.beforeFirst();
-    	while(results.next()) {
+    	
+    	while(results.next()) 
+    	{
     		Date inserted = results.getTimestamp(TIME);
     		// bytes * 8 = bits    bits * 1024 = kilobits    kilobits / 60 = kB/s
-    		int downloaded = ((results.getInt(DOWNLOADED) * 8) / 1024) / 60;
-    		int uploaded = ((results.getInt(UPLOADED) * 8) / 1024) / 60;
+    		long downloaded = ((results.getLong(DOWNLOADED) * 8) / 1024) / 60;
+    		long uploaded = ((results.getLong(UPLOADED) * 8) / 1024) / 60;
     		downSeries.update(inserted.getTime(), downloaded);
     		upSeries.update(inserted.getTime(), 0 - uploaded);
     	}
@@ -141,8 +148,13 @@ public class GraphFactory {
      * @throws SQLException
      */
     public static JFreeChart stackedThroughput(long start, long end)
-    				throws ClassNotFoundException, IllegalAccessException, 
-    						InstantiationException, IOException, SQLException {
+    throws ClassNotFoundException, IllegalAccessException, InstantiationException, 
+    IOException, SQLException, NoSuchAlgorithmException 
+    {
+    	// Save the start and the end
+    	long theStart = start;
+    	long theEnd = end;
+    	
     	// Round our times to the nearest minute
     	start = start - (start % 60000);
     	end = end - (end % 60000);
@@ -168,14 +180,19 @@ public class GraphFactory {
     	// For each result, initialise XYSeries and store in HashMap
     	HashMap IPs = new HashMap();
     	int minutes = (int) (end - start) / 60000;
-    	while(ipResults.next()) {
+    	
+    	while(ipResults.next())
+    	{
     		String ip = ipResults.getString(IP);
     		XYSeries downSeries = new XYSeries(ip + "<down>", true, false);
     		XYSeries upSeries = new XYSeries(ip + "<up>", true, false);
-        	for(int i = 0; i < minutes; i++) {
-        		downSeries.add(start + i * 60000, 0);
-        		upSeries.add(start + i * 60000, 0);
-        	}   
+        	
+    		for(int i = 0; i <= minutes; i++)
+        	{
+        		downSeries.add(Long.valueOf(start + i * 60000), Long.valueOf(0));
+        		upSeries.add  (Long.valueOf(start + i * 60000), Long.valueOf(0));
+        	}
+    		
     		IPs.put(ip + "<down>", downSeries);
     		IPs.put(ip + "<up>", upSeries);
     	}
@@ -183,7 +200,7 @@ public class GraphFactory {
     	
     	// Prepare and execute network throughput query
     	PreparedStatement thrptStatement = 
-    			conn.prepareStatement(GraphUtilities.THROUGHPUT_PER_IP_PER_MINUTE);
+    	 conn.prepareStatement(GraphUtilities.THROUGHPUT_PER_IP_PER_MINUTE);
     	thrptStatement.setString(1, localSubnet + "%");
     	thrptStatement.setString(2, localSubnet + "%");
     	thrptStatement.setString(3, localSubnet + "%");
@@ -196,18 +213,20 @@ public class GraphFactory {
     	thrptResults.beforeFirst();
       	
       	// For each query result, get data and write to the appropriate series
-      	while(thrptResults.next()) {
+      	while(thrptResults.next())
+      	{
       		Date inserted = thrptResults.getTimestamp(TIME);
       		String ip = thrptResults.getString(IP);
-    		// bytes * 8 = bits    bits * 1024 = kilobits    kilobits / 60 = kB/s
-    		int downloaded = ((thrptResults.getInt(DOWNLOADED) * 8) / 1024) / 60;
-    		int uploaded = ((thrptResults.getInt(UPLOADED) * 8) / 1024) / 60;
+      		// values in the database are in bytes per interval (normally 1 minute)
+    		// bytes * 8 = bits    bits / 1024 = kilobits    kilobits / 60 = kb/s
+    		long downloaded = ((thrptResults.getLong(DOWNLOADED) * 8) / 1024) / 60;
+    		long uploaded = ((thrptResults.getLong(UPLOADED) * 8) / 1024) / 60;
     		
       		XYSeries downSeries = (XYSeries) IPs.get(ip + "<down>");
       		XYSeries upSeries = (XYSeries) IPs.get(ip + "<up>");
       		
-      		downSeries.update(inserted.getTime(), downloaded);
-    		upSeries.update(inserted.getTime(), 0 - uploaded);
+      		downSeries.update(Long.valueOf(inserted.getTime()), Long.valueOf(downloaded));
+    		upSeries.update(Long.valueOf(inserted.getTime()), Long.valueOf(0 - uploaded));
       	}
       	thrptStatement.close();
       	
@@ -218,8 +237,10 @@ public class GraphFactory {
       	
       	ipResults.beforeFirst();
       	int i = 0;
+      	
       	// Add each series in order to the container, using first query as iterator
-      	while(ipResults.next()) {
+      	while(ipResults.next())
+      	{
       		String ip = ipResults.getString(IP);
       		XYSeries downSeries = (XYSeries) IPs.get(ip + "<down>");
       		XYSeries upSeries = (XYSeries) IPs.get(ip + "<up>");
@@ -227,7 +248,8 @@ public class GraphFactory {
       		dataset.addSeries(upSeries);
       		
       		// Use SHA1 hash of IP address to give each series a unique colour
-      		try {
+      		try
+      		{
       			byte[] ipBytes = ip.getBytes();
       			MessageDigest algorithm = MessageDigest.getInstance("SHA1");
       			algorithm.reset();
@@ -242,15 +264,40 @@ public class GraphFactory {
       												   sha1[2] & 0xFF));
       			i++;
       		}
-      		catch(NoSuchAlgorithmException excep) {
+      		catch(NoSuchAlgorithmException excep)
+      		{
       			excep.printStackTrace();
+      			throw(excep);
       		}
       	}
       	ipStatement.close();
       	
       	// Configure the chart elements and create and return the chart
-      	DateAxis xAxis = new DateAxis("Time (minutes)");
-  		xAxis.setLowerMargin(-0.01); // Shave a little whitespace off
+      	DateAxis xAxis;
+      	
+      	long timePeriod = (theEnd - theStart)/60000;
+      	if(timePeriod < 7)
+      	{
+      		xAxis = new DateAxis("Time (hours:minutes:seconds)");
+      	}
+      	else if((timePeriod >= 7) && (timePeriod < 3650))
+      	{
+      		xAxis = new DateAxis("Time (hours:minutes)");
+      	}
+      	else if((timePeriod >= 3650) && (timePeriod < 7299))
+      	{
+      		xAxis = new DateAxis("Time (day-month,hours:minutes)");
+      	}
+      	else // timePeriod >= 7299
+      	{
+      		xAxis = new DateAxis("Time (day-month)");
+      	}
+      
+      	// TODO
+      	//xAxis.setMinimumDate(new Date(start));
+      	//xAxis.setMaximumDate(new Date(end));
+      	
+  		xAxis.setLowerMargin(-0.01); // Save a little whitespace off
   		xAxis.setUpperMargin(0);
   		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
   		XYPlot plot = new XYPlot(dataset, xAxis, yAxis, null);
