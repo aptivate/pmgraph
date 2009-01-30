@@ -17,16 +17,18 @@ import org.jfree.chart.ChartUtilities;
  * @author Thomas Sharp
  * @version 0.1
  */
-public class GraphServlet extends HttpServlet {
-	
+public class GraphServlet extends HttpServlet
+{	
 	/**
 	 * Creates a GraphBuilder object which queries the database and returns 
 	 * graphs (using the JFreeChart library) showing logged traffic to the 
 	 * browser.
 	 */
 	public void doGet (HttpServletRequest req, HttpServletResponse res) 
-										throws ServletException, IOException {
-		try {			
+	throws ServletException, IOException
+	{									
+		try
+		{			
 			// Get the parameters for graph building from the request string
 			//TODO make these conditionals...
 			String graphType = req.getParameter("graph");
@@ -36,26 +38,34 @@ public class GraphServlet extends HttpServlet {
 			int height = Integer.parseInt(req.getParameter("height"));
 			
 			// Create graph of appropriate type and write to response stream
-			if(graphType.equals("total")) {
+			if (graphType.equals("total"))
+			{
+				res.setContentType("image/png");
 				ChartUtilities.writeChartAsPNG(res.getOutputStream(),
 						GraphFactory.totalThroughput(start, end),
 						width,
 						height);
 			}
-			if(graphType.equals("cumul")) {
+			else if(graphType.equals("cumul"))
+			{
+				res.setContentType("image/png");
 				ChartUtilities.writeChartAsPNG(res.getOutputStream(),
 						GraphFactory.stackedThroughput(start, end),
 						width,
 						height);
 			}
-			else {
-				System.err.println("Unrecognised request string: " + graphType);
+			else
+			{
+				throw new ServletException("Unrecognised request string: " +
+					graphType);
 				// Do nothing to output stream, browser will handle broken link
 			}
 		}
 		// SQL, ClassNotFound, IllegalAccess, Instantiation Exceptions
-		catch(Exception excep) {
+		catch(Exception excep)
+		{
 			excep.printStackTrace();
+			throw new ServletException("GraphServlet failed", excep);
 		}
 	}
 }
