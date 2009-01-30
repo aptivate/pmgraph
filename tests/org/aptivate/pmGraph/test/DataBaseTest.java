@@ -159,20 +159,20 @@ public class DataBaseTest extends TestCase
         wc = new WebConversation();	
 	
 		// Obtain the upload page on web site
-    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
+    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=75000&end=225000");
 		response = wc.getResponse(request);
 		
 		/* Test the Next Button First Press */ 
-		// nextStart = start + (end-start)/3 = 0 + (300000 - 0)/3 = 100000
-		// nextEnd = end + (end-start)/3 = 300000 + (300000-0)/3 = 400000
-		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=100000&end=400000";
+		// nextStart = start + (end-start)/2 = 75000 + (225000 - 75000)/2 = 150000
+		// nextEnd = end + (end-start)/2 = 225000 + (225000-75000)/2 = 300000
+		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=150000&end=300000";
 		
 		// Find the "next" link
 		link = response.getLinkWithName("next");
 		assertEquals("Compare the next link.", nextURL, link.getURLString());
 		
 		// Load the page after press the Next Button 
-		request = new GetMethodWebRequest(m_urlPmgraph + "?start=100000&end=400000");
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=150000&end=300000");
 		response = wc.getResponse(request);
 		
 		// Get the image from the graph page
@@ -197,16 +197,16 @@ public class DataBaseTest extends TestCase
 		/* ------------------------------------ */
 		
 		/* Test the Next Button Second Press */ 
-		// nextStart = start + (end-start)/3 = 100000 + (400000 - 100000)/3 = 200000
-		// nextEnd = end + (end-start)/3 = 400000 + (400000-100000)/3 = 500000
-		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=200000&end=500000";
+		// nextStart = start + (end-start)/2 = 150000 + (300000 - 150000)/2 = 225000
+		// nextEnd = end + (end-start)/2 = 300000 + (300000-150000)/2 = 375000
+		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=225000&end=375000";
 		
 		// Find the "next" link
 		link = response.getLinkWithName("next");
 		assertEquals("Compare the next link.", nextURL, link.getURLString());
 		
 		// Load the page after press the Next Button 
-		request = new GetMethodWebRequest(m_urlPmgraph + "?start=200000&end=500000");
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=225000&end=375000");
 		response = wc.getResponse(request);
 		
 		// Get the image from the graph page
@@ -250,20 +250,20 @@ public class DataBaseTest extends TestCase
         wc = new WebConversation();	
 	
 		// Obtain the upload page on web site
-    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
+    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=150000&end=450000");
 		response = wc.getResponse(request);
 		
 		/* Test the Prev Button First Press */ 
-		// prevStart = start - (end-start)/3 = 0 - (300000 - 0)/3 = -100000
-		// prevEnd = end - (end-start)/3 = 300000 - (300000-0)/3 = 200000
-		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-100000&end=200000";
+		// prevStart = start - (end-start)/2 = 150000 - (450000 - 150000)/2 = 0
+		// prevEnd = end - (end-start)/2 = 450000 - (450000-150000)/2 = 300000
+		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=0&end=300000";
 		
 		// Find the "prev" link
 		link = response.getLinkWithName("prev");
 		assertEquals("Compare the prev link.", prevURL, link.getURLString());
 		
 		// Load the page after press the Prev Button 
-		request = new GetMethodWebRequest(m_urlPmgraph + "?start=-100000&end=200000");
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
 		response = wc.getResponse(request);
 		
 		// Get the image from the graph page
@@ -288,16 +288,16 @@ public class DataBaseTest extends TestCase
 		/* ------------------------------------ */
 		
 		/* Test the Prev Button Second Press */ 
-		// prevStart = start - (end-start)/3 = -100000 - (200000 -(-100000))/3 = -200000
-		// prevEnd = end - (end-start)/3 = 200000 - (200000 - (-100000))/3 = 100000
-		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-200000&end=100000";
+		// prevStart = start - (end-start)/2 = 0 - (300000 - 0)/2 = -150000
+		// prevEnd = end - (end-start)/2 = 300000 - (300000 - 0)/2 = 150000
+		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=150000";
 		
 		// Find the "next" link
 		link = response.getLinkWithName("prev");
 		assertEquals("Compare the prev link.", prevURL, link.getURLString());
 		
 		// Load the page after press the Next Button 
-		request = new GetMethodWebRequest(m_urlPmgraph + "?start=-200000&end=100000");
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=-150000&end=150000");
 		response = wc.getResponse(request);
 		
 		// Get the image from the graph page
@@ -320,6 +320,211 @@ public class DataBaseTest extends TestCase
 		CompareImages(theExpectedImg, theActualImg);
     }
     
+    /* This test tests the zoom- button */
+    public void testCheckZoomOutButton() throws Exception
+    {
+    	WebConversation wc;
+    	WebRequest request, requestImg;
+    	WebResponse response, responseImg;
+    	String zoomURL;
+    	WebLink link;
+    	WebImage webImg;
+    	URL urlObj = new URL(m_urlPmgraph);
+    	InputStream inputStr;
+    	BufferedImage theActualImg, theExpectedImg;
+    	
+    	// Create a table and insert rows into it
+    	CreateTable();
+    	InsertSampleData();
+    	
+        // Create a conversation  
+        wc = new WebConversation();	
+	
+		// Obtain the upload page on web site
+    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
+		response = wc.getResponse(request);
+		
+		/* Test the Zoom- Button First Press */ 
+		// zoomOutStart = start - (endTime - startTime) / 2 = 0 - (300000 - 0)/2 = -150000
+		// zoomOutEnd = end + (endTime - startTime) / 2 = 300000 + (300000 - 0)/2 = 450000 
+		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=450000";
+		
+		// Find the Zoom- link
+		link = response.getLinkWithName("zoomOut");
+		assertEquals("Compare the zoom- link.", zoomURL, link.getURLString());
+		
+		// Load the page after press the Zoom- Button 
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=-150000&end=450000");
+		response = wc.getResponse(request);
+		
+		// Get the image from the graph page
+		webImg = response.getImageWithAltText("Bandwith Graph");
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		requestImg = new GetMethodWebRequest(urlObj.toString());
+		responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		theActualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		theExpectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphFirstZoom-.png"));
+
+		CompareImages(theExpectedImg, theActualImg);
+		
+		/* ------------------------------------ */
+		
+		/* Test the Zoom- Button Second Press */ 		
+		// zoomOutStart = start - (endTime - startTime) / 2 = -150000 - (450000 - (-150000))/2 = -450000
+		// zoomOutEnd = end + (endTime - startTime) / 2 = 450000 + (450000 - (-150000))/2 = 750000 
+		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-450000&end=750000";
+		
+		// Find the Zoom- link
+		link = response.getLinkWithName("zoomOut");
+		assertEquals("Compare the zoom- link.", zoomURL, link.getURLString());
+		
+		// Load the page after press the Zoom- Button 
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=-450000&end=750000");
+		response = wc.getResponse(request);
+		
+		// Get the image from the graph page
+		webImg = response.getImageWithAltText("Bandwith Graph");
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		requestImg = new GetMethodWebRequest(urlObj.toString());
+		responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		theActualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		theExpectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphSecondZoom-.png"));
+
+		CompareImages(theExpectedImg, theActualImg);
+		
+		/* ------------------------------------ */
+		
+		/* Test if the Zoom- Button Disappear */ 	
+		// Obtain the upload page on web site
+    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=2147460000");
+		response = wc.getResponse(request);
+		
+		// Check thar there isn't the Zoom- link in the page
+		link = response.getLinkWithName("zoomOut");
+		assertEquals("Check that the zoom- link is null.", null, link);
+    }
+    
+    /* This test tests the zoom+ button */
+    public void testCheckZoomInButton() throws Exception
+    {
+    	WebConversation wc;
+    	WebRequest request, requestImg;
+    	WebResponse response, responseImg;
+    	String zoomURL;
+    	WebLink link;
+    	WebImage webImg;
+    	URL urlObj = new URL(m_urlPmgraph);
+    	InputStream inputStr;
+    	BufferedImage theActualImg, theExpectedImg;
+    	
+    	// Create a table and insert rows into it
+    	CreateTable();
+    	InsertSampleData();
+    	
+        // Create a conversation  
+        wc = new WebConversation();	
+	
+		// Obtain the upload page on web site
+    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=-450000&end=750000");
+		response = wc.getResponse(request);
+		
+		/* Test the Zoom+ Button First Press */ 
+		// zoomInStart = start + (endTime - startTime) / 4 = -450000 + (450000 - (-450000))/4 = -150000
+		// zoomInEnd = end - (endTime - startTime) / 4 = 750000 - (750000 - (-450000))/4 = 450000 
+		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=450000";
+		
+		// Find the Zoom+ link
+		link = response.getLinkWithName("zoomIn");
+		assertEquals("Compare the zoom+ link.", zoomURL, link.getURLString());
+		
+		// Load the page after press the Zoom+ Button 
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=-150000&end=450000");
+		response = wc.getResponse(request);
+		
+		// Get the image from the graph page
+		webImg = response.getImageWithAltText("Bandwith Graph");
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		requestImg = new GetMethodWebRequest(urlObj.toString());
+		responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		theActualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		theExpectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphFirstZoom+.png"));
+
+		CompareImages(theExpectedImg, theActualImg);
+		
+		/* ------------------------------------ */
+		
+		/* Test the Zoom+ Button Second Press */ 
+		// zoomInStart = start + (endTime - startTime) / 4 = -150000 + (450000 - (-150000))/4 = 0
+		// zoomInEnd = end - (endTime - startTime) / 4 = 450000 - (450000 - (-150000))/4 = 300000 
+		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=0&end=300000";
+		
+		// Find the Zoom+ link
+		link = response.getLinkWithName("zoomIn");
+		assertEquals("Compare the zoom+ link.", zoomURL, link.getURLString());
+		
+		// Load the page after press the Zoom+ Button 
+		request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
+		response = wc.getResponse(request);
+		
+		// Get the image from the graph page
+		webImg = response.getImageWithAltText("Bandwith Graph");
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		requestImg = new GetMethodWebRequest(urlObj.toString());
+		responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		theActualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		theExpectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphSecondZoom+.png"));
+
+		CompareImages(theExpectedImg, theActualImg);
+		
+		/* ------------------------------------ */
+		
+		/* Test if the Zoom+ Button Disappear */ 	
+		// Obtain the upload page on web site
+    	request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=84000");
+		response = wc.getResponse(request);
+		
+		// Check thar there isn't the Zoom+ link in the page
+		link = response.getLinkWithName("zoomIn");
+		assertEquals("Check that the zoom- link is null.", null, link);
+    }
+    
+    
     /* Compare the pixels of the two images */
     void CompareImages(BufferedImage expectedImg, BufferedImage actualImg)
 	{
@@ -336,53 +541,6 @@ public class DataBaseTest extends TestCase
     	}
 	}
     
-    /* This test tests the graph image */
-    public void testCheckGraphImage() throws Exception
-    {
-    	CreateTable();
-    	
-    	// Insert rows into table
-    	InsertSampleData();
-    	
-    	// Open a graph page
-        // Create a conversation  
-        WebConversation wc = new WebConversation();	
-	
-		// Obtain the upload page on web site
-    	WebRequest request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
-		WebResponse response = wc.getResponse(request);
-		// Get the image from the graph page
-		WebImage webImg = response.getImageWithAltText("Bandwith Graph");
-		
-		URL urlObj = new URL(m_urlPmgraph);
-		urlObj = new URL(urlObj, webImg.getSource());
-				
-		// Create new request for the image
-		WebRequest requestImg = new GetMethodWebRequest(urlObj.toString());
-		WebResponse responseImg = wc.getResponse(requestImg);
-		
-		// Get the input strem of the image
-		InputStream inputStr = responseImg.getInputStream();
-		
-		// Create BufferedImage from the input stream
-		BufferedImage actualImg = ImageIO.read(inputStr);
-		
-		// Create BufferedImage from file
-		BufferedImage expectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graph1.png"));
-		
-		// Compare the height and the width of the images
-		assertEquals("Compare the height of the images.", expectedImg.getHeight(), actualImg.getHeight());
-		assertEquals("Compare the width of the images.", expectedImg.getWidth(), actualImg.getWidth());
-		
-		// Compare the pixels of the two images
-		for(int y = 0; y < expectedImg.getHeight(); y++)
-		{
-			for(int x = 0; x < expectedImg.getWidth(); x++)
-			{
-				assertEquals("Compare the image's pixels.", expectedImg.getRGB(x, y), actualImg.getRGB(x, y));
-			}
-		}
-    }
     
     /* This test tests the legend table in the pmGraph page */
     public void testCheckDataTranslationAndRepresentation() throws Exception
@@ -653,6 +811,54 @@ public class DataBaseTest extends TestCase
   		}
     }
 
+    /* This test tests the graph image */
+    public void testCheckGraphImage() throws Exception
+    {
+    	CreateTable();
+    	
+    	// Insert rows into table
+    	InsertSampleData();
+    	
+    	// Open a graph page
+        // Create a conversation  
+        WebConversation wc = new WebConversation();	
+	
+		// Obtain the upload page on web site
+    	WebRequest request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
+		WebResponse response = wc.getResponse(request);
+		// Get the image from the graph page
+		WebImage webImg = response.getImageWithAltText("Bandwith Graph");
+		
+		URL urlObj = new URL(m_urlPmgraph);
+		urlObj = new URL(urlObj, webImg.getSource());
+				
+		// Create new request for the image
+		WebRequest requestImg = new GetMethodWebRequest(urlObj.toString());
+		WebResponse responseImg = wc.getResponse(requestImg);
+		
+		// Get the input strem of the image
+		InputStream inputStr = responseImg.getInputStream();
+		
+		// Create BufferedImage from the input stream
+		BufferedImage actualImg = ImageIO.read(inputStr);
+		
+		// Create BufferedImage from file
+		BufferedImage expectedImg = ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphCheckGraphImageTest.png"));
+		
+		// Compare the height and the width of the images
+		assertEquals("Compare the height of the images.", expectedImg.getHeight(), actualImg.getHeight());
+		assertEquals("Compare the width of the images.", expectedImg.getWidth(), actualImg.getWidth());
+		
+		// Compare the pixels of the two images
+		for(int y = 0; y < expectedImg.getHeight(); y++)
+		{
+			for(int x = 0; x < expectedImg.getWidth(); x++)
+			{
+				assertEquals("Compare the image's pixels.", expectedImg.getRGB(x, y), actualImg.getRGB(x, y));
+			}
+		}
+    }
+    
     private void InsertSampleData() throws SQLException
     {   	
     	// convert all values into something nice and large in kbps
