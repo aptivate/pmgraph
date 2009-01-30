@@ -37,7 +37,8 @@ import org.jfree.data.xy.XYSeries;
  * @author Thomas Sharp
  * @version 0.1
  */
-public class GraphBuilder {
+public class GraphBuilder 
+{
 
 	// The connection to the MySQL database
 	private Connection conn;
@@ -134,7 +135,7 @@ public class GraphBuilder {
 	private static final int LIMIT = 10;
 	
 	//TODO: Automatic colour wheel
-	Color[] colours = {
+	Color[] colours = { 
 			new Color(255,0,0), new Color(255,127,0), new Color(255,255,0), 
 			new Color(127,255,0), new Color(0,255,0), new Color(0,255,127), 
 			new Color(0,255,255), new Color(0,127,255), new Color(0,0,255),
@@ -152,8 +153,9 @@ public class GraphBuilder {
 	 * @throws SQLException				if connection fails (maybe bad password)
 	 */
     private GraphBuilder(String url, String userName, String password)
-    					throws ClassNotFoundException, IllegalAccessException, 
-    									  InstantiationException, SQLException {
+    throws ClassNotFoundException, IllegalAccessException, 
+    	   InstantiationException, SQLException 
+    {
     	Class.forName("com.mysql.jdbc.Driver").newInstance();
         conn = DriverManager.getConnection(url, userName, password);
     }
@@ -168,7 +170,9 @@ public class GraphBuilder {
      * @return				chart showing traffic over <code>period</code> mins
      * @throws SQLException	in event of database error
      */
-    private JFreeChart totalThroughput(Date now, int period, int max) throws SQLException {
+    private JFreeChart totalThroughput(Date now, int period, int max) 
+    throws SQLException 
+    {
     	/* First initialises a XYSeries to show 0 throughput for each minute to 
     	 * be graphed, then queries the MySQL database for total network 
     	 * throughput per minute and steps through the query results 
@@ -182,7 +186,8 @@ public class GraphBuilder {
     	// Initialise an XYSeries with 0 values for each minute of the query
 		XYSeries series = new XYSeries("Throughput", true, false);
 		long firstMinute = now.getTime() - period * 60000;
-		for(int i = 0; i < period; i++) {
+		for(int i = 0; i < period; i++) 
+		{
 			series.add(firstMinute + i * 60000, 0);
 		}
     	
@@ -196,7 +201,9 @@ public class GraphBuilder {
 		
 		// Step though query results, updating as appropriate
 		results.beforeFirst();
-		while(results.next()) {
+		
+		while(results.next()) 
+		{
 			Date inserted = results.getTimestamp(TIME);
 			// Get dif. in mins between time record inserted and time now...
 			long timeDif = ((inserted.getTime() - now.getTime()) / 1000) / 60;
@@ -240,7 +247,9 @@ public class GraphBuilder {
      * @throws SQLException	in event of database error
      */
     private JFreeChart stackedThroughput(Date now, int period, int max, 
-    										boolean hybrid) throws SQLException {
+    									 boolean hybrid) 
+    throws SQLException 
+    {
     	/* Firstly, we find the top 10 active IPs on the network and create and
     	 * initialise (as in totalThrougput(...)) an XYSeries for each, and one
     	 * XYSeries for all of the rest. Then we query the database for 
@@ -270,10 +279,12 @@ public class GraphBuilder {
     	// For each of top 10 IPs initialise an XYSeries and store in a HashMap
     	HashMap IPs = new HashMap();
     	long firstMinute = now.getTime() - period * 60000;
-    	while(ipResults.next() && i <= LIMIT) {
+    	while(ipResults.next() && i <= LIMIT) 
+    	{
     		String ip = ipResults.getString(IP_DST);
     		XYSeries series = new XYSeries(ip, true, false);
-    		for(int j = 0; j < period; j++) {
+    		for(int j = 0; j < period; j++) 
+    		{
     			series.add(firstMinute + j * 60000, 0);
     		}
     		IPs.put(ip, series);
@@ -282,7 +293,8 @@ public class GraphBuilder {
     	}
     	// Make XYSeries for the other IPs and store it
     	XYSeries others = new XYSeries("Other", true, false);
-    	for(int j = 0; j < period; j++) {
+    	for(int j = 0; j < period; j++) 
+    	{
 			others.add(firstMinute + j * 60000, 0);
 		}
     	IPs.put("Other", others);
@@ -297,7 +309,8 @@ public class GraphBuilder {
     	thrptResults.beforeFirst();
     	
     	// For each query result...
-    	while(thrptResults.next()) {
+    	while(thrptResults.next())
+    	{
     		// ... get the details ...
     		Date inserted = thrptResults.getTimestamp(TIME);
     		String ip = thrptResults.getString(IP);
@@ -318,7 +331,8 @@ public class GraphBuilder {
     	i = 0;
     	/* ... and go back over our first query, using the results to pull our
     	   XYSeries objects out of the HashMap and add them to the dataset */
-    	while(ipResults.next() && i < LIMIT) {
+    	while(ipResults.next() && i < LIMIT) 
+    	{
     		String ip = ipResults.getString(IP_DST);
     		XYSeries series = (XYSeries) IPs.get(ip);
     		dataset.addSeries(series);
@@ -341,7 +355,8 @@ public class GraphBuilder {
         plot.addRangeMarker(new ValueMarker(max));
         plot.setForegroundAlpha(0.8f);
         // If chart is to be background to another, make area paint translucent
-        if(hybrid) {
+        if(hybrid) 
+        {
         	plot.setForegroundAlpha(0.4f);
         }
         plot.setRenderer(rend);
@@ -364,8 +379,9 @@ public class GraphBuilder {
      * @return				chart showing traffic during <code>period</code> mins
      * @throws SQLException in event of database error
      */
-    private JFreeChart pieThroughput(Date now, int period, 
-    										boolean subChart) throws SQLException {
+    private JFreeChart pieThroughput(Date now, int period, boolean subChart) 
+    throws SQLException 
+    {
     	PreparedStatement statement;
     	ResultSet results;
     	
@@ -382,16 +398,20 @@ public class GraphBuilder {
     	PiePlot plot = new PiePlot(dataset);
     	int i = 0;
     	int others = 0;
-    	while(results.next() ) {
+    	
+    	while(results.next() ) 
+    	{
     		String ip = results.getString(IP_DST);
     		int throughput = results.getInt(BYTES) / 1048576; // Give in mB
-    		if(i < LIMIT) {
+    		if(i < LIMIT) 
+    		{
     			// Add 'biggest' users to pie chart
     			dataset.setValue(ip, throughput);
     			plot.setSectionPaint(ip, colours[i]);
     			i++;
     		}
-    		else {
+    		else
+    		{
     			// Tally the total throughput of the rest
     			others += throughput;
     		}
@@ -412,14 +432,16 @@ public class GraphBuilder {
         					  			  false);
         
         // If chart is to be superimposed upon another, strip borders & background
-        if(subChart) {
+        if(subChart) 
+        {
             plot.setBackgroundPaint(null);
             plot.setOutlinePaint(null);
             plot.setForegroundAlpha(0.9f);
             chart.setBackgroundPaint(null);
             //chart.setTitle("Totals");
         }
-        else {
+        else
+        {
         	chart.setTitle("Network Throughput Per IP");
         	chart.addSubtitle(new TextTitle(now.toString()));
         }
@@ -436,7 +458,8 @@ public class GraphBuilder {
      * @throws SQLException
      */
     private JFreeChart protocolThroughput(Date now, int period, int max) 
-    													throws SQLException {
+    throws SQLException 
+    {
     	
     	// SQL query facilitators 
     	PreparedStatement protoStatement;
@@ -457,10 +480,13 @@ public class GraphBuilder {
     	// For each protocol initialise an XYSeries and store in a HashMap
     	HashMap protocols = new HashMap();
     	long firstMinute = now.getTime() - period * 60000;
-    	while(protoResults.next()) {
+    	
+    	while(protoResults.next()) 
+    	{
     		String proto = protoResults.getString(PROTO);
     		XYSeries series = new XYSeries(proto, true, false);
-    		for(int j = 0; j < period; j++) {
+    		for(int j = 0; j < period; j++)
+    		{
     			series.add(firstMinute + j * 60000, 0);
     		}
     		protocols.put(proto, series);
@@ -477,7 +503,8 @@ public class GraphBuilder {
     	thrptResults.beforeFirst();
 
     	// For each query result...
-    	while(thrptResults.next()) {
+    	while(thrptResults.next())
+    	{
     		// ... get the details ...
     		Date inserted = thrptResults.getTimestamp(TIME);
     		String proto = thrptResults.getString(PROTO);
@@ -498,7 +525,8 @@ public class GraphBuilder {
     	int i = 0;
     	/* ... and go back over our first query, using the results to pull our
     	   XYSeries objects out of the HashMap and add them to the dataset */
-    	while(protoResults.next()) {
+    	while(protoResults.next())
+    	{
     		String proto = protoResults.getString(PROTO);
     		XYSeries series = (XYSeries) protocols.get(proto);
     		dataset.addSeries(series);
@@ -536,7 +564,8 @@ public class GraphBuilder {
      * @throws SQLException
      */
     private JFreeChart portThroughput(Date now, int period, int max) 
-    													throws SQLException {
+    throws SQLException 
+    {
     	// SQL query facilitators 
     	PreparedStatement portStatement;
     	PreparedStatement thrptStatement;
@@ -554,10 +583,13 @@ public class GraphBuilder {
     	
     	HashMap ports = new HashMap();
     	long firstMinute = now.getTime() - period * 60000;
-    	while(portResults.next()) {
+    	
+    	while(portResults.next())
+    	{
     		String port = portResults.getString(PORT);
     		XYSeries series = new XYSeries(port, true, false);
-    		for(int j = 0; j < period; j++) {
+    		for(int j = 0; j < period; j++) 
+    		{
     			series.add(firstMinute + j * 60000, 0);
     		}
     		ports.put(port, series);
@@ -574,7 +606,8 @@ public class GraphBuilder {
     	thrptResults.beforeFirst();
 
     	// For each query result...
-    	while(thrptResults.next()) {
+    	while(thrptResults.next())
+    	{
     		// ... get the details ...
     		Date inserted = thrptResults.getTimestamp(TIME);
     		String port = thrptResults.getString(PORT);
@@ -595,7 +628,8 @@ public class GraphBuilder {
     	int i = 0;
     	/* ... and go back over our first query, using the results to pull our
     	   XYSeries objects out of the HashMap and add them to the dataset */
-    	while(portResults.next()) {
+    	while(portResults.next()) 
+    	{
     		String port = portResults.getString(PORT);
     		XYSeries series = (XYSeries) ports.get(port);
     		dataset.addSeries(series);
@@ -634,14 +668,17 @@ public class GraphBuilder {
      */
     /*TODO: This method unnecessarily duplicates code but since the class is about
             to be refactored, we aren't too worried. */
-    private JFreeChart totalDownUp(Date now, int period, int maxDown, int maxUp) throws SQLException {
+    private JFreeChart totalDownUp(Date now, int period, int maxDown, int maxUp) 
+    throws SQLException 
+    {
     	PreparedStatement downStatement;
     	ResultSet downResults;
 
     	// Initialise an XYSeries with 0 values for each minute of the query
 		XYSeries downSeries = new XYSeries("Throughput", true, false);
 		long firstMinute = now.getTime() - period * 60000;
-		for(int i = 0; i < period; i++) {
+		for(int i = 0; i < period; i++) 
+		{
 			downSeries.add(firstMinute + i * 60000, 0);
 		}
     	
@@ -655,7 +692,8 @@ public class GraphBuilder {
 		
 		// Step though query results, updating as appropriate
 		downResults.beforeFirst();
-		while(downResults.next()) {
+		while(downResults.next())
+		{
 			Date inserted = downResults.getTimestamp(TIME);
 			// Get dif. in mins between time record inserted and time now...
 			long timeDif = ((inserted.getTime() - now.getTime()) / 1000) / 60;
@@ -671,7 +709,8 @@ public class GraphBuilder {
     	// Initialise an XYSeries with 0 values for each minute of the query
 		XYSeries upSeries = new XYSeries("Throughput", true, false);
 		firstMinute = now.getTime() - period * 60000;
-		for(int i = 0; i < period; i++) {
+		for(int i = 0; i < period; i++)
+		{
 			upSeries.add(firstMinute + i * 60000, 0);
 		}
     	
@@ -685,7 +724,8 @@ public class GraphBuilder {
 		
 		// Step though query results, updating as appropriate
 		upResults.beforeFirst();
-		while(upResults.next()) {
+		while(upResults.next())
+		{
 			Date inserted = upResults.getTimestamp(TIME);
 			// Get dif. in mins between time record inserted and time now...
 			long timeDif = ((inserted.getTime() - now.getTime()) / 1000) / 60;
