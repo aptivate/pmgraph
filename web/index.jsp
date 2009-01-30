@@ -14,9 +14,15 @@
     long startTime = (param = request.getParameter("start")) != null ? Long.parseLong(param) : now - 240 * 60000;
     long endTime = (param = request.getParameter("end")) != null ? Long.parseLong(param) : now;
     
-    long scrollAmount = (endTime - startTime) / 3;
-    long zoomAmount = (endTime - startTime) / 4;
+    long scrollAmount = (endTime - startTime) / 2;  
+    long zoomAmount = (endTime - startTime) / 2; 
     
+    long newZoomInStart = ((startTime + zoomAmount/2) / 6000);
+    long newZoomInEnd = ((endTime - zoomAmount/2) / 6000);
+    
+    long newZoomOutStart = ((startTime - zoomAmount) / 6000);
+    long newZoomOutEnd = ((endTime + zoomAmount) / 6000);
+                       		
     // URLs to resources requiring further parameters
     String indexURL = "/pmgraph/index.jsp";
     String servletURL = "/pmgraph/graphservlet";
@@ -118,34 +124,40 @@
                             />
                 </div>
                 
-                <!-- Move back/forward or zoom in/out by 2 hours-->
+                <!-- Move back/forward or zoom in/out -->
                 <div id="controls">
                     <a name="prev"
                        href="<%=indexURL +
                                 "?report=" + report +
                                 "&graph=" + graph +
                                 "&start=" + (startTime - scrollAmount) +
-                                "&end=" + (endTime - scrollAmount)%>" class="control">Prev.(2h)</a>
+                                "&end=" + (endTime - scrollAmount)%>" class="control">Prev.</a>
                     <div id="controlscenter">
-                        <a name="zoomOut"
-                           href="<%=indexURL +
+                    
+                    	<%if ((newZoomOutEnd - newZoomOutStart) < 357920) {%>
+                        	<a name="zoomOut"
+                        	   href="<%=indexURL +
                                     "?report=" + report +
                                     "&graph=" + graph +
                                     "&start=" + (startTime - zoomAmount) +
-                                    "&end=" + (endTime + zoomAmount)%>" class="control">Zoom -</a>
-                        <a name="zoomIn"
-                           href="<%=indexURL +
-                                    "?report=" + report +
-                                    "&graph=" + graph +
-                                    "&start=" + (startTime + zoomAmount) +
-                                    "&end=" + (endTime - zoomAmount)%>" class="control">Zoom +</a>
+                                    "&end=" + (endTime + zoomAmount)%>" class="control">Zoom -</a>     
+                       	<%}%>
+                       		
+                       	<%if ((newZoomInEnd - newZoomInStart) > 15) {%>
+                        	<a	name="zoomIn"
+                        		href="<%=indexURL +
+                                     "?report=" + report +
+                                     "&graph=" + graph +
+                                     "&start=" + (startTime + zoomAmount/2) +
+                                     "&end=" + (endTime - zoomAmount/2)%>" class="control">Zoom +</a>
+                      	<%}%>             
                     </div>
                     <a name="next" 
                        href="<%=indexURL +
                                 "?report=" + report +
                                 "&graph=" + graph +
                                 "&start=" + (startTime + scrollAmount) +
-                                "&end=" + (endTime + scrollAmount)%>" class="control">Next (2h)</a>
+                                "&end=" + (endTime + scrollAmount)%>" class="control">Next</a>
                 </div>    
     
                 <div id="legend">
