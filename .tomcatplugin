@@ -3,7 +3,7 @@
     <rootDir>/web</rootDir>
     <exportSource>true</exportSource>
     <reloadable>true</reloadable>
-    <redirectLogger>false</redirectLogger>
+    <redirectLogger>true</redirectLogger>
     <updateXml>true</updateXml>
     <warLocation>/tmp/pmgraph.war</warLocation>
     <extraInfo></extraInfo>
