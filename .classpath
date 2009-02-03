@@ -9,7 +9,18 @@
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jcommon-1.0.13.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jfreechart-1.0.10.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/mysql-connector-java-5.1.6-bin.jar"/>
+	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/js-1.6R5.jar"/>
+	<classpathentry kind="lib" path="lib/jtidy-4aug2000r7-dev.jar"/>
+	<classpathentry kind="lib" path="lib/junit-3.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/mail-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/nekohtml-0.9.5.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/xercesImpl-2.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/xmlParserAPIs-2.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpunit.jar"/>
 	<classpathentry kind="src" path="web/WEB-INF/src"/>
-	<classpathentry kind="src" output="work" path="work"/>
+	<classpathentry kind="src" path="tests"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>
