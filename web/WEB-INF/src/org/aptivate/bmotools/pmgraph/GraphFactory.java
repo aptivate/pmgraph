@@ -293,9 +293,8 @@ public class GraphFactory
       		xAxis = new DateAxis("Time (day-month)");
       	}
       
-      	// TODO
-      	//xAxis.setMinimumDate(new Date(start));
-      	//xAxis.setMaximumDate(new Date(end));
+      	xAxis.setMinimumDate(new Date(start));
+      	xAxis.setMaximumDate(new Date(end));
       	
   		xAxis.setLowerMargin(-0.01); // Save a little whitespace off
   		xAxis.setUpperMargin(0);
