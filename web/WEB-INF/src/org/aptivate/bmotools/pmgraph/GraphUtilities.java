@@ -21,6 +21,7 @@ public abstract class GraphUtilities {
 	          "stamp_inserted <= ? " +
 	    "GROUP BY stamp_inserted;";
 	
+	//changed sort
 	// Lists throughput per IP
 	public static final String THROUGHPUT_PER_IP =
 		"SELECT IF(ip_src LIKE ?, ip_src, ip_dst) AS local_ip, " +
@@ -32,7 +33,7 @@ public abstract class GraphUtilities {
 	          "stamp_inserted >= ? AND " + 
 	          "stamp_inserted <= ? " +
 		"GROUP BY local_ip " +
-		"ORDER BY bytes_total DESC;";
+		"ORDER BY ?; ";
 	
 	// Lists throughput per IP per minute
 	public static final String THROUGHPUT_PER_IP_PER_MINUTE =
