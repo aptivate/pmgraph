@@ -983,6 +983,114 @@ public class DataBaseTest extends TestCase
     	insertRow("10.0.156.140",  "4.2.2.2", 90, 10000, 150 * 128 * 60,  t4);
     }
     
+    public void testSorter()throws Exception{
+        CreateTable();
+    	
+    	// Insert rows into table
+    	for (int i=0; i < 100; i++) 
+    	{
+    		//Set the values
+       		insertNewRow(500000, t1, "224.0.0.255", "10.0.156.10");
+    		insertNewRow(300000, t1, "10.0.156.10", "224.0.0.254");
+    		
+    		insertNewRow(100000, t1, "224.0.0.251", "10.0.156.1");
+    		insertNewRow(150000, t2, "10.0.156.1", "224.0.0.251");
+    		
+    		insertNewRow(400000, t2, "224.0.0.255", "10.0.156.120");
+    		insertNewRow(1140000,t2, "10.0.156.120", "224.0.0.255");    		
+    	} 
+    	
+    	// Open a graph page
+        // Create a conversation  
+        WebConversation wc = new WebConversation();	
+	
+		// Obtain the upload page on web site
+        WebRequest request = new GetMethodWebRequest(m_urlPmgraph + "index.jsp?report=totals&graph=cumul&start=0&end=300000");
+        WebResponse response = wc.getResponse(request);
+        
+        WebLink link = response.getLinkWithName("downloaded");
+        
+        //the default is 'sort by download DESC', the sortLink is opposite to the DESC
+        String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC";
+
+		assertEquals("Compare the sort link.", sortLink, link.getURLString());
+		
+		request = new GetMethodWebRequest(m_urlPmgraph + "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC");
+		response = wc.getResponse(request);
+		link = response.getLinkWithName("downloaded");
+		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC";
+		assertEquals("Compare the sort link.", sortLink, link.getURLString());
+		
+		// Get the table data from the page		
+		WebTable tables[] = response.getTables();
+		if(tables.length != 0){		
+		// Row 2
+		String hostIP1 = tables[0].getCellAsText(2,1);
+		String downloaded1 = tables[0].getCellAsText(2,2);
+		String uploaded1 = tables[0].getCellAsText(2,3);
+        // Row 3
+		String hostIP2 = tables[0].getCellAsText(3,1);
+		String downloaded2 = tables[0].getCellAsText(3,2);
+		String uploaded2 = tables[0].getCellAsText(3,3);
+		// Row 4
+		String hostIP3 = tables[0].getCellAsText(4,1);
+		String downloaded3 = tables[0].getCellAsText(4,2);
+		String uploaded3 = tables[0].getCellAsText(4,3);
+		
+		// Check the table data
+		// .10  47 = 500000*100/1024/1024    28
+		// .120 38 = 400000*100/1024/1024   108
+		// .1   9  = 100000*100/1024/1024    14
+		assertEquals("Check the IP Address", hostIP3, "10.0.156.10");
+		assertEquals("Check the Downloaded Value, r1", downloaded3, "47");
+		assertEquals("Check the Downloaded Value", uploaded3, "28");
+		assertEquals("Check the IP Address", hostIP2, "10.0.156.120");
+		assertEquals("Check the Downloaded Value r2", downloaded2, "38");
+		assertEquals("Check the Downloaded Value", uploaded2, "108");	
+		assertEquals("Check the IP Address", hostIP1, "10.0.156.1");
+		assertEquals("Check the Downloaded Value r3", downloaded1, "9");
+		assertEquals("Check the Downloaded Value", uploaded1, "14");
+		}
+		
+		
+		request = new GetMethodWebRequest(m_urlPmgraph + "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC");
+		response = wc.getResponse(request);
+		link = response.getLinkWithName("uploaded");
+		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC";
+		assertEquals("Compare the sort link.", sortLink, link.getURLString());
+		
+		// Get the table data from the page		
+		WebTable tables2[] = response.getTables();
+		if(tables2.length != 0){		
+		// Row 2
+		String hostIP1 = tables2[0].getCellAsText(2,1);
+		String downloaded1 = tables2[0].getCellAsText(2,2);
+		String uploaded1 = tables2[0].getCellAsText(2,3);
+        // Row 3
+		String hostIP2 = tables2[0].getCellAsText(3,1);
+		String downloaded2 = tables2[0].getCellAsText(3,2);
+		String uploaded2 = tables2[0].getCellAsText(3,3);
+		// Row 4
+		String hostIP3 = tables2[0].getCellAsText(4,1);
+		String downloaded3 = tables2[0].getCellAsText(4,2);
+		String uploaded3 = tables2[0].getCellAsText(4,3);
+		
+		// Check the table data
+		// .10  47 = 500000*100/1024/1024    28
+		// .120 38 = 400000*100/1024/1024   108
+		// .1   9  = 100000*100/1024/1024    14
+		assertEquals("Check the IP Address", hostIP1, "10.0.156.120");
+		assertEquals("Check the Downloaded Value, r1", downloaded1, "38");
+		assertEquals("Check the Downloaded Value", uploaded1, "108");
+		assertEquals("Check the IP Address", hostIP2, "10.0.156.10");
+		assertEquals("Check the Downloaded Value r2", downloaded2, "47");
+		assertEquals("Check the Downloaded Value", uploaded2, "28");	
+		assertEquals("Check the IP Address", hostIP3, "10.0.156.1");
+		assertEquals("Check the Downloaded Value r3", downloaded3, "9");
+		assertEquals("Check the Downloaded Value", uploaded3, "14");
+		}
+    }
+    
     public static Test suite()
     {
     	return new TestSuite(DataBaseTest.class);
