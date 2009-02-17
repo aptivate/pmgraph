@@ -173,6 +173,7 @@ public class GraphFactory
     	ipStatement.setString(5, localSubnet + "%");
     	ipStatement.setTimestamp(6, new Timestamp(start));
     	ipStatement.setTimestamp(7, new Timestamp(end));
+    	ipStatement.setString(8, "bytes_total");
     	System.out.println(ipStatement);
     	ResultSet ipResults = ipStatement.executeQuery();
     	ipResults.beforeFirst();
