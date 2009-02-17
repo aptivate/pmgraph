@@ -22,6 +22,12 @@
     
     long newZoomOutStart = ((startTime - zoomAmount) / 6000);
     long newZoomOutEnd = ((endTime + zoomAmount) / 6000);
+        
+         //the sort parameters
+    //sortBy: bytes_total | downloaded | uploaded
+	String sortBy = (param = request.getParameter("sortBy")) != null ? param : "bytes_total";
+	//order: DESC | ASC
+	String order = (param = request.getParameter("order")) != null ? param : "DESC";
                        		
     // URLs to resources requiring further parameters
     String indexURL = "/pmgraph/index.jsp";
@@ -478,7 +484,9 @@
                 </div>    
     
                 <div id="legend">
-                    <jsp:include page="<%=legendURL + "?start=" + startTime + "&end=" + endTime%>" />
+                    <jsp:include page="<%=legendURL + "?start=" + startTime + "&end=" + endTime + 
+                                    "&sortBy=" + sortBy +
+                                    "&order=" + order%>" />
                 </div>
             </div>
             
