@@ -9,20 +9,34 @@
 <%@ page import="org.aptivate.bmotools.pmgraph.*" %>
 
 <%
-    long start = Long.parseLong(request.getParameter("start"));
-    long end = Long.parseLong(request.getParameter("end"));
+    long startP = Long.parseLong(request.getParameter("start"));
+    long endP = Long.parseLong(request.getParameter("end"));
     
     // Round our times to the nearest minute
-    start = start - (start % 60000);
-    end = end - (end % 60000);
+    long start = startP - (startP % 60000);
+    long end = endP - (endP % 60000);
+    
+
+	String sortBy = request.getParameter("sortBy");
+	//order: DESC | ASC
+	String order = request.getParameter("order");
+	String orderN = order.equals("DESC") ? "ASC" : "DESC";
+
+    String indexURL = "/pmgraph/index.jsp";
     
     // Get database connection and network properties
     Connection conn = GraphUtilities.getConnection();
     String localSubnet = GraphUtilities.getProperties();
     
     // Prepare and execute the query to find all active IPs on the network
+    String THROUGHPUT_PER_IP = GraphUtilities.THROUGHPUT_PER_IP;
+    String tmp = " " + order +";";
+    int lastC = THROUGHPUT_PER_IP.indexOf(";");
+    THROUGHPUT_PER_IP = THROUGHPUT_PER_IP.substring(0, lastC);
+    THROUGHPUT_PER_IP = THROUGHPUT_PER_IP + tmp;   
+    
     PreparedStatement ipStatement = 
-    	   conn.prepareStatement(GraphUtilities.THROUGHPUT_PER_IP);
+    	   conn.prepareStatement(THROUGHPUT_PER_IP);
     ipStatement.setString(1, localSubnet + "%");
     ipStatement.setString(2, localSubnet + "%");
     ipStatement.setString(3, localSubnet + "%");
@@ -30,7 +44,7 @@
     ipStatement.setString(5, localSubnet + "%");
     ipStatement.setTimestamp(6, new Timestamp(start));
     ipStatement.setTimestamp(7, new Timestamp(end));
-    System.out.println(ipStatement);
+    ipStatement.setString(8, sortBy);
     ResultSet ipResults = ipStatement.executeQuery();
     ipResults.beforeFirst();
 %>
@@ -40,13 +54,34 @@
 		<tr>
 		    <th></th>
             <th rowspan="2">Host IP</th>
-            <th colspan="2">Totals (MB)</th>
+            <th colspan="2">
+             <a name="bytes_total" 
+                       href="<%=indexURL +
+                                    "?start=" + startP +
+                                    "&end=" + endP +
+                                    "&sortBy=" + "bytes_total" +
+                                    "&order=" + orderN%>"> Totals (MB)</a> 
+           </th>
 		</tr>
 		
 		<tr>
 		    <th></th>
-		    <th>Downloaded</th>
-		    <th>Uploaded</th>
+		    <th>
+		    <a name="downloaded" 
+                       href="<%=indexURL +
+                                    "?start=" + startP +
+                                    "&end=" + endP +
+                                    "&sortBy=" + "downloaded" +
+                                    "&order=" + orderN%>">Download</a>
+		    </th>
+		    <th>
+		     <a name="uploaded" 
+                       href="<%=indexURL +
+                                    "?start=" + startP +
+                                    "&end=" + endP +
+                                    "&sortBy=" + "uploaded" +
+                                    "&order=" + orderN%>">Uploaded</a>
+		    </th>
 		</tr>
 	</thead>
 	<%
