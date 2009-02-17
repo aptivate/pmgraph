@@ -164,8 +164,14 @@ public class GraphFactory
     	String localSubnet = GraphUtilities.getProperties();
     	
     	// Prepare and execute the query to find all active IPs on the network
+        String THROUGHPUT_PER_IP = GraphUtilities.THROUGHPUT_PER_IP;
+        int lastC = THROUGHPUT_PER_IP.indexOf(";");
+        THROUGHPUT_PER_IP = THROUGHPUT_PER_IP.substring(0, lastC);
+        THROUGHPUT_PER_IP = THROUGHPUT_PER_IP + " DESC;"; 
+    	
+    	
     	PreparedStatement ipStatement = 
-    			conn.prepareStatement(GraphUtilities.THROUGHPUT_PER_IP);
+    			conn.prepareStatement(THROUGHPUT_PER_IP);
     	ipStatement.setString(1, localSubnet + "%");
     	ipStatement.setString(2, localSubnet + "%");
     	ipStatement.setString(3, localSubnet + "%");
