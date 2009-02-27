@@ -30,10 +30,10 @@
     
     // Prepare and execute the query to find all active IPs on the network
     String THROUGHPUT_PER_IP = GraphUtilities.THROUGHPUT_PER_IP;
-    String tmp = " " + order +";";
+    String tmp = " ORDER BY " + sortBy + " " + order +";";
     int lastC = THROUGHPUT_PER_IP.indexOf(";");
     THROUGHPUT_PER_IP = THROUGHPUT_PER_IP.substring(0, lastC);
-    THROUGHPUT_PER_IP = THROUGHPUT_PER_IP + tmp;   
+    THROUGHPUT_PER_IP = THROUGHPUT_PER_IP + tmp;    
     
     PreparedStatement ipStatement = 
     	   conn.prepareStatement(THROUGHPUT_PER_IP);
@@ -42,11 +42,11 @@
     ipStatement.setString(3, localSubnet + "%");
     ipStatement.setString(4, localSubnet + "%");
     ipStatement.setString(5, localSubnet + "%");
-    ipStatement.setTimestamp(6, new Timestamp(start));
-    ipStatement.setTimestamp(7, new Timestamp(end));
-    ipStatement.setString(8, sortBy);
+    ipStatement.setString(6, localSubnet + "%");
+    ipStatement.setString(7, localSubnet + "%");
+    ipStatement.setTimestamp(8, new Timestamp(start));
+    ipStatement.setTimestamp(9, new Timestamp(end));
     ResultSet ipResults = ipStatement.executeQuery();
-    ipResults.beforeFirst();
 %>
 
 <table>
@@ -72,7 +72,7 @@
                                     "?start=" + startP +
                                     "&end=" + endP +
                                     "&sortBy=" + "downloaded" +
-                                    "&order=" + orderN%>">Download</a>
+                                    "&order=" + orderN%>">Downloaded</a>
 		    </th>
 		    <th>
 		     <a name="uploaded" 

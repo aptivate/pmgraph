@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -85,13 +86,15 @@ public class GraphFactory
     	statement.setString(2, localSubnet + "%");
     	statement.setString(3, localSubnet + "%");
     	statement.setString(4, localSubnet + "%");
-    	statement.setTimestamp(5, new Timestamp(start));
-    	statement.setTimestamp(6, new Timestamp(end));
+    	statement.setString(5, localSubnet + "%");
+    	statement.setString(6, localSubnet + "%");
+    	statement.setTimestamp(7, new Timestamp(start));
+    	statement.setTimestamp(8, new Timestamp(end));
     	System.out.println(statement);
     	ResultSet results = statement.executeQuery();
     	
     	// Step though query results, updating as appropriate
-    	results.beforeFirst();
+    	//results.beforeFirst();
     	
     	while(results.next()) 
     	{
@@ -167,19 +170,18 @@ public class GraphFactory
         String THROUGHPUT_PER_IP = GraphUtilities.THROUGHPUT_PER_IP;
         int lastC = THROUGHPUT_PER_IP.indexOf(";");
         THROUGHPUT_PER_IP = THROUGHPUT_PER_IP.substring(0, lastC);
-        THROUGHPUT_PER_IP = THROUGHPUT_PER_IP + " DESC;"; 
+        THROUGHPUT_PER_IP = THROUGHPUT_PER_IP + " ORDER BY bytes_total DESC;"; 
     	
-    	
-    	PreparedStatement ipStatement = 
-    			conn.prepareStatement(THROUGHPUT_PER_IP);
+    	PreparedStatement ipStatement = conn.prepareStatement(THROUGHPUT_PER_IP, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
     	ipStatement.setString(1, localSubnet + "%");
     	ipStatement.setString(2, localSubnet + "%");
     	ipStatement.setString(3, localSubnet + "%");
     	ipStatement.setString(4, localSubnet + "%");
     	ipStatement.setString(5, localSubnet + "%");
-    	ipStatement.setTimestamp(6, new Timestamp(start));
-    	ipStatement.setTimestamp(7, new Timestamp(end));
-    	ipStatement.setString(8, "bytes_total");
+    	ipStatement.setString(6, localSubnet + "%");
+    	ipStatement.setString(7, localSubnet + "%");
+    	ipStatement.setTimestamp(8, new Timestamp(start));
+    	ipStatement.setTimestamp(9, new Timestamp(end));
     	System.out.println(ipStatement);
     	ResultSet ipResults = ipStatement.executeQuery();
     	ipResults.beforeFirst();
@@ -191,6 +193,7 @@ public class GraphFactory
     	while(ipResults.next())
     	{
     		String ip = ipResults.getString(IP);
+    		ip = ip.trim();
     		XYSeries downSeries = new XYSeries(ip + "<down>", true, false);
     		XYSeries upSeries = new XYSeries(ip + "<up>", true, false);
         	
@@ -213,17 +216,20 @@ public class GraphFactory
     	thrptStatement.setString(3, localSubnet + "%");
     	thrptStatement.setString(4, localSubnet + "%");
     	thrptStatement.setString(5, localSubnet + "%");
-    	thrptStatement.setTimestamp(6, new Timestamp(start));
-    	thrptStatement.setTimestamp(7, new Timestamp(end));
+    	thrptStatement.setString(6, localSubnet + "%");
+    	thrptStatement.setString(7, localSubnet + "%");
+    	thrptStatement.setTimestamp(8, new Timestamp(start));
+    	thrptStatement.setTimestamp(9, new Timestamp(end));
     	System.out.println(thrptStatement);
     	ResultSet thrptResults = thrptStatement.executeQuery();
-    	thrptResults.beforeFirst();
-      	
+    	//thrptResults.beforeFirst();
+
       	// For each query result, get data and write to the appropriate series
       	while(thrptResults.next())
       	{
       		Date inserted = thrptResults.getTimestamp(TIME);
       		String ip = thrptResults.getString(IP);
+      		ip = ip.trim();
       		// values in the database are in bytes per interval (normally 1 minute)
     		// bytes * 8 = bits    bits / 1024 = kilobits    kilobits / 60 = kb/s
     		long downloaded = ((thrptResults.getLong(DOWNLOADED) * 8) / 1024) / 60;
@@ -244,11 +250,11 @@ public class GraphFactory
       	
       	ipResults.beforeFirst();
       	int i = 0;
-      	
       	// Add each series in order to the container, using first query as iterator
       	while(ipResults.next())
       	{
       		String ip = ipResults.getString(IP);
+      		ip = ip.trim();
       		XYSeries downSeries = (XYSeries) IPs.get(ip + "<down>");
       		XYSeries upSeries = (XYSeries) IPs.get(ip + "<up>");
       		dataset.addSeries(downSeries);

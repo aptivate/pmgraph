@@ -17,5 +17,6 @@
 	<classpathentry kind="src" path="web/WEB-INF/src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/postgresql-8.3-604.jdbc4.jar"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>
