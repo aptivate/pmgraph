@@ -23,30 +23,9 @@
 	String orderN = order.equals("DESC") ? "ASC" : "DESC";
 
     String indexURL = "/pmgraph/index.jsp";
-    
-    // Get database connection and network properties
-    Connection conn = GraphUtilities.getConnection();
-    String localSubnet = GraphUtilities.getProperties();
-    
-    // Prepare and execute the query to find all active IPs on the network
-    String THROUGHPUT_PER_IP = GraphUtilities.THROUGHPUT_PER_IP;
-    String tmp = " ORDER BY " + sortBy + " " + order +";";
-    int lastC = THROUGHPUT_PER_IP.indexOf(";");
-    THROUGHPUT_PER_IP = THROUGHPUT_PER_IP.substring(0, lastC);
-    THROUGHPUT_PER_IP = THROUGHPUT_PER_IP + tmp;    
-    
-    PreparedStatement ipStatement = 
-    	   conn.prepareStatement(THROUGHPUT_PER_IP);
-    ipStatement.setString(1, localSubnet + "%");
-    ipStatement.setString(2, localSubnet + "%");
-    ipStatement.setString(3, localSubnet + "%");
-    ipStatement.setString(4, localSubnet + "%");
-    ipStatement.setString(5, localSubnet + "%");
-    ipStatement.setString(6, localSubnet + "%");
-    ipStatement.setString(7, localSubnet + "%");
-    ipStatement.setTimestamp(8, new Timestamp(start));
-    ipStatement.setTimestamp(9, new Timestamp(end));
-    ResultSet ipResults = ipStatement.executeQuery();
+    DataAccess dataAccess = DataAccess.getDatabase();
+	ResultSet ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
+
 %>
 
 <table>
