@@ -60,42 +60,24 @@ public class GraphFactory
 	throws ClassNotFoundException, IllegalAccessException, 
 		   InstantiationException, IOException, SQLException
     {
+    	// Get database connection 
+
+    	
+    	ResultSet results = (DataAccess.getDatabase()).getTotalThroughput(start, end);
+    	
     	// Round our times to the nearest minute
     	start = start - (start % 60000);
-    	end = end - (end % 60000);
-    	
-    	// Get database connection and network properties
-    	Connection conn = GraphUtilities.getConnection();
-    	String localSubnet = GraphUtilities.getProperties();
-    	
+    	end = end - (end % 60000);    	
     	// Initialise the XYSeries with 0 values for each minute
     	XYSeries downSeries = new XYSeries("Downloaded", true, false);
     	XYSeries upSeries = new XYSeries("Uploaded", true, false);
-    	int minutes = (int) (end - start) / 60000;
-    	
+    	int minutes = (int) (end - start) / 60000;   	
     	for(int i = 0; i <= minutes; i++) 
     	{
     		downSeries.add(start + i * 60000, 0);
     		upSeries.add(start + i * 60000, 0);
     	}
 
-    	// Prepare and execute the SQL query
-    	PreparedStatement statement = 
-    			conn.prepareStatement(GraphUtilities.THROUGHPUT_PER_MINUTE);
-    	statement.setString(1, localSubnet + "%");
-    	statement.setString(2, localSubnet + "%");
-    	statement.setString(3, localSubnet + "%");
-    	statement.setString(4, localSubnet + "%");
-    	statement.setString(5, localSubnet + "%");
-    	statement.setString(6, localSubnet + "%");
-    	statement.setTimestamp(7, new Timestamp(start));
-    	statement.setTimestamp(8, new Timestamp(end));
-    	System.out.println(statement);
-    	ResultSet results = statement.executeQuery();
-    	
-    	// Step though query results, updating as appropriate
-    	//results.beforeFirst();
-    	
     	while(results.next()) 
     	{
     		Date inserted = results.getTimestamp(TIME);
@@ -105,7 +87,7 @@ public class GraphFactory
     		downSeries.update(inserted.getTime(), downloaded);
     		upSeries.update(inserted.getTime(), 0 - uploaded);
     	}
-    	statement.close();
+    	results.close();
     	
     	// Put our data into a "chartable" container
     	DefaultTableXYDataset dataset = new DefaultTableXYDataset();
@@ -162,28 +144,9 @@ public class GraphFactory
     	start = start - (start % 60000);
     	end = end - (end % 60000);
     	
-    	// Get database connection and network properties
-    	Connection conn = GraphUtilities.getConnection();
-    	String localSubnet = GraphUtilities.getProperties();
-    	
-    	// Prepare and execute the query to find all active IPs on the network
-        String THROUGHPUT_PER_IP = GraphUtilities.THROUGHPUT_PER_IP;
-        int lastC = THROUGHPUT_PER_IP.indexOf(";");
-        THROUGHPUT_PER_IP = THROUGHPUT_PER_IP.substring(0, lastC);
-        THROUGHPUT_PER_IP = THROUGHPUT_PER_IP + " ORDER BY bytes_total DESC;"; 
-    	
-    	PreparedStatement ipStatement = conn.prepareStatement(THROUGHPUT_PER_IP, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-    	ipStatement.setString(1, localSubnet + "%");
-    	ipStatement.setString(2, localSubnet + "%");
-    	ipStatement.setString(3, localSubnet + "%");
-    	ipStatement.setString(4, localSubnet + "%");
-    	ipStatement.setString(5, localSubnet + "%");
-    	ipStatement.setString(6, localSubnet + "%");
-    	ipStatement.setString(7, localSubnet + "%");
-    	ipStatement.setTimestamp(8, new Timestamp(start));
-    	ipStatement.setTimestamp(9, new Timestamp(end));
-    	System.out.println(ipStatement);
-    	ResultSet ipResults = ipStatement.executeQuery();
+    	// Get database connection 
+    	DataAccess dataAccess = DataAccess.getDatabase();
+    	ResultSet ipResults = dataAccess.getThroughputPerIP(theStart, theEnd);
     	ipResults.beforeFirst();
     	
     	// For each result, initialise XYSeries and store in HashMap
@@ -208,22 +171,7 @@ public class GraphFactory
     	}
     	// We don't close the 'active IPs' query just yet...
     	
-    	// Prepare and execute network throughput query
-    	PreparedStatement thrptStatement = 
-    	 conn.prepareStatement(GraphUtilities.THROUGHPUT_PER_IP_PER_MINUTE);
-    	thrptStatement.setString(1, localSubnet + "%");
-    	thrptStatement.setString(2, localSubnet + "%");
-    	thrptStatement.setString(3, localSubnet + "%");
-    	thrptStatement.setString(4, localSubnet + "%");
-    	thrptStatement.setString(5, localSubnet + "%");
-    	thrptStatement.setString(6, localSubnet + "%");
-    	thrptStatement.setString(7, localSubnet + "%");
-    	thrptStatement.setTimestamp(8, new Timestamp(start));
-    	thrptStatement.setTimestamp(9, new Timestamp(end));
-    	System.out.println(thrptStatement);
-    	ResultSet thrptResults = thrptStatement.executeQuery();
-    	//thrptResults.beforeFirst();
-
+    	ResultSet thrptResults = dataAccess.getThroughputPIPPMinute(theStart, theEnd);
       	// For each query result, get data and write to the appropriate series
       	while(thrptResults.next())
       	{
@@ -241,7 +189,7 @@ public class GraphFactory
       		downSeries.update(Long.valueOf(inserted.getTime()), Long.valueOf(downloaded));
     		upSeries.update(Long.valueOf(inserted.getTime()), Long.valueOf(0 - uploaded));
       	}
-      	thrptStatement.close();
+      	thrptResults.close();
       	
       	// Create a "chartable" data container
       	DefaultTableXYDataset dataset = new DefaultTableXYDataset();
@@ -283,7 +231,7 @@ public class GraphFactory
       			throw(excep);
       		}
       	}
-      	ipStatement.close();
+      	ipResults.close();
       	
       	// Configure the chart elements and create and return the chart
       	DateAxis xAxis;

@@ -1,6 +1,7 @@
 package org.aptivate.pmGraph.test;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
@@ -42,6 +43,8 @@ import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
+
+import org.aptivate.bmotools.pmgraph.DataAccess;
 
 public class DataBaseTest extends TestCase {
 	// The connection to the MySQL database
@@ -1062,6 +1065,24 @@ public class DataBaseTest extends TestCase {
 			assertEquals("Check the Downloaded Value", "14", uploaded3);
 		}
 
+	}
+	public void testDataAccesss() throws ClassNotFoundException,
+	IllegalAccessException, InstantiationException, IOException, 
+	SQLException{
+		
+		CreateTable();
+		InsertSampleData();
+		DataAccess dataAccess = DataAccess.getDatabase();
+		ResultSet resultPerIP = dataAccess.getThroughputPerIP(0, 300000);
+		ResultSet resultPerIPSort = dataAccess.getThroughputPerIP(0, 300000, "downloaded", "ASC");
+		ResultSet resultPerIPPerMinute = dataAccess.getThroughputPIPPMinute(0, 300000);
+		assertTrue("get result per IP", resultPerIP.next());
+		assertTrue("get result per IP", resultPerIPSort.next());
+		assertTrue("get result per IP", resultPerIPPerMinute.next());
+		resultPerIP.close();
+		resultPerIPSort.close();
+		resultPerIPPerMinute.close();
+		
 	}
 
 	public static Test suite() {
