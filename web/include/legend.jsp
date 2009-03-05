@@ -7,6 +7,10 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Timestamp" %>
 <%@ page import="org.aptivate.bmotools.pmgraph.*" %>
+<%@ page import="java.net.InetAddress"  %>
+<%@ page import="java.net.UnknownHostException" %>
+
+<%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
 
 <%
     long startP = Long.parseLong(request.getParameter("start"));
@@ -16,16 +20,29 @@
     long start = startP - (startP % 60000);
     long end = endP - (endP % 60000);
     
-
+    //sortBy = downloaded | uploaded |total_byties
 	String sortBy = request.getParameter("sortBy");
 	//order: DESC | ASC
 	String order = request.getParameter("order");
 	String orderN = order.equals("DESC") ? "ASC" : "DESC";
 
+	String arrow = order.equals("DESC")?" &#8681":" &#8679";
+	String col1 = "Downloaded";
+	String col2 = "Uploaded";
+	String col3 = "Totals (MB)";
+	if(sortBy.equals("downloaded"))
+	col1 = col1 + arrow;
+	if(sortBy.equals("uploaded"))
+	col2 = col2 + arrow;	
+	if(sortBy.equals("bytes_total"))
+	col3 = col3 + arrow;
+	
+
     String indexURL = "/pmgraph/index.jsp";
     DataAccess dataAccess = DataAccess.getDatabase();
 	ResultSet ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
 
+	
 %>
 
 <table>
@@ -39,7 +56,7 @@
                                     "?start=" + startP +
                                     "&end=" + endP +
                                     "&sortBy=" + "bytes_total" +
-                                    "&order=" + orderN%>"> Totals (MB)</a> 
+                                    "&order=" + orderN%>"> <%=col3%></a> 
            </th>
 		</tr>
 		
@@ -51,7 +68,7 @@
                                     "?start=" + startP +
                                     "&end=" + endP +
                                     "&sortBy=" + "downloaded" +
-                                    "&order=" + orderN%>">Downloaded</a>
+                                    "&order=" + orderN%>"><%=col1%></a>
 		    </th>
 		    <th>
 		     <a name="uploaded" 
@@ -59,7 +76,7 @@
                                     "?start=" + startP +
                                     "&end=" + endP +
                                     "&sortBy=" + "uploaded" +
-                                    "&order=" + orderN%>">Uploaded</a>
+                                    "&order=" + orderN%>"><%=col2%></a>
 		    </th>
 		</tr>
 	</thead>
