@@ -11,7 +11,7 @@ body {
 }
 
 label {
-    margin-left: 10px; 
+	margin-left: 10px;
 }
 
 p {
@@ -19,21 +19,27 @@ p {
 }
 
 table {
-    width: 400px;
-    margin: 10px auto;
+	margin: 10px auto;
+	padding: 3 3 3 3;
 }
-    td {
-	   text-align: left;
-    }
-    .row0 {        
-        background-color: #99bb99;
-    }
-    .row1 {        
-        background-color: #aaccaa;
-    }
-    .numval {
-        text-align: right;
-    }
+
+td {
+	text-align: left;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.row0 {
+	background-color: #99bb99;
+}
+
+.row1 {
+	background-color: #aaccaa;
+}
+
+.numval {
+	text-align: center;
+}
 
 #header {
 	width: 780px;
@@ -43,7 +49,7 @@ table {
 #container {
 	width: 780px;
 	margin: 0 auto;
-    background-color: #99bb99;
+	background-color: #99bb99;
 	border: solid 1px #666666;
 	border-top: 0px;
 }
@@ -51,34 +57,37 @@ table {
 #params {
 	margin-bottom: -30px;
 }
-    .radios {
-	   text-align: right;
-	   margin-top: 20px;
-	   margin-right: 20px;
-	   margin-bottom: 0;
-	   position: relative;
-	   z-index: 1;
-    }
-    
+
+.radios {
+	text-align: right;
+	margin-top: 20px;
+	margin-right: 20px;
+	margin-bottom: 0;
+	position: relative;
+	z-index: 1;
+}
+
 #graph {
-
+	
 }
 
-#controls{
+#controls {
+	
 }
-    #controlscenter {
-        margin: 0 200px;
-        display: inline;
-    }
-    
-    .control {
-        background-color: #aaccaa;
-        border: solid 1px #666666;
-        padding: 3px;
-        text-decoration: none;
-        color: black;
-    }
+
+#controlscenter {
+	margin: 0 200px;
+	display: inline;
+}
+
+.control {
+	background-color: #aaccaa;
+	border: solid 1px #666666;
+	padding: 3px;
+	text-decoration: none;
+	color: black;
+}
 
 #footer {
-    font-size: 6pt;
+	font-size: 6pt;
 }

@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jcommon-1.0.13.jar"/>
-	<classpathentry kind="lib" path="web/WEB-INF/lib/jfreechart-1.0.10.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/mysql-connector-java-5.1.6-bin.jar"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/js-1.6R5.jar"/>
@@ -14,6 +13,9 @@
 	<classpathentry kind="lib" path="lib/xercesImpl-2.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/xmlParserAPIs-2.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/httpunit.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/dnsjava-2.0.6.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/omapi.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/jfreechart-1.0.12.jar"/>
 	<classpathentry kind="src" path="web/WEB-INF/src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
