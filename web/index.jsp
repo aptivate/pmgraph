@@ -430,8 +430,6 @@
             
             <div id="main">
                 <!-- Graph parameter controls not yet functional -->
-                <!-- <jsp:include page="/include/params.jsp" /> -->
-                
                 <div id="graph">
                     <img id="graphimage" alt="Bandwidth Graph" 
                             src="<%=servletURL +
@@ -507,18 +505,6 @@
 					     <input type="button" value="Go" id ="Go" name="Go" onclick="onClickGoButton()"/>
 				</form>
             </div>
-            
-           
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
             <!-- <div id="footer"></div> -->
         </div>
     </body>

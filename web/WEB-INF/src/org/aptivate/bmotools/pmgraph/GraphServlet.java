@@ -41,16 +41,18 @@ public class GraphServlet extends HttpServlet
 			if (graphType.equals("total"))
 			{
 				res.setContentType("image/png");
+				GraphFactory graphFactory = new GraphFactory();
 				ChartUtilities.writeChartAsPNG(res.getOutputStream(),
-						GraphFactory.totalThroughput(start, end),
+						graphFactory.totalThroughput(start, end),
 						width,
 						height);
 			}
 			else if(graphType.equals("cumul"))
 			{
 				res.setContentType("image/png");
+				GraphFactory graphFactory = new GraphFactory();
 				ChartUtilities.writeChartAsPNG(res.getOutputStream(),
-						GraphFactory.stackedThroughput(start, end),
+						graphFactory.stackedThroughput(start, end),
 						width,
 						height);
 			}

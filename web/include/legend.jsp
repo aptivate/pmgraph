@@ -7,11 +7,10 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Timestamp" %>
 <%@ page import="org.aptivate.bmotools.pmgraph.*" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page import="java.net.InetAddress"  %>
 <%@ page import="java.net.UnknownHostException" %>
-
 <%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
-
 <%
     long startP = Long.parseLong(request.getParameter("start"));
     long endP = Long.parseLong(request.getParameter("end"));
@@ -39,9 +38,8 @@
 	
 
     String indexURL = "/pmgraph/index.jsp";
-    DataAccess dataAccess = DataAccess.getDatabase();
-	ResultSet ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
-
+    DataAccess dataAccess = new DataAccess();
+	ArrayList<GraphData> ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
 	
 %>
 
@@ -50,6 +48,7 @@
 		<tr>
 		    <th></th>
             <th rowspan="2">Host IP</th>
+            <th rowspan="2">Host Name</th>
             <th colspan="2">
              <a name="bytes_total" 
                        href="<%=indexURL +
@@ -81,23 +80,30 @@
 		</tr>
 	</thead>
 	<%
-    while(ipResults.next()) {
-    	String ip = ipResults.getString("local_ip");
-    	byte[] ipBytes = ip.getBytes();
-        MessageDigest algorithm = MessageDigest.getInstance("SHA1");
-        algorithm.reset();
-        algorithm.update(ipBytes);
-        byte sha1[] = algorithm.digest();
-        Color c = new Color(sha1[0] & 0xFF, sha1[1] & 0xFF, sha1[2] & 0xFF);
-        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
-    %>
-    <tr class="row<%=ipResults.getRow() % 2%>">
-        <td style="background-color: <%=fillColour%>; width: 5px"> </td>
-        <td><%=ip%></td>
-        <td class="numval"><%=(ipResults.getLong("downloaded") / 1048576)%></td>
-        <td class="numval"><%=(ipResults.getLong("uploaded") / 1048576)%></td>
-    </tr>
-    <%
-    }
+	    int i= 0;
+	    for (GraphData ipResult : ipResults) 
+	    {
+	    	String ip = ipResult.getLocalIp();
+	    	byte[] ipBytes = ip.getBytes();
+	        MessageDigest algorithm = MessageDigest.getInstance("SHA1");
+	        algorithm.reset();
+	        algorithm.update(ipBytes);
+	        byte sha1[] = algorithm.digest();
+	        Color c = new Color(sha1[0] & 0xFF, sha1[1] & 0xFF, sha1[2] & 0xFF);
+	        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
+			HostResolver hostResolver = new HostResolver();
+	        String hostName = hostResolver.getHostname(ip);
+		%>
+	    <tr class="row<%=i % 2%>">
+	        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
+	        <td><%=ip%></td>
+	        <td><%=hostName%></td>        
+	
+	        <td class="numval"><%=(ipResult.getDownloaded() / 1048576)%></td>
+	        <td class="numval"><%=(ipResult.getUploaded() / 1048576)%></td>
+	    </tr>
+    	<%
+		    i++;
+	    }
 	%>
 </table>

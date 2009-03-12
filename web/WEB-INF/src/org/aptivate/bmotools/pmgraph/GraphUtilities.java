@@ -65,38 +65,11 @@ public abstract class GraphUtilities {
 	public static final String THROUGHPUT_PER_IP_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
-			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded "
+			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded,SUM(bytes) AS bytes_total "
 			+ "FROM acct_v6 "
 			+ "WHERE ((NOT (ip_src LIKE ?) AND ip_dst LIKE ?) OR (NOT (ip_dst LIKE ?) AND ip_src LIKE ?)) "
 			+ "AND stamp_inserted >= ? "
 			+ "AND stamp_inserted <= ? "
-			+ "GROUP BY stamp_inserted, local_ip;";
+			+ "GROUP BY stamp_inserted, local_ip order by bytes_total desc;";
 
-	public static Connection getConnection() throws ClassNotFoundException,
-			IllegalAccessException, InstantiationException, IOException,
-			SQLException {
-		Properties properties = new Properties();
-		InputStream stream = GraphFactory.class
-				.getResourceAsStream("/database.properties");
-		properties.load(stream);
-		stream.close();
-
-		Class.forName(properties.getProperty("JdbcDriver")).newInstance();
-		return DriverManager.getConnection(properties
-				.getProperty("DatabaseURL"), properties
-				.getProperty("DatabaseUser"), properties
-				.getProperty("DatabasePass"));
-	}
-
-	public static String getProperties() throws ClassNotFoundException,
-			IllegalAccessException, InstantiationException, IOException,
-			SQLException {
-		Properties properties = new Properties();
-		InputStream stream = GraphFactory.class
-				.getResourceAsStream("/database.properties");
-		properties.load(stream);
-		stream.close();
-
-		return properties.getProperty("LocalSubnet");
-	}
 }
