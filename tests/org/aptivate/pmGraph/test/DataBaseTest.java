@@ -10,10 +10,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -21,11 +21,11 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.log4j.Logger;
 import org.aptivate.bmotools.pmgraph.DataAccess;
 import org.aptivate.bmotools.pmgraph.GraphData;
 import org.aptivate.bmotools.pmgraph.GraphFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
@@ -39,16 +39,22 @@ import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HttpInternalErrorException;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
-import com.meterware.httpunit.WebImage;
 import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
 
+/**
+ * 
+ * Colecction of test for PMGRAPH
+ * 
+ */
 public class DataBaseTest extends TestCase
 {
 	// The connection to the MySQL database
-	private Connection conn;
+	private Connection m_conn;
+
+	private static Logger m_logger = Logger.getLogger(TestCase.class.getName());
 
 	long l = (System.currentTimeMillis() / 60000);
 
@@ -70,8 +76,8 @@ public class DataBaseTest extends TestCase
 	private static final String BYTES = "bytes";
 
 	private static final String TIME = "stamp_inserted";
-
-	String m_urlPmgraph;
+	
+	private String m_urlPmgraph;
 
 	// SQL query strings
 	private static final String SELECT_DATABASE = "USE test;";
@@ -126,13 +132,12 @@ public class DataBaseTest extends TestCase
 			// Load the JDBC driver
 			Class.forName(sDriver).newInstance();
 			// Connect to a data source
-			conn = DriverManager.getConnection(sURL, sUsername, sPassword);
+			m_conn = DriverManager.getConnection(sURL, sUsername, sPassword);
 		}
 		catch (SQLException se)
 		{
-			System.out.println("Couldn't connect: print out a stack trace.");
-			se.printStackTrace();
-			System.exit(1);
+			m_logger.fatal("Couldn't connect: print out a stack trace.", se);
+			throw se;
 		}
 
 	}
@@ -144,33 +149,23 @@ public class DataBaseTest extends TestCase
 		try
 		{
 			// Delete the table
-			PreparedStatement pstmt = conn.prepareStatement(DELETE_TABLE);
-			System.out.println(pstmt);
+			PreparedStatement pstmt = m_conn.prepareStatement(DELETE_TABLE);
+			m_logger.debug(pstmt);
 			pstmt.executeUpdate();
 		}
 		catch (SQLException e)
 		{
 			/* don't care if it fails, table may not exist */
-			System.out.println(e.getMessage());
+			m_logger.error(e.getMessage(), e);
 		}
 
-		try
-		{
-			// Select Database
-			PreparedStatement pstmt = conn.prepareStatement(SELECT_DATABASE);
-			// System.out.println(pstmt);
-			// pstmt.executeUpdate();
+		// Select Database
+		PreparedStatement pstmt = m_conn.prepareStatement(SELECT_DATABASE);
 
-			// Create a table
-			pstmt = conn.prepareStatement(CREATE_TABLE);
-			System.out.println(pstmt);
-			pstmt.executeUpdate();
-		}
-		catch (SQLException e)
-		{
-			System.out.println(e.getMessage());
-			throw (e);
-		}
+		// Create a table
+		pstmt = m_conn.prepareStatement(CREATE_TABLE);
+		m_logger.debug(pstmt);
+		pstmt.executeUpdate();
 	}
 
 	public void tearDown()
@@ -214,14 +209,10 @@ public class DataBaseTest extends TestCase
 	public void testCheckNextButton() throws Exception
 	{
 		WebConversation wc;
-		WebRequest request, requestImg;
-		WebResponse response, responseImg;
+		WebRequest request;
+		WebResponse response;
 		String nextURL;
 		WebLink link;
-		WebImage webImg;
-		URL urlObj = new URL(m_urlPmgraph);
-		InputStream inputStr;
-		BufferedImage theActualImg, theExpectedImg;
 
 		// Create a table and insert rows into it
 		CreateTable();
@@ -229,16 +220,11 @@ public class DataBaseTest extends TestCase
 
 		// Create a conversation
 		wc = new WebConversation();
-
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_urlPmgraph
 				+ "?start=75000&end=225000");
 		response = wc.getResponse(request);
 
-		/* Test the Next Button First Press */
-		// nextStart = start + (end-start)/2 = 75000 + (225000 - 75000)/2 =
-		// 150000
-		// nextEnd = end + (end-start)/2 = 225000 + (225000-75000)/2 = 300000
 		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=150000&end=300000";
 
 		// Find the "next" link
@@ -250,69 +236,22 @@ public class DataBaseTest extends TestCase
 				+ "?start=150000&end=300000");
 		response = wc.getResponse(request);
 
-		// The images comparence doesn't work,
-		// because of different settings
-		/*
-		 * ----------------------------------- // Get the image from the graph
-		 * page webImg = response.getImageWithAltText("Bandwith Graph"); urlObj =
-		 * new URL(urlObj, webImg.getSource()); // Create new request for the
-		 * image requestImg = new GetMethodWebRequest(urlObj.toString());
-		 * responseImg = wc.getResponse(requestImg); // Get the input strem of
-		 * the image inputStr = responseImg.getInputStream(); // Create
-		 * BufferedImage from the input stream theActualImg =
-		 * ImageIO.read(inputStr); // Create BufferedImage from file
-		 * theExpectedImg =
-		 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphFirstNext.png"));
-		 * 
-		 * CompareImages(theExpectedImg, theActualImg);
-		 * ---------------------------------------
-		 */
-
-		/* ------------------------------------ */
-
-		/* Test the Next Button Second Press */
-		// nextStart = start + (end-start)/2 = 150000 + (300000 - 150000)/2 =
-		// 225000
-		// nextEnd = end + (end-start)/2 = 300000 + (300000-150000)/2 = 375000
 		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=225000&end=375000";
 
 		// Find the "next" link
 		link = response.getLinkWithName("next");
 		assertEquals("Compare the next link.", nextURL, link.getURLString());
 
-		// The images comparence doesn't work,
-		// because of different settings
-		/*
-		 * ----------------------------------- // Load the page after press the
-		 * Next Button request = new GetMethodWebRequest(m_urlPmgraph +
-		 * "?start=225000&end=375000"); response = wc.getResponse(request); //
-		 * Get the image from the graph page webImg =
-		 * response.getImageWithAltText("Bandwith Graph"); urlObj = new
-		 * URL(urlObj, webImg.getSource()); // Create new request for the image
-		 * requestImg = new GetMethodWebRequest(urlObj.toString()); responseImg =
-		 * wc.getResponse(requestImg); // Get the input strem of the image
-		 * inputStr = responseImg.getInputStream(); // Create BufferedImage from
-		 * the input stream theActualImg = ImageIO.read(inputStr); // Create
-		 * BufferedImage from file theExpectedImg =
-		 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphSecondNext.png"));
-		 * 
-		 * CompareImages(theExpectedImg, theActualImg);
-		 * ----------------------------------------
-		 */
 	}
 
 	/* This test tests the prev button */
 	public void testCheckPrevButton() throws Exception
 	{
 		WebConversation wc;
-		WebRequest request, requestImg;
-		WebResponse response, responseImg;
+		WebRequest request;
+		WebResponse response;
 		String prevURL;
 		WebLink link;
-		WebImage webImg;
-		URL urlObj = new URL(m_urlPmgraph);
-		InputStream inputStr;
-		BufferedImage theActualImg, theExpectedImg;
 
 		// Create a table and insert rows into it
 		CreateTable();
@@ -326,9 +265,6 @@ public class DataBaseTest extends TestCase
 				+ "?start=150000&end=450000");
 		response = wc.getResponse(request);
 
-		/* Test the Prev Button First Press */
-		// prevStart = start - (end-start)/2 = 150000 - (450000 - 150000)/2 = 0
-		// prevEnd = end - (end-start)/2 = 450000 - (450000-150000)/2 = 300000
 		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=0&end=300000";
 
 		// Find the "prev" link
@@ -339,68 +275,21 @@ public class DataBaseTest extends TestCase
 		request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
 		response = wc.getResponse(request);
 
-		// The images comparence doesn't work,
-		// because of different settings
-		/*
-		 * ----------------------------------- // Get the image from the graph
-		 * page webImg = response.getImageWithAltText("Bandwith Graph"); urlObj =
-		 * new URL(urlObj, webImg.getSource()); // Create new request for the
-		 * image requestImg = new GetMethodWebRequest(urlObj.toString());
-		 * responseImg = wc.getResponse(requestImg); // Get the input strem of
-		 * the image inputStr = responseImg.getInputStream(); // Create
-		 * BufferedImage from the input stream theActualImg =
-		 * ImageIO.read(inputStr); // Create BufferedImage from file
-		 * theExpectedImg =
-		 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphFirstPrev.png"));
-		 * 
-		 * CompareImages(theExpectedImg, theActualImg);
-		 * ---------------------------------------
-		 */
-
-		/* ------------------------------------ */
-
-		/* Test the Prev Button Second Press */
-		// prevStart = start - (end-start)/2 = 0 - (300000 - 0)/2 = -150000
-		// prevEnd = end - (end-start)/2 = 300000 - (300000 - 0)/2 = 150000
 		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=150000";
 
 		// Find the "next" link
 		link = response.getLinkWithName("prev");
 		assertEquals("Compare the prev link.", prevURL, link.getURLString());
-
-		// The images comparence doesn't work,
-		// because of different settings
-		/*
-		 * ----------------------------------- // Load the page after press the
-		 * Next Button request = new GetMethodWebRequest(m_urlPmgraph +
-		 * "?start=-150000&end=150000"); response = wc.getResponse(request); //
-		 * Get the image from the graph page webImg =
-		 * response.getImageWithAltText("Bandwith Graph"); urlObj = new
-		 * URL(urlObj, webImg.getSource()); // Create new request for the image
-		 * requestImg = new GetMethodWebRequest(urlObj.toString()); responseImg =
-		 * wc.getResponse(requestImg); // Get the input strem of the image
-		 * inputStr = responseImg.getInputStream(); // Create BufferedImage from
-		 * the input stream theActualImg = ImageIO.read(inputStr); // Create
-		 * BufferedImage from file theExpectedImg =
-		 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphSecondPrev.png"));
-		 * 
-		 * CompareImages(theExpectedImg, theActualImg);
-		 * ---------------------------------
-		 */
 	}
 
 	/* This test tests the zoom- button */
 	public void testCheckZoomOutButton() throws Exception
 	{
 		WebConversation wc;
-		WebRequest request, requestImg;
-		WebResponse response, responseImg;
+		WebRequest request;
+		WebResponse response;
 		String zoomURL;
 		WebLink link;
-		WebImage webImg;
-		URL urlObj = new URL(m_urlPmgraph);
-		InputStream inputStr;
-		BufferedImage theActualImg, theExpectedImg;
 
 		// Create a table and insert rows into it
 		CreateTable();
@@ -413,11 +302,6 @@ public class DataBaseTest extends TestCase
 		request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
 		response = wc.getResponse(request);
 
-		/* Test the Zoom- Button First Press */
-		// zoomOutStart = start - (endTime - startTime) / 2 = 0 - (300000 - 0)/2
-		// = -150000
-		// zoomOutEnd = end + (endTime - startTime) / 2 = 300000 + (300000 -
-		// 0)/2 = 450000
 		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=450000";
 
 		// Find the Zoom- link
@@ -429,58 +313,11 @@ public class DataBaseTest extends TestCase
 				+ "?start=-150000&end=450000");
 		response = wc.getResponse(request);
 
-		// The images comparence doesn't work,
-		// because of different settings
-		/*
-		 * ----------------------------------- // Get the image from the graph
-		 * page webImg = response.getImageWithAltText("Bandwith Graph"); urlObj =
-		 * new URL(urlObj, webImg.getSource()); // Create new request for the
-		 * image requestImg = new GetMethodWebRequest(urlObj.toString());
-		 * responseImg = wc.getResponse(requestImg); // Get the input strem of
-		 * the image inputStr = responseImg.getInputStream(); // Create
-		 * BufferedImage from the input stream theActualImg =
-		 * ImageIO.read(inputStr); // Create BufferedImage from file
-		 * theExpectedImg =
-		 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphFirstZoom-.png"));
-		 * 
-		 * CompareImages(theExpectedImg, theActualImg);
-		 * ------------------------------
-		 */
-
-		/* ------------------------------------ */
-
-		/* Test the Zoom- Button Second Press */
-		// zoomOutStart = start - (endTime - startTime) / 2 = -150000 - (450000
-		// - (-150000))/2 = -450000
-		// zoomOutEnd = end + (endTime - startTime) / 2 = 450000 + (450000 -
-		// (-150000))/2 = 750000
 		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-450000&end=750000";
 
 		// Find the Zoom- link
 		link = response.getLinkWithName("zoomOut");
 		assertEquals("Compare the zoom- link.", zoomURL, link.getURLString());
-
-		// The images comparence doesn't work,
-		// because of different settings
-		/*
-		 * ----------------------------------- // Load the page after press the
-		 * Zoom- Button request = new GetMethodWebRequest(m_urlPmgraph +
-		 * "?start=-450000&end=750000"); response = wc.getResponse(request); //
-		 * Get the image from the graph page webImg =
-		 * response.getImageWithAltText("Bandwith Graph"); urlObj = new
-		 * URL(urlObj, webImg.getSource()); // Create new request for the image
-		 * requestImg = new GetMethodWebRequest(urlObj.toString()); responseImg =
-		 * wc.getResponse(requestImg); // Get the input strem of the image
-		 * inputStr = responseImg.getInputStream(); // Create BufferedImage from
-		 * the input stream theActualImg = ImageIO.read(inputStr);
-		 * database.properties // Create BufferedImage from file theExpectedImg =
-		 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphSecondZoom-.png"));
-		 * 
-		 * CompareImages(theExpectedImg, theActualImg);
-		 * ------------------------------------
-		 */
-
-		/* ------------------------------------ */
 
 		/* Test if the Zoom- Button Disappear */
 		// Obtain the upload page on web site
@@ -497,14 +334,10 @@ public class DataBaseTest extends TestCase
 	public void testCheckZoomInButton() throws Exception
 	{
 		WebConversation wc;
-		WebRequest request, requestImg;
-		WebResponse response, responseImg;
+		WebRequest request;
+		WebResponse response;
 		String zoomURL;
 		WebLink link;
-		WebImage webImg;
-		URL urlObj = new URL(m_urlPmgraph);
-		InputStream inputStr;
-		BufferedImage theActualImg, theExpectedImg;
 
 		// Create a table and insert rows into it
 		CreateTable();
@@ -517,12 +350,6 @@ public class DataBaseTest extends TestCase
 		request = new GetMethodWebRequest(m_urlPmgraph
 				+ "?start=-450000&end=750000");
 		response = wc.getResponse(request);
-
-		/* Test the Zoom+ Button First Press */
-		// zoomInStart = start + (endTime - startTime) / 4 = -450000 + (450000 -
-		// (-450000))/4 = -150000
-		// zoomInEnd = end - (endTime - startTime) / 4 = 750000 - (750000 -
-		// (-450000))/4 = 450000
 		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=450000";
 
 		// Find the Zoom+ link
@@ -534,31 +361,6 @@ public class DataBaseTest extends TestCase
 				+ "?start=-150000&end=450000");
 		response = wc.getResponse(request);
 
-		// The images comparence doesn't work,
-		// because of different settings
-		/*
-		 * ----------------------------------- // Get the image from the graph
-		 * page webImg = response.getImageWithAltText("Bandwith Graph"); urlObj =
-		 * new URL(urlObj, webImg.getSource()); // Create new request for the
-		 * image requestImg = new GetMethodWebRequest(urlObj.toString());
-		 * responseImg = wc.getResponse(requestImg); // Get the input strem of
-		 * the image inputStr = responseImg.getInputStream(); // Create
-		 * BufferedImage from the input stream theActualImg =
-		 * ImageIO.read(inputStr); // Create BufferedImage from file
-		 * theExpectedImg =
-		 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphFirstZoom+.png"));
-		 * 
-		 * CompareImages(theExpectedImg, theActualImg);
-		 * ----------------------------------------
-		 */
-
-		/* ------------------------------------ */
-
-		/* Test the Zoom+ Button Second Press */
-		// zoomInStart = start + (endTime - startTime) / 4 = -150000 + (450000 -
-		// (-150000))/4 = 0
-		// zoomInEnd = end - (endTime - startTime) / 4 = 450000 - (450000 -
-		// (-150000))/4 = 300000
 		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=0&end=300000";
 
 		// Find the Zoom+ link
@@ -568,26 +370,6 @@ public class DataBaseTest extends TestCase
 		// Load the page after press the Zoom+ Button
 		request = new GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000");
 		response = wc.getResponse(request);
-
-		// The images comparence doesn't work,
-		// because of different settings
-		/*
-		 * ----------------------------------- // Get the image from the graph
-		 * page webImg = response.getImageWithAltText("Bandwith Graph"); urlObj =
-		 * new URL(urlObj, webImg.getSource()); // Create new request for the
-		 * image requestImg = new GetMethodWebRequest(urlObj.toString());
-		 * responseImg = wc.getResponse(requestImg); // Get the input strem of
-		 * the image inputStr = responseImg.getInputStream(); // Create
-		 * BufferedImage from the input stream theActualImg =
-		 * ImageIO.read(inputStr); // Create BufferedImage from file
-		 * theExpectedImg =
-		 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphSecondZoom+.png"));
-		 * 
-		 * CompareImages(theExpectedImg, theActualImg);
-		 * ---------------------------------------
-		 */
-
-		/* ------------------------------------ */
 
 		/* Test if the Zoom+ Button Disappear */
 		// Obtain the upload page on web site
@@ -666,8 +448,6 @@ public class DataBaseTest extends TestCase
 		String uploaded2 = tables[0].getCellAsText(3, 4);
 
 		// Check the table data
-		// 47 = 500000*100/1024/1024
-		// 9 = 100000*100/1024/1024
 		assertEquals("Check the IP Address", hostIP1, "10.0.156.10");
 		assertEquals("Check the Downloaded Value", downloaded1, "47");
 		assertEquals("Check the Downloaded Value", uploaded1, "47");
@@ -713,8 +493,8 @@ public class DataBaseTest extends TestCase
 		}
 		catch (HttpInternalErrorException e)
 		{
-			System.out
-					.println("Problem with legend.jsp. There is value too big for integer.");
+			m_logger
+					.error("Problem with legend.jsp. There is value too big for integer.");
 			throw (e);
 		}
 	}
@@ -722,80 +502,57 @@ public class DataBaseTest extends TestCase
 	private void insertNewRow(long bytes, Timestamp theTime, String ip_src,
 			String ip_dest) throws SQLException
 	{
-		try
-		{
-			PreparedStatement stmt = conn.prepareStatement(INSERT_DATA);
-			stmt.setLong(1, bytes);
-			stmt.setTimestamp(2, new Timestamp(theTime.getTime()));
-			stmt.setString(3, ip_src);
-			stmt.setString(4, ip_dest);
-			stmt.setInt(5, 0);
-			stmt.setInt(6, 0);
+		PreparedStatement stmt = m_conn.prepareStatement(INSERT_DATA);
+		stmt.setLong(1, bytes);
+		stmt.setTimestamp(2, new Timestamp(theTime.getTime()));
+		stmt.setString(3, ip_src);
+		stmt.setString(4, ip_dest);
+		stmt.setInt(5, 0);
+		stmt.setInt(6, 0);
 
-			// Insert the row
-			// System.out.println(stmt);
-			stmt.executeUpdate();
-		}
-		catch (SQLException e)
-		{
-			System.out.println(e.getMessage());
-			throw e;
-		}
+		// Insert the row
+		stmt.executeUpdate();
 	}
 
 	private void insertRow(String ip_src, String ip_dst, int src_port,
 			int dst_port, long bytes, Timestamp t) throws SQLException
 	{
-		try
-		{
-			PreparedStatement stmt = conn.prepareStatement("INSERT INTO "
-					+ TABLE_NAME + " (ip_src, ip_dst, src_port, dst_port, "
-					+ "bytes, stamp_inserted) VALUES (?,?,?,?,?,?)");
-			stmt.setString(1, ip_src);
-			stmt.setString(2, ip_dst);
-			stmt.setInt(3, src_port);
-			stmt.setInt(4, dst_port);
-			stmt.setLong(5, bytes);
-			stmt.setTimestamp(6, t);
+		PreparedStatement stmt = m_conn.prepareStatement("INSERT INTO "
+				+ TABLE_NAME + " (ip_src, ip_dst, src_port, dst_port, "
+				+ "bytes, stamp_inserted) VALUES (?,?,?,?,?,?)");
+		stmt.setString(1, ip_src);
+		stmt.setString(2, ip_dst);
+		stmt.setInt(3, src_port);
+		stmt.setInt(4, dst_port);
+		stmt.setLong(5, bytes);
+		stmt.setTimestamp(6, t);
 
-			// Insert the row
-			// System.out.println(stmt);
-			stmt.executeUpdate();
-		}
-		catch (SQLException e)
-		{
-			System.out.println(e.getMessage());
-			throw e;
-		}
+		// Insert the row
+		m_logger.debug(stmt);
+		stmt.executeUpdate();
 	}
 
 	/* Prints the table in the console window, only for debug purposes */
 	private void DisplayTableData() throws SQLException
 	{
-		try
-		{
-			PreparedStatement stmt = conn.prepareStatement(GET_TABLE_DATA);
-			System.out.println(stmt);
-			ResultSet rs = stmt.executeQuery();
 
-			while (rs.next())
-			{
-				long theBytes = rs.getLong(1);
-				Timestamp timest = rs.getTimestamp(2);
-				String theIp_src = rs.getString(3);
-				String theIp_dest = rs.getString(4);
+		PreparedStatement stmt = m_conn.prepareStatement(GET_TABLE_DATA);
+		m_logger.debug(stmt);
+		ResultSet rs = stmt.executeQuery();
 
-				System.out.println(theBytes + "  " + timest.toString() + "  "
-						+ theIp_src + "  " + theIp_dest);
-			}
-		}
-		catch (SQLException e)
+		while (rs.next())
 		{
-			System.out.println(e.getMessage());
-			throw (e);
+			long theBytes = rs.getLong(1);
+			Timestamp timest = rs.getTimestamp(2);
+			String theIp_src = rs.getString(3);
+			String theIp_dest = rs.getString(4);
+
+			m_logger.info(theBytes + "  " + timest.toString() + "  "
+					+ theIp_src + "  " + theIp_dest);
 		}
 	}
 
+	/**/
 	public void testCumulativeGraph() throws Exception
 	{
 		CreateTable();
@@ -897,38 +654,7 @@ public class DataBaseTest extends TestCase
 			assertEquals(Long.valueOf(0), s.getY(3));
 		}
 	}
-
-	// The images comparence doesn't work,
-	// because of different settings
-	/*
-	 * ----------------------------------- /* This test tests the graph image
-	 */
-	/*
-	 * public void testCheckGraphImage() throws Exception { CreateTable(); //
-	 * Insert rows into table InsertSampleData(); // Open a graph page // Create
-	 * a conversation WebConversation wc = new WebConversation(); // Obtain the
-	 * upload page on web site WebRequest request = new
-	 * GetMethodWebRequest(m_urlPmgraph + "?start=0&end=300000"); WebResponse
-	 * response = wc.getResponse(request); // Get the image from the graph page
-	 * WebImage webImg = response.getImageWithAltText("Bandwith Graph");
-	 * 
-	 * URL urlObj = new URL(m_urlPmgraph); urlObj = new URL(urlObj,
-	 * webImg.getSource()); // Create new request for the image WebRequest
-	 * requestImg = new GetMethodWebRequest(urlObj.toString()); WebResponse
-	 * responseImg = wc.getResponse(requestImg); // Get the input strem of the
-	 * image InputStream inputStr = responseImg.getInputStream(); // Create
-	 * BufferedImage from the input stream BufferedImage actualImg =
-	 * ImageIO.read(inputStr); // Create BufferedImage from file BufferedImage
-	 * expectedImg =
-	 * ImageIO.read(DataBaseTest.class.getResource("../fixtures/graphCheckGraphImageTest.png")); //
-	 * Compare the height and the width of the images assertEquals("Compare the
-	 * height of the images.", expectedImg.getHeight(), actualImg.getHeight());
-	 * assertEquals("Compare the width of the images.", expectedImg.getWidth(),
-	 * actualImg.getWidth()); // Compare the pixels of the two images for(int y =
-	 * 0; y < expectedImg.getHeight(); y++) { for(int x = 0; x <
-	 * expectedImg.getWidth(); x++) { assertEquals("Compare the image's
-	 * pixels.", expectedImg.getRGB(x, y), actualImg.getRGB(x, y)); } } }
-	 */
+	
 
 	private void InsertSampleData() throws SQLException
 	{
@@ -1089,7 +815,7 @@ public class DataBaseTest extends TestCase
 			assertEquals("Check the IP Address", "10.0.156.10", hostIP2);
 			assertEquals("Check the Downloaded Value r2", "47", downloaded2);
 			assertEquals("Check the Downloaded Value", "28", uploaded2);
-			assertEquals("Check the	IP Address","10.0.156.1", hostIP3);
+			assertEquals("Check the	IP Address", "10.0.156.1", hostIP3);
 			assertEquals("Check the Downloaded Value r3", "9", downloaded3);
 			assertEquals("Check the Downloaded Value", "14", uploaded3);
 		}
@@ -1102,17 +828,25 @@ public class DataBaseTest extends TestCase
 		CreateTable();
 		InsertSampleData();
 		DataAccess dataAccess = new DataAccess();
-		ArrayList<GraphData> resultPerIP = dataAccess.getThroughputPerIP(0,
-				300000);
-		ArrayList<GraphData> resultPerIPSort = dataAccess.getThroughputPerIP(0,
+		List<GraphData> resultPerIP = dataAccess.getThroughputPerIP(0, 300000);
+		List<GraphData> resultPerIPSort = dataAccess.getThroughputPerIP(0,
 				300000, "downloaded", "ASC");
-		ArrayList<GraphData> resultPerIPPerMinute = dataAccess
+		List<GraphData> resultPerIPPerMinute = dataAccess
 				.getThroughputPIPPMinute(0, 300000);
 		assertTrue("get result per IP", !resultPerIP.isEmpty());
 		assertTrue("get result per IP", !resultPerIPSort.isEmpty());
 		assertTrue("get result per IP", !resultPerIPPerMinute.isEmpty());
 	}
 
+	/**
+	 * 
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws IOException
+	 * @throws SQLException
+	 * @throws SAXException
+	 */
 	public void testHostName() throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, SAXException

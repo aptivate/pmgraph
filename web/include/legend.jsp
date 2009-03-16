@@ -7,7 +7,7 @@
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="java.sql.Timestamp" %>
 <%@ page import="org.aptivate.bmotools.pmgraph.*" %>
-<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.List" %>
 <%@ page import="java.net.InetAddress"  %>
 <%@ page import="java.net.UnknownHostException" %>
 <%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
@@ -39,7 +39,7 @@
 
     String indexURL = "/pmgraph/index.jsp";
     DataAccess dataAccess = new DataAccess();
-	ArrayList<GraphData> ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
+	List<GraphData> ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
 	
 %>
 
@@ -80,29 +80,25 @@
 		</tr>
 	</thead>
 	<%
-	    int i= 0;
-	    for (GraphData ipResult : ipResults) 
-	    {
-	    	String ip = ipResult.getLocalIp();
-	    	byte[] ipBytes = ip.getBytes();
-	        MessageDigest algorithm = MessageDigest.getInstance("SHA1");
-	        algorithm.reset();
-	        algorithm.update(ipBytes);
-	        byte sha1[] = algorithm.digest();
-	        Color c = new Color(sha1[0] & 0xFF, sha1[1] & 0xFF, sha1[2] & 0xFF);
-	        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
-			HostResolver hostResolver = new HostResolver();
-	        String hostName = hostResolver.getHostname(ip);
-		%>
-	    <tr class="row<%=i % 2%>">
-	        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
-	        <td><%=ip%></td>
-	        <td><%=hostName%></td>        
-	
-	        <td class="numval"><%=(ipResult.getDownloaded() / 1048576)%></td>
-	        <td class="numval"><%=(ipResult.getUploaded() / 1048576)%></td>
-	    </tr>
-    	<%
+			int i= 0;
+			GraphFactory graphFactory = new GraphFactory();
+		    for (GraphData ipResult : ipResults) 
+		    {
+		    	String ip = ipResult.getLocalIp();	    	
+		        Color c = graphFactory.getSeriesColor(ip);
+		        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
+		HostResolver hostResolver = new HostResolver();
+		        String hostName = hostResolver.getHostname(ip);
+	%>
+		    <tr class="row<%=i % 2%>">
+		        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
+		        <td><%=ip%></td>
+		        <td><%=hostName%></td>        
+		
+		        <td class="numval"><%=(ipResult.getDownloaded() / 1048576)%></td>
+		        <td class="numval"><%=(ipResult.getUploaded() / 1048576)%></td>
+		    </tr>
+	    	<%
 		    i++;
 	    }
 	%>

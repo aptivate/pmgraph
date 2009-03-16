@@ -6,24 +6,22 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
-import org.jfree.chart.renderer.xy.StackedXYAreaRenderer2;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.title.TextTitle;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.DefaultTableXYDataset;
 import org.jfree.data.xy.XYSeries;
 
@@ -38,7 +36,10 @@ import org.jfree.data.xy.XYSeries;
 public class GraphFactory
 {
 
-	public Color graphColor(String ip)
+	private static Logger m_logger = Logger.getLogger(GraphFactory.class
+			.getName());
+
+	public Color getSeriesColor(String ip)
 	{
 
 		byte[] ipBytes = ip.getBytes();
@@ -53,8 +54,7 @@ public class GraphFactory
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			m_logger.error(e.getMessage(), e);
 		}
 		return (Color.BLACK);
 	}
@@ -64,13 +64,17 @@ public class GraphFactory
 	 * the time period between start and end.
 	 * 
 	 * @param start
+	 *            Time in seconds since epoch, in which the chart will start
 	 * @param end
-	 * @return
+	 *            Time in seconds since epoch, in which the chart will end
+	 * @return a new JFreeChart
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 * @throws IOException
 	 * @throws SQLException
+	 * 
+	 * 
 	 */
 	public JFreeChart totalThroughput(long start, long end)
 			throws ClassNotFoundException, IllegalAccessException,
@@ -79,8 +83,7 @@ public class GraphFactory
 		// Get database connection
 		DataAccess dataAccess = new DataAccess();
 
-		ArrayList<GraphData> results = dataAccess
-				.getTotalThroughput(start, end);
+		List<GraphData> results = dataAccess.getTotalThroughput(start, end);
 
 		// Round our times to the nearest minute
 		start = start - (start % 60000);
@@ -137,8 +140,11 @@ public class GraphFactory
 	 * and end.
 	 * 
 	 * @param start
+	 *            Time in seconds since epoch, in which the chart will start
 	 * @param end
-	 * @return
+	 *            Time in seconds since epoch, in which the chart will end
+	 * @return JFreeChart Object containing the info of the stackedThroughput
+	 * 
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
@@ -168,21 +174,25 @@ public class GraphFactory
 				"Value", // range axis label
 				dataset, // data
 				PlotOrientation.VERTICAL, // orientation
-				false, // include legend
+				true, // include legend
 				true, false);
 		XYPlot plot = chart.getXYPlot();
 		XYItemRenderer renderer = plot.getRenderer();
 
-		DataAccess dataAccess = new DataAccess();		
-		ArrayList<GraphData> thrptResults = dataAccess.getThroughputPIPPMinute(
+		DataAccess dataAccess = new DataAccess();
+		List<GraphData> thrptResults = dataAccess.getThroughputPIPPMinute(
 				theStart, theEnd);
-		
+		Collections.sort(thrptResults, new BytesTotalComparator(true));
+
 		// For each query result, get data and write to the appropriate series
 		for (GraphData thrptResult : thrptResults)
 		{
 			Timestamp inserted = thrptResult.getTime();
 			String ip = thrptResult.getLocalIp();
 			ip = ip.trim();
+			/*
+			 * if (ip.equalsIgnoreCase("10.0.156.22")) continue;
+			 */
 
 			// values in the database are in bytes per interval (normally 1
 			// minute)
@@ -194,14 +204,15 @@ public class GraphFactory
 			// for it
 			if (!ip_XYSeries.containsKey(ip + "<down>"))
 			{
+
 				XYSeries downSeries = new XYSeries(ip + "<down>", true, false);
 				XYSeries upSeries = new XYSeries(ip + "<up>", true, false);
 				for (int i = 0; i <= minutes; i++)
 				{
-					downSeries.add(Long.valueOf(start + i * 60000), 
-							Long.valueOf(0));
-					upSeries.add(Long.valueOf(start + i * 60000), 
-							Long.valueOf(0));
+					downSeries.add(Long.valueOf(start + i * 60000), Long
+							.valueOf(0));
+					upSeries.add(Long.valueOf(start + i * 60000), Long
+							.valueOf(0));
 				}
 
 				// keep the series in a hash in order to reuse it when we have
@@ -211,7 +222,7 @@ public class GraphFactory
 
 				// Set the same color for the upload and download series of an
 				// IP
-				Color color = graphColor(ip);
+				Color color = getSeriesColor(ip);
 				// Put the series into the graph
 				dataset.addSeries(downSeries);
 				renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
@@ -245,18 +256,17 @@ public class GraphFactory
 		{
 			xAxis = new DateAxis("Time (day-month)");
 		}
-
 		xAxis.setMinimumDate(new Date(start - 1));
 		xAxis.setMaximumDate(new Date(end));
 		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
 		plot.setRangeAxis(yAxis);
 		plot.setDomainAxis(xAxis);
-		plot.setForegroundAlpha(1f);
+		plot.setBackgroundPaint(Color.WHITE);
 		plot.addRangeMarker(new ValueMarker(0));
 		plot.setRenderer(renderer);
 		chart.addSubtitle(new TextTitle(new Date(end).toString()));
 		chart.setBackgroundPaint(null);
-
+		chart.removeLegend();
 		return (chart);
 	}
 }

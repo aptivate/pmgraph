@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 
 
 /**
- * @author noeg
+ * @author Noe A. Rodriguez Glez.
  * 
  * Bean which contains a line of the information collected for the pmacct in the
  * data base.
@@ -18,10 +18,11 @@ import java.sql.Timestamp;
  */
 public class GraphData {
 	
-	private Timestamp time;
-	private String localIp;
-	private Long downloaded;
-	private Long uploaded;
+	private Timestamp m_time;
+	private String m_localIp;
+	private Long m_downloaded;
+	private Long m_uploaded;
+	private Long m_bytesTotal;
 	
 	
 	/**
@@ -34,57 +35,71 @@ public class GraphData {
 	public GraphData(ResultSet rs) throws SQLException{
 		
 		this(rs.getTimestamp("stamp_inserted"),	rs.getString("local_ip"),
-			rs.getLong("downloaded"), rs.getLong("uploaded"));
+			rs.getLong("downloaded"), rs.getLong("uploaded")
+			, rs.getLong("bytes_total"));
 	}
 
 	public GraphData(Timestamp time, String localIp,Long downloaded,
-			Long uploaded) throws SQLException {
+			Long uploaded,Long byteTotal) throws SQLException {
 		
-		this.time = time;
-		this.localIp = localIp;
-		this.downloaded = downloaded;
-		this.uploaded = uploaded;
+		this.m_time = time;
+		this.m_localIp = localIp;
+		this.m_downloaded = downloaded;
+		this.m_uploaded = uploaded;
+		this.m_bytesTotal = byteTotal;
 	}
+	
 	public GraphData(String localIp,Long downloaded,
-			Long uploaded) throws SQLException {
+			Long uploaded,Long bytesTotal) throws SQLException {
 		
-		this.time = null;
-		this.localIp = localIp;
-		this.downloaded = downloaded;
-		this.uploaded = uploaded;
+		this.m_time = null;
+		this.m_localIp = localIp;
+		this.m_downloaded = downloaded;
+		this.m_uploaded = uploaded;
+		this.m_bytesTotal = bytesTotal;
 	}
 	
 	
 
 	public Long getDownloaded() {
-		return downloaded;
+		return m_downloaded;
 	}
 
 	public void setDownloaded(Long downloaded) {
-		this.downloaded = downloaded;
+		this.m_downloaded = downloaded;
 	}
 	
 	public Timestamp getTime() {
-		return time;
+		return m_time;
 	}
 
 	public void setTime(Timestamp time) {
-		this.time = time;
+		this.m_time = time;
 	}
 
 	public Long getUploaded() {
-		return uploaded;
+		return m_uploaded;
 	}
 
 	public void setUploaded(Long uploaded) {
-		this.uploaded = uploaded;
+		this.m_uploaded = uploaded;
 	}
 
 	public String getLocalIp() {
-		return localIp;
+		return m_localIp;
 	}
 
 	public void setLocalIp(String localIp) {
-		this.localIp = localIp;
+		this.m_localIp = localIp;
+	}
+
+	public Long getBytesTotal()
+	{
+		return m_bytesTotal;
+	}
+
+	public void setBytesTotal(Long total)
+	{
+		m_bytesTotal = total;
 	}
 }
