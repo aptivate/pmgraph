@@ -91,3 +91,8 @@ td {
 #footer {
 	font-size: 6pt;
 }
+.chartTitle {
+	font-size: 16pt;
+	font-weight: bold;
+	text-align: center;
+}
