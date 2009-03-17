@@ -35,12 +35,12 @@
 	col2 = col2 + arrow;	
 	if(sortBy.equals("bytes_total"))
 	col3 = col3 + arrow;
-	
 
-    String indexURL = "/pmgraph/index.jsp";
     DataAccess dataAccess = new DataAccess();
 	List<GraphData> ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
-	
+
+    //methods to get new URL
+    pageURL pageUrl = new pageURL();
 %>
 
 <table>
@@ -51,11 +51,8 @@
             <th rowspan="2">Host Name</th>
             <th colspan="2">
              <a name="bytes_total" 
-                       href="<%=indexURL +
-                                    "?start=" + startP +
-                                    "&end=" + endP +
-                                    "&sortBy=" + "bytes_total" +
-                                    "&order=" + orderN%>"> <%=col3%></a> 
+                       href="<%=pageUrl.getIndexURL(startP, endP, "bytes_total", orderN)%>"
+                       > <%=col3%></a> 
            </th>
 		</tr>
 		
@@ -63,19 +60,13 @@
 		    <th></th>
 		    <th>
 		    <a name="downloaded" 
-                       href="<%=indexURL +
-                                    "?start=" + startP +
-                                    "&end=" + endP +
-                                    "&sortBy=" + "downloaded" +
-                                    "&order=" + orderN%>"><%=col1%></a>
+                       href="<%=pageUrl.getIndexURL(startP, endP, "downloaded", orderN)%>"
+                       ><%=col1%></a>
 		    </th>
 		    <th>
 		     <a name="uploaded" 
-                       href="<%=indexURL +
-                                    "?start=" + startP +
-                                    "&end=" + endP +
-                                    "&sortBy=" + "uploaded" +
-                                    "&order=" + orderN%>"><%=col2%></a>
+                       href="<%=pageUrl.getIndexURL(startP, endP, "uploaded", orderN)%>"
+                       ><%=col2%></a>
 		    </th>
 		</tr>
 	</thead>
