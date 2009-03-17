@@ -4,6 +4,7 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <%@ page import="java.util.Date" %>
+<%@ page import="org.aptivate.bmotools.pmgraph.pageURL" %>
 
 <%
     // Graph parameters
@@ -28,11 +29,9 @@
 	String sortBy = (param = request.getParameter("sortBy")) != null ? param : "bytes_total";
 	//order: DESC | ASC
 	String order = (param = request.getParameter("order")) != null ? param : "DESC";
-                       		
-    // URLs to resources requiring further parameters
-    String indexURL = "/pmgraph/index.jsp";
-    String servletURL = "/pmgraph/graphservlet";
-    String legendURL = "/include/legend.jsp";
+    
+    //methods to get new URL
+    pageURL pageUrl = new pageURL();
     
 %>
 
@@ -432,12 +431,7 @@
                 <!-- Graph parameter controls not yet functional -->
                 <div id="graph">
                     <img id="graphimage" alt="Bandwidth Graph" 
-                            src="<%=servletURL +
-                                    "?graph=" + graph +
-                                    "&start=" + startTime +
-                                    "&end=" + endTime +
-                                    "&width=780" +
-                                    "&height=350"%>"
+                            src="<%=pageUrl.getServetURL(graph, startTime, endTime)%>"
                             width="760" height="350"
                             onmousedown="return mousedown(event);"
                             onmousemove="return mousemove(event);"
@@ -448,43 +442,29 @@
                 <!-- Move back/forward or zoom in/out -->
                 <div id="controls">
                     <a name="prev"
-                       href="<%=indexURL +
-                                "?report=" + report +
-                                "&graph=" + graph +
-                                "&start=" + (startTime - scrollAmount) +
-                                "&end=" + (endTime - scrollAmount)%>" class="control">Prev.</a>
+                       href="<%=pageUrl.getIndexURL(report, graph, (startTime - scrollAmount), (endTime - scrollAmount))%>"
+                        class="control">Prev.</a>
                     <div id="controlscenter">
                     
                     	<%if ((newZoomOutEnd - newZoomOutStart) < 357920) {%>
                         	<a name="zoomOut"
-                        	   href="<%=indexURL +
-                                    "?report=" + report +
-                                    "&graph=" + graph +
-                                    "&start=" + (startTime - zoomAmount) +
-                                    "&end=" + (endTime + zoomAmount)%>" class="control">Zoom -</a>     
+                        	   href="<%=pageUrl.getIndexURL(report, graph, (startTime - zoomAmount), (endTime + zoomAmount))%>" 
+                        	   class="control">Zoom -</a>     
                        	<%}%>
                        		
                        	<%if ((newZoomInEnd - newZoomInStart) > 15) {%>
                         	<a	name="zoomIn"
-                        		href="<%=indexURL +
-                                     "?report=" + report +
-                                     "&graph=" + graph +
-                                     "&start=" + (startTime + zoomAmount/2) +
-                                     "&end=" + (endTime - zoomAmount/2)%>" class="control">Zoom +</a>
+                        		href="<%=pageUrl.getIndexURL(report, graph, (startTime + zoomAmount/2), (endTime - zoomAmount/2))%>" 
+                        		class="control">Zoom +</a>
                       	<%}%>             
                     </div>
                     <a name="next" 
-                       href="<%=indexURL +
-                                "?report=" + report +
-                                "&graph=" + graph +
-                                "&start=" + (startTime + scrollAmount) +
-                                "&end=" + (endTime + scrollAmount)%>" class="control">Next</a>
+                       href="<%=pageUrl.getIndexURL(report, graph, (startTime + scrollAmount), (endTime + scrollAmount))%>" 
+                       class="control">Next</a>
                 </div>    
     
                 <div id="legend">
-                    <jsp:include page="<%=legendURL + "?start=" + startTime + "&end=" + endTime + 
-                                    "&sortBy=" + sortBy +
-                                    "&order=" + order%>" />
+                    <jsp:include page="<%=pageUrl.getLegendURL(startTime, endTime, sortBy, order)%>" />
                 </div>
             </div>
             
