@@ -217,7 +217,7 @@
             <div id="header">
                 <img id="logo" alt="Logo Banner" src="images/logo.png" />
             <div id="date_form">
-            	<form id="SetDateAndTime" name="SetDateAndTime" action="get">
+            	<form id="SetDateAndTime"  action="">
             	<table class="layout_table" id="date_table">
 					<tr>
 						<th> </th>   
@@ -279,7 +279,7 @@
 					</tr>
 					<tr>  
 						<td> </td>   
-						<td colspan="2" class="center"><input	type="submit" value="Go" id="Go" name="Go" /> </td>
+						<td colspan="2" class="center"><input type="submit" value="Go" id="Go" name="Go" /> </td>
 					</tr>
 				</table>   
 				</form>
