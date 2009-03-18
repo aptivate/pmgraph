@@ -211,19 +211,20 @@ public class DataBaseTest extends TestCase
     
 		// Check the SetTime form functionality
 		
-		String fromDateArray[] = {"02/03/2009","02:03/2009", "002/03/2009", "02/03/20a", "32/03/2009", "02/13/2009", "02/03/20009"};
-		String toDateArray[] =   {"03/03/2009","02:03/2009", "002/03/2009", "02/03/20a", "32/03/2009", "02/13/2009", "02/03/20009"};
-		String fromTimeArray[] = {"15:54:32", "15/54:32", "15:504:32", "b15:54:32", "25:54:32", "15:60:32", "15:54:61"};
-		String toTimeArray[] =   {"15:54:32", "15/54:32", "15:504:32", "b15:54:32", "25:54:32", "15:60:32", "15:54:61"};
+		String fromDateArray[] = {"02:03/2009", "002/03/2009", "02/03/20a", "32/03/2009", "02/13/2009", "02/03/20009"};
+		String toDateArray[] =   {"02:03/2009", "002/03/2009", "02/03/20a", "32/03/2009", "02/13/2009", "02/03/20009"};
+		String fromTimeArray[] = {"15/54:32", "15:504:32", "b15:54:32", "25:54:32", "15:60:32", "15:54:61"};
+		String toTimeArray[] =   {"15/54:32", "15:504:32", "b15:54:32", "25:54:32", "15:60:32", "15:54:61"};
+		int noElements = 6;
 		
 		// Check initial values
 		
 		DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd/MM/yyyy");
-		//DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm:ss");
+		DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm:ss");
 			
 		LocalDate toDate = new LocalDate();
 		LocalDate fromDate = toDate.minusDays(1);		
-		LocalTime time = new LocalTime();
+		LocalTime currentTime = new LocalTime();
 
 		assertEquals("Check the toDate initial value.", dateFormat.print(toDate),
 				response.getElementWithID("toDate").getAttribute("value"));
@@ -234,12 +235,12 @@ public class DataBaseTest extends TestCase
 		LocalTime screenToTime = new LocalTime(response.getElementWithID("toTime").getAttribute("value"));
 		
 		assertTrue("Check the toTime initial value.", 
-				Minutes.minutesBetween(time, screenToTime).getMinutes() < 1);
+				Minutes.minutesBetween(currentTime, screenToTime).getMinutes() < 1);
 		
 		LocalTime screenFromTime = new LocalTime(response.getElementWithID("fromTime").getAttribute("value"));
 		
 		assertTrue("Check the fromTime initial value.", 
-				Minutes.minutesBetween(time, screenFromTime).getMinutes() < 1);
+				Minutes.minutesBetween(currentTime, screenFromTime).getMinutes() < 1);
 
 		SubmitButton subButton = theForm.getSubmitButton("Go");
 		
@@ -254,16 +255,75 @@ public class DataBaseTest extends TestCase
 		
 		assertEquals("Check no alert.","", wc.popNextAlert()); 
 		
+		// Check wrong toDate values
+		for (int i=0; i < noElements; i++) 
+		{
+			response.getElementWithID("toDate").setAttribute("value", toDateArray[i]);
+			subButton.click();
+			
+			assertEquals("Check to date format alert.","The date format should be : dd/mm/yyyy !", wc.popNextAlert()); 
+		}
+		// Restore to valid
+		response.getElementWithID("toDate").setAttribute("value", "03/03/2009");
 		
-		// Check wrong values
-		response.getElementWithID("toDate").setAttribute("value", "02:03/2009");
+		// Check wrong fromDate values
+		for (int i=0; i < noElements; i++) 
+		{
+			response.getElementWithID("fromDate").setAttribute("value", fromDateArray[i]);
+			subButton.click();
+			
+			assertEquals("Check from date format alert.","The date format should be : dd/mm/yyyy !", wc.popNextAlert()); 
+		}
+		// Restore to valid
+		response.getElementWithID("fromDate").setAttribute("value", "02/03/2009");
+		
+		// Check wrong toTime values
+		for (int i=0; i < noElements; i++) 
+		{
+			response.getElementWithID("toTime").setAttribute("value", toTimeArray[i]);
+			subButton.click();
+			
+			assertEquals("Check to time format alert.","The time format should be : hh:mm:ss !", wc.popNextAlert()); 
+		}
+		// Restore to valid
+		response.getElementWithID("toTime").setAttribute("value", "15:54:32");
+		
+		// Check wrong fromTime values
+		for (int i=0; i < noElements; i++) 
+		{
+			response.getElementWithID("fromTime").setAttribute("value", fromTimeArray[i]);
+			subButton.click();
+			
+			assertEquals("Check from time format alert.","The time format should be : hh:mm:ss !", wc.popNextAlert()); 
+		}
+		
+		assertEquals("Check no more alerts.", "", wc.popNextAlert()); 
+		
+		// Restore to valid
+		response.getElementWithID("fromTime").setAttribute("value", "15:54:32");
+		
+		//The To Date and Time cannot be in the future
+		response.getElementWithID("toDate").setAttribute("value", dateFormat.print(toDate.plusDays(1)));
+		subButton.click();		
+		assertEquals("Date in future.","The From and To Date and Time cannot be in the future.", wc.popNextAlert()); 
+		
+		// Future time only
+		response.getElementWithID("toDate").setAttribute("value", dateFormat.print(toDate));
+		response.getElementWithID("toTime").setAttribute("value", timeFormat.print(currentTime.plusMinutes(1)));
+		
 		subButton.click();
+		assertEquals("Time in future.","The From and To Date and Time cannot be in the future.", wc.popNextAlert()); 
 		
-		assertEquals("Check date format alert.","The date format should be : dd/mm/yyyy !", wc.popNextAlert()); 
+		//	The From Date and Time have to be at least 1 minute before the To Date and Time
+		response.getElementWithID("toDate").setAttribute("value", dateFormat.print(toDate));
+		response.getElementWithID("toTime").setAttribute("value", timeFormat.print(currentTime));
+		response.getElementWithID("fromDate").setAttribute("value", dateFormat.print(toDate));
+		response.getElementWithID("fromTime").setAttribute("value", timeFormat.print(currentTime));
 		
-		// TODO Check at the end that there are no more alerts
-		
-    }
+		subButton.click();
+		assertEquals("From equals To.","The From Date and Time have to be at least 1 minute before the To Date and Time.", wc.popNextAlert()); 
+
+	}
   
     
  	/* This test tests the next button */

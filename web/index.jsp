@@ -178,7 +178,7 @@
 			if((fromDateAndTime.getTime() >= toDateAndTime.getTime()) || 
 			  ((toDateAndTime.getTime() - fromDateAndTime.getTime()) < 60000))
 			{
-    			errorMsg = "The From Date and Time have to be earliear than the To Date and Time with at least 1 minute.";
+    			errorMsg = "The From Date and Time have to be at least 1 minute before the To Date and Time.";
 			}
     	}
     	
