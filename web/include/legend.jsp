@@ -40,7 +40,7 @@
 	List<GraphData> ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
 
     //methods to get new URL
-    pageURL pageUrl = new pageURL();
+    PageUrl pageUrl = new PageUrl();
 %>
 <table id="legend_tbl">
 	<thead>
