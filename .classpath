@@ -16,6 +16,7 @@
 	<classpathentry kind="lib" path="web/WEB-INF/lib/dnsjava-2.0.6.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/omapi.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/xhtmlvalidator-0.2.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jfreechart-1.0.12.jar"/>
 	<classpathentry kind="src" path="web/WEB-INF/src"/>
 	<classpathentry kind="src" path="tests"/>

@@ -1,6 +1,7 @@
 package org.aptivate.pmGraph.test;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -43,6 +44,7 @@ import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
+import com.nutrun.xhtml.validator.XhtmlValidator;
 
 /**
  * 
@@ -50,7 +52,7 @@ import com.meterware.httpunit.WebTable;
  * 
  */
 public class DataBaseTest extends TestCase
-{
+{	
 	// The connection to the MySQL database
 	private Connection m_conn;
 
@@ -434,18 +436,18 @@ public class DataBaseTest extends TestCase
 		WebResponse response = wc.getResponse(request);
 
 		// Get the table data from the page
-		WebTable tables[] = response.getTables();
+		WebTable table = (WebTable)response.getElementWithID("legend_tbl");
 
 		// Row 2
 		// Columns in the table are Color,Host IP,Host Name,Downloaded,Uploaded
-		String hostIP1 = tables[0].getCellAsText(2, 1);
-		String downloaded1 = tables[0].getCellAsText(2, 3);
-		String uploaded1 = tables[0].getCellAsText(2, 4);
+		String hostIP1 = table.getCellAsText(2, 1);
+		String downloaded1 = table.getCellAsText(2, 3);
+		String uploaded1 = table.getCellAsText(2, 4);
 
 		// Row 3
-		String hostIP2 = tables[0].getCellAsText(3, 1);
-		String downloaded2 = tables[0].getCellAsText(3, 3);
-		String uploaded2 = tables[0].getCellAsText(3, 4);
+		String hostIP2 = table.getCellAsText(3, 1);
+		String downloaded2 = table.getCellAsText(3, 3);
+		String uploaded2 = table.getCellAsText(3, 4);
 
 		// Check the table data
 		assertEquals("Check the IP Address", hostIP1, "10.0.156.10");
@@ -585,7 +587,6 @@ public class DataBaseTest extends TestCase
 
 		for (int n = 0; n < hosts.length; n++)
 		{
-			String str = dataset.getSeries(n << 1).getKey().toString();
 			assertTrue("missing item " + hosts[n],
 					dataset.getSeriesCount() > (n << 1));
 			assertEquals(hosts[n] + "<down>", dataset.getSeries(n << 1)
@@ -746,23 +747,24 @@ public class DataBaseTest extends TestCase
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		// Get the table data from the page
-		WebTable tables[] = response.getTables();
-		if (tables.length != 0)
+		WebTable table = (WebTable)response.getElementWithID("legend_tbl");
+
+		if (table != null)
 		{
 			// Row 2
 			// Columns in the table are Color,Host IP,Host
 			// Name,Downloaded,Uploaded
-			String hostIP1 = tables[0].getCellAsText(2, 1);
-			String downloaded1 = tables[0].getCellAsText(2, 3);
-			String uploaded1 = tables[0].getCellAsText(2, 4);
+			String hostIP1 = table.getCellAsText(2, 1);
+			String downloaded1 = table.getCellAsText(2, 3);
+			String uploaded1 = table.getCellAsText(2, 4);
 			// Row 3
-			String hostIP2 = tables[0].getCellAsText(3, 1);
-			String downloaded2 = tables[0].getCellAsText(3, 3);
-			String uploaded2 = tables[0].getCellAsText(3, 4);
+			String hostIP2 = table.getCellAsText(3, 1);
+			String downloaded2 = table.getCellAsText(3, 3);
+			String uploaded2 = table.getCellAsText(3, 4);
 			// Row 4
-			String hostIP3 = tables[0].getCellAsText(4, 1);
-			String downloaded3 = tables[0].getCellAsText(4, 3);
-			String uploaded3 = tables[0].getCellAsText(4, 4);
+			String hostIP3 = table.getCellAsText(4, 1);
+			String downloaded3 = table.getCellAsText(4, 3);
+			String uploaded3 = table.getCellAsText(4, 4);
 
 			// Check the table data
 			// .10 47 = 500000*100/1024/1024 28
@@ -786,24 +788,24 @@ public class DataBaseTest extends TestCase
 		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
-		// Get the table data from the page
-		WebTable tables2[] = response.getTables();
-		if (tables2.length != 0)
+
+		table = (WebTable)response.getElementWithID("legend_tbl");
+		if (table != null)
 		{
 			// Row 2
 			// Columns in the table are Color,Host IP,Host
 			// Name,Downloaded,Uploaded
-			String hostIP1 = tables2[0].getCellAsText(2, 1);
-			String downloaded1 = tables2[0].getCellAsText(2, 3);
-			String uploaded1 = tables2[0].getCellAsText(2, 4);
+			String hostIP1 = table.getCellAsText(2, 1);
+			String downloaded1 = table.getCellAsText(2, 3);
+			String uploaded1 = table.getCellAsText(2, 4);
 			// Row 3
-			String hostIP2 = tables2[0].getCellAsText(3, 1);
-			String downloaded2 = tables2[0].getCellAsText(3, 3);
-			String uploaded2 = tables2[0].getCellAsText(3, 4);
+			String hostIP2 = table.getCellAsText(3, 1);
+			String downloaded2 = table.getCellAsText(3, 3);
+			String uploaded2 = table.getCellAsText(3, 4);
 			// Row 4
-			String hostIP3 = tables2[0].getCellAsText(4, 1);
-			String downloaded3 = tables2[0].getCellAsText(4, 3);
-			String uploaded3 = tables2[0].getCellAsText(4, 4);
+			String hostIP3 = table.getCellAsText(4, 1);
+			String downloaded3 = table.getCellAsText(4, 3);
+			String uploaded3 = table.getCellAsText(4, 4);
 
 			// Check the table data
 			// .10 47 = 500000*100/1024/1024 28
@@ -879,21 +881,53 @@ public class DataBaseTest extends TestCase
 		WebResponse response = wc.getResponse(request);
 
 		// get the table
-		WebTable tables[] = response.getTables();
-		if (tables.length != 0)
+		WebTable table = (WebTable)response.getElementWithID("legend_tbl");
+
+		if (table!= null)
 		{
 			// Row 2
-			String hostN1 = tables[0].getCellAsText(2, 2);
+			String hostN1 = table.getCellAsText(2, 2);
 			assertEquals("Check the host name", hostname1, hostN1);
 			// Row 3
-			String hostN2 = tables[0].getCellAsText(3, 2);
+			String hostN2 = table.getCellAsText(3, 2);
 			assertEquals("Check the host name", hostname2, hostN2);
 			// Row 4
-			String hostN3 = tables[0].getCellAsText(4, 2);
+			String hostN3 = table.getCellAsText(4, 2);
 			assertEquals("Check the host name", hostname3, hostN3);
 		}
 	}
 
+
+	/**
+	 * 	Check if the returned Web page is a valid XHTML page according
+	 *  to the W3C standar. 
+	 *  
+	 *  	If there are any error it is written in the logger establiced
+	 *  in the logger properties file.
+	 *  
+	 * @throws IOException
+	 * @throws SAXException
+	 */	
+	public void w3cValidator () throws IOException, SAXException {
+	
+		WebConversation wc = new WebConversation();
+		// Obtain the upload page on web site
+		WebRequest request = new GetMethodWebRequest(m_urlPmgraph
+				+ "index.jsp?report=totals&graph=cumul&start=0&end=300000");
+		WebResponse response = wc.getResponse(request);
+			
+		XhtmlValidator validator = new XhtmlValidator();
+ 		String docText = response.getText();
+ 		
+ 		if (!validator.isValid(new ByteArrayInputStream(docText.getBytes())));
+ 			String errors[] = validator.getErrors();
+ 			for (String error: errors) {
+ 				m_logger.warn(error);
+ 			}
+ 		 assertTrue(validator.isValid(new ByteArrayInputStream(docText.getBytes())));
+	}
+
+	
 	public static Test suite()
 	{
 		return new TestSuite(DataBaseTest.class);

@@ -25,7 +25,7 @@
 	String order = request.getParameter("order");
 	String orderN = order.equals("DESC") ? "ASC" : "DESC";
 
-	String arrow = order.equals("DESC")?" &#8681":" &#8679";
+	String arrow = order.equals("DESC")?" &#8681;":" &#8679;";
 	String col1 = "Downloaded";
 	String col2 = "Uploaded";
 	String col3 = "Totals (MB)";
@@ -42,8 +42,7 @@
     //methods to get new URL
     pageURL pageUrl = new pageURL();
 %>
-
-<table>
+<table id="legend_tbl">
 	<thead>
 		<tr>
 		    <th></th>
@@ -78,7 +77,7 @@
 		    	String ip = ipResult.getLocalIp();	    	
 		        Color c = graphFactory.getSeriesColor(ip);
 		        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
-		HostResolver hostResolver = new HostResolver();
+				HostResolver hostResolver = new HostResolver();
 		        String hostName = hostResolver.getHostname(ip);
 	%>
 		    <tr class="row<%=i % 2%>">

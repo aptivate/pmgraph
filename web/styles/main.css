@@ -20,7 +20,7 @@ p {
 
 table {
 	margin: 10px auto;
-	padding: 3 3 3 3;
+	padding: 3px 3px 3px 3px;
 }
 
 td {
@@ -43,7 +43,19 @@ td {
 
 #header {
 	width: 780px;
-	height: 75px;
+	height: 130px;
+	background-image: url(../images/header-background.png);
+}
+
+#logo {
+	width: 243px;
+	float: left;
+}
+
+#date_form {
+	width: 500px;
+	float: right;
+	clear: right;
 }
 
 #container {
@@ -91,7 +103,8 @@ td {
 #footer {
 	font-size: 6pt;
 }
-.chartTitle {
+
+.chart_title {
 	font-size: 16pt;
 	font-weight: bold;
 	text-align: center;

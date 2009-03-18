@@ -1,11 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC 
-    "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <%@ page import="java.util.Date" %>
+<%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <%@ page import="org.aptivate.bmotools.pmgraph.pageURL" %>
-
 <%
     // Graph parameters
     String param;
@@ -34,13 +30,13 @@
     pageURL pageUrl = new pageURL();
     
 %>
-
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <title>pmGraph</title>
         <link rel="Stylesheet" href="styles/main.css" type="text/css" />
         <script type="text/javascript">
-			var dragging = false, drag_start_x = 0, drag_start_y = 0;
+       // <![CDATA[  
+       	var dragging = false, drag_start_x = 0, drag_start_y = 0;
 			function getevent(e)
 			{
 				if (!e)
@@ -417,15 +413,30 @@
 			
 			
 			/////////////////////////////////////////
-			
+		// ]]>	
         </script>
     </head>
   
-    <body onload="onLoad()">
+    <body onload="onLoad();">
         <div id="container">
             <div id="header">
-                <img alt="Logo Banner" src="images/header.png" width="780" height="75" />
+                <img id="logo" alt="Logo Banner" src="images/logo.png" />
+	            <div id="date_form">
+	            	<form id="SetDateAndTime" action="set time" method="get" >
+	            		<table><tr><th></th><th>From</th><th> To</th></tr>
+	            		<tr><td>Date (dd/mm/yyyy) 
+	            		</td><td><input type="text" id="fromDate" name="fromDate" size="8" /></td>
+	            		<td><input type="text" id="toDate"   name="toDate"   size="8" /></td>
+	            		</tr><tr><td>Time (hh/mm/ss) 
+						</td><td><input type="text" id="fromTime" name="fromTime" size="8" /></td>
+						<td><input type="text" id="toTime"   name="toTime"   size="8" /></td></tr>
+						</table>
+					     <div><input type="button" value="Go" id ="Go" name="Go" onclick="onClickGoButton()"/></div>
+						 
+					</form>
+	            </div>
             </div>
+            <div style="clear:both;"></div>
             
             <div id="main">
                 <!-- Graph parameter controls not yet functional -->
@@ -462,28 +473,9 @@
                        href="<%=pageUrl.getIndexURL(report, graph, (startTime + scrollAmount), (endTime + scrollAmount))%>" 
                        class="control">Next</a>
                 </div>    
-    
                 <div id="legend">
                     <jsp:include page="<%=pageUrl.getLegendURL(startTime, endTime, sortBy, order)%>" />
                 </div>
-            </div>
-            
-            <div style = "position: absolute; left: 44%; top: 1%; width: 50%; height: 50%;">
-            	<form id="SetDateAndTime" action="set time" style = "font-family: sans-serif; size = 1" >
-            		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            		From &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            		To <br />
-            		Date (dd/mm/yyyy) 
-            			 <input type="text" id="fromDate" name="fromDate" size=8 /> <tab />
-            			 <input type="text" id="toDate"   name="toDate"   size=8 />  <br />
-					Time (hh/mm/ss)&nbsp;&nbsp;&nbsp;&nbsp; 
-						 <input type="text" id="fromTime" name="fromTime" size=8 /> <tab />
-					     <input type="text" id="toTime"   name="toTime"   size=8 />  <br /> 
-					     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					     <input type="button" value="Go" id ="Go" name="Go" onclick="onClickGoButton()"/>
-				</form>
             </div>
             <!-- <div id="footer"></div> -->
         </div>
