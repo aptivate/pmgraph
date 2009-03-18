@@ -32,6 +32,18 @@ import org.jfree.data.xy.XYSeries;
  * 
  * @author Thomas Sharp
  * @version 0.1
+ * 
+ * History:
+ * 	Noe A. Rodrigez Glez.
+ * 	12-03-2009	Use a standar method to asign colors to series.
+ * 				
+ * 				Changed the way in which the stackedThroughput graph
+ * 				is created in order to make the code more readable.
+ * 				
+ * 				Removed the use of Alpha chanel on graphs because it
+ * 				caused problems with the colors of the series.  
+ * 				
+ * 				Added some coments.
  */
 public class GraphFactory
 {
@@ -120,8 +132,6 @@ public class GraphFactory
 		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
 		XYPlot plot = new XYPlot(dataset, xAxis, yAxis, null);
 		plot.setOrientation(PlotOrientation.VERTICAL);
-		// plot.addRangeMarker(new ValueMarker(maxDown));
-		// plot.addRangeMarker(new ValueMarker(0 - maxUp));
 		plot.addRangeMarker(new ValueMarker(0));
 		plot.setRenderer(new XYAreaRenderer(XYAreaRenderer.AREA));
 		plot.getRenderer().setSeriesPaint(0, Color.blue);
@@ -190,9 +200,6 @@ public class GraphFactory
 			Timestamp inserted = thrptResult.getTime();
 			String ip = thrptResult.getLocalIp();
 			ip = ip.trim();
-			/*
-			 * if (ip.equalsIgnoreCase("10.0.156.22")) continue;
-			 */
 
 			// values in the database are in bytes per interval (normally 1
 			// minute)
@@ -261,7 +268,6 @@ public class GraphFactory
 		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
 		plot.setRangeAxis(yAxis);
 		plot.setDomainAxis(xAxis);
-		plot.setBackgroundPaint(Color.WHITE);
 		plot.addRangeMarker(new ValueMarker(0));
 		plot.setRenderer(renderer);
 		chart.addSubtitle(new TextTitle(new Date(end).toString()));
