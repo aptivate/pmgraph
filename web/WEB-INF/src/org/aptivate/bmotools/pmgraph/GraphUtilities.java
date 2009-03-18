@@ -13,7 +13,7 @@ public abstract class GraphUtilities
 	 * "stamp_inserted >= ? AND " + "stamp_inserted <= ? " + "GROUP BY
 	 * stamp_inserted;";
 	 */
-	public static final String THROUGHPUT_PER_MINUTE = "SELECT stamp_inserted, "
+	protected static final String THROUGHPUT_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded "
 			+ "FROM acct_v6 "
@@ -31,7 +31,7 @@ public abstract class GraphUtilities
 	 * (ip_src LIKE ? XOR ip_dst LIKE ?) AND " + "stamp_inserted >= ? AND " +
 	 * "stamp_inserted <= ? " + "GROUP BY local_ip " + "ORDER BY ?; ";
 	 */
-	public static final String THROUGHPUT_PER_IP = "SELECT (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
+	protected static final String THROUGHPUT_PER_IP = "SELECT (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded, "
 			+ "SUM(bytes) AS bytes_total "
@@ -53,7 +53,7 @@ public abstract class GraphUtilities
 	 * "WHERE (ip_src LIKE ? XOR ip_dst LIKE ?) AND " + "stamp_inserted >= ? AND " +
 	 * "stamp_inserted <= ? " + "GROUP BY stamp_inserted, local_ip;";
 	 */
-	public static final String THROUGHPUT_PER_IP_PER_MINUTE = "SELECT stamp_inserted, "
+	protected static final String THROUGHPUT_PER_IP_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded,SUM(bytes) AS bytes_total "

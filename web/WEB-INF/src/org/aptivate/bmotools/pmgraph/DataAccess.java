@@ -94,39 +94,12 @@ public class DataAccess {
 	  }
 	}
 	
-
-	private class IpComparator implements Comparator {
-
-		private boolean m_descending;
-		
-		public IpComparator (boolean descending) {
-		
-				m_descending= descending;
-		}
-		
-		
-	  public int compare(Object o1, Object o2) {
-		  
-	    GraphData d1 = (GraphData) o1;
-	    GraphData d2 = (GraphData) o2;
-	    if (m_descending)
-	    	return (0 - d1.getLocalIp().compareTo(d2.getLocalIp()));
-	    else
-	    	return (d1.getLocalIp().compareTo(d2.getLocalIp()));    	
-	  }
-	  
-
-	  public boolean equals(Object o) {
-	    return this == o;
-	  }
-	}
-	
-	
 	/**
 	 * 	Retun an appropiate comparator for de requested sorting
 	 * @param sortby
 	 * @param order
-	 * @return
+	 * @return A conparator to be used in the sorting of the
+	 *  results list
 	 */	
 	private Comparator getComparator (String sortby, String order) {
 		
@@ -358,6 +331,18 @@ public class DataAccess {
 		return resultData;
 	}
 	
+	protected void finalize()
+	{
+		
+		try
+		{
+			m_conn.close();
+		}
+		catch (SQLException e)
+		{
+			m_logger.error("Error freing connection in finalize method",e);
+		}
+	}
 	
 
 }
