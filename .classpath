@@ -18,6 +18,7 @@
 	<classpathentry kind="lib" path="web/WEB-INF/lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/xhtmlvalidator-0.2.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jfreechart-1.0.12.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/joda-time-1.6.jar"/>
 	<classpathentry kind="src" path="web/WEB-INF/src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>

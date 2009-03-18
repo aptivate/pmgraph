@@ -24,9 +24,7 @@ table {
 }
 
 td {
-	text-align: left;
-	padding-left: 10px;
-	padding-right: 10px;
+	text-align: left;	
 }
 
 .row0 {
@@ -53,7 +51,6 @@ td {
 }
 
 #date_form {
-	width: 500px;
 	float: right;
 	clear: right;
 }
@@ -107,5 +104,22 @@ td {
 .chart_title {
 	font-size: 16pt;
 	font-weight: bold;
+	text-align: center;
+}
+
+.layout_table {
+	margin: 0px auto;
+	padding: 0px 0px 0px 0px;
+}
+#legend_tbl td {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.th_class {
+	text-align: center;
+	font-weight: normal;
+}
+.center {
+
 	text-align: center;
 }
