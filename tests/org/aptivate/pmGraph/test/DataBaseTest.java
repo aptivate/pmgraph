@@ -34,10 +34,18 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.DefaultTableXYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.ui.Layer;
+
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+import org.joda.time.Minutes;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.xml.sax.SAXException;
+
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HttpInternalErrorException;
+import com.meterware.httpunit.SubmitButton;
 import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebLink;
@@ -193,21 +201,72 @@ public class DataBaseTest extends TestCase
 		WebResponse response = wc.getResponse(request);
 
 		WebForm theForm = response.getFormWithID("SetDateAndTime");
+		
+		assertNotNull("Check if there is form SetDateAndTime.",theForm);
+		assertNotNull("Check if there is button Go.",theForm.getButtonWithID("Go"));
+		assertNotNull("Check if there is text box fromDate.",response.getElementWithID("fromDate"));	
+		assertNotNull("Check if there is text box toDate.",response.getElementWithID("toDate"));
+		assertNotNull("Check if there is text box fromTime.",response.getElementWithID("fromTime"));
+		assertNotNull("Check if there is text box toTime.",response.getElementWithID("toTime"));
+    
+		// Check the SetTime form functionality
+		
+		String fromDateArray[] = {"02/03/2009","02:03/2009", "002/03/2009", "02/03/20a", "32/03/2009", "02/13/2009", "02/03/20009"};
+		String toDateArray[] =   {"03/03/2009","02:03/2009", "002/03/2009", "02/03/20a", "32/03/2009", "02/13/2009", "02/03/20009"};
+		String fromTimeArray[] = {"15:54:32", "15/54:32", "15:504:32", "b15:54:32", "25:54:32", "15:60:32", "15:54:61"};
+		String toTimeArray[] =   {"15:54:32", "15/54:32", "15:504:32", "b15:54:32", "25:54:32", "15:60:32", "15:54:61"};
+		
+		// Check initial values
+		
+		DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd/MM/yyyy");
+		//DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm:ss");
+			
+		LocalDate toDate = new LocalDate();
+		LocalDate fromDate = toDate.minusDays(1);		
+		LocalTime time = new LocalTime();
 
-		assertNotNull("Check if there is form SetDateAndTime.", theForm);
-		assertNotNull("Check if there is button Go.", theForm
-				.getButtonWithID("Go"));
-		assertNotNull("Check if there is text box fromDate.", response
-				.getElementWithID("fromDate"));
-		assertNotNull("Check if there is text box toDate.", response
-				.getElementWithID("toDate"));
-		assertNotNull("Check if there is text box fromTime.", response
-				.getElementWithID("fromTime"));
-		assertNotNull("Check if there is text box toTime.", response
-				.getElementWithID("toTime"));
-	}
+		assertEquals("Check the toDate initial value.", dateFormat.print(toDate),
+				response.getElementWithID("toDate").getAttribute("value"));
+		
+		assertEquals("Check the fromDate initial value.", dateFormat.print(fromDate ),
+				response.getElementWithID("fromDate").getAttribute("value"));
+		
+		LocalTime screenToTime = new LocalTime(response.getElementWithID("toTime").getAttribute("value"));
+		
+		assertTrue("Check the toTime initial value.", 
+				Minutes.minutesBetween(time, screenToTime).getMinutes() < 1);
+		
+		LocalTime screenFromTime = new LocalTime(response.getElementWithID("fromTime").getAttribute("value"));
+		
+		assertTrue("Check the fromTime initial value.", 
+				Minutes.minutesBetween(time, screenFromTime).getMinutes() < 1);
 
-	/* This test tests the next button */
+		SubmitButton subButton = theForm.getSubmitButton("Go");
+		
+		// Check valid values
+		response.getElementWithID("toDate").setAttribute("value", "03/03/2009");
+		response.getElementWithID("fromDate").setAttribute("value", "02/03/2009");
+		response.getElementWithID("toTime").setAttribute("value", "15:54:32");
+		response.getElementWithID("fromTime").setAttribute("value", "15:54:32");
+		
+		// Load the page press Go button
+		subButton.click();
+		
+		assertEquals("Check no alert.","", wc.popNextAlert()); 
+		
+		
+		// Check wrong values
+		response.getElementWithID("toDate").setAttribute("value", "02:03/2009");
+		subButton.click();
+		
+		assertEquals("Check date format alert.","The date format should be : dd/mm/yyyy !", wc.popNextAlert()); 
+		
+		// TODO Check at the end that there are no more alerts
+		
+    }
+  
+    
+ 	/* This test tests the next button */
 	public void testCheckNextButton() throws Exception
 	{
 		WebConversation wc;
@@ -222,6 +281,7 @@ public class DataBaseTest extends TestCase
 
 		// Create a conversation
 		wc = new WebConversation();
+
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_urlPmgraph
 				+ "?start=75000&end=225000");
@@ -908,7 +968,7 @@ public class DataBaseTest extends TestCase
 	 * @throws IOException
 	 * @throws SAXException
 	 */	
-	public void w3cValidator () throws IOException, SAXException {
+	public void testw3cValidator () throws IOException, SAXException {
 	
 		WebConversation wc = new WebConversation();
 		// Obtain the upload page on web site
