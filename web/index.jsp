@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<%@ page import="java.util.Date" %>
-<%@ page import="java.text.SimpleDateFormat" %>
-<%@ page import="java.text.DateFormat" %>
-<%@ page import="java.text.ParseException" %>
-<%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
-<%@ page import="org.aptivate.bmotools.pmgraph.pageURL" %>
+<%@ page import="java.util.Date"%>
+<%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.text.DateFormat"%>
+<%@ page import="java.text.ParseException"%>
+<%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.PageUrl"%>
 <%
     // Graph parameters
     String param;
@@ -30,7 +30,7 @@
 	String order = (param = request.getParameter("order")) != null ? param : "DESC";
     
     //methods to get new URL
-    pageURL pageUrl = new pageURL();
+    PageUrl pageUrl = new PageUrl();
 
     // Input Validation
     String errorMsg = null;
@@ -52,12 +52,12 @@
 		{ 
 			theFromDate = dateFormat.parse(request.getParameter("fromDate"));
 		}
-		catch(ParseException e)
+		catch (ParseException e)
 		{
-    		errorMsg = DATE_FORMAT_ERROR;
+			errorMsg = DATE_FORMAT_ERROR;
 		}
-				
-		if(theFromDate == null)
+
+		if (theFromDate == null)
 		{
 			errorMsg = DATE_FORMAT_ERROR;
 		}
@@ -79,12 +79,12 @@
 				theToDate = dateFormat.parse(request.getParameter("toDate"));
 
 			}
-			catch(ParseException e)
+			catch( ParseException e)
 			{
-    			errorMsg = DATE_FORMAT_ERROR;
+				errorMsg = DATE_FORMAT_ERROR;
 			}
-		
-			if(theToDate == null)
+
+			if (theToDate == null)
 			{
 				errorMsg = DATE_FORMAT_ERROR;
 			}
@@ -190,7 +190,6 @@
     	}
    	}
  %>
-
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <title>pmGraph</title>
@@ -205,13 +204,11 @@
 					alert("<%=errorMsg%>");
 				}
 				// Set focus
-				document.SetDateAndTime.fromDate.focus();
+				document.getElementById ("fromDate").focus();
 			}
 		// ]]>	
         </script>
     </head>
-    
-  
     <body onload="onLoad();">
         <div id="container">
             <div id="header">

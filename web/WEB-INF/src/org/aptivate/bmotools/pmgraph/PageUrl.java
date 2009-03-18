@@ -8,7 +8,7 @@ package org.aptivate.bmotools.pmgraph;
  *		Noe A. Rodriguez Glez.
  *		18-03-2009 	W3C URL compilance 
  */
-public class pageURL {
+public class PageUrl {
 	
     private final String m_indexURL = "/pmgraph/index.jsp";
     private final String m_servletURL = "/pmgraph/graphservlet";
