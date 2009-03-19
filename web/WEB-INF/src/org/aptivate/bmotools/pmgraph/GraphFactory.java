@@ -273,6 +273,27 @@ public class GraphFactory
 		chart.addSubtitle(new TextTitle(new Date(end).toString()));
 		chart.setBackgroundPaint(null);
 		chart.removeLegend();
+	/*	A test to check Jfreechart
+		XYSeries s1 = new XYSeries(1, true, false);
+		XYSeries s2 = new XYSeries(2, true, false);
+		XYSeries s3 = new XYSeries(3, true, false);
+
+		s1.add (0,0);
+		s1.add (1,-3);
+		s1.add (2,0);
+		s1.add (3,0);
+		s2.add (1,0);
+		s2.add (0,0);
+		s2.add (2,-4);
+		s2.add (3,0);
+		s3.add (1,0);
+		s3.add (0,0);
+		s3.add (2,-4);
+		s3.add (3,0);
+		dataset.addSeries(s1);
+		dataset.addSeries(s2);
+//		dataset.addSeries(s3);
+*/
 		return (chart);
 	}
 }

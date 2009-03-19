@@ -5,23 +5,17 @@
 <%@ page import="java.text.ParseException"%>
 <%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.PageUrl"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.PageUrlException"%>
 <%
     // Graph parameters
     String param;
     String report = (param = request.getParameter("report")) != null ? param : "totals";
     String graph = (param = request.getParameter("graph")) != null ? param : "cumul";
     long now = new Date().getTime();
-    long startTime = (param = request.getParameter("start")) != null ? Long.parseLong(param) : now - 240 * 60000;
-    long endTime = (param = request.getParameter("end")) != null ? Long.parseLong(param) : now;
-    
-    long scrollAmount = (endTime - startTime) / 2;  
-    long zoomAmount = (endTime - startTime) / 2; 
-    
-    long newZoomInStart = ((startTime + zoomAmount/2) / 6000);
-    long newZoomInEnd = ((endTime - zoomAmount/2) / 6000);
-    
-    long newZoomOutStart = ((startTime - zoomAmount) / 6000);
-    long newZoomOutEnd = ((endTime + zoomAmount) / 6000);
+    long startTime =  now - 240 * 60000;
+    long endTime = now;    
+    long scrollAmount, zoomAmount, newZoomInStart, newZoomInEnd, 
+    	newZoomOutStart, newZoomOutEnd;
         
          //the sort parameters
     //sortBy: bytes_total | downloaded | uploaded
@@ -33,163 +27,42 @@
     PageUrl pageUrl = new PageUrl();
 
     // Input Validation
-    String errorMsg = null;
-    if(request.getParameter("fromDate") != null)
-    {
-    	SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-		Date theFromDate = null;
-		Date theToTime = null;
-		Date theToDate = null;
-		Date theFromTime = null;
-		Date fromDateAndTime = null;
-		Date toDateAndTime = null;
-		final String DATE_FORMAT_ERROR = "The date format should be : dd/mm/yyyy !";
-		final String TIME_FORMAT_ERROR = "The time format should be : hh:mm:ss !";
-				
-		// Validate fromDate
-		try
-		{ 
-			theFromDate = dateFormat.parse(request.getParameter("fromDate"));
-		}
-		catch (ParseException e)
-		{
-			errorMsg = DATE_FORMAT_ERROR;
-		}
+    String errorMsg = null;    
+	final String DATE_TIME_FORMAT_ERROR = "The date format should be : dd/mm/yyyy !\\n The time format should be : hh:mm:ss !";
+	final String START_END_FORMAT_ERROR = "Start and End parameters Should be numbers !";				
+	// Validate Dates
+	try
+	{ 
+		 pageUrl.getDatesFromRequest(request);
+	}
+	catch (ParseException e)
+	{
+		errorMsg = DATE_TIME_FORMAT_ERROR;
+	}
+	catch (PageUrlException e)
+	{
+		errorMsg = e.getMessage();
+	}
+	catch (NumberFormatException e)
+	{
+		errorMsg = START_END_FORMAT_ERROR;
+	}
+	
+   	// Change start and end Time
+	startTime = pageUrl.getStartTime();
+	endTime = pageUrl.getEndTime();
 
-		if (theFromDate == null)
-		{
-			errorMsg = DATE_FORMAT_ERROR;
-		}
-		else
-		{
-			if ((dateFormat.format(theFromDate).equals(request.getParameter("fromDate")) == false) || 
-			   ((request.getParameter("fromDate")).length() != 10))
-    		{
-    			errorMsg = DATE_FORMAT_ERROR;
-    		}
-    	}
-    	// --------------------------------- //
-    			
-    	if(errorMsg == null)
-    	{
-    		// Validate toDate
-			try
-			{ 
-				theToDate = dateFormat.parse(request.getParameter("toDate"));
-
-			}
-			catch( ParseException e)
-			{
-				errorMsg = DATE_FORMAT_ERROR;
-			}
-
-			if (theToDate == null)
-			{
-				errorMsg = DATE_FORMAT_ERROR;
-			}
-			else
-			{
-				if ((dateFormat.format(theToDate).equals(request.getParameter("toDate")) == false) || 
-				   ((request.getParameter("toDate")).length() != 10))
-    			{
-    				errorMsg = DATE_FORMAT_ERROR;
-    			}
-    		}
-    	}
-    	// --------------------------------- //
-    			
-    	// Validate fromTime
-    	if(errorMsg == null)
-    	{
-			try
-			{ 
-				theFromTime = timeFormat.parse(request.getParameter("fromTime"));
-			}
-			catch(ParseException e)
-			{
-    			errorMsg = TIME_FORMAT_ERROR;
-			}
-		
-			if(theFromTime == null)
-			{
-				errorMsg = TIME_FORMAT_ERROR;
-			}
-			else
-			{
-				if ((timeFormat.format(theFromTime).equals(request.getParameter("fromTime")) == false) || 
-				   ((request.getParameter("fromTime")).length() != 8))
-    			{
-    				errorMsg = TIME_FORMAT_ERROR;
-    			}
-    		}
-    	}
-    	// --------------------------------- //
-    			
-    	// Validate toTime
-		if(errorMsg == null)
-    	{
-			try
-			{ 
-				theToTime = timeFormat.parse(request.getParameter("toTime"));
-			}
-			catch(ParseException e)
-			{
-    			errorMsg = TIME_FORMAT_ERROR;
-			}
-			
-			if(theToTime == null)
-			{
-				errorMsg = TIME_FORMAT_ERROR;
-			}
-			else
-			{
-				if ((timeFormat.format(theToTime).equals(request.getParameter("toTime")) == false) || 
-				   ((request.getParameter("toTime")).length() != 8))
-    			{
-    				errorMsg = TIME_FORMAT_ERROR;
-    			}
-    		}
-    	}
-    	// --------------------------------- //
-    	
-    	// Convert user input to date and time
-    	if(errorMsg == null)
-    	{
-    		fromDateAndTime = new Date(theFromDate.getYear(), theFromDate.getMonth(), theFromDate.getDate(),
-        					  theFromTime.getHours(), theFromTime.getMinutes(), theFromTime.getSeconds());
-		
-			toDateAndTime = new Date(theToDate.getYear(), theToDate.getMonth(), theToDate.getDate(),
-        					theToTime.getHours(), theToTime.getMinutes(), theToTime.getSeconds());
-    	
-    		// Check that the fromDateAndTime and toDateAndTime aren't in the future
-			Date currentDateTime = new Date();
-			if((fromDateAndTime.getTime() > currentDateTime.getTime()) || 
-			   (toDateAndTime.getTime() > currentDateTime.getTime()))
-			{
-    			errorMsg = "The From and To Date and Time cannot be in the future.";
-			}
-		}		
-		
-		// Check that the fromDateAndTime is lesser than the toDateAndTime and
-		// check that the toDateAndTime - fromDateAndTime > 1 minutes
-		if(errorMsg == null)
-    	{
-			if((fromDateAndTime.getTime() >= toDateAndTime.getTime()) || 
-			  ((toDateAndTime.getTime() - fromDateAndTime.getTime()) < 60000))
-			{
-    			errorMsg = "The From Date and Time have to be at least 1 minute before the To Date and Time.";
-			}
-    	}
-    	
-    	// Change start and end Time
-    	if(errorMsg == null)
-    	{
-    		startTime = fromDateAndTime.getTime();
-    		endTime = toDateAndTime.getTime();
-    	}
-   	}
+    scrollAmount = (endTime - startTime) / 2;  
+    zoomAmount = (endTime - startTime) / 2; 
+    
+    newZoomInStart = ((startTime + zoomAmount/2) / 6000);
+    newZoomInEnd = ((endTime - zoomAmount/2) / 6000);
+    
+    newZoomOutStart = ((startTime - zoomAmount) / 6000);
+    newZoomOutEnd = ((endTime + zoomAmount) / 6000);
+  	
  %>
+<%@page import="org.aptivate.bmotools.pmgraph.PageUrlException"%>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <title>pmGraph</title>
@@ -246,8 +119,8 @@
 							}
 						%>		
 						
-			   			<td> <input type="text" id="fromDate" name="fromDate" value="<%=fromDate%>" size="8" /> </td>
-            		    <td> <input type="text" id="toDate"   name="toDate" value="<%=toDate%>"  size="8" /> </td>
+			   			<td> <input type="text" id="fromDate" name="fromDate" value="<%=pageUrl.getFromDateAsString()%>" size="8" /> </td>
+            		    <td> <input type="text" id="toDate"   name="toDate" value="<%=pageUrl.getToDateAsString()%>"  size="8" /> </td>
 				    </tr>
 					<tr>
 						<td>Time (hh:mm:ss)</td>  
@@ -271,8 +144,8 @@
 							    fromTime= dateFormat.format(date);
 							}
 						%>			
-						<td> <input type="text" id="fromTime" name="fromTime" value="<%=fromTime%>" size="8" /> </td>
-						<td> <input type="text" id="toTime"   name="toTime"   value="<%=toTime%>" size="8" /> </td>	     
+						<td> <input type="text" id="fromTime" name="fromTime" value="<%=pageUrl.getFromTimeAsString()%>" size="8" /> </td>
+						<td> <input type="text" id="toTime"   name="toTime"   value="<%=pageUrl.getToTimeAsString()%>" size="8" /> </td>	     
 					</tr>
 					<tr>  
 						<td> </td>   

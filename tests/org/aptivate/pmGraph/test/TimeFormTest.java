@@ -39,6 +39,8 @@ public class TimeFormTest extends TestCase
 	/* This test tests the SetTime form */
 	public void testCheckSetTimeForm() throws Exception
 	{		
+		
+		final String DATE_TIME_FORMAT_ERROR = "The date format should be : dd/mm/yyyy !\n The time format should be : hh:mm:ss !";
 		// Open a graph page
 		// Create a conversation
 		WebConversation wc = new WebConversation();
@@ -69,15 +71,15 @@ public class TimeFormTest extends TestCase
 		
 		DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd/MM/yyyy");
 		DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm:ss");
-			
+
 		LocalDate toDate = new LocalDate();
 		LocalDate fromDate = toDate.minusDays(1);		
 		LocalTime currentTime = new LocalTime();
 
-		assertEquals("Check the toDate initial value.", dateFormat.print(toDate),
+		assertEquals("Check the toDate initial value.", "01/01/1970",
 				response.getElementWithID("toDate").getAttribute("value"));
 		
-		assertEquals("Check the fromDate initial value.", dateFormat.print(fromDate ),
+		assertEquals("Check the fromDate initial value.", "01/01/1970",
 				response.getElementWithID("fromDate").getAttribute("value"));
 		
 		LocalTime screenToTime = new LocalTime(response.getElementWithID("toTime").getAttribute("value"));
@@ -109,7 +111,7 @@ public class TimeFormTest extends TestCase
 			response.getElementWithID("toDate").setAttribute("value", toDateArray[i]);
 			subButton.click();
 			
-			assertEquals("Check to date format alert.","The date format should be : dd/mm/yyyy !", wc.popNextAlert()); 
+			assertEquals("Check to date format alert.",DATE_TIME_FORMAT_ERROR, wc.popNextAlert()); 
 		}
 		// Restore to valid
 		response.getElementWithID("toDate").setAttribute("value", "03/03/2009");
@@ -120,7 +122,7 @@ public class TimeFormTest extends TestCase
 			response.getElementWithID("fromDate").setAttribute("value", fromDateArray[i]);
 			subButton.click();
 			
-			assertEquals("Check from date format alert.","The date format should be : dd/mm/yyyy !", wc.popNextAlert()); 
+			assertEquals("Check from date format alert.",DATE_TIME_FORMAT_ERROR, wc.popNextAlert()); 
 		}
 		// Restore to valid
 		response.getElementWithID("fromDate").setAttribute("value", "02/03/2009");
@@ -131,7 +133,7 @@ public class TimeFormTest extends TestCase
 			response.getElementWithID("toTime").setAttribute("value", toTimeArray[i]);
 			subButton.click();
 			
-			assertEquals("Check to time format alert.","The time format should be : hh:mm:ss !", wc.popNextAlert()); 
+			assertEquals("Check to time format alert.",DATE_TIME_FORMAT_ERROR, wc.popNextAlert()); 
 		}
 		// Restore to valid
 		response.getElementWithID("toTime").setAttribute("value", "15:54:32");
@@ -142,7 +144,7 @@ public class TimeFormTest extends TestCase
 			response.getElementWithID("fromTime").setAttribute("value", fromTimeArray[i]);
 			subButton.click();
 			
-			assertEquals("Check from time format alert.","The time format should be : hh:mm:ss !", wc.popNextAlert()); 
+			assertEquals("Check from time format alert.",DATE_TIME_FORMAT_ERROR, wc.popNextAlert()); 
 		}
 		
 		assertEquals("Check no more alerts.", "", wc.popNextAlert()); 
