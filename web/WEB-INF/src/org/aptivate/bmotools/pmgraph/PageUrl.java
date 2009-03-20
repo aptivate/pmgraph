@@ -7,12 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author sylviaw
- * creat URL and check if the inputed URL is valid
+ * create URL and check if the inputed URL is valid
  * 
- *- History:
- *		Noe A. Rodriguez Glez.
- *		18-03-2009 	W3C URL compilance 
- *					Page Date time Validation moved to this class.
  */
 public class PageUrl {
 	
@@ -30,10 +26,10 @@ public class PageUrl {
     
     public void getDatesFromRequest (HttpServletRequest request) throws  PageUrlException, java.text.ParseException, NumberFormatException
     {
-    	// set to default to eer have a value even if any Exception happens
+    	// set to default to have a value even if any Exception happens
     	setDatesDefault();    	
     	
-    	// try to get date tome defined by user
+    	// try to get date time defined by user
     	try {
 	    	if(request.getParameter("fromDate") != null) {	
 	    		m_fromDateAndTime = setDateTimeFromFromData(request, "from");
@@ -57,14 +53,13 @@ public class PageUrl {
     }
     
     /**
-     * Asign the star and aend dates for the graph using star end values
+     * Assign the start and end dates for the graph using start and end values
      * @param request
      * @param name
-     * @return
-     * @throws java.text.ParseException 
-     * @throws PageUrlException 
-     * @throws Exception
-     */   
+     * @return A Date created from the toDate or from date parameters of the request.
+     * @throws java.text.ParseException
+     * @throws PageUrlException
+     */
     private Date setDateTimeFromFromData(HttpServletRequest request, String name) throws java.text.ParseException, PageUrlException {
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss");
 		Date date;
@@ -85,9 +80,9 @@ public class PageUrl {
     }
 
     /**
-     *  Asign the star and aend dates for the graph using star end  request values
-     *  asuming they are timestaps. If that is not posible a default star end time
-     *  are asigned.
+     *  Assign the start and end dates for the graph using start and end  request values
+     *  assuming they are timestamps. If that is not possible a default start and end time
+     *  are assigned.
      *  
      * @param request
      * @throws Exception
