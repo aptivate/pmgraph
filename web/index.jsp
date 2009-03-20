@@ -96,54 +96,11 @@
 					</tr>				
 					<tr>
 						<td>Date (dd/mm/yyyy)</td>   
-						<%
-							SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
- 					        Date date = new Date();	
-							String toDate;	
-							
-							toDate = request.getParameter("toDate");
-							if (toDate == null) 
-							{
-							    toDate = dateFormat.format(date);
-							}
-							
-							// ----------------------------- //
-							
-							date.setDate(date.getDate()-1);
- 					        String fromDate;
-							
-							fromDate = request.getParameter("fromDate");
-							if (fromDate == null) 
-							{
-							    fromDate = dateFormat.format(date);
-							}
-						%>		
-						
 			   			<td> <input type="text" id="fromDate" name="fromDate" value="<%=pageUrl.getFromDateAsString()%>" size="8" /> </td>
             		    <td> <input type="text" id="toDate"   name="toDate" value="<%=pageUrl.getToDateAsString()%>"  size="8" /> </td>
 				    </tr>
 					<tr>
 						<td>Time (hh:mm:ss)</td>  
-						<%
-							dateFormat = new SimpleDateFormat("HH:mm:ss");
-							String toTime;	
-							
-							toTime = request.getParameter("toTime");
-							if (toTime == null) 
-							{
-							    toTime= dateFormat.format(date);
-							}
-							
-							// ----------------------------- //
-							
- 					        String fromTime;
-							
-							fromTime = request.getParameter("fromTime");
-							if (fromTime == null) 
-							{
-							    fromTime= dateFormat.format(date);
-							}
-						%>			
 						<td> <input type="text" id="fromTime" name="fromTime" value="<%=pageUrl.getFromTimeAsString()%>" size="8" /> </td>
 						<td> <input type="text" id="toTime"   name="toTime"   value="<%=pageUrl.getToTimeAsString()%>" size="8" /> </td>	     
 					</tr>
