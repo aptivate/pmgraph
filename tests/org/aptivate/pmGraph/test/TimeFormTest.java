@@ -73,7 +73,6 @@ public class TimeFormTest extends TestCase
 		DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm:ss");
 
 		LocalDate toDate = new LocalDate();
-		LocalDate fromDate = toDate.minusDays(1);		
 		LocalTime currentTime = new LocalTime();
 
 		assertEquals("Check the toDate initial value.", "01/01/1970",
@@ -82,15 +81,11 @@ public class TimeFormTest extends TestCase
 		assertEquals("Check the fromDate initial value.", "01/01/1970",
 				response.getElementWithID("fromDate").getAttribute("value"));
 		
-		LocalTime screenToTime = new LocalTime(response.getElementWithID("toTime").getAttribute("value"));
+		assertEquals("Check the toTime initial value.", "01:05:00",
+				response.getElementWithID("toTime").getAttribute("value"));
 		
-		assertTrue("Check the toTime initial value.", 
-				Minutes.minutesBetween(currentTime, screenToTime).getMinutes() < 1);
-		
-		LocalTime screenFromTime = new LocalTime(response.getElementWithID("fromTime").getAttribute("value"));
-		
-		assertTrue("Check the fromTime initial value.", 
-				Minutes.minutesBetween(currentTime, screenFromTime).getMinutes() < 1);
+		assertEquals("Check the fromTime initial value.", "01:00:00",
+				response.getElementWithID("fromTime").getAttribute("value"));
 
 		SubmitButton subButton = theForm.getSubmitButton("Go");
 		
