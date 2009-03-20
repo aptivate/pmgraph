@@ -71,7 +71,6 @@
        // <![CDATA[							
 			function onLoad()
 			{
-			<% System.out.println(errorMsg); %>
 				if("<%=errorMsg%>"!="null")
 				{
 					alert("<%=errorMsg%>");
@@ -82,7 +81,7 @@
 		// ]]>	
         </script>
     </head>
-    <body onload="onLoad();">
+    <body onload="onLoad()">
         <div id="container">
             <div id="header">
                 <img id="logo" alt="Logo Banner" src="images/logo.png" />
