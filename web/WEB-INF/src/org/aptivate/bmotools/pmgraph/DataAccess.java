@@ -35,99 +35,14 @@ public class DataAccess {
 	private String m_localSubnet;							// used in the list of the DB data
 	private Connection m_conn;
 	// MySQL table fields
-	private final String DOWNLOADED = "downloaded";
-	private final String IP = "local_ip";
-	private final String UPLOADED = "uploaded";
-	private final String BYTES = "bytes_total";
+	final String DOWNLOADED = "downloaded";
+	final String IP = "local_ip";
+	final String UPLOADED = "uploaded";
+	final String BYTES = "bytes_total";
 	private static Logger m_logger = Logger.getLogger(DataAccess.class.getName());
 
 	
-	private class UploadComparator  implements Comparator {
-
-		private boolean m_descending;
 		
-		public UploadComparator (boolean descending) {
-		
-				m_descending= descending;
-		}
-		
-		
-	  public int compare(Object o1, Object o2) {
-		  
-	    GraphData d1 = (GraphData) o1;
-	    GraphData d2 = (GraphData) o2;
-	    if (m_descending)
-	    	return (0 - d1.getUploaded().compareTo(d2.getUploaded()));
-	    else
-	    	return (d1.getUploaded().compareTo(d2.getUploaded())); 	
-	  }
-	  
-
-	  public boolean equals(Object o) {
-	    return this == o;
-	  }
-	}
-
-	private class DownloadComparator implements Comparator  {
-
-		private boolean m_descending;
-		
-		public DownloadComparator (boolean descending) {
-		
-				m_descending= descending;
-		}
-		
-		
-	  public int compare(Object o1, Object o2) {
-		  
-	    GraphData d1 = (GraphData) o1;
-	    GraphData d2 = (GraphData) o2;
-	    if (m_descending)
-	    	return (0 - d1.getDownloaded().compareTo(d2.getDownloaded()));
-	    else
-	    	return (d1.getDownloaded().compareTo(d2.getDownloaded()));    	
-	  }
-	  
-
-	  public boolean equals(Object o) {
-	    return this == o;
-	  }
-	}
-	
-	/**
-	 * 	Retun an appropiate comparator for de requested sorting
-	 * @param sortby
-	 * @param order
-	 * @return A conparator to be used in the sorting of the
-	 *  results list
-	 */	
-	private Comparator getComparator (String sortby, String order) {
-		
-		if (!"".equalsIgnoreCase(sortby)) {
-			if (UPLOADED.equalsIgnoreCase(sortby)) {
-				if ("DESC".equalsIgnoreCase(order))
-					return(new UploadComparator(true));
-				else
-					return(new UploadComparator(false));
-			} else {
-				if (BYTES.equalsIgnoreCase(sortby)) {
-					if ("DESC".equalsIgnoreCase(order))
-						return(new BytesTotalComparator(true));
-					else
-						return(new BytesTotalComparator(false));
-				} else {			
-					if (DOWNLOADED.equalsIgnoreCase(sortby)) {
-						if ("DESC".equalsIgnoreCase(order))
-							return(new DownloadComparator(true));
-						else
-							return(new DownloadComparator(false));
-					}
-				}
-			}
-		}	
-		return null;
-	}
-	
 	/**
 	 * Create the connection object and set the m_localSubnet to the subnet 
 	 * contained in the config file
@@ -266,7 +181,7 @@ public class DataAccess {
 		return getResultPerIP(start, end, GraphUtilities.THROUGHPUT_PER_IP);
 
 	}
-
+/*
 	public List<GraphData> getThroughputPerIP(long start, long end, String sortby,
 			String order) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
@@ -281,7 +196,7 @@ public class DataAccess {
 	
 		return result;
 	}
-
+*/
 		
 	/**
 	 * 	Get a list of GraphData containing the THROUGHPUT 

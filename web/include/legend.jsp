@@ -14,6 +14,11 @@
 <%
     long startP = Long.parseLong(request.getParameter("start"));
     long endP = Long.parseLong(request.getParameter("end"));
+    StringBuffer othersHostName = new StringBuffer("");
+    StringBuffer othersIp = new StringBuffer("");
+    long othersDownloaded = 0;
+	long othersUploaded = 0;
+	String othersFillColour="";
     
     // Round our times to the nearest minute
     long start = startP - (startP % 60000);
@@ -23,24 +28,33 @@
 	String sortBy = request.getParameter("sortBy");
 	//order: DESC | ASC
 	String order = request.getParameter("order");
-	String orderN = order.equals("DESC") ? "ASC" : "DESC";
+	String orderN = order.equals("ASC") ? "DESC" : "ASC";
 
-	String arrow = order.equals("DESC")?" &#8681;":" &#8679;";
+	String arrow = order.equals("ASC")?" &#8679;":" &#8681;";
 	String col1 = "Downloaded";
 	String col2 = "Uploaded";
 	String col3 = "Totals (MB)";
-	if(sortBy.equals("downloaded"))
-	col1 = col1 + arrow;
-	if(sortBy.equals("uploaded"))
-	col2 = col2 + arrow;	
-	if(sortBy.equals("bytes_total"))
-	col3 = col3 + arrow;
-
-    DataAccess dataAccess = new DataAccess();
-	List<GraphData> ipResults = dataAccess.getThroughputPerIP(start, end, sortBy, order);
-
+	
+	if("downloaded".equals(sortBy))
+		col1 = col1 + arrow;
+	if("uploaded".equals(sortBy))
+		col2 = col2 + arrow;	
+	if ("bytes_total".equals(sortBy))
+		col3 = col3 + arrow;
     //methods to get new URL
     PageUrl pageUrl = new PageUrl();
+	try
+	{ 
+		 pageUrl.setResultLimitFromRequest(request);
+	}	
+	catch (NumberFormatException e)
+	{
+		;	// just ignore exception mesage mesage will be generated in main page.
+	}
+	LegendData legendData = new LegendData();
+	List<GraphData> ipResults = legendData.getLegendData(start, end, sortBy, order,pageUrl.getResultLimit());
+
+    
 %>
 <table id="legend_tbl">
 	<thead>
@@ -78,18 +92,18 @@
 		        Color c = graphFactory.getSeriesColor(ip);
 		        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
 				HostResolver hostResolver = new HostResolver();
-		        String hostName = hostResolver.getHostname(ip);
+		        String hostName = hostResolver.getHostname(ip);		        
 	%>
-		    <tr class="row<%=i % 2%>">
-		        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
-		        <td><%=ip%></td>
-		        <td><%=hostName%></td>        
-		
-		        <td class="numval"><%=(ipResult.getDownloaded() / 1048576)%></td>
-		        <td class="numval"><%=(ipResult.getUploaded() / 1048576)%></td>
-		    </tr>
-	    	<%
-		    i++;
-	    }
-	%>
+				    <tr class="row<%=i % 2%>">
+				        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
+				        <td><%=ip%></td>
+				        <td><%=hostName%></td>        
+				
+				        <td class="numval"><%=(ipResult.getDownloaded() / 1048576)%></td>
+				        <td class="numval"><%=(ipResult.getUploaded() / 1048576)%></td>
+				    </tr>
+			   <%
+	    		i++;
+			}
+	   %>
 </table>

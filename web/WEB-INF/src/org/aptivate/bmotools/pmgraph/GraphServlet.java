@@ -52,6 +52,7 @@ public class GraphServlet extends HttpServlet
 			long end = Long.parseLong(req.getParameter("end"));
 			int width = Integer.parseInt(req.getParameter("width"));
 			int height = Integer.parseInt(req.getParameter("height"));
+			int limitResult = Integer.parseInt(req.getParameter("resultLimit"));
 
 			// Create graph of appropriate type and write to response stream
 			if (graphType.equals("total"))
@@ -67,7 +68,7 @@ public class GraphServlet extends HttpServlet
 				res.setContentType("image/png");
 				GraphFactory graphFactory = new GraphFactory();
 				ChartUtilities.writeChartAsPNG(res.getOutputStream(),
-						graphFactory.stackedThroughput(start, end), width,
+						graphFactory.stackedThroughput(start, end, limitResult), width,
 						height);
 			}
 			else

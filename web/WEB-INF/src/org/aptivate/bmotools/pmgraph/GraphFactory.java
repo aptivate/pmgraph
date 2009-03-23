@@ -161,7 +161,7 @@ public class GraphFactory
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public JFreeChart stackedThroughput(long start, long end)
+	public JFreeChart stackedThroughput(long start, long end, Integer limitResult)
 			throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException, IOException, SQLException,
 			NoSuchAlgorithmException
@@ -174,6 +174,8 @@ public class GraphFactory
 		start = start - (start % 60000);
 		end = end - (end % 60000);
 		HashMap<String, XYSeries> ip_XYSeries = new HashMap<String, XYSeries>();
+		HashMap<Long, Long> otherUp = null;
+		HashMap<Long, Long> otherDown = null;
 		int minutes = (int) (end - start) / 60000;
 
 		// Create a "chartable" data container
@@ -194,6 +196,7 @@ public class GraphFactory
 				theStart, theEnd);
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
 
+		int j=0;
 		// For each query result, get data and write to the appropriate series
 		for (GraphData thrptResult : thrptResults)
 		{
@@ -206,44 +209,80 @@ public class GraphFactory
 			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
 			long downloaded = ((thrptResult.getDownloaded() * 8) / 1024) / 60;
 			long uploaded = ((thrptResult.getUploaded() * 8) / 1024) / 60;
-
+				
 			// check if the ip already have its own serie if not we create one
 			// for it
 			if (!ip_XYSeries.containsKey(ip + "<down>"))
 			{
-
-				XYSeries downSeries = new XYSeries(ip + "<down>", true, false);
-				XYSeries upSeries = new XYSeries(ip + "<up>", true, false);
-				for (int i = 0; i <= minutes; i++)
+				if (j < limitResult) {
+					XYSeries downSeries = new XYSeries(ip + "<down>", true, false);
+					XYSeries upSeries = new XYSeries(ip + "<up>", true, false);
+					for (int i = 0; i <= minutes; i++)
+					{
+						downSeries.add(Long.valueOf(start + i * 60000), Long
+								.valueOf(0));
+						upSeries.add(Long.valueOf(start + i * 60000), Long
+								.valueOf(0));
+					}
+					// keep the series in a hash in order to reuse it when we have
+					// results for the same IP
+					ip_XYSeries.put(ip + "<down>", downSeries);
+					ip_XYSeries.put(ip + "<up>", upSeries);
+					// Set the same color for the upload and download series of an
+					// IP
+					Color color = getSeriesColor(ip);
+					// Put the series into the graph
+					dataset.addSeries(downSeries);
+					renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
+					dataset.addSeries(upSeries);
+					renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
+				} 
+				else 
 				{
-					downSeries.add(Long.valueOf(start + i * 60000), Long
-							.valueOf(0));
-					upSeries.add(Long.valueOf(start + i * 60000), Long
-							.valueOf(0));
+					// Create a hashMap to keep stacked values for group other
+					if (otherUp == null) {
+
+						otherUp = new HashMap<Long, Long>();
+						otherDown = new HashMap<Long, Long>();
+						for (int i = 0; i <= minutes; i++)
+						{
+							otherUp.put(Long.valueOf(start + i * 60000),0L);
+							otherDown.put(Long.valueOf(start + i * 60000), 0L);
+						}
+					}
 				}
-
-				// keep the series in a hash in order to reuse it when we have
-				// results for the same IP
-				ip_XYSeries.put(ip + "<down>", downSeries);
-				ip_XYSeries.put(ip + "<up>", upSeries);
-
-				// Set the same color for the upload and download series of an
-				// IP
-				Color color = getSeriesColor(ip);
-				// Put the series into the graph
-				dataset.addSeries(downSeries);
-				renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
-				dataset.addSeries(upSeries);
-				renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
-
+				j++;
 			}
 			XYSeries downSeries = ip_XYSeries.get(ip + "<down>");
 			XYSeries upSeries = ip_XYSeries.get(ip + "<up>");
-			// update the values of the series
-			downSeries.update(inserted.getTime(), downloaded);
-			upSeries.update(inserted.getTime(), (0 - uploaded));
+			if ( downSeries != null) {			// We created series for this ip then it should be in the limit top
+							// update the values of the series
+				downSeries.update(inserted.getTime(), downloaded);
+				upSeries.update(inserted.getTime(), (0 - uploaded));
+			} else {		// the ip belong to the group other just stack values
+				otherDown.put(inserted.getTime(), otherDown.get(inserted.getTime()) + downloaded);
+				otherUp.put(inserted.getTime(), otherUp.get(inserted.getTime()) + (0 - uploaded));
+			}
+		}	
+		
+		if (otherUp != null) {
+			XYSeries downSeries = new XYSeries("other <down>", true, false);
+			XYSeries upSeries = new XYSeries("other <up>", true, false);
+			for (int i = 0; i <= minutes; i++)
+			{
+				Long time= Long.valueOf(start + i * 60000);
+				downSeries.add(time, otherDown.get(time));
+				upSeries.add(time, otherUp.get(time));
+				
+			}
+			Color otherGroupColor = getSeriesColor("255.255.255.255");
+			dataset.addSeries(downSeries);
+			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, otherGroupColor);
+			dataset.addSeries(upSeries);
+			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, otherGroupColor);
+			
 		}
-
+		
 		DateAxis xAxis;
 		long timePeriod = (theEnd - theStart) / 60000;
 		if (timePeriod < 7)
