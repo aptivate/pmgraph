@@ -100,4 +100,10 @@ public class Configuration
 		Properties properties = readConfiguration();
 		return Integer.valueOf(properties.getProperty("DHCPPort"));
 	}
+	public static Integer getResultLimit() throws IOException
+	{
+
+		Properties properties = readConfiguration();
+		return Integer.valueOf(properties.getProperty("ResultLimit"));
+	}
 }

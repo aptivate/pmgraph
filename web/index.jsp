@@ -5,6 +5,7 @@
 <%@ page import="java.text.ParseException"%>
 <%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.PageUrl"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.Configuration"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.PageUrlException"%>
 <%
     // Graph parameters
@@ -19,9 +20,9 @@
         
          //the sort parameters
     //sortBy: bytes_total | downloaded | uploaded
-	String sortBy = (param = request.getParameter("sortBy")) != null ? param : "bytes_total";
+	String sortBy = request.getParameter("sortBy");
 	//order: DESC | ASC
-	String order = (param = request.getParameter("order")) != null ? param : "DESC";
+	String order = request.getParameter("order");
     
     //methods to get new URL
     PageUrl pageUrl = new PageUrl();
@@ -29,11 +30,12 @@
     // Input Validation
     String errorMsg = null;    
 	final String DATE_TIME_FORMAT_ERROR = "The date format should be : dd/mm/yyyy !\\n The time format should be : hh:mm:ss !";
-	final String START_END_FORMAT_ERROR = "Start and End parameters Should be numbers !";				
+	final String START_END_FORMAT_ERROR = "Start and End parameters Should be numbers ! \\n Default start end parameters assumed.";		
+	final String RESULT_LIMIT_FORMAT_ERROR = "ResultLimit parameter should by a number ! \\n Default resultLimit value assumed.";	
 	// Validate Dates
 	try
 	{ 
-		 pageUrl.getDatesFromRequest(request);
+		 pageUrl.setDatesFromRequest(request);
 	}
 	catch (ParseException e)
 	{
@@ -48,6 +50,17 @@
 		errorMsg = START_END_FORMAT_ERROR;
 	}
 	
+	try
+	{ 
+		 pageUrl.setResultLimitFromRequest(request);
+	}	
+	catch (NumberFormatException e)
+	{
+		errorMsg = RESULT_LIMIT_FORMAT_ERROR;
+	}
+
+	
+	
    	// Change start and end Time
 	startTime = pageUrl.getStartTime();
 	endTime = pageUrl.getEndTime();
@@ -60,8 +73,7 @@
     
     newZoomOutStart = ((startTime - zoomAmount) / 6000);
     newZoomOutEnd = ((endTime + zoomAmount) / 6000);
-  	
- %>
+%>
 <%@page import="org.aptivate.bmotools.pmgraph.PageUrlException"%>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
@@ -81,7 +93,7 @@
 		// ]]>	
         </script>
     </head>
-    <body onload="onLoad()">
+    <body onload="onLoad();">
         <div id="container">
             <div id="header">
                 <img id="logo" alt="Logo Banner" src="images/logo.png" />
@@ -102,6 +114,11 @@
 						<td>Time (hh:mm:ss)</td>  
 						<td> <input type="text" id="fromTime" name="fromTime" value="<%=pageUrl.getFromTimeAsString()%>" size="8" /> </td>
 						<td> <input type="text" id="toTime"   name="toTime"   value="<%=pageUrl.getToTimeAsString()%>" size="8" /> </td>	     
+					</tr>
+					<tr>  
+						<td>Show Top </td>   
+						<td>
+						<input type="text" id="resultLimit"  name="resultLimit"   value="<%=pageUrl.getResultLimit()%>" size="3" /> IP's</td>
 					</tr>
 					<tr>  
 						<td> </td>   

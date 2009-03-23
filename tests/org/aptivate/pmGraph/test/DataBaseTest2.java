@@ -24,7 +24,7 @@ public class DataBaseTest2 extends TestCase
 		DataAccess dataAccess = new DataAccess();
 		List<GraphData> resultPerIP = dataAccess.getThroughputPerIP(0, 300000);
 		List<GraphData> resultPerIPSort = dataAccess.getThroughputPerIP(0,
-				300000, "downloaded", "ASC");
+				300000);
 		List<GraphData> resultPerIPPerMinute = dataAccess
 				.getThroughputPIPPMinute(0, 300000);
 		assertTrue("get result per IP", !resultPerIP.isEmpty());

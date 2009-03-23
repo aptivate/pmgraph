@@ -1,5 +1,6 @@
 package org.aptivate.bmotools.pmgraph;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -9,6 +10,10 @@ import javax.servlet.http.HttpServletRequest;
  * @author sylviaw
  * create URL and check if the inputed URL is valid
  * 
+ *- History:
+ *		Noe A. Rodriguez Glez.
+ *		18-03-2009 	W3C URL compilance 
+ *					Page Date time Validation moved to this class.
  */
 public class PageUrl {
 	
@@ -17,6 +22,7 @@ public class PageUrl {
     private final String m_legendURL = "/include/legend.jsp";      
     private Date m_fromDateAndTime;
     private Date m_toDateAndTime;
+    private Integer m_resultLimit;
     final String DATE_TIME_FORMAT_ERROR = "The date format should be : dd/mm/yyyy !\\n The time format should be : hh:mm:ss !";
     
     public PageUrl () 
@@ -24,12 +30,12 @@ public class PageUrl {
     	
     }
     
-    public void getDatesFromRequest (HttpServletRequest request) throws  PageUrlException, java.text.ParseException, NumberFormatException
+    public void setDatesFromRequest (HttpServletRequest request) throws  PageUrlException, java.text.ParseException, NumberFormatException
     {
-    	// set to default to have a value even if any Exception happens
+    	// set to default to eer have a value even if any Exception happens
     	setDatesDefault();    	
     	
-    	// try to get date time defined by user
+    	// try to get date tome defined by user
     	try {
 	    	if(request.getParameter("fromDate") != null) {	
 	    		m_fromDateAndTime = setDateTimeFromFromData(request, "from");
@@ -44,22 +50,44 @@ public class PageUrl {
     	if((m_fromDateAndTime.getTime() >= m_toDateAndTime.getTime()) || 
 		  ((m_toDateAndTime.getTime() - m_fromDateAndTime.getTime()) < 60000))
 		{
+    		setDatesDefault();   
    			throw new PageUrlException("The From Date and Time have to be at least 1 minute before the To Date and Time.");
 		}    	
     	if(m_toDateAndTime.getTime() > new Date().getTime())
 		{
+    		setDatesDefault();
     		throw new PageUrlException("The From and To Date and Time cannot be in the future.");
 		}
     }
     
     /**
-     * Assign the start and end dates for the graph using start and end values
+     * Set the value of resultLimit to the user defined value or to default value
+     * established in config file if user have not set a value. 
+     * @param request
+     * @throws NumberFormatException
+     * @throws IOException
+     */
+    public void setResultLimitFromRequest (HttpServletRequest request) throws NumberFormatException, IOException
+    {
+    	if ((request.getParameter("resultLimit") != null)
+    		&& (!"".equalsIgnoreCase(request.getParameter("resultLimit")))) {	
+    		m_resultLimit = Integer.valueOf (request.getParameter("resultLimit"));
+
+    	} else {	// if user has not defined date time get it from start and end parameters
+    		m_resultLimit = Configuration.getResultLimit();
+    	}
+    }
+    
+    
+    /**
+     * Asign the star and aend dates for the graph using star end values
      * @param request
      * @param name
-     * @return A Date created from the toDate or from date parameters of the request.
-     * @throws java.text.ParseException
-     * @throws PageUrlException
-     */
+     * @return
+     * @throws java.text.ParseException 
+     * @throws PageUrlException 
+     * @throws Exception
+     */   
     private Date setDateTimeFromFromData(HttpServletRequest request, String name) throws java.text.ParseException, PageUrlException {
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss");
 		Date date;
@@ -80,9 +108,9 @@ public class PageUrl {
     }
 
     /**
-     *  Assign the start and end dates for the graph using start and end  request values
-     *  assuming they are timestamps. If that is not possible a default start and end time
-     *  are assigned.
+     *  Asign the star and aend dates for the graph using star end  request values
+     *  asuming they are timestaps. If that is not posible a default star end time
+     *  are asigned.
      *  
      * @param request
      * @throws Exception
@@ -114,7 +142,8 @@ public class PageUrl {
 	    "?start=" + start +
 	    "&end=" + end +
         "&sortBy=" + sortBy +
-        "&order=" + order;
+        "&order=" + order +
+        "&resultLimit=" + getResultLimit();	
 		return newURL;
 	}
 
@@ -125,7 +154,8 @@ public class PageUrl {
 	    "&amp;start=" + start +
 	    "&amp;end=" + end +
 	    "&amp;width=780" +
-	    "&amp;height=350";		
+	    "&amp;height=350" + 
+	    "&amp;resultLimit=" + getResultLimit();		
 		return newURL;		
 	}
 	
@@ -136,7 +166,8 @@ public class PageUrl {
 		"?report=" + report +
 		"&amp;graph=" + graph +
 	    "&amp;start=" + start +
-	    "&amp;end=" + end;
+	    "&amp;end=" + end +
+	    "&amp;resultLimit=" + getResultLimit();		
 		return newURL;
 	}
 	
@@ -146,7 +177,8 @@ public class PageUrl {
 		"?start=" + start +
 		"&amp;end=" + end +
 	    "&amp;sortBy=" + sortBy +
-	    "&amp;order=" + order;
+	    "&amp;order=" + order +
+	    "&amp;resultLimit=" + getResultLimit();		
 		return newURL;
 	}
 
@@ -208,7 +240,14 @@ public class PageUrl {
 		
 		return (getTimeAsString(m_toDateAndTime));
 	}
-	
-	
 
+	public Integer getResultLimit()
+	{
+		return m_resultLimit;
+	}
+
+	public void setResultLimit(Integer resultLimit)
+	{
+		this.m_resultLimit = resultLimit;
+	}
 }

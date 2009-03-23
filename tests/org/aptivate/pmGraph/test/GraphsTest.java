@@ -37,7 +37,7 @@ public class GraphsTest extends TestCase
 		GraphFactory graphFactory = new GraphFactory();
 
 		JFreeChart chart = graphFactory.stackedThroughput(testUtils.t1.getTime(),testUtils.t4
-				.getTime());
+				.getTime(),15);
 		assertEquals("Network Throughput Per IP", chart.getTitle().getText());
 
 		XYPlot plot = (XYPlot) chart.getPlot();
