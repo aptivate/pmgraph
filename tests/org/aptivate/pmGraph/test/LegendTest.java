@@ -368,7 +368,7 @@ public class LegendTest extends TestCase
 			String hostIP = table.getCellAsText(Configuration.getResultLimit() + 2, 1);
 			String downloaded = table.getCellAsText(Configuration.getResultLimit() + 2, 3);
 			String uploaded = table.getCellAsText(Configuration.getResultLimit() + 2, 4);
-			assertEquals("Check the IP Address", "255.255.255.255", hostIP);
+			assertEquals("Check the IP Address", "Others", hostIP);
 			assertEquals("Check the Downloaded Value", "0", downloaded);
 			assertEquals("Check the Upload Value", "23", uploaded);
 		}
@@ -390,7 +390,7 @@ public class LegendTest extends TestCase
 			String hostIP = table.getCellAsText(8 + 2, 1);
 			String downloaded = table.getCellAsText(8 + 2, 3);
 			String uploaded = table.getCellAsText (8 + 2, 4);
-			assertEquals("Check the IP Address", "255.255.255.255", hostIP);
+			assertEquals("Check the IP Address", "Others", hostIP);
 			assertEquals("Check the Downloaded Value", "0", downloaded);
 			assertEquals("Check the Upload Value", "8", uploaded);
 		}

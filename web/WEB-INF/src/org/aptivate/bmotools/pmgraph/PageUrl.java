@@ -38,8 +38,8 @@ public class PageUrl {
     	// try to get date tome defined by user
     	try {
 	    	if(request.getParameter("fromDate") != null) {	
-	    		m_fromDateAndTime = setDateTimeFromFromData(request, "from");
-				m_toDateAndTime = setDateTimeFromFromData(request, "to");
+	    		m_fromDateAndTime = getDateTimeFromFromData(request, "from");
+				m_toDateAndTime = getDateTimeFromFromData(request, "to");
 	    	} else {	// if user has not defined date time get it from start and end parameters
 	    		setDatesFromStartEnd(request);
 	    	}
@@ -80,15 +80,15 @@ public class PageUrl {
     
     
     /**
-     * Asign the star and aend dates for the graph using star end values
+     * Asign the start and end dates for the graph using start end values
      * @param request
-     * @param name
-     * @return
+     * @param  name prefix to be add to get infromation from request (from or to)
+     * @return A Date time obtained from request totime todate and fromTime fromDate
      * @throws java.text.ParseException 
      * @throws PageUrlException 
      * @throws Exception
      */   
-    private Date setDateTimeFromFromData(HttpServletRequest request, String name) throws java.text.ParseException, PageUrlException {
+    private Date getDateTimeFromFromData(HttpServletRequest request, String name) throws java.text.ParseException, PageUrlException {
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss");
 		Date date;
 		

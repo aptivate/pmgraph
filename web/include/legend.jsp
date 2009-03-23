@@ -92,9 +92,10 @@
 		        Color c = graphFactory.getSeriesColor(ip);
 		        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
 				HostResolver hostResolver = new HostResolver();
-		        String hostName = hostResolver.getHostname(ip);		        
-	%>
-				    <tr class="row<%=i % 2%>">
+		        String hostName = hostResolver.getHostname(ip);		
+		        if ("255.255.255.255".equalsIgnoreCase(ip))
+		        	ip = "Others";
+	%>				    <tr class="row<%=i % 2%>">
 				        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
 				        <td><%=ip%></td>
 				        <td><%=hostName%></td>        
