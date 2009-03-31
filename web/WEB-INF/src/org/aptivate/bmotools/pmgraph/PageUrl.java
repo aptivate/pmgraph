@@ -8,13 +8,9 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author sylviaw
- * create URL and check if the inputed URL is valid
- * 
- *- History:
- *		Noe A. Rodriguez Glez.
- *		18-03-2009 	W3C URL compilance 
- *					Page Date time Validation moved to this class.
+ * @author sylviaw create URL and check if the inputed URL is valid
+ *  - History: Noe A. Rodriguez Glez. 18-03-2009 W3C URL compilance Page
+ * Date time Validation moved to this class.
  */
 public class PageUrl
 {
@@ -40,6 +36,10 @@ public class PageUrl
 	private Integer m_port;
 
 	private View m_view;
+
+	private long scrollAmount;
+
+	private long zoomAmount;
 
 	public PageUrl()
 	{
@@ -82,6 +82,8 @@ public class PageUrl
 			setDatesDefault();
 			throw new PageUrlException(ErrorMessages.TIME_IN_FUTURE);
 		}
+		zoomAmount = (getEndTime() - getStartTime()) / 2;
+		scrollAmount = (getEndTime() - getStartTime()) / 2;
 	}
 
 	/**
@@ -459,6 +461,26 @@ public class PageUrl
 		this.m_view = view;
 	}
 
+	public long getScrollAmount()
+	{
+		return scrollAmount;
+	}
+
+	public void setScrollAmount(long scrollAmount)
+	{
+		this.scrollAmount = scrollAmount;
+	}
+
+	public long getZoomAmount()
+	{
+		return zoomAmount;
+	}
+
+	public void setZoomAmount(long zoomAmount)
+	{
+		this.zoomAmount = zoomAmount;
+	}
+
 	/**
 	 * Just create a String with the parameters for the URL for parameters ip,
 	 * port, View. the parameters have priority if and specific Ip querry is
@@ -479,7 +501,7 @@ public class PageUrl
 			separator = "&";
 
 		if (isEspecificPortIpQuery()) // specific Queries dont mind in view
-										// selection
+		// selection
 		{
 			if (m_ip != null)
 			{
@@ -550,6 +572,39 @@ public class PageUrl
 		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
 				+ "&amp;resultLimit=" + getResultLimit() + "&amp;port=" + port;
 		return newURL;
+	}
+
+	public String getZoomInURL(String report, String graph, long start, long end)
+	{
+		long newZoomInStart = start + zoomAmount / 2;
+		long newZoomInEnd = end - zoomAmount / 2;
+
+		return getIndexURL(report, graph, newZoomInStart, newZoomInEnd);
+	}
+
+	public String getZoomOutURL(String report, String graph, long start,
+			long end)
+	{
+		long newZoomOutStart = start - zoomAmount;
+		long newZoomOutEnd = end + zoomAmount;
+		long temp = new Date().getTime();
+
+		// limit the zoom if it create a date in the future
+		if (newZoomOutEnd > temp)
+		{
+			newZoomOutStart -= (newZoomOutEnd - temp);
+			newZoomOutEnd = temp;
+		}
+
+		return getIndexURL(report, graph, newZoomOutStart, newZoomOutEnd);
+	}
+
+	public boolean showZoomIn(long start, long end)
+	{
+		long newZoomInStart = ((start + zoomAmount / 2) / 6000);
+		long newZoomInEnd = ((end - zoomAmount / 2) / 6000);
+
+		return ((newZoomInEnd - newZoomInStart) > 15);
 	}
 
 }

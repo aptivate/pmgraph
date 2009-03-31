@@ -127,15 +127,6 @@ public class ButtonsTest extends TestCase
 		link = response.getLinkWithName("zoomOut");
 		assertEquals("Compare the zoom- link.", zoomURL, link.getURLString());
 
-		/* Test if the Zoom- Button Disappear */
-		// Obtain the upload page on web site
-		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
-				+ "?start=0&end=2147460000");
-		response = wc.getResponse(request);
-
-		// Check thar there isn't the Zoom- link in the page
-		link = response.getLinkWithName("zoomOut");
-		assertEquals("Check that the zoom- link is null.", null, link);
 	}
 
 	/* This test tests the zoom+ button */
