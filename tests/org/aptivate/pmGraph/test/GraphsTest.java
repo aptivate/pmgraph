@@ -1,138 +1,121 @@
 package org.aptivate.pmGraph.test;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.IOException;
+import java.sql.SQLException;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.apache.log4j.Logger;
 import org.aptivate.bmotools.pmgraph.GraphFactory;
+import org.aptivate.bmotools.pmgraph.PageUrl.View;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.ValueMarker;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.DefaultTableXYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.ui.Layer;
+
 /**
- *  
- * @author noeg
- *
+ * 
+ * @author Noe Andres Rodriguez Gonzalez
+ * 
  */
-public class GraphsTest extends TestCase
+public class GraphsTest extends GraphTestBase
 {
+	private static Logger m_logger = Logger.getLogger(GraphsTest.class
+			.getName());
 
-
-	/**/
-	public void testCumulativeGraph() throws Exception
+	public GraphsTest() throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException, IOException
 	{
-		TestUtils testUtils = new TestUtils();
-		testUtils.CreateTable();
-		testUtils.InsertSampleData();
+		super();
+	}
 
+	public void setUp() throws Exception
+	{
+		m_testUtils.CreateTable();
+		m_testUtils.InsertSampleData();
+	}
+
+	private void checkGraph(View view) throws Exception
+	{
+		JFreeChart chart;
+		long values[][];
+		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
 
-		JFreeChart chart = graphFactory.stackedThroughput(testUtils.t1.getTime(),testUtils.t4
-				.getTime(),15);
-		assertEquals("Network Throughput Per IP", chart.getTitle().getText());
-
-		XYPlot plot = (XYPlot) chart.getPlot();
-		assertEquals(PlotOrientation.VERTICAL, plot.getOrientation());
-		Collection markers = plot.getRangeMarkers(Layer.FOREGROUND);
-		Iterator i = markers.iterator();
-		assertEquals(i.next(), new ValueMarker(0));
-		assertFalse(i.hasNext());
-
-		NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
-		assertEquals("Throughput (kb/s)", yAxis.getLabel());
-
-		DefaultTableXYDataset dataset = (DefaultTableXYDataset) plot
-				.getDataset();
-		// assertEquals(24, dataset.getSeriesCount());
-
-		String[] hosts = new String[] { "10.0.156.120", "10.0.156.110",
-				"10.0.156.131", "10.0.156.132", "10.0.156.133", "10.0.156.134",
-				"10.0.156.135", "10.0.156.136", "10.0.156.137", "10.0.156.138",
-				"10.0.156.139", "10.0.156.140" };
-
-		for (int n = 0; n < hosts.length; n++)
+		switch (view)
 		{
-			assertTrue("missing item " + hosts[n],
-					dataset.getSeriesCount() > (n << 1));
-			assertEquals(hosts[n] + "<down>", dataset.getSeries(n << 1)
-					.getKey());
-			assertEquals(hosts[n] + "<up>", dataset.getSeries((n << 1) + 1)
-					.getKey());
+		default:
+			m_logger.warn(" View Unknown assumed default view IP");
+		case IP:
+			chart = graphFactory.stackedThroughput(m_testUtils.t1.getTime(),
+					m_testUtils.t4.getTime(), 15);
+			assertEquals("Network Throughput Per IP", chart.getTitle()
+					.getText());
+			// check values per each serie.
+			rows = new String[] { "10.0.156.120", "10.0.156.110",
+					"10.0.156.131", "10.0.156.132", "10.0.156.133",
+					"10.0.156.134", "10.0.156.135", "10.0.156.136",
+					"10.0.156.137", "10.0.156.138", "10.0.156.139",
+					"10.0.156.140" };
+			// init array to zero values
+			values = new long[2 * rows.length][4];
+
+			// IP 10.0.156.120 just values differents of cero
+			values[0][1] = -500 * 11;
+			values[1][1] = 5550;
+			values[1][3] = 75;
+
+			// IP 10.0.156.110
+			values[2][0] = -2000;
+			values[3][0] = 90;
+			values[3][1] = 80;
+			values[3][3] = 70;
+
+			// IPs 10.0.156.131 10.0.156.140
+			for (int n = 2; n < rows.length; n++)
+			{
+				assertEquals("10.0.156." + (130 + n - 1), rows[n]);
+				values[n * 2][3] = Long.valueOf(-100 * (12 - n) - 50);
+			}
+
+			break;
+
+		case PORT:
+			chart = graphFactory.stackedThroughputPerPort(m_testUtils.t1
+					.getTime(), m_testUtils.t4.getTime(), 15);
+			assertEquals("Network Throughput Per Port", chart.getTitle()
+					.getText());
+			// check values per each serie.
+			rows = new String[] { "90", "10000", "12300", "23500", "23400" };
+			// init array to zero values
+			values = new long[2 * rows.length][4];
+			// port 90
+			values[0][1] = -5500; // upload
+			values[0][3] = -6000; // download
+			// port 10000
+			values[3][1] = 5500;
+
+			// port 12300
+			values[4][0] = -2000;
+			values[5][0] = 90;
+			values[5][1] = 80;
+			values[5][3] = 70;
+			// port 23500
+			values[7][3] = 75;
+			// port 23400
+			values[9][1] = 50;
+			break;
 		}
-
-		assertEquals(hosts.length * 2, dataset.getSeriesCount());
-
-		Map<String, XYSeries> series = new HashMap<String, XYSeries>();
-
-		for (int n = 0; n < dataset.getSeriesCount(); n++)
-		{
-			XYSeries s = dataset.getSeries(n);
-			assertEquals(4, s.getItemCount());
-
-			assertEquals(testUtils.t1.getTime(), s.getX(0));
-			assertEquals(testUtils.t2.getTime(), s.getX(1));
-			assertEquals(testUtils.t3.getTime(), s.getX(2));
-			assertEquals(testUtils.t4.getTime(), s.getX(3));
-
-			assertEquals(Long.valueOf(0), s.getY(2));
-
-			series.put(s.getKey().toString(), s);
-		}
-
-		XYSeries s = series.get("10.0.156.110<up>");
-		assertEquals(Long.valueOf(-2000), s.getY(0));
-		assertEquals(Long.valueOf(0), s.getY(1));
-		assertEquals(Long.valueOf(0), s.getY(2));
-		assertEquals(Long.valueOf(0), s.getY(3));
-
-		s = series.get("10.0.156.110<down>");
-		assertEquals(Long.valueOf(90), s.getY(0));
-		assertEquals(Long.valueOf(80), s.getY(1));
-		assertEquals(Long.valueOf(0), s.getY(2));
-		assertEquals(Long.valueOf(70), s.getY(3));
-
-		s = series.get("10.0.156.120<up>");
-		assertEquals(Long.valueOf(0), s.getY(0));
-		assertEquals(Long.valueOf(-500 * 11), s.getY(1));
-		assertEquals(Long.valueOf(0), s.getY(2));
-		assertEquals(Long.valueOf(0), s.getY(3));
-
-		s = series.get("10.0.156.120<down>");
-		assertEquals(Long.valueOf(0), s.getY(0));
-		assertEquals(Long.valueOf(5500 + 50), s.getY(1));
-		assertEquals(Long.valueOf(0), s.getY(2));
-		assertEquals(Long.valueOf(75), s.getY(3));
-
-		for (int n = 2; n < hosts.length; n++)
-		{
-			assertEquals("10.0.156." + (130 + n - 1), hosts[n]);
-
-			s = series.get(hosts[n] + "<up>");
-			assertEquals(Long.valueOf(0), s.getY(0));
-			assertEquals(Long.valueOf(0), s.getY(1));
-			assertEquals(Long.valueOf(0), s.getY(2));
-			assertEquals(Long.valueOf(-100 * (12 - n) - 50), s.getY(3));
-
-			s = series.get(hosts[n] + "<down>");
-			assertEquals(Long.valueOf(0), s.getY(0));
-			assertEquals(Long.valueOf(0), s.getY(1));
-			assertEquals(Long.valueOf(0), s.getY(2));
-			assertEquals(Long.valueOf(0), s.getY(3));
-		}
+		checkChartData(values, rows, chart);
 	}
-	
+
+	public void testCumulativeGraphIpView() throws Exception
+	{
+		checkGraph(View.IP);
+		checkGraph(View.PORT);
+
+	}
+
 	public static Test suite()
 	{
 		return new TestSuite(GraphsTest.class);
 	}
-
 }

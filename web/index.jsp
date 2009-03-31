@@ -1,12 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"%>
 <%@ page import="java.text.SimpleDateFormat"%>
 <%@ page import="java.text.DateFormat"%>
 <%@ page import="java.text.ParseException"%>
-<%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.PageUrl"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.Configuration"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.PageUrlException"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.PageUrl.View" %>
 <%
     // Graph parameters
     String param;
@@ -29,37 +30,16 @@
 
     // Input Validation
     String errorMsg = null;    
-	final String DATE_TIME_FORMAT_ERROR = "The date format should be : dd/mm/yyyy !\\n The time format should be : hh:mm:ss !";
-	final String START_END_FORMAT_ERROR = "Start and End parameters Should be numbers ! \\n Default start end parameters assumed.";		
-	final String RESULT_LIMIT_FORMAT_ERROR = "ResultLimit parameter should by a number ! \\n Default resultLimit value assumed.";	
-	// Validate Dates
+	
+	// Validate Parameters
 	try
 	{ 
-		 pageUrl.setDatesFromRequest(request);
-	}
-	catch (ParseException e)
-	{
-		errorMsg = DATE_TIME_FORMAT_ERROR;
-	}
+		 pageUrl.setParameters(request);
+	}	
 	catch (PageUrlException e)
 	{
 		errorMsg = e.getMessage();
-	}
-	catch (NumberFormatException e)
-	{
-		errorMsg = START_END_FORMAT_ERROR;
-	}
-	
-	try
-	{ 
-		 pageUrl.setResultLimitFromRequest(request);
 	}	
-	catch (NumberFormatException e)
-	{
-		errorMsg = RESULT_LIMIT_FORMAT_ERROR;
-	}
-
-	
 	
    	// Change start and end Time
 	startTime = pageUrl.getStartTime();
@@ -74,10 +54,10 @@
     newZoomOutStart = ((startTime - zoomAmount) / 6000);
     newZoomOutEnd = ((endTime + zoomAmount) / 6000);
 %>
-<%@page import="org.aptivate.bmotools.pmgraph.PageUrlException"%>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <title>pmGraph</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
         <link rel="Stylesheet" href="styles/main.css" type="text/css" />
         <script type="text/javascript">
        // <![CDATA[							
@@ -117,12 +97,27 @@
 					</tr>
 					<tr>  
 						<td>Show Top </td>   
-						<td>
-						<input type="text" id="resultLimit"  name="resultLimit"   value="<%=pageUrl.getResultLimit()%>" size="3" /> IP's</td>
+						<td class="align_right">
+						<input type="text" id="resultLimit"  name="resultLimit"   value="<%=pageUrl.getResultLimit()%>" size="3" /></td><td> Results</td>
 					</tr>
+					<% if (!pageUrl.isEspecificPortIpQuery()) { %>
+					<tr>  
+						<td>View </td>   
+						<td class="align_right">
+						<select id="view"  name="view" >
+							<option value="IP" >IP</option>
+							<% if (pageUrl.getView() == View.PORT) { %>
+								<option value="PORT" selected="selected" >Local Port</option>							
+							<%} else { %>											
+								<option value="PORT">Local Port</option>														
+							<%} %>												
+						</select>
+						</td>
+					</tr>	
+					<%} %>				
 					<tr>  
 						<td> </td>   
-						<td colspan="2" class="center"><input type="submit" value="Go" id="Go" name="Go" /> </td>
+						<td colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>
 					</tr>
 				</table>   
 				</form>
@@ -159,7 +154,7 @@
                     <a name="next" 
                        href="<%=pageUrl.getIndexURL(report, graph, (startTime + scrollAmount), (endTime + scrollAmount))%>" 
                        class="control">Next</a>
-                </div>    
+                </div>  
                 <div id="legend">
                     <jsp:include page="<%=pageUrl.getLegendURL(startTime, endTime, sortBy, order)%>" />
                 </div>

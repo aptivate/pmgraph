@@ -11,11 +11,12 @@ import org.apache.log4j.Logger;
 
 public class TestUtils
 {
-	
+
 	// The connection to the MySQL database
 	private Connection m_conn;
 
-	private static Logger m_logger = Logger.getLogger(TestUtils.class.getName());
+	private static Logger m_logger = Logger
+			.getLogger(TestUtils.class.getName());
 
 	final Timestamp t1 = new Timestamp(60000);
 
@@ -35,7 +36,9 @@ public class TestUtils
 	private static final String BYTES = "bytes";
 
 	private static final String TIME = "stamp_inserted";
-	
+
+	public static final String LEGEND_TBL = "legend_tbl";
+
 	private String m_urlPmgraph;
 
 	// SQL query strings
@@ -56,15 +59,13 @@ public class TestUtils
 	private static final String INSERT_DATA = "INSERT INTO " + TABLE_NAME + "("
 			+ BYTES + "," + TIME + "," + IP_SRC + "," + IP_DEST
 			+ ",src_port, dst_port" + ") VALUES (?,?,?,?,?,?);";
-	
+
 	private static final String DELETE_TABLE = "DROP TABLE " + TABLE_NAME + ";";
 
-	
-	
 	/**
-	 *  Just get a conection to the database using the Configuration
-	 *  Class to obtain the values of the conection string.
-	 *  
+	 * Just get a conection to the database using the Configuration Class to
+	 * obtain the values of the conection string.
+	 * 
 	 * @return java.sql.Connection to database
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
@@ -74,21 +75,25 @@ public class TestUtils
 	 */
 	private Connection getConnection() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException,
-			IOException {
-		
+			IOException
+	{
+
 		Class.forName(TestConfiguration.getJdbcDriver()).newInstance();
-		Connection con = DriverManager.getConnection(TestConfiguration.getDatabaseURL(), 
-				TestConfiguration.getDatabaseUser(),TestConfiguration.getDatabasePass());
+		Connection con = DriverManager.getConnection(TestConfiguration
+				.getDatabaseURL(), TestConfiguration.getDatabaseUser(),
+				TestConfiguration.getDatabasePass());
 		return con;
 	}
-	
-	
-	public TestUtils() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException {
-		
+
+	public TestUtils() throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException, IOException
+	{
+
 		m_conn = getConnection();
-		m_urlPmgraph = "http://localhost:" + TestConfiguration.getPort() + "/pmgraph/";
+		m_urlPmgraph = "http://localhost:" + TestConfiguration.getPort()
+				+ "/pmgraph/";
 	}
-	
+
 	void CreateTable() throws SQLException
 	{
 		// Allow the program to be run more than once,
@@ -143,7 +148,6 @@ public class TestUtils
 		m_logger.debug(stmt);
 		stmt.executeUpdate();
 	}
-	
 
 	void InsertSampleData() throws SQLException
 	{
@@ -190,9 +194,40 @@ public class TestUtils
 		insertRow("10.0.156.139", "4.2.2.2", 90, 10000, 250 * 128 * 60, t4);
 		insertRow("10.0.156.140", "4.2.2.2", 90, 10000, 150 * 128 * 60, t4);
 	}
-	
-	String getUrlPmgraph() {
-		 return m_urlPmgraph;
+
+	void InsertPortsSampleData() throws SQLException
+	{
+		// convert all values into something nice and large in kbps
+		// all values divided by 128 and 60 in GraphFactory to convert
+		// bytes into kbps.
+		insertRow("10.0.156.110", "10.0.156.120", 1, 1, 9999 * 128 * 60, t1);
+		insertRow("10.0.156.120", "10.0.156.110", 1, 1, 9999 * 128 * 60, t1);
+		insertRow("10.0.156.110", "4.2.2.2", 80, 1080, 500 * 128 * 60, t1);
+		insertRow("10.0.156.110", "4.2.2.5", 80, 1180, 600 * 128 * 60, t1);
+		insertRow("10.0.156.130", "192.168.1.5", 80, 1025, 150 * 128 * 60, t1);
+		insertRow("4.2.2.2", "10.0.156.110", 4560, 80, 100 * 128 * 60, t1);
+		insertRow("4.2.2.2", "10.0.156.130", 8956, 80, 125 * 128 * 60, t1);
+		insertRow("4.2.2.2", "10.0.156.130", 8963, 110, 100 * 128 * 60, t1);
+		insertRow("10.0.156.131", "4.2.2.4", 443, 10000, 50 * 128 * 60, t1);
+		insertRow("4.2.2.3", "10.0.156.131", 190, 443, 100 * 128 * 60, t1);
+
+		insertRow("4.2.2.2", "10.0.156.130", 8963, 110, 500 * 128 * 60, t2);
+		insertRow("4.2.2.2", "10.0.156.110", 1567, 110, 700 * 128 * 60, t2);
+		insertRow("10.0.156.110", "4.56.2.2", 110, 1780, 300 * 128 * 60, t2);
+		insertRow("10.0.156.110", "4.2.2.3", 110, 10500, 500 * 128 * 60, t2);
+		insertRow("10.0.156.131", "4.2.2.4", 443, 10000, 100 * 128 * 60, t2);
+		insertRow("4.2.2.3", "10.0.156.131", 190, 443, 50 * 128 * 60, t2);
+
+		insertRow("10.0.156.131", "4.2.2.4", 443, 10000, 600 * 128 * 60, t3);
+		insertRow("4.2.2.3", "10.0.156.131", 190, 443, 300 * 128 * 60, t3);
+		insertRow("4.2.2.4", "10.0.156.110", 190, 443, 100 * 128 * 60, t3);
+		insertRow("10.0.156.130", "4.2.2.4", 443, 10000, 150 * 128 * 60, t3);
+		insertRow("4.2.2.4", "10.0.156.130", 4000, 443, 75 * 128 * 60, t3);
 	}
-	
+
+	String getUrlPmgraph()
+	{
+		return m_urlPmgraph;
+	}
+
 }

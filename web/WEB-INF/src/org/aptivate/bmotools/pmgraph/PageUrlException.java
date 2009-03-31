@@ -1,4 +1,5 @@
 package org.aptivate.bmotools.pmgraph;
+
 /**
  *  Just a simple exception class to be able to create a 
  *  exception when is not posible to collect data for 

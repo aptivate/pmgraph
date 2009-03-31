@@ -10,6 +10,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.net.InetAddress"  %>
 <%@ page import="java.net.UnknownHostException" %>
+<%@ page import="org.aptivate.bmotools.pmgraph.PageUrl.View" %>
 <%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
 <%
     long startP = Long.parseLong(request.getParameter("start"));
@@ -19,6 +20,7 @@
     long othersDownloaded = 0;
 	long othersUploaded = 0;
 	String othersFillColour="";
+	List<GraphData> results ;
     
     // Round our times to the nearest minute
     long start = startP - (startP % 60000);
@@ -45,66 +47,114 @@
     PageUrl pageUrl = new PageUrl();
 	try
 	{ 
-		 pageUrl.setResultLimitFromRequest(request);
+		 pageUrl.setParameters(request);
 	}	
-	catch (NumberFormatException e)
+	catch (PageUrlException e)
 	{
-		;	// just ignore exception mesage mesage will be generated in main page.
-	}
+		e.printStackTrace();
+	}		
+	
 	LegendData legendData = new LegendData();
-	List<GraphData> ipResults = legendData.getLegendData(start, end, sortBy, order,pageUrl.getResultLimit());
 
-    
+	// Legend for a especific IP it's a port graph
+	if (pageUrl.getIp() != null) {
+		results = legendData.getLegendDataOneIp(start, end, sortBy, order,pageUrl);		
+	} else {
+		if (pageUrl.getPort() != null) {
+			results = legendData.getLegendDataOnePort(start, end, sortBy, order,pageUrl);				
+		} else {
+			if (pageUrl.getView() == View.PORT) {
+				results = legendData.getLegendDataPerPort(start, end, sortBy, order,pageUrl);		
+			} else  {		// Vista de  IPs vista por defecto
+				results = legendData.getLegendData(start, end, sortBy, order,pageUrl);
+			}
+		}
+	}
+		    
 %>
 <table id="legend_tbl">
-	<thead>
-		<tr>
-		    <th></th>
-            <th rowspan="2">Host IP</th>
-            <th rowspan="2">Host Name</th>
-            <th colspan="2">
+		<tr class="legend_th">
+		    <td></td>
+		    <%if ((pageUrl.getIp() == null) && (pageUrl.getView() != View.PORT)) { %>
+	            <td rowspan="2">Host IP</td>
+	            <td rowspan="2">Host Name</td>
+            <%} else { %>
+                <td rowspan="2">Port</td>
+            <%} %>
+            <td colspan="2">
              <a name="bytes_total" 
                        href="<%=pageUrl.getIndexURL(startP, endP, "bytes_total", orderN)%>"
                        > <%=col3%></a> 
-           </th>
+           </td>
 		</tr>
 		
-		<tr>
-		    <th></th>
-		    <th>
+		<tr class="legend_th">
+		    <td></td>
+		    <td>
 		    <a name="downloaded" 
                        href="<%=pageUrl.getIndexURL(startP, endP, "downloaded", orderN)%>"
                        ><%=col1%></a>
-		    </th>
-		    <th>
+		    </td>
+		    <td>
 		     <a name="uploaded" 
                        href="<%=pageUrl.getIndexURL(startP, endP, "uploaded", orderN)%>"
                        ><%=col2%></a>
-		    </th>
+		    </td>
 		</tr>
-	</thead>
 	<%
 			int i= 0;
 			GraphFactory graphFactory = new GraphFactory();
-		    for (GraphData ipResult : ipResults) 
-		    {
-		    	String ip = ipResult.getLocalIp();	    	
-		        Color c = graphFactory.getSeriesColor(ip);
-		        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
-				HostResolver hostResolver = new HostResolver();
-		        String hostName = hostResolver.getHostname(ip);		
-		        if ("255.255.255.255".equalsIgnoreCase(ip))
-		        	ip = "Others";
-	%>				    <tr class="row<%=i % 2%>">
-				        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
-				        <td><%=ip%></td>
-				        <td><%=hostName%></td>        
-				
-				        <td class="numval"><%=(ipResult.getDownloaded() / 1048576)%></td>
-				        <td class="numval"><%=(ipResult.getUploaded() / 1048576)%></td>
-				    </tr>
-			   <%
-	    		i++;
-			}
-	   %>
+			
+			if ((pageUrl.getIp() != null) || (pageUrl.getView() == View.PORT)) {
+			  for (GraphData result : results) 
+			    {
+			    	Integer port  = result.getPort();	    	
+			        Color c = graphFactory.getSeriesColor(port);
+			        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
+		%>				    <tr class="row<%=i % 2%>">
+					        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
+							<%   if (GraphFactory.OTHER_PORT == port) {
+								%><td>Others</td><%
+							} else {
+								if (!pageUrl.isEspecificPortIpQuery()) {
+									%><td><a href="<%=pageUrl.getUrlOnePortGraph(start, end, port)%>" ><%=port%></a></td><%
+								} else {
+									%><td><%=port%></td><%
+								}
+							}
+							%>
+					        <td class="numval"><%=(result.getDownloaded() / 1048576)%></td>
+					        <td class="numval"><%=(result.getUploaded() / 1048576)%></td>
+					    </tr>
+				   <%
+		    		i++;
+				}			  		   
+			} 
+		  else {
+			  for (GraphData result : results) 
+			    {
+			    	String ip = result.getLocalIp();	    	
+			        Color c = graphFactory.getSeriesColor(ip);
+			        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
+					HostResolver hostResolver = new HostResolver();
+			        String hostName = hostResolver.getHostname(ip);		
+			        if (GraphFactory.OTHER_IP.equalsIgnoreCase(ip))
+			        	ip = "Others";
+		%>				    <tr class="row<%=i % 2%>">
+					        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
+					       <%
+					        if ((!pageUrl.isEspecificPortIpQuery()) && (!"Others".equalsIgnoreCase(ip))) {
+									%><td><a href="<%=pageUrl.getUrlOneIpGraph(start, end, ip)%>" ><%=ip%></a></td><%
+								} else {
+									%><td><%=ip%></td><%
+							}%>					        
+					        <td><%=hostName%></td>        					
+					        <td class="numval"><%=(result.getDownloaded() / 1048576)%></td>
+					        <td class="numval"><%=(result.getUploaded() / 1048576)%></td>
+					    </tr>
+				   <%
+		    		i++;
+				}			  
+		  }
+			%>
 </table>
