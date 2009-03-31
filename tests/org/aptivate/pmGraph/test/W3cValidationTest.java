@@ -18,58 +18,120 @@ import com.meterware.httpunit.WebResponse;
 import com.nutrun.xhtml.validator.XhtmlValidator;
 
 /**
- * Checks for W3C Compliance 
+ * Checks for W3C Compliance
  * 
- * @author Noe A. Rodriguez Glez. 
- *
- *
- *
+ * @author Noe A. Rodriguez Glez.
+ * 
+ * 
+ * 
  */
 public class W3cValidationTest extends TestCase
 {
-	
 
-	private static Logger m_logger = Logger.getLogger(W3cValidationTest.class.getName());
-	
+	private static Logger m_logger = Logger.getLogger(W3cValidationTest.class
+			.getName());
+
+	private TestUtils m_testUtils;
+
+	public W3cValidationTest() throws InstantiationException,
+			IllegalAccessException, ClassNotFoundException, SQLException,
+			IOException
+	{
+
+		m_testUtils = new TestUtils();
+	}
+
+	public void setUp() throws Exception
+	{
+		m_testUtils.CreateTable();
+		m_testUtils.InsertSampleData();
+	}
 
 	/**
-	 * 	Check if the returned Web page is a valid XHTML page according
-	 *  to the W3C standar. 
-	 *  
-	 *  	If there are any error it is written in the logger establiced
-	 *  in the logger properties file.
-	 *  
+	 * Check if the response is W3C valid XHTML file.
+	 * 
+	 * @param response
+	 * @throws IOException
+	 */
+	private void w3cValidator(WebResponse response) throws IOException
+	{
+
+		XhtmlValidator validator = new XhtmlValidator();
+		String docText = response.getText();
+
+		if (!validator.isValid(new ByteArrayInputStream(docText.getBytes())))
+			;
+		String errors[] = validator.getErrors();
+		for (String error : errors)
+		{
+			m_logger.warn(error);
+		}
+		assertTrue(validator.isValid(new ByteArrayInputStream(docText
+				.getBytes())));
+
+	}
+
+	/**
+	 * * Check if the returned Web page is a valid XHTML page according to the
+	 * W3C standar.
+	 * 
+	 * If there are any error it is written in the logger establiced in the
+	 * logger properties file.
+	 * 
 	 * @throws IOException
 	 * @throws SAXException
-	 * @throws SQLException 
-	 * @throws ClassNotFoundException 
-	 * @throws IllegalAccessException 
-	 * @throws InstantiationException 
-	 */	
-	public void testw3cValidator () throws IOException, SAXException, InstantiationException,
-		IllegalAccessException, ClassNotFoundException, SQLException {
-		
-		TestUtils testUtils= new TestUtils();
-	
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
+	public void testW3c() throws IOException, SAXException,
+			InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException
+	{
+
+		TestUtils testUtils = new TestUtils();
+
 		WebConversation wc = new WebConversation();
-		// Obtain the upload page on web site
-		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
-				+ "index.jsp?report=totals&graph=cumul&start=0&end=300000");
+		// Main page
+		WebRequest request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&limitResult=15");
 		WebResponse response = wc.getResponse(request);
-			
-		XhtmlValidator validator = new XhtmlValidator();
- 		String docText = response.getText();
- 		
- 		if (!validator.isValid(new ByteArrayInputStream(docText.getBytes())));
- 			String errors[] = validator.getErrors();
- 			for (String error: errors) {
- 				m_logger.warn(error);
- 			}
- 		 assertTrue(validator.isValid(new ByteArrayInputStream(docText.getBytes())));
+		w3cValidator(response);
+
+		// Port View.
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&view=PORT");
+		response = wc.getResponse(request);
+		w3cValidator(response);
+
+		// Specific IP View.
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&ip=10.0.156.110");
+		response = wc.getResponse(request);
+		w3cValidator(response);
+
+		// Specific Port.
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&port=90");
+		response = wc.getResponse(request);
+		w3cValidator(response);
+
+		// Limitting results ip view.
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&limitResult=2");
+		response = wc.getResponse(request);
+		w3cValidator(response);
+
 	}
-	
+
 	public static Test suite()
 	{
 		return new TestSuite(W3cValidationTest.class);
-	}	
+	}
 }

@@ -33,17 +33,16 @@ import org.jfree.data.xy.XYSeries;
  * @author Thomas Sharp
  * @version 0.1
  * 
- * History:
- * 	Noe A. Rodrigez Glez.
- * 	12-03-2009	Use a standar method to asign colors to series.
- * 				
- * 				Changed the way in which the stackedThroughput graph
- * 				is created in order to make the code more readable.
- * 				
- * 				Removed the use of Alpha chanel on graphs because it
- * 				caused problems with the colors of the series.  
- * 				
- * 				Added some coments.
+ * History: Noe A. Rodrigez Glez. 12-03-2009 Use a standar method to asign
+ * colors to series.
+ * 
+ * Changed the way in which the stackedThroughput graph is created in order to
+ * make the code more readable.
+ * 
+ * Removed the use of Alpha chanel on graphs because it caused problems with the
+ * colors of the series.
+ * 
+ * Added some coments.
  */
 public class GraphFactory
 {
@@ -51,16 +50,18 @@ public class GraphFactory
 	private static Logger m_logger = Logger.getLogger(GraphFactory.class
 			.getName());
 
-	public Color getSeriesColor(String ip)
-	{
+	public static final int OTHER_PORT = -1;
 
-		byte[] ipBytes = ip.getBytes();
+	public static final String OTHER_IP = "255.255.255.255";
+
+	private Color getColorFromByteArray(byte[] bytes)
+	{
 		MessageDigest algorithm;
 		try
 		{
 			algorithm = MessageDigest.getInstance("SHA1");
 			algorithm.reset();
-			algorithm.update(ipBytes);
+			algorithm.update(bytes);
 			byte sha1[] = algorithm.digest();
 			return (new Color(sha1[0] & 0xFF, sha1[1] & 0xFF, sha1[2] & 0xFF));
 		}
@@ -69,6 +70,255 @@ public class GraphFactory
 			m_logger.error(e.getMessage(), e);
 		}
 		return (Color.BLACK);
+	}
+
+	/**
+	 * Initialize a series for a port graph whit all the values to zero and add
+	 * it to the datase and to the hashmap containing all the series.
+	 * 
+	 * @param name
+	 * @param id
+	 * @param dataset
+	 * @param port_XYSeries
+	 * @param renderer
+	 * @param minutes
+	 * @param start
+	 * @return
+	 */
+	private XYSeries InizializeSeries(String name, String id,
+			DefaultTableXYDataset dataset,
+			HashMap<String, XYSeries> port_XYSeries, XYItemRenderer renderer,
+			long minutes, long start, boolean portGraph)
+	{
+
+		XYSeries series = new XYSeries(name, true, false);
+		for (int i = 0; i <= minutes; i++)
+		{
+			series.add(Long.valueOf(start + i * 60000), Long.valueOf(0));
+		}
+		// keep the series in a hash in order to reuse it when we have
+		// results for the same currentPort
+		port_XYSeries.put(name, series);
+		// Set the same color for the upload and download series of an
+		// port
+		Color color;
+		if (portGraph)
+			color = getSeriesColor(Integer.valueOf(id));
+		else
+			color = getSeriesColor(id);
+		// Put the series into the graph
+		dataset.addSeries(series);
+		renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
+		return series;
+	}
+
+	/**
+	 * Create a JFreeChart with the data in the List thrptResults creating a new
+	 * series per each port, or Ip
+	 * 
+	 * @param start
+	 * @param end
+	 * @param theStart
+	 * @param theEnd
+	 * @param thrptResults
+	 * @param limitResult
+	 * @param title
+	 * @param portGraph
+	 *            The series are Ip's or Ports
+	 * @return
+	 */
+	private JFreeChart fillGraph(long start, long end, long theStart,
+			long theEnd, List<GraphData> thrptResults, Integer limitResult,
+			String title, boolean portGraph)
+	{
+		HashMap<String, XYSeries> graph_XYSeries = new HashMap<String, XYSeries>();
+		HashMap<Long, Long> otherUp = null;
+		HashMap<Long, Long> otherDown = null;
+
+		int minutes = (int) (end - start) / 60000;
+		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
+		JFreeChart chart = createStackedXYGraph(title, dataset, start, end,
+				theStart, theEnd);
+		XYPlot plot = chart.getXYPlot();
+		XYItemRenderer renderer = plot.getRenderer();
+
+		int j = 0;
+		// For each query result, get data and write to the appropriate series
+		for (GraphData thrptResult : thrptResults)
+		{
+			String id;
+			Timestamp inserted = thrptResult.getTime();
+			if (portGraph) // A port graph id is the port
+				id = thrptResult.getPort().toString();
+			else
+				// Each series is a IP => IP graph
+				id = thrptResult.getLocalIp().trim();
+
+			// values in the database are in bytes per interval (normally 1
+			// minute)
+			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
+			long downloaded = ((thrptResult.getDownloaded() * 8) / 1024) / 60;
+			long uploaded = ((thrptResult.getUploaded() * 8) / 1024) / 60;
+
+			// check if the ip already have its own serie if not we create one
+			// for it
+			if (!graph_XYSeries.containsKey(id + "<down>"))
+			{
+				if (j < limitResult) // Is in the Top X results.
+				{
+					InizializeSeries(id + "<down>", id, dataset,
+							graph_XYSeries, renderer, minutes, start, portGraph);
+					InizializeSeries(id + "<up>", id, dataset, graph_XYSeries,
+							renderer, minutes, start, portGraph);
+				}
+				else
+				// Isn't in top X create a serie to the rest of result
+				{
+					// Create a hashMap to keep stacked values for group other
+					if (otherUp == null)
+					{
+						otherUp = new HashMap<Long, Long>();
+						otherDown = new HashMap<Long, Long>();
+						for (int i = 0; i <= minutes; i++)
+						{
+							otherUp.put(Long.valueOf(start + i * 60000), 0L);
+							otherDown.put(Long.valueOf(start + i * 60000), 0L);
+						}
+					}
+				}
+				j++;
+			}
+			XYSeries downSeries = graph_XYSeries.get(id + "<down>");
+			XYSeries upSeries = graph_XYSeries.get(id + "<up>");
+			if (downSeries != null)
+			{ // We created series for this port then it should be in the
+				// limit top
+				// update the values of the series
+				downSeries.update(inserted.getTime(), downloaded);
+				upSeries.update(inserted.getTime(), (0 - uploaded));
+			}
+			else
+			{ // the port belong to the group other just stack values
+				otherDown.put(inserted.getTime(), otherDown.get(inserted
+						.getTime())
+						+ downloaded);
+				otherUp.put(inserted.getTime(), otherUp.get(inserted.getTime())
+						+ (0 - uploaded));
+			}
+		}
+		if (otherUp != null) // if exist data for the other group.
+		{
+			XYSeries downSeries = new XYSeries("other <down>", true, false);
+			XYSeries upSeries = new XYSeries("other <up>", true, false);
+			for (int i = 0; i <= minutes; i++)
+			{
+				Long time = Long.valueOf(start + i * 60000);
+				downSeries.add(time, otherDown.get(time));
+				upSeries.add(time, otherUp.get(time));
+
+			}
+			Color color;
+			if (portGraph)
+				color = getSeriesColor(OTHER_PORT);
+			else
+				color = getSeriesColor(OTHER_IP);
+			dataset.addSeries(downSeries);
+			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
+			dataset.addSeries(upSeries);
+			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
+
+		}
+		return chart;
+	}
+
+	/**
+	 * A method which creates tha chart with the defaults options for the
+	 * stacked charts
+	 * 
+	 * @param dataset
+	 * @param start
+	 * @param end
+	 * @param theStart
+	 * @param theEnd
+	 * @return
+	 */
+	private JFreeChart createStackedXYGraph(String title,
+			DefaultTableXYDataset dataset, long start, long end, long theStart,
+			long theEnd)
+	{
+
+		JFreeChart chart = ChartFactory.createStackedXYAreaChart(title, // chart
+				// title
+				"Category", // domain axis label
+				"Value", // range axis label
+				dataset, // data
+				PlotOrientation.VERTICAL, // orientation
+				true, // include legend
+				true, false);
+		XYPlot plot = chart.getXYPlot();
+
+		DateAxis xAxis;
+		long timePeriod = (theEnd - theStart) / 60000;
+		if (timePeriod < 7)
+		{
+			xAxis = new DateAxis("Time (hours:minutes:seconds)");
+		}
+		else if ((timePeriod >= 7) && (timePeriod < 3650))
+		{
+			xAxis = new DateAxis("Time (hours:minutes)");
+		}
+		else if ((timePeriod >= 3650) && (timePeriod < 7299))
+		{
+			xAxis = new DateAxis("Time (day-month,hours:minutes)");
+		}
+		else
+		// timePeriod >= 7299
+		{
+			xAxis = new DateAxis("Time (day-month)");
+		}
+		xAxis.setMinimumDate(new Date(start - 1));
+		xAxis.setMaximumDate(new Date(end));
+		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
+		plot.setRangeAxis(yAxis);
+		plot.setDomainAxis(xAxis);
+		plot.addRangeMarker(new ValueMarker(0));
+		chart.addSubtitle(new TextTitle(new Date(end).toString()));
+		chart.setBackgroundPaint(null);
+		chart.removeLegend();
+		return chart;
+	}
+
+	/**
+	 * Return a color obtained from create a hash with the bytes of the Ip.
+	 * 
+	 * @param ip
+	 * @return
+	 */
+	public Color getSeriesColor(String ip)
+	{
+		if (ip != null)
+		{
+			byte[] ipBytes = ip.getBytes();
+
+			return getColorFromByteArray(ipBytes);
+		}
+		m_logger
+				.warn("Unable to assign a color to a null IP. (Black color assigned)");
+		return (Color.BLACK);
+	}
+
+	/**
+	 * Return a color obtained from create a hash with the bytes of the Port.
+	 * 
+	 * @param port
+	 * @return
+	 */
+	public Color getSeriesColor(int port)
+	{
+
+		byte[] portBytes = new byte[] { (byte) (port >>> 24),
+				(byte) (port >>> 16), (byte) (port >>> 8), (byte) port };
+		return getColorFromByteArray(portBytes);
 	}
 
 	/**
@@ -161,10 +411,47 @@ public class GraphFactory
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public JFreeChart stackedThroughput(long start, long end, Integer limitResult)
-			throws ClassNotFoundException, IllegalAccessException,
-			InstantiationException, IOException, SQLException,
-			NoSuchAlgorithmException
+	public JFreeChart stackedThroughput(long start, long end,
+			Integer limitResult) throws ClassNotFoundException,
+			IllegalAccessException, InstantiationException, IOException,
+			SQLException, NoSuchAlgorithmException
+	{
+		// Save the start and the end
+		long theStart = start;
+		long theEnd = end;
+		// Round our times to the nearest minute
+		start = start - (start % 60000);
+		end = end - (end % 60000);
+
+		DataAccess dataAccess = new DataAccess();
+		List<GraphData> thrptResults = dataAccess.getThroughputPIPPMinute(
+				theStart, theEnd);
+		Collections.sort(thrptResults, new BytesTotalComparator(true));
+
+		return fillGraph(start, end, theStart, theEnd, thrptResults,
+				limitResult, "Network Throughput Per IP", false);
+	}
+
+	/**
+	 * Create a chart with information of the throughput per a specific IP in
+	 * each minute desglosed by port.
+	 * 
+	 * @param start
+	 * @param end
+	 * @param limitResult
+	 * @param ip
+	 * @return A JFreeChart with information of the trafic for the Ip
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws IOException
+	 * @throws SQLException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public JFreeChart stackedThroughputOneIp(long start, long end,
+			Integer limitResult, String ip) throws ClassNotFoundException,
+			IllegalAccessException, InstantiationException, IOException,
+			SQLException, NoSuchAlgorithmException
 	{
 		// Save the start and the end
 		long theStart = start;
@@ -173,166 +460,90 @@ public class GraphFactory
 		// Round our times to the nearest minute
 		start = start - (start % 60000);
 		end = end - (end % 60000);
-		HashMap<String, XYSeries> ip_XYSeries = new HashMap<String, XYSeries>();
-		HashMap<Long, Long> otherUp = null;
-		HashMap<Long, Long> otherDown = null;
-		int minutes = (int) (end - start) / 60000;
-
-		// Create a "chartable" data container
-		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
-		final JFreeChart chart = ChartFactory.createStackedXYAreaChart(
-				"Network Throughput Per IP", // chart title
-				"Category", // domain axis label
-				"Value", // range axis label
-				dataset, // data
-				PlotOrientation.VERTICAL, // orientation
-				true, // include legend
-				true, false);
-		XYPlot plot = chart.getXYPlot();
-		XYItemRenderer renderer = plot.getRenderer();
 
 		DataAccess dataAccess = new DataAccess();
-		List<GraphData> thrptResults = dataAccess.getThroughputPIPPMinute(
-				theStart, theEnd);
+		List<GraphData> thrptResults = dataAccess
+				.getThroughputPIPPMinuteOneIpPerPort(theStart, theEnd, ip);
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
 
-		int j=0;
-		// For each query result, get data and write to the appropriate series
-		for (GraphData thrptResult : thrptResults)
-		{
-			Timestamp inserted = thrptResult.getTime();
-			String ip = thrptResult.getLocalIp();
-			ip = ip.trim();
+		return fillGraph(start, end, theStart, theEnd, thrptResults,
+				limitResult, "Network Throughput Per IP: " + ip, true);
+	}
 
-			// values in the database are in bytes per interval (normally 1
-			// minute)
-			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
-			long downloaded = ((thrptResult.getDownloaded() * 8) / 1024) / 60;
-			long uploaded = ((thrptResult.getUploaded() * 8) / 1024) / 60;
-				
-			// check if the ip already have its own serie if not we create one
-			// for it
-			if (!ip_XYSeries.containsKey(ip + "<down>"))
-			{
-				if (j < limitResult) {
-					XYSeries downSeries = new XYSeries(ip + "<down>", true, false);
-					XYSeries upSeries = new XYSeries(ip + "<up>", true, false);
-					for (int i = 0; i <= minutes; i++)
-					{
-						downSeries.add(Long.valueOf(start + i * 60000), Long
-								.valueOf(0));
-						upSeries.add(Long.valueOf(start + i * 60000), Long
-								.valueOf(0));
-					}
-					// keep the series in a hash in order to reuse it when we have
-					// results for the same IP
-					ip_XYSeries.put(ip + "<down>", downSeries);
-					ip_XYSeries.put(ip + "<up>", upSeries);
-					// Set the same color for the upload and download series of an
-					// IP
-					Color color = getSeriesColor(ip);
-					// Put the series into the graph
-					dataset.addSeries(downSeries);
-					renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
-					dataset.addSeries(upSeries);
-					renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
-				} 
-				else 
-				{
-					// Create a hashMap to keep stacked values for group other
-					if (otherUp == null) {
+	/**
+	 * Create a chart with information of the throughput in each minute
+	 * desglosed by port.
+	 * 
+	 * @param start
+	 * @param end
+	 * @param limitResult
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws IOException
+	 * @throws SQLException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public JFreeChart stackedThroughputPerPort(long start, long end,
+			Integer limitResult) throws ClassNotFoundException,
+			IllegalAccessException, InstantiationException, IOException,
+			SQLException, NoSuchAlgorithmException
+	{
 
-						otherUp = new HashMap<Long, Long>();
-						otherDown = new HashMap<Long, Long>();
-						for (int i = 0; i <= minutes; i++)
-						{
-							otherUp.put(Long.valueOf(start + i * 60000),0L);
-							otherDown.put(Long.valueOf(start + i * 60000), 0L);
-						}
-					}
-				}
-				j++;
-			}
-			XYSeries downSeries = ip_XYSeries.get(ip + "<down>");
-			XYSeries upSeries = ip_XYSeries.get(ip + "<up>");
-			if ( downSeries != null) {			// We created series for this ip then it should be in the limit top
-							// update the values of the series
-				downSeries.update(inserted.getTime(), downloaded);
-				upSeries.update(inserted.getTime(), (0 - uploaded));
-			} else {		// the ip belong to the group other just stack values
-				otherDown.put(inserted.getTime(), otherDown.get(inserted.getTime()) + downloaded);
-				otherUp.put(inserted.getTime(), otherUp.get(inserted.getTime()) + (0 - uploaded));
-			}
-		}	
-		
-		if (otherUp != null) {
-			XYSeries downSeries = new XYSeries("other <down>", true, false);
-			XYSeries upSeries = new XYSeries("other <up>", true, false);
-			for (int i = 0; i <= minutes; i++)
-			{
-				Long time= Long.valueOf(start + i * 60000);
-				downSeries.add(time, otherDown.get(time));
-				upSeries.add(time, otherUp.get(time));
-				
-			}
-			Color otherGroupColor = getSeriesColor("255.255.255.255");
-			dataset.addSeries(downSeries);
-			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, otherGroupColor);
-			dataset.addSeries(upSeries);
-			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, otherGroupColor);
-			
-		}
-		
-		DateAxis xAxis;
-		long timePeriod = (theEnd - theStart) / 60000;
-		if (timePeriod < 7)
-		{
-			xAxis = new DateAxis("Time (hours:minutes:seconds)");
-		}
-		else if ((timePeriod >= 7) && (timePeriod < 3650))
-		{
-			xAxis = new DateAxis("Time (hours:minutes)");
-		}
-		else if ((timePeriod >= 3650) && (timePeriod < 7299))
-		{
-			xAxis = new DateAxis("Time (day-month,hours:minutes)");
-		}
-		else
-		// timePeriod >= 7299
-		{
-			xAxis = new DateAxis("Time (day-month)");
-		}
-		xAxis.setMinimumDate(new Date(start - 1));
-		xAxis.setMaximumDate(new Date(end));
-		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
-		plot.setRangeAxis(yAxis);
-		plot.setDomainAxis(xAxis);
-		plot.addRangeMarker(new ValueMarker(0));
-		plot.setRenderer(renderer);
-		chart.addSubtitle(new TextTitle(new Date(end).toString()));
-		chart.setBackgroundPaint(null);
-		chart.removeLegend();
-	/*	A test to check Jfreechart
-		XYSeries s1 = new XYSeries(1, true, false);
-		XYSeries s2 = new XYSeries(2, true, false);
-		XYSeries s3 = new XYSeries(3, true, false);
+		// Save the start and the end
+		long theStart = start;
+		long theEnd = end;
 
-		s1.add (0,0);
-		s1.add (1,-3);
-		s1.add (2,0);
-		s1.add (3,0);
-		s2.add (1,0);
-		s2.add (0,0);
-		s2.add (2,-4);
-		s2.add (3,0);
-		s3.add (1,0);
-		s3.add (0,0);
-		s3.add (2,-4);
-		s3.add (3,0);
-		dataset.addSeries(s1);
-		dataset.addSeries(s2);
-//		dataset.addSeries(s3);
-*/
-		return (chart);
+		// Round our times to the nearest minute
+		start = start - (start % 60000);
+		end = end - (end % 60000);
+
+		DataAccess dataAccess = new DataAccess();
+		List<GraphData> thrptResults = dataAccess
+				.getThroughputPerPortPerMinute(theStart, theEnd);
+		Collections.sort(thrptResults, new BytesTotalComparator(true));
+
+		return fillGraph(start, end, theStart, theEnd, thrptResults,
+				limitResult, "Network Throughput Per Port", true);
+	}
+
+	/**
+	 * Create a chart with information of the throughput in each minute in a
+	 * specific port, desglosed by IP.
+	 * 
+	 * @param start
+	 * @param end
+	 * @param limitResult
+	 * @param port
+	 * @return
+	 * @throws ClassNotFoundException
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
+	 * @throws IOException
+	 * @throws SQLException
+	 * @throws NoSuchAlgorithmException
+	 */
+	public JFreeChart stackedThroughputOnePort(long start, long end,
+			Integer limitResult, Integer port) throws ClassNotFoundException,
+			IllegalAccessException, InstantiationException, IOException,
+			SQLException, NoSuchAlgorithmException
+	{
+		// Save the start and the end
+		long theStart = start;
+		long theEnd = end;
+
+		// Round our times to the nearest minute
+		start = start - (start % 60000);
+		end = end - (end % 60000);
+
+		DataAccess dataAccess = new DataAccess();
+		List<GraphData> thrptResults = dataAccess
+				.getThroughputPIPPMinuteOnePortPerIp(theStart, theEnd, port);
+		Collections.sort(thrptResults, new BytesTotalComparator(true));
+
+		return fillGraph(start, end, theStart, theEnd, thrptResults,
+				limitResult, "Network Throughput Per Port: " + port, false);
+
 	}
 }

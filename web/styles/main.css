@@ -24,7 +24,7 @@ table {
 }
 
 td {
-	text-align: left;	
+	text-align: left;
 }
 
 .row0 {
@@ -111,15 +111,25 @@ td {
 	margin: 0px auto;
 	padding: 0px 0px 0px 0px;
 }
+
 #legend_tbl td {
 	padding-left: 10px;
 	padding-right: 10px;
 }
+
+.legend_th {
+	font-weight: bold;
+}
+
 .th_class {
 	text-align: center;
 	font-weight: normal;
 }
-.center {
 
+.center {
 	text-align: center;
+}
+
+.align_right {
+	text-align: right;
 }

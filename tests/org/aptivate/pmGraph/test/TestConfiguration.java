@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.aptivate.pmGraph.test;
 
 import java.io.IOException;
@@ -12,10 +9,9 @@ import org.aptivate.bmotools.pmgraph.DataAccess;
 /**
  * @author Noe Andres Rodriguez Gonzalez.
  * 
- * That is the configuration class  for teh Test classes of the 
- * application is a way to make all access to configuration data 
- * in a single place reducing the problems of changing where 
- * the configuration data is stored
+ * That is the configuration class for teh Test classes of the application is a
+ * way to make all access to configuration data in a single place reducing the
+ * problems of changing where the configuration data is stored
  * 
  */
 public class TestConfiguration
@@ -40,7 +36,6 @@ public class TestConfiguration
 		stream.close();
 		return properties;
 	}
-
 
 	public static String getDatabaseURL() throws IOException
 	{

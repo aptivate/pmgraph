@@ -6,11 +6,11 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
 import org.aptivate.bmotools.pmgraph.Configuration;
+import org.aptivate.bmotools.pmgraph.PageUrl.View;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
@@ -26,13 +26,18 @@ import com.meterware.httpunit.WebTable;
  * @author noeg
  * 
  */
-public class LegendTest extends TestCase
+public class LegendTest extends LegendTestBase
 {
 	private static Logger m_logger = Logger.getLogger(LegendTest.class
 			.getName());
+
 	private long l = (System.currentTimeMillis() / 60000);
-	
-	
+
+	public LegendTest() throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException, IOException
+	{
+		super();
+	}
 
 	/* This test tests the legend table in the pmGraph page */
 	public void testCheckDataTranslationAndRepresentation() throws Exception
@@ -69,26 +74,15 @@ public class LegendTest extends TestCase
 		WebResponse response = wc.getResponse(request);
 
 		// Get the table data from the page
-		WebTable table = (WebTable) response.getElementWithID("legend_tbl");
+		WebTable table = (WebTable) response
+				.getElementWithID(TestUtils.LEGEND_TBL);
 
-		// Row 2
-		// Columns in the table are Color,Host IP,Host Name,Downloaded,Uploaded
-		String hostIP1 = table.getCellAsText(2, 1);
-		String downloaded1 = table.getCellAsText(2, 3);
-		String uploaded1 = table.getCellAsText(2, 4);
+		long uploaded[] = { 47, 9 };
+		long downloaded[] = { 47, 9 };
+		String ips[] = { "10.0.156.10", "10.0.156.1" };
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ips,
+				View.IP);
 
-		// Row 3
-		String hostIP2 = table.getCellAsText(3, 1);
-		String downloaded2 = table.getCellAsText(3, 3);
-		String uploaded2 = table.getCellAsText(3, 4);
-
-		// Check the table data
-		assertEquals("Check the IP Address", hostIP1, "10.0.156.10");
-		assertEquals("Check the Downloaded Value", downloaded1, "47");
-		assertEquals("Check the Downloaded Value", uploaded1, "47");
-		assertEquals("Check the IP Address", hostIP2, "10.0.156.1");
-		assertEquals("Check the Downloaded Value", downloaded2, "9");
-		assertEquals("Check the Downloaded Value", uploaded2, "9");
 	}
 
 	/*
@@ -180,12 +174,14 @@ public class LegendTest extends TestCase
 		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on web site
-		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
-				+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15");
+		WebRequest request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15");
 		WebResponse response = wc.getResponse(request);
 
 		// get the table
-		WebTable table = (WebTable) response.getElementWithID("legend_tbl");
+		WebTable table = (WebTable) response
+				.getElementWithID(TestUtils.LEGEND_TBL);
 
 		if (table != null)
 		{
@@ -232,101 +228,66 @@ public class LegendTest extends TestCase
 		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on web site
-		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
-				+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15");
+		WebRequest request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15");
 		WebResponse response = wc.getResponse(request);
 
 		WebLink link = response.getLinkWithName("downloaded");
 
 		// the default is 'sort by download DESC', the sortLink is opposite to
 		// the DESC
-		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15";
+		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15&view=IP";
 
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
-		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
-				+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15");
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15");
 		response = wc.getResponse(request);
 		link = response.getLinkWithName("downloaded");
-		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15";
+		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		// Get the table data from the page
-		WebTable table = (WebTable) response.getElementWithID("legend_tbl");
+		WebTable table = (WebTable) response
+				.getElementWithID(TestUtils.LEGEND_TBL);
 
 		if (table != null)
 		{
-			// Row 2
-			// Columns in the table are Color,Host IP,Host
-			// Name,Downloaded,Uploaded
-			String hostIP1 = table.getCellAsText(2, 1);
-			String downloaded1 = table.getCellAsText(2, 3);
-			String uploaded1 = table.getCellAsText(2, 4);
-			// Row 3
-			String hostIP2 = table.getCellAsText(3, 1);
-			String downloaded2 = table.getCellAsText(3, 3);
-			String uploaded2 = table.getCellAsText(3, 4);
-			// Row 4
-			String hostIP3 = table.getCellAsText(4, 1);
-			String downloaded3 = table.getCellAsText(4, 3);
-			String uploaded3 = table.getCellAsText(4, 4);
+			long downloaded[] = { 9, 38, 47 };
+			long uploaded[] = { 14, 108, 28 };
+			String ips[] = { "10.0.156.1", "10.0.156.120", "10.0.156.10" };
+			checkUploadDownloadLegendTable(table, downloaded, uploaded, ips,
+					View.IP);
 
-			// Check the table data
-			// .10 47 = 500000*100/1024/1024 28
-			// .120 38 = 400000*100/1024/1024 108
-			// .1 9 = 100000*100/1024/1024 14
-			assertEquals("Check the IP Address", "10.0.156.10", hostIP3);
-			assertEquals("Check the Downloaded Value, r1", "47", downloaded3);
-			assertEquals("Check the Downloaded Value", "28", uploaded3);
-			assertEquals("Check the IP Address", "10.0.156.120", hostIP2);
-			assertEquals("Check the Downloaded Value r2", "38", downloaded2);
-			assertEquals("Check the Downloaded Value", "108", uploaded2);
-			assertEquals("Check the IP Address", "10.0.156.1", hostIP1);
-			assertEquals("Check the Downloaded Value r3", "9", downloaded1);
-			assertEquals("Check the Downloaded Value", "14", uploaded1);
 		}
 
-		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
-				+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15");
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15");
 		response = wc.getResponse(request);
 		link = response.getLinkWithName("uploaded");
-		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15";
+		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&view=IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
-		table = (WebTable) response.getElementWithID("legend_tbl");
+		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 		if (table != null)
 		{
-			// Row 2
-			// Columns in the table are Color,Host IP,Host
-			// Name,Downloaded,Uploaded
-			String hostIP1 = table.getCellAsText(2, 1);
-			String downloaded1 = table.getCellAsText(2, 3);
-			String uploaded1 = table.getCellAsText(2, 4);
-			// Row 3
-			String hostIP2 = table.getCellAsText(3, 1);
-			String downloaded2 = table.getCellAsText(3, 3);
-			String uploaded2 = table.getCellAsText(3, 4);
-			// Row 4
-			String hostIP3 = table.getCellAsText(4, 1);
-			String downloaded3 = table.getCellAsText(4, 3);
-			String uploaded3 = table.getCellAsText(4, 4);
 
+			long downloaded[] = { 38, 47, 9 };
+			long uploaded[] = { 108, 28, 14 };
+			String ips[] = { "10.0.156.120", "10.0.156.10", "10.0.156.1" };
+			checkUploadDownloadLegendTable(table, downloaded, uploaded, ips,
+					View.IP);
 			// Check the table data
 			// .10 47 = 500000*100/1024/1024 28
 			// .120 38 = 400000*100/1024/1024 108
 			// .1 9 = 100000*100/1024/1024 14
-			assertEquals("Check the IP Address", "10.0.156.120", hostIP1);
-			assertEquals("Check the Downloaded Value, r1", "38", downloaded1);
-			assertEquals("Check the Uploaded Value", "108", uploaded1);
-			assertEquals("Check the IP Address", "10.0.156.10", hostIP2);
-			assertEquals("Check the Downloaded Value r2", "47", downloaded2);
-			assertEquals("Check the Uploaded Value", "28", uploaded2);
-			assertEquals("Check the	IP Address", "10.0.156.1", hostIP3);
-			assertEquals("Check the Downloaded Value r3", "9", downloaded3);
-			assertEquals("Check the Uploaded Value", "14", uploaded3);
+
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @throws ClassNotFoundException
@@ -337,66 +298,97 @@ public class LegendTest extends TestCase
 	 * @throws SAXException
 	 */
 	public void testLimitResults() throws ClassNotFoundException,
-	IllegalAccessException, InstantiationException, IOException,
-	SQLException, SAXException
-		{
-		
+			IllegalAccessException, InstantiationException, IOException,
+			SQLException, SAXException
+	{
+
 		TestUtils testUtils = new TestUtils();
 		testUtils.CreateTable();
 		testUtils.InsertSampleData();
-		
+
 		// check the default limit of result
-		
+
 		// Create a conversation
 		WebConversation wc = new WebConversation();
-		
+
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&graph=cumul&start=0&end=300000");
 		WebResponse response = wc.getResponse(request);
-		
+
 		// get the table
-		WebTable table = (WebTable) response.getElementWithID("legend_tbl");
-		
+		WebTable table = (WebTable) response
+				.getElementWithID(TestUtils.LEGEND_TBL);
+
 		if (table != null)
 		{
-			assertEquals("Check the number of rows is limited to default value.", Configuration.getResultLimit(),(Integer)(table.getRowCount()-3));
-			
+			assertEquals(
+					"Check the number of rows is limited to default value.",
+					Configuration.getResultLimit(), (Integer) (table
+							.getRowCount() - 3));
+
 			// Columns in the table are Color,Host IP,Host
 			// Name,Downloaded,Uploaded
-			// Get data from the last row and check if it contains the information for the resta of Ip's 
-			String hostIP = table.getCellAsText(Configuration.getResultLimit() + 2, 1);
-			String downloaded = table.getCellAsText(Configuration.getResultLimit() + 2, 3);
-			String uploaded = table.getCellAsText(Configuration.getResultLimit() + 2, 4);
+			// Get data from the last row and check if it contains the
+			// information for the resta of Ip's
+			String hostIP = table.getCellAsText(
+					Configuration.getResultLimit() + 2, 1);
+			String downloaded = table.getCellAsText(Configuration
+					.getResultLimit() + 2, 3);
+			String uploaded = table.getCellAsText(Configuration
+					.getResultLimit() + 2, 4);
 			assertEquals("Check the IP Address", "Others", hostIP);
 			assertEquals("Check the Downloaded Value", "0", downloaded);
 			assertEquals("Check the Upload Value", "23", uploaded);
 		}
 		// Check a user defined limit of results.
 
-		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
-				+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=8");
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=8");
 		response = wc.getResponse(request);
-//		 get the table
-		table = (WebTable) response.getElementWithID("legend_tbl");
-		
+		// get the table
+		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
+
 		if (table != null)
 		{
-			assertEquals("Check the number of rows is limited to default value.",(Integer)8,(Integer)(table.getRowCount()-3));
-			
+			assertEquals(
+					"Check the number of rows is limited to default value.",
+					(Integer) 8, (Integer) (table.getRowCount() - 3));
+
 			// Columns in the table are Color,Host IP,Host
 			// Name,Downloaded,Uploaded
-			// Get data from the last row and check if it contains the information for the resta of Ip's 
+			// Get data from the last row and check if it contains the
+			// information for the resta of Ip's
 			String hostIP = table.getCellAsText(8 + 2, 1);
 			String downloaded = table.getCellAsText(8 + 2, 3);
-			String uploaded = table.getCellAsText (8 + 2, 4);
+			String uploaded = table.getCellAsText(8 + 2, 4);
 			assertEquals("Check the IP Address", "Others", hostIP);
 			assertEquals("Check the Downloaded Value", "0", downloaded);
 			assertEquals("Check the Upload Value", "8", uploaded);
 		}
-		
+
 	}
-	
+
+	public void testLimitResultsSpecificPort() throws ClassNotFoundException,
+			IllegalAccessException, InstantiationException, IOException,
+			SQLException, SAXException
+	{
+		WebConversation wc = new WebConversation();
+		// Obtain the upload page on web site
+		WebRequest request = new GetMethodWebRequest(
+				m_testUtils.getUrlPmgraph()
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=1&port=110");
+		WebResponse response = wc.getResponse(request);
+
+		WebTable table = (WebTable) response
+				.getElementWithID(TestUtils.LEGEND_TBL);
+		long uploaded[] = { 4, 0 };
+		long downloaded[] = { 5, 4 };
+		String ips[] = { "10.0.156.110", "Others" };
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ips,
+				View.PORT);
+	}
 
 	public static Test suite()
 	{

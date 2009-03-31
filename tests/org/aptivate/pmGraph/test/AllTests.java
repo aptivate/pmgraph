@@ -6,22 +6,23 @@ import junit.framework.TestSuite;
 
 public class AllTests extends TestCase
 {
-    public AllTests( String s )
-    {
-        super( s );
-    }
+	public AllTests(String s)
+	{
+		super(s);
+	}
 
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite("pmGraph Unit Tests");
+	public static Test suite()
+	{
+		TestSuite suite = new TestSuite("pmGraph Unit Tests");
 
-        suite.addTest(DataBaseTest2.suite());
-        suite.addTest(ButtonsTest.suite());
-        suite.addTest(GraphsTest.suite());
-        suite.addTest(LegendTest.suite());
-        suite.addTest(TimeFormTest.suite());
-        suite.addTest(W3cValidationTest.suite());
-                
-        return suite;
-    }
+		suite.addTest(DataBaseTest2.suite());
+		suite.addTest(ButtonsTest.suite());
+		suite.addTest(GraphsTest.suite());
+		suite.addTest(LegendTest.suite());
+		suite.addTest(TimeFormTest.suite());
+		suite.addTest(LegendTestPortView.suite());
+		suite.addTest(SpecificGraphsTest.suite());
+		suite.addTest(W3cValidationTest.suite());
+		return suite;
+	}
 }
