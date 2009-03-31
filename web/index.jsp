@@ -14,8 +14,6 @@
     String report = (param = request.getParameter("report")) != null ? param : "totals";
     String graph = (param = request.getParameter("graph")) != null ? param : "cumul";
     long now = new Date().getTime();
-    long startTime =  now - 240 * 60000;
-    long endTime = now;    
     long scrollAmount, zoomAmount, newZoomInStart, newZoomInEnd, 
     	newZoomOutStart, newZoomOutEnd;
         
@@ -42,17 +40,17 @@
 	}	
 	
    	// Change start and end Time
-	startTime = pageUrl.getStartTime();
-	endTime = pageUrl.getEndTime();
+	long startTime = pageUrl.getStartTime();
+	long endTime = pageUrl.getEndTime();
 
-    scrollAmount = (endTime - startTime) / 2;  
-    zoomAmount = (endTime - startTime) / 2; 
-    
+    scrollAmount =  pageUrl.getScrollAmount();  
+    zoomAmount = pageUrl.getZoomAmount(); 
+/*    
     newZoomInStart = ((startTime + zoomAmount/2) / 6000);
     newZoomInEnd = ((endTime - zoomAmount/2) / 6000);
     
     newZoomOutStart = ((startTime - zoomAmount) / 6000);
-    newZoomOutEnd = ((endTime + zoomAmount) / 6000);
+    newZoomOutEnd = ((endTime + zoomAmount) / 6000);*/
 %>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
@@ -139,15 +137,14 @@
                        href="<%=pageUrl.getIndexURL(report, graph, (startTime - scrollAmount), (endTime - scrollAmount))%>"
                         class="control">Prev.</a>
                     <div id="controlscenter">
-                    	<%if ((newZoomOutEnd - newZoomOutStart) < 357920) {%>
-                        	<a name="zoomOut"
-                        	   href="<%=pageUrl.getIndexURL(report, graph, (startTime - zoomAmount), (endTime + zoomAmount))%>" 
-                        	   class="control">Zoom -</a>     
-                       	<%}%>
+
+                       	<a name="zoomOut"
+                       	   href="<%=pageUrl.getZoomOutURL(report, graph, startTime, endTime)%>" 
+                       	   class="control">Zoom -</a>     
                        		
-                       	<%if ((newZoomInEnd - newZoomInStart) > 15) {%>
+                       	<%if (pageUrl.showZoomIn(startTime,endTime)) {%>
                         	<a	name="zoomIn"
-                        		href="<%=pageUrl.getIndexURL(report, graph, (startTime + zoomAmount/2), (endTime - zoomAmount/2))%>" 
+                        		href="<%=pageUrl.getZoomInURL(report, graph, startTime, endTime)%>" 
                         		class="control">Zoom +</a>
                       	<%}%>             
                     </div>
