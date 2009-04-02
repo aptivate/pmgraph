@@ -52,7 +52,7 @@ public class PageUrl
 		// set to default to eer have a value even if any Exception happens
 		setDatesDefault();
 
-		// try to get date tome defined by user
+		// try to get date time defined by user
 		try
 		{
 			if (request.getParameter("fromDate") != null)
@@ -101,23 +101,43 @@ public class PageUrl
 		if ((request.getParameter("resultLimit") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("resultLimit"))))
 		{
-
 			try
 			{
-				m_resultLimit = Integer.valueOf(request
-						.getParameter("resultLimit"));
+				m_resultLimit = Integer.parseInt(request.getParameter("resultLimit"));
 			}
-			catch (NumberFormatException e)
+			catch (Exception e)
 			{
+				setResultsDefault();
+				//m_resultLimit = Configuration.getResultLimit();
 				throw new PageUrlException(
 						ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
+			
+			if (m_resultLimit < 0) 
+			{
+				setResultsDefault();
+				//m_resultLimit = Configuration.getResultLimit();
+				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
+			}
 		}
 		else
-		{ // if user has not defined date time get it from start and end
-			// parameters
+		{ // if user has not defined resultLimit get it from default
+			//m_resultLimit = Configuration.getResultLimit();
+			setResultsDefault();
+		}
+	}
+
+	private void setResultsDefault() 
+	{
+		try 
+		{
 			m_resultLimit = Configuration.getResultLimit();
 		}
+		catch (Exception e)
+		{
+		
+		}
+		
 	}
 
 	/**
@@ -201,7 +221,7 @@ public class PageUrl
 	}
 
 	/**
-	 * Asign the start and end dates for the graph using start end values
+	 * Assign the start and end dates for the graph using start and end values
 	 * 
 	 * @param request
 	 * @param name
@@ -249,9 +269,9 @@ public class PageUrl
 	}
 
 	/**
-	 * Asign the star and aend dates for the graph using star end request values
-	 * asuming they are timestaps. If that is not posible a default star end
-	 * time are asigned.
+	 * Assign the start and end dates for the graph using start end request values
+	 * assuming they are timestamps. If that is not posible a default start and end
+	 * time are assigned.
 	 * 
 	 * @param request
 	 * @throws Exception

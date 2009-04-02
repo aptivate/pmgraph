@@ -23,6 +23,7 @@ public class AllTests extends TestCase
 		suite.addTest(LegendTestPortView.suite());
 		suite.addTest(SpecificGraphsTest.suite());
 		suite.addTest(W3cValidationTest.suite());
+		suite.addTest(ResultEntryTest.suite());
 		return suite;
 	}
 }
