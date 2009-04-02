@@ -105,39 +105,22 @@ public class PageUrl
 			{
 				m_resultLimit = Integer.parseInt(request.getParameter("resultLimit"));
 			}
-			catch (Exception e)
+			catch (NumberFormatException e)
 			{
-				setResultsDefault();
-				//m_resultLimit = Configuration.getResultLimit();
-				throw new PageUrlException(
-						ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
+				m_resultLimit = Configuration.getResultLimit();
+				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
 			
 			if (m_resultLimit < 0) 
 			{
-				setResultsDefault();
-				//m_resultLimit = Configuration.getResultLimit();
+				m_resultLimit = Configuration.getResultLimit();
 				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
 		}
 		else
 		{ // if user has not defined resultLimit get it from default
-			//m_resultLimit = Configuration.getResultLimit();
-			setResultsDefault();
-		}
-	}
-
-	private void setResultsDefault() 
-	{
-		try 
-		{
 			m_resultLimit = Configuration.getResultLimit();
 		}
-		catch (Exception e)
-		{
-		
-		}
-		
 	}
 
 	/**
