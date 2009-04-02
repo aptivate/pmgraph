@@ -57,16 +57,16 @@
         <title>pmGraph</title>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
         <link rel="Stylesheet" href="styles/main.css" type="text/css" />
-        <script type="text/javascript">
-       // <![CDATA[							
+        <script type="text/javascript">       
+       
+       // <![CDATA[		       					
 			function onLoad()
 			{
-				if("<%=errorMsg%>"!="null")
-				{
+				<% if (errorMsg != null) { %>
 					alert("<%=errorMsg%>");
-				}
-				// Set focus
-				document.getElementById ("fromDate").focus();
+					// Set focus
+					document.getElementById ("fromDate").focus();
+				<% } %>
 			}
 		// ]]>	
         </script>

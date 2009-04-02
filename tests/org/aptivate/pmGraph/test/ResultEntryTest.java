@@ -55,32 +55,36 @@ public class ResultEntryTest extends TestCase
 		assertEquals("Check the results initial value.", defaultResults, response
 				.getElementWithID("resultLimit").getAttribute("value"));
 
-		SubmitButton subButton = theForm.getSubmitButton("Go");
-
 		// Check valid values
 		response.getElementWithID("resultLimit").setAttribute("value", "6");
-		subButton.click();
+		theForm.submit();
 
 		assertEquals("Check no alert.", "", wc.popNextAlert());
 
 		// Check non-numeric results values
-		response.getElementWithID("resultLimit").setAttribute("value", "p");
-		subButton.click();
+		// AC There is an error in HttpUnit v1.7 (fixed in next version but not released) that causes a double 
+		// submit hence 2 errors messages are obtained if we use Submit hence we are using URL to set invalid value
+		
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?start=0&end=300000&resultLimit=p");
+		response = wc.getResponse(request);
 		
 		assertEquals("Check result alert.", RESULT_LIMIT_FORMAT_ERROR, wc.popNextAlert());
-		// Should now be set to default value and not give an error
+		assertEquals("Check no more alerts.", "", wc.popNextAlert());
 		
-		// TODO Check default value is used - Not working the URL still has p while screen shows 5
-		
-//		response.getRefreshRequest();
-//		subButton.click();
-//		assertEquals("Check the results default used.", defaultResults, response
-//						.getElementWithID("resultLimit").getAttribute("value"));
-//		assertEquals("Check no alert.", "", wc.popNextAlert());		
-//		
+		// Should now be set to default value and give no error when submitted
+        assertEquals("Check the results default used.", defaultResults, response
+						.getElementWithID("resultLimit").getAttribute("value"));
+        
+        theForm = response.getFormWithID("SetDateAndTime");
+        response = theForm.submit();
+        
+        assertEquals("Check no alert.", "", wc.popNextAlert());
+    
 		// Check negative results value
-		response.getElementWithID("resultLimit").setAttribute("value", "-2");
-		subButton.click();
+        request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?start=0&end=300000&resultLimit=-6");
+		response = wc.getResponse(request);
 		
 		assertEquals("Check -ve result alert.", RESULT_LIMIT_FORMAT_ERROR, wc.popNextAlert());
 		
