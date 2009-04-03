@@ -37,9 +37,13 @@ public class PageUrl
 
 	private View m_view;
 
-	private long scrollAmount;
+	private long m_scrollAmount;
 
-	private long zoomAmount;
+	private long m_zoomAmount;
+	
+	private String m_sortBy;
+	
+	private String m_order;
 
 	public PageUrl()
 	{
@@ -82,8 +86,8 @@ public class PageUrl
 			setDatesDefault();
 			throw new PageUrlException(ErrorMessages.TIME_IN_FUTURE);
 		}
-		zoomAmount = (getEndTime() - getStartTime()) / 2;
-		scrollAmount = (getEndTime() - getStartTime()) / 2;
+		m_zoomAmount = (getEndTime() - getStartTime()) / 2;
+		m_scrollAmount = (getEndTime() - getStartTime()) / 2;
 	}
 
 	/**
@@ -186,7 +190,6 @@ public class PageUrl
 		if ((request.getParameter("view") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("view"))))
 		{
-
 			try
 			{
 				m_view = View.valueOf(request.getParameter("view"));
@@ -262,7 +265,6 @@ public class PageUrl
 	private void setDatesFromStartEnd(HttpServletRequest request)
 			throws NumberFormatException
 	{
-
 		if ((request.getParameter("start") != null)
 				&& (request.getParameter("end") != null))
 		{
@@ -274,6 +276,19 @@ public class PageUrl
 		else
 		{
 			setDatesDefault();
+		}
+	}
+	
+	private void setSortByFromStartEnd(HttpServletRequest request)
+	throws NumberFormatException
+	{		
+		if ((request.getParameter("sortBy") != null))
+		{
+			m_sortBy = request.getParameter("sortBy");
+		}	
+		if ((request.getParameter("order") != null))
+		{
+			m_order = request.getParameter("order");
 		}
 	}
 
@@ -296,6 +311,7 @@ public class PageUrl
 			throws PageUrlException, IOException
 	{
 		PageUrlException exception = null;
+		setSortByFromStartEnd(request);
 
 		try
 		{
@@ -466,22 +482,42 @@ public class PageUrl
 
 	public long getScrollAmount()
 	{
-		return scrollAmount;
+		return m_scrollAmount;
 	}
 
 	public void setScrollAmount(long scrollAmount)
 	{
-		this.scrollAmount = scrollAmount;
+		this.m_scrollAmount = scrollAmount;
 	}
 
 	public long getZoomAmount()
 	{
-		return zoomAmount;
+		return m_zoomAmount;
 	}
 
 	public void setZoomAmount(long zoomAmount)
 	{
-		this.zoomAmount = zoomAmount;
+		this.m_zoomAmount = zoomAmount;
+	}
+
+	public String getOrder()
+	{
+		return m_order;
+	}
+
+	public void setOrder(String order)
+	{
+		this.m_order = order;
+	}
+
+	public String getSortBy()
+	{
+		return m_sortBy;
+	}
+
+	public void setSortBy(String sortBy)
+	{
+		this.m_sortBy = sortBy;
 	}
 
 	/**
@@ -552,8 +588,25 @@ public class PageUrl
 		return newURL;
 	}
 
-	public String getIndexURL(long start, long end, String sortBy, String order)
-	{
+	/**
+	 * 
+	 * @param start
+	 * @param end
+	 * @param sortBy
+	 * @param order
+	 * @return
+	 */
+	public String getIndexURL(long start, long end, String sortBy)
+	{		
+		String order= "DESC";
+		// change sortin order just if the result is order by this column
+		// else keep default sorting == DESC
+		
+		if(sortBy.equalsIgnoreCase(m_sortBy)) {
+			if ("DESC".equalsIgnoreCase (m_order))
+				order = "ASC";
+		}
+		
 		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
 				+ "&amp;sortBy=" + sortBy + "&amp;order=" + order
 				+ "&amp;resultLimit=" + getResultLimit();
@@ -579,8 +632,8 @@ public class PageUrl
 
 	public String getZoomInURL(String report, String graph, long start, long end)
 	{
-		long newZoomInStart = start + zoomAmount / 2;
-		long newZoomInEnd = end - zoomAmount / 2;
+		long newZoomInStart = start + m_zoomAmount / 2;
+		long newZoomInEnd = end - m_zoomAmount / 2;
 
 		return getIndexURL(report, graph, newZoomInStart, newZoomInEnd);
 	}
@@ -588,8 +641,8 @@ public class PageUrl
 	public String getZoomOutURL(String report, String graph, long start,
 			long end)
 	{
-		long newZoomOutStart = start - zoomAmount;
-		long newZoomOutEnd = end + zoomAmount;
+		long newZoomOutStart = start - m_zoomAmount;
+		long newZoomOutEnd = end + m_zoomAmount;
 		long temp = new Date().getTime();
 
 		// limit the zoom if it create a date in the future
@@ -604,8 +657,8 @@ public class PageUrl
 
 	public boolean showZoomIn(long start, long end)
 	{
-		long newZoomInStart = ((start + zoomAmount / 2) / 6000);
-		long newZoomInEnd = ((end - zoomAmount / 2) / 6000);
+		long newZoomInStart = ((start + m_zoomAmount / 2) / 6000);
+		long newZoomInEnd = ((end - m_zoomAmount / 2) / 6000);
 
 		return ((newZoomInEnd - newZoomInStart) > 15);
 	}
