@@ -30,7 +30,6 @@
 	String sortBy = request.getParameter("sortBy");
 	//order: DESC | ASC
 	String order = request.getParameter("order");
-	String orderN = order.equals("ASC") ? "DESC" : "ASC";
 
 	String arrow = order.equals("ASC")?" &#8679;":" &#8681;";
 	String col1 = "Downloaded";
@@ -81,9 +80,9 @@
             <%} else { %>
                 <td rowspan="2">Port</td>
             <%} %>
-            <td colspan="2">
+            <td colspan="2" class="center">
              <a name="bytes_total" 
-                       href="<%=pageUrl.getIndexURL(startP, endP, "bytes_total", orderN)%>"
+                       href="<%=pageUrl.getIndexURL(startP, endP, "bytes_total")%>"
                        > <%=col3%></a> 
            </td>
 		</tr>
@@ -92,12 +91,12 @@
 		    <td></td>
 		    <td>
 		    <a name="downloaded" 
-                       href="<%=pageUrl.getIndexURL(startP, endP, "downloaded", orderN)%>"
+                       href="<%=pageUrl.getIndexURL(startP, endP, "downloaded")%>"
                        ><%=col1%></a>
 		    </td>
 		    <td>
 		     <a name="uploaded" 
-                       href="<%=pageUrl.getIndexURL(startP, endP, "uploaded", orderN)%>"
+                       href="<%=pageUrl.getIndexURL(startP, endP, "uploaded")%>"
                        ><%=col2%></a>
 		    </td>
 		</tr>

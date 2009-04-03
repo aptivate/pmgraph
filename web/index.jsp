@@ -45,12 +45,6 @@
 
     scrollAmount =  pageUrl.getScrollAmount();  
     zoomAmount = pageUrl.getZoomAmount(); 
-/*    
-    newZoomInStart = ((startTime + zoomAmount/2) / 6000);
-    newZoomInEnd = ((endTime - zoomAmount/2) / 6000);
-    
-    newZoomOutStart = ((startTime - zoomAmount) / 6000);
-    newZoomOutEnd = ((endTime + zoomAmount) / 6000);*/
 %>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
