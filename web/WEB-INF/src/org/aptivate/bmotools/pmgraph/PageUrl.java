@@ -281,7 +281,7 @@ public class PageUrl
 	{
 
 		long now = new Date().getTime();
-		m_fromDateAndTime = new Date(now - 240 * 60000);
+		m_fromDateAndTime = new Date(now - 180 * 60000);
 		m_toDateAndTime = new Date(now);
 	}
 
