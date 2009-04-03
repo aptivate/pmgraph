@@ -160,6 +160,7 @@ public class DataAccess
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException
 	{
+		long initTime = System.currentTimeMillis();
 		ArrayList<GraphData> resultData = new ArrayList<GraphData>();
 		// Round our times to the nearest minute
 		start = start - (start % 60000);
@@ -184,6 +185,8 @@ public class DataAccess
 			resultData.add(new GraphData(thrptResults));
 		}
 		thrptStatement.close();
+		long endTime = System.currentTimeMillis() - initTime;
+		m_logger.debug("Execution Time in mysql query: " + endTime + " miliseg");
 		return resultData;
 	}
 
@@ -217,7 +220,9 @@ public class DataAccess
 			String throughputPerIp) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException
 	{
-
+		
+		long initTime = System.currentTimeMillis();
+		
 		ArrayList<GraphData> resultData = new ArrayList<GraphData>();
 		// Round our times to the nearest minute
 		start = start - (start % 60000);
@@ -246,6 +251,8 @@ public class DataAccess
 
 		}
 		ipStatement.close();
+		long endTime = System.currentTimeMillis() - initTime;
+		m_logger.debug("Execution Time in mysql query: " + endTime + " miliseg");		
 		return resultData;
 	}
 
@@ -266,6 +273,7 @@ public class DataAccess
 			IllegalAccessException, ClassNotFoundException, SQLException
 	{
 
+		long initTime = System.currentTimeMillis();
 		ArrayList<GraphData> resultData = new ArrayList<GraphData>();
 		// Round our times to the nearest minute
 		start = start - (start % 60000);
@@ -296,6 +304,8 @@ public class DataAccess
 
 		}
 		ipStatement.close();
+		long endTime = System.currentTimeMillis() - initTime;
+		m_logger.debug("Execution Time in mysql query: " + endTime + " miliseg");	
 		return resultData;
 	}
 
