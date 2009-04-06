@@ -426,10 +426,19 @@ public class GraphFactory
 		DataAccess dataAccess = new DataAccess();
 		List<GraphData> thrptResults = dataAccess.getThroughputPIPPMinute(
 				theStart, theEnd);
+		
+		m_logger.debug("Start creating chart.");
+		long initTime = System.currentTimeMillis();
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
-
-		return fillGraph(start, end, theStart, theEnd, thrptResults,
+				
+		JFreeChart chart = fillGraph(start, end, theStart, theEnd, thrptResults,
 				limitResult, "Network Throughput Per IP", false);
+		
+		if (m_logger.isDebugEnabled()) {
+			long endTime = System.currentTimeMillis() - initTime;
+			m_logger.debug("Execution Time creating chart : " + endTime + " miliseg");
+		}
+		return chart;
 	}
 
 	/**
