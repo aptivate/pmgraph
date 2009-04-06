@@ -440,6 +440,7 @@ public class GraphFactory
 			long endTime = System.currentTimeMillis() - initTime;
 			m_logger.debug("Execution Time creating chart : " + endTime + " miliseg");
 		}
+		thrptResults=null;
 		return chart;
 	}
 
@@ -477,8 +478,10 @@ public class GraphFactory
 				.getThroughputPIPPMinuteOneIpPerPort(theStart, theEnd, ip);
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
 
-		return fillGraph(start, end, theStart, theEnd, thrptResults,
+		JFreeChart chart = fillGraph(start, end, theStart, theEnd, thrptResults,
 				limitResult, "Network Throughput Per IP: " + ip, true);
+		thrptResults=null;
+		return chart;
 	}
 
 	/**
@@ -515,8 +518,10 @@ public class GraphFactory
 				.getThroughputPerPortPerMinute(theStart, theEnd);
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
 
-		return fillGraph(start, end, theStart, theEnd, thrptResults,
+		JFreeChart chart = fillGraph(start, end, theStart, theEnd, thrptResults,
 				limitResult, "Network Throughput Per Port", true);
+		thrptResults=null;
+		return chart;
 	}
 
 	/**
@@ -554,8 +559,10 @@ public class GraphFactory
 				.getThroughputPIPPMinuteOnePortPerIp(theStart, theEnd, port);
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
 
-		return fillGraph(start, end, theStart, theEnd, thrptResults,
+		JFreeChart chart =  fillGraph(start, end, theStart, theEnd, thrptResults,
 				limitResult, "Network Throughput Per Port: " + port, false);
+		thrptResults=null;
+		return chart;
 
 	}
 }
