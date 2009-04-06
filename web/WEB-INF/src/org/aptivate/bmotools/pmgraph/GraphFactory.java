@@ -73,7 +73,7 @@ public class GraphFactory
 	}
 
 	/**
-	 * Initialize a series for a port graph whit all the values to zero and add
+	 * Initialize a series for a port graph with all the values to zero and add
 	 * it to the datase and to the hashmap containing all the series.
 	 * 
 	 * @param name
@@ -83,7 +83,8 @@ public class GraphFactory
 	 * @param renderer
 	 * @param minutes
 	 * @param start
-	 * @return
+	 * @return A Initialize a series for a port graph with all the values to zero and add
+	 * it to the datase and to the hashmap containing all the series.
 	 */
 	private XYSeries InizializeSeries(String name, String id,
 			DefaultTableXYDataset dataset,
@@ -125,7 +126,8 @@ public class GraphFactory
 	 * @param title
 	 * @param portGraph
 	 *            The series are Ip's or Ports
-	 * @return
+	 * @return A JFreeChart with the data in the List thrptResults creating a new
+	 * series per each port, or Ip
 	 */
 	private JFreeChart fillGraph(long start, long end, long theStart,
 			long theEnd, List<GraphData> thrptResults, Integer limitResult,
@@ -240,7 +242,7 @@ public class GraphFactory
 	 * @param end
 	 * @param theStart
 	 * @param theEnd
-	 * @return
+	 * @return A chart with the default options, and without data.
 	 */
 	private JFreeChart createStackedXYGraph(String title,
 			DefaultTableXYDataset dataset, long start, long end, long theStart,
@@ -292,7 +294,7 @@ public class GraphFactory
 	 * Return a color obtained from create a hash with the bytes of the Ip.
 	 * 
 	 * @param ip
-	 * @return
+	 * @return Color for the selected IP.
 	 */
 	public Color getSeriesColor(String ip)
 	{
@@ -311,7 +313,7 @@ public class GraphFactory
 	 * Return a color obtained from create a hash with the bytes of the Port.
 	 * 
 	 * @param port
-	 * @return
+	 * @return Color for the selected port
 	 */
 	public Color getSeriesColor(int port)
 	{
@@ -525,7 +527,8 @@ public class GraphFactory
 	 * @param end
 	 * @param limitResult
 	 * @param port
-	 * @return
+	 * @return A StackedAreaChart chart containig the data of an 
+	 * specific port.
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException

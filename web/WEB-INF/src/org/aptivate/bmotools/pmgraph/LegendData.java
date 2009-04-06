@@ -197,7 +197,8 @@ public class LegendData
 	 * @param sortBy
 	 * @param order
 	 * @param pageUrl
-	 * @return
+	 * @return The generated List containing the data that should be 
+	 * showed on the legend when the graph is a legend data graph.
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
@@ -224,7 +225,9 @@ public class LegendData
 	 * @param sortBy
 	 * @param order
 	 * @param pageUrl
-	 * @return
+	 * @return The generated List containing the data that should
+	 * be showed on the legend, ewhen the graph is for an especific 
+	 * Ip
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException

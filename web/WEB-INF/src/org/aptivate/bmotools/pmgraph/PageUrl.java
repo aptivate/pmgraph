@@ -529,7 +529,8 @@ public class PageUrl
 	 * @param jspInclude
 	 *            is this a URL for a JSP include? if false &amp; used to
 	 *            separate parameters
-	 * @return
+	 * @return String to add to a URL in order to include View parameter
+	 * depending to de the IP or port parameters or the view parameter.
 	 */
 	private String buildIpPortViewParameters(boolean jspInclude)
 	{

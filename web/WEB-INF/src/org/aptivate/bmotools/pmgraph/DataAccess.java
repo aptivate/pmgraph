@@ -262,7 +262,7 @@ public class DataAccess
 	 * @param start
 	 * @param end
 	 * @param ip
-	 * @return
+	 * @return The Throughput of one specific IP estratified by ports
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
@@ -310,11 +310,11 @@ public class DataAccess
 	}
 
 	/**
-	 * 
+	 * Throughput per one Ip desglosed by ports. To be used in the legend generation.
 	 * @param start 
 	 * @param end
 	 * @param ip
-	 * @return
+	 * @return Throughput per one Ip desglosed by ports.
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
@@ -362,7 +362,7 @@ public class DataAccess
 	 * 
 	 * @param start
 	 * @param end
-	 * @return
+	 * @return hroughput per each port in each minute.
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
@@ -406,10 +406,11 @@ public class DataAccess
 	}
 
 	/**
+	 * Throughput per each port, used in the Leged generation
 	 * 
 	 * @param start
 	 * @param end
-	 * @return
+	 * @return Throughput per each port
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
@@ -453,11 +454,12 @@ public class DataAccess
 	}
 
 	/**
+	 * Throughput for an specific port by each IP per minute
 	 * 
 	 * @param start
 	 * @param end
 	 * @param port
-	 * @return
+	 * @return Throughput for an specific port by each IP per minute
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
@@ -504,11 +506,11 @@ public class DataAccess
 	}
 
 	/**
-	 * 
+	 * Throughput per one port desglosed by Ips To be used in Legend generation.
 	 * @param start
 	 * @param end
 	 * @param port
-	 * @return
+	 * @return  Throughput per one port desglosed by Ips 
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws ClassNotFoundException
