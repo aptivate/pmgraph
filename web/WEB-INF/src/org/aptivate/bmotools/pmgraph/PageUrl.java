@@ -593,8 +593,7 @@ public class PageUrl
 	 * @param start
 	 * @param end
 	 * @param sortBy
-	 * @param order
-	 * @return
+	 * @return The URL to the Web aplication.
 	 */
 	public String getIndexURL(long start, long end, String sortBy)
 	{		

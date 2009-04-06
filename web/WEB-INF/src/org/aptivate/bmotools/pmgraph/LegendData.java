@@ -126,7 +126,8 @@ public class LegendData
 	 * @param order
 	 * @param pageUrl
 	 * @param isPort
-	 * @return
+	 * @return A List<GraphData> limited to the number of results requested by 
+	 * the user and sorted propertly.
 	 * @throws SQLException
 	 */
 	private List<GraphData> limitList(List<GraphData> dataList, String sortBy,
@@ -250,7 +251,7 @@ public class LegendData
 	 * @param sortBy
 	 * @param order
 	 * @param pageUrl
-	 * @return
+	 * @return A list of GraphData containing informaction for each IP
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException

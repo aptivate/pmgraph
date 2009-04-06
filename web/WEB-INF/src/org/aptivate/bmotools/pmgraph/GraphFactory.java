@@ -486,7 +486,7 @@ public class GraphFactory
 	 * @param start
 	 * @param end
 	 * @param limitResult
-	 * @return
+	 * @return JFrechart contaning  stackedThroughputPerPort 
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
