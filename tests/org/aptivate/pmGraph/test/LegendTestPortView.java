@@ -103,7 +103,7 @@ public class LegendTestPortView extends TestCase
 		WebLink link = response.getLinkWithName("downloaded");
 		// the default is 'sort by download DESC', the sortLink is opposite to
 		// the DESC
-		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15&view=PORT";
+		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=PORT";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		request = new GetMethodWebRequest(

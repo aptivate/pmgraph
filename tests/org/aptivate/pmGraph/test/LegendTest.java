@@ -237,7 +237,7 @@ public class LegendTest extends LegendTestBase
 
 		// the default is 'sort by download DESC', the sortLink is opposite to
 		// the DESC
-		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15&view=IP";
+		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=IP";
 
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
