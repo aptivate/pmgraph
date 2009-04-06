@@ -250,6 +250,7 @@ public class DataAccess
 					ipResults.getLong(BYTES)));
 
 		}
+		ipResults.close();
 		ipStatement.close();
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Execution Time in mysql query: " + endTime + " miliseg");		
@@ -303,6 +304,7 @@ public class DataAccess
 					ipResults.getInt("PORT")));
 
 		}
+		ipResults.close();
 		ipStatement.close();
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Execution Time in mysql query: " + endTime + " miliseg");	
@@ -353,6 +355,7 @@ public class DataAccess
 					ipResults.getInt("PORT")));
 
 		}
+		ipResults.close();
 		ipStatement.close();
 		return resultData;
 	}
@@ -401,6 +404,7 @@ public class DataAccess
 					ipResults.getLong(BYTES), ipResults.getInt("PORT")));
 
 		}
+		ipResults.close();
 		ipStatement.close();
 		return resultData;
 	}
@@ -449,6 +453,7 @@ public class DataAccess
 					ipResults.getLong(BYTES), ipResults.getInt("PORT")));
 
 		}
+		ipResults.close();
 		ipStatement.close();
 		return resultData;
 	}
@@ -501,6 +506,7 @@ public class DataAccess
 					ipResults.getInt("PORT")));
 
 		}
+		ipResults.close();
 		ipStatement.close();
 		return resultData;
 	}
@@ -552,6 +558,7 @@ public class DataAccess
 					.getInt("PORT")));
 
 		}
+		ipResults.close();
 		ipStatement.close();
 		return resultData;
 	}
