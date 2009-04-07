@@ -340,7 +340,7 @@ public class GraphFactory
 	 * 
 	 * 
 	 */
-	public JFreeChart totalThroughput(long start, long end)
+	JFreeChart totalThroughput(long start, long end)
 			throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException, IOException, SQLException
 	{
@@ -413,7 +413,7 @@ public class GraphFactory
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public JFreeChart stackedThroughput(long start, long end,
+	JFreeChart stackedThroughput(long start, long end,
 			Integer limitResult) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, NoSuchAlgorithmException
@@ -460,7 +460,7 @@ public class GraphFactory
 	 * @throws SQLException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public JFreeChart stackedThroughputOneIp(long start, long end,
+	JFreeChart stackedThroughputOneIp(long start, long end,
 			Integer limitResult, String ip) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, NoSuchAlgorithmException
@@ -499,7 +499,7 @@ public class GraphFactory
 	 * @throws SQLException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public JFreeChart stackedThroughputPerPort(long start, long end,
+	JFreeChart stackedThroughputPerPort(long start, long end,
 			Integer limitResult) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, NoSuchAlgorithmException
@@ -541,7 +541,7 @@ public class GraphFactory
 	 * @throws SQLException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public JFreeChart stackedThroughputOnePort(long start, long end,
+	JFreeChart stackedThroughputOnePort(long start, long end,
 			Integer limitResult, Integer port) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, NoSuchAlgorithmException
