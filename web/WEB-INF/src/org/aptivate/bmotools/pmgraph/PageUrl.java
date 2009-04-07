@@ -41,6 +41,8 @@ public class PageUrl
 
 	private long m_zoomAmount;
 	
+	private long m_graphSpan;
+	
 	private String m_sortBy;
 	
 	private String m_order;
@@ -86,8 +88,9 @@ public class PageUrl
 			setDatesDefault();
 			throw new PageUrlException(ErrorMessages.TIME_IN_FUTURE);
 		}
-		m_zoomAmount = (getEndTime() - getStartTime()) / 2;
-		m_scrollAmount = (getEndTime() - getStartTime()) / 2;
+		m_graphSpan = getEndTime() - getStartTime();
+		m_zoomAmount = m_graphSpan / 2;
+		m_scrollAmount = m_zoomAmount;
 	}
 
 	/**
@@ -480,6 +483,16 @@ public class PageUrl
 		this.m_view = view;
 	}
 
+	public long getGraphSpan()
+	{
+		return m_graphSpan;
+	}
+
+	public void setGraphSpan(long graphSpan)
+	{
+		this.m_graphSpan = graphSpan;
+	}
+
 	public long getScrollAmount()
 	{
 		return m_scrollAmount;
@@ -655,6 +668,13 @@ public class PageUrl
 		return getIndexURL(report, graph, newZoomOutStart, newZoomOutEnd);
 	}
 
+	/**
+	 * Returns true if we can zoom in, or false if we are alreadt
+	 * at maximum zoom
+	 * @param start
+	 * @param end
+	 * @return boolean
+	 */
 	public boolean showZoomIn(long start, long end)
 	{
 		long newZoomInStart = ((start + m_zoomAmount / 2) / 6000);
@@ -662,5 +682,22 @@ public class PageUrl
 
 		return ((newZoomInEnd - newZoomInStart) > 15);
 	}
+	
+	
+	/**
+	 * test if scrolling forward would take us past the current time
+	 * if that is the case we will show a "Current" button instead
+	 * of the "Next" button
+	 * @param start
+	 * @param end
+	 * @return boolean
+	 */
+	public boolean isShowCurrent(long start, long end)
+	{
+		long now = new Date().getTime();
+		return (end + m_scrollAmount >= now);	
+	}
+	
+
 
 }
