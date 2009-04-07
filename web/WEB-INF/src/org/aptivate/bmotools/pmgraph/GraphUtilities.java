@@ -1,6 +1,6 @@
 package org.aptivate.bmotools.pmgraph;
 
-public abstract class GraphUtilities
+abstract class GraphUtilities
 {
 
 	// SQL query strings

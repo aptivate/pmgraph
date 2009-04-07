@@ -15,10 +15,10 @@ import java.util.Properties;
  * changing where the configuration data is stored
  * 
  */
-public class Configuration
+class Configuration
 {
-
-	private static final String CONFIGURATION_FILE = "/database.properties";
+	
+	static final String CONFIGURATION_FILE = "/database.properties";
 
 	/**
 	 * read the content of teh properties file and return it in a Properties
@@ -28,7 +28,7 @@ public class Configuration
 	 *         file.
 	 * @throws IOException
 	 */
-	private static Properties readConfiguration() throws IOException
+	static Properties readConfiguration() throws IOException
 	{
 		Properties properties = new Properties();
 		InputStream stream = DataAccess.class

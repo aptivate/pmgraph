@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 		all sortening is doing using Collection.sort.
  *
  */
-public class DataAccess
+class DataAccess
 {
 	private String m_localSubnet; // used in the list of the DB data
 
@@ -60,7 +60,7 @@ public class DataAccess
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	public DataAccess() throws InstantiationException, IllegalAccessException,
+	DataAccess() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException
 	{
 
@@ -109,7 +109,7 @@ public class DataAccess
 	 * @throws SQLException
 	 * 
 	 */
-	public List<GraphData> getTotalThroughput(long start, long end)
+	List<GraphData> getTotalThroughput(long start, long end)
 			throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException, IOException, SQLException
 	{
@@ -156,7 +156,7 @@ public class DataAccess
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getThroughputPIPPMinute(long start, long end)
+	List<GraphData> getThroughputPIPPMinute(long start, long end)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException
 	{
@@ -190,7 +190,7 @@ public class DataAccess
 		return resultData;
 	}
 
-	public List<GraphData> getThroughputPerIP(long start, long end)
+	List<GraphData> getThroughputPerIP(long start, long end)
 			throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException, IOException, SQLException
 	{
@@ -269,7 +269,7 @@ public class DataAccess
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getThroughputPIPPMinuteOneIpPerPort(long start,
+	List<GraphData> getThroughputPIPPMinuteOneIpPerPort(long start,
 			long end, String ip) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException
 	{
@@ -322,7 +322,7 @@ public class DataAccess
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getThroughputOneIpPerPort(long start, long end,
+	List<GraphData> getThroughputOneIpPerPort(long start, long end,
 			String ip) throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException
 	{
@@ -371,7 +371,7 @@ public class DataAccess
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getThroughputPerPortPerMinute(long start, long end)
+	List<GraphData> getThroughputPerPortPerMinute(long start, long end)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException
 	{
@@ -423,7 +423,7 @@ public class DataAccess
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getThroughputPerPort(long start, long end)
+	List<GraphData> getThroughputPerPort(long start, long end)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException
 	{
@@ -473,7 +473,7 @@ public class DataAccess
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getThroughputPIPPMinuteOnePortPerIp(long start,
+	List<GraphData> getThroughputPIPPMinuteOnePortPerIp(long start,
 			long end, Integer port) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException
 	{
@@ -525,7 +525,7 @@ public class DataAccess
 	 * @throws ClassNotFoundException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getThroughputOnePort(long start, long end,
+	List<GraphData> getThroughputOnePort(long start, long end,
 			Integer port) throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException
 	{
