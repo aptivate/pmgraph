@@ -15,7 +15,7 @@
     String graph = (param = request.getParameter("graph")) != null ? param : "cumul";
     long now = new Date().getTime();
     long scrollAmount, zoomAmount, newZoomInStart, newZoomInEnd, 
-    	newZoomOutStart, newZoomOutEnd;
+    	newZoomOutStart, newZoomOutEnd, graphSpan;
         
          //the sort parameters
     //sortBy: bytes_total | downloaded | uploaded
@@ -43,6 +43,7 @@
 	long startTime = pageUrl.getStartTime();
 	long endTime = pageUrl.getEndTime();
 
+    graphSpan =  pageUrl.getGraphSpan();  
     scrollAmount =  pageUrl.getScrollAmount();  
     zoomAmount = pageUrl.getZoomAmount(); 
 %>
@@ -142,9 +143,16 @@
                         		class="control">Zoom +</a>
                       	<%}%>             
                     </div>
+                    <%if (pageUrl.isShowCurrent(startTime, endTime)) {%>
+                    <!-- show current -->
+                    <a name="current" 
+                       href="<%=pageUrl.getIndexURL(report, graph, (now - graphSpan), now)%>" 
+                       class="control">Current</a>
+                    <%} else {%>
                     <a name="next" 
                        href="<%=pageUrl.getIndexURL(report, graph, (startTime + scrollAmount), (endTime + scrollAmount))%>" 
                        class="control">Next</a>
+                    <%}%>
                 </div>  
                 <div id="legend">
                     <jsp:include page="<%=pageUrl.getLegendURL(startTime, endTime, sortBy, order)%>" />
