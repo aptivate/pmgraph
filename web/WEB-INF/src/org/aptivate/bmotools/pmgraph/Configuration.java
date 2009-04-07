@@ -15,7 +15,7 @@ import java.util.Properties;
  * changing where the configuration data is stored
  * 
  */
-class Configuration
+public class Configuration
 {
 	
 	static final String CONFIGURATION_FILE = "/database.properties";
