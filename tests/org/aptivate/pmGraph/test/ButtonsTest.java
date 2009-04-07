@@ -10,6 +10,8 @@ import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
+import java.util.Date;
+
 public class ButtonsTest extends TestCase
 {
 	private TestUtils m_testUtil;
@@ -126,7 +128,23 @@ public class ButtonsTest extends TestCase
 		// Find the Zoom- link
 		link = response.getLinkWithName("zoomOut");
 		assertEquals("Compare the zoom- link.", zoomURL, link.getURLString());
-
+		
+		//test the zoom- link when use the current time
+		long toDateAndTime = new Date().getTime(); //get current time
+		long fromDateAndTime = toDateAndTime - 180 * 60000;
+	    long zoomAmount = (toDateAndTime - fromDateAndTime) / 2;
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?start=" + fromDateAndTime + "&end=" + toDateAndTime + "&resultLimit=15");
+		response = wc.getResponse(request);
+		long now = new Date().getTime();
+		long newStart = now - (toDateAndTime - fromDateAndTime) - 2 * zoomAmount;
+		link = response.getLinkWithName("zoomOut");
+		String strTime[] = link.getParameterValues("start");
+		long lZoomStart = Long.parseLong(strTime[0]);
+		strTime = link.getParameterValues("end");
+		long lZoomEnd = Long.parseLong(strTime[0]);
+		//replace 1000*60 with the limit of response time 
+		assertTrue("check the zoomOut on current time", (lZoomStart - newStart < 1000 * 60)&&(lZoomEnd - now) < 1000 * 60);
 	}
 
 	/* This test tests the zoom+ button */
