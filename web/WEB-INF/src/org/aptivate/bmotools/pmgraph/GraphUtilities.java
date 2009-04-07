@@ -13,7 +13,7 @@ public abstract class GraphUtilities
 	 * "stamp_inserted >= ? AND " + "stamp_inserted <= ? " + "GROUP BY
 	 * stamp_inserted;";
 	 */
-	protected static final String THROUGHPUT_PER_MINUTE = "SELECT stamp_inserted, "
+	static final String THROUGHPUT_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded "
 			+ "FROM acct_v6 "
@@ -31,7 +31,7 @@ public abstract class GraphUtilities
 	 * (ip_src LIKE ? XOR ip_dst LIKE ?) AND " + "stamp_inserted >= ? AND " +
 	 * "stamp_inserted <= ? " + "GROUP BY local_ip " + "ORDER BY ?; ";
 	 */
-	protected static final String THROUGHPUT_PER_IP = "SELECT (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
+	static final String THROUGHPUT_PER_IP = "SELECT (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded, "
 			+ "SUM(bytes) AS bytes_total "
@@ -53,7 +53,7 @@ public abstract class GraphUtilities
 	 * "WHERE (ip_src LIKE ? XOR ip_dst LIKE ?) AND " + "stamp_inserted >= ? AND " +
 	 * "stamp_inserted <= ? " + "GROUP BY stamp_inserted, local_ip;";
 	 */
-	protected static final String THROUGHPUT_PER_IP_PER_MINUTE = "SELECT stamp_inserted, "
+	static final String THROUGHPUT_PER_IP_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded,SUM(bytes) AS bytes_total "
@@ -66,7 +66,7 @@ public abstract class GraphUtilities
 	/*
 	 * List all the throughput per an especific Ip group by minutes and ports
 	 */
-	protected static final String THROUGHPUT_ONE_IP_PER_PORT_PER_MINUTE = "SELECT stamp_inserted, "
+	static final String THROUGHPUT_ONE_IP_PER_PORT_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src = ? THEN src_port ELSE dst_port END) AS port, "
 			+ "SUM(CASE WHEN ip_dst = ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src = ? THEN bytes ELSE 0 END) as uploaded,SUM(bytes) AS bytes_total "
@@ -79,7 +79,7 @@ public abstract class GraphUtilities
 	/*
 	 * List all the throughput per an especific Ip group by ports
 	 */
-	protected static final String THROUGHPUT_ONE_IP_PER_PORT = "SELECT "
+	static final String THROUGHPUT_ONE_IP_PER_PORT = "SELECT "
 			+ "(CASE WHEN ip_src = ? THEN src_port ELSE dst_port END) AS port, "
 			+ "SUM(CASE WHEN ip_dst = ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src = ? THEN bytes ELSE 0 END) as uploaded,SUM(bytes) AS bytes_total "
@@ -91,7 +91,7 @@ public abstract class GraphUtilities
 	/*
 	 * Total throughput per each port Local trafic ommited
 	 */
-	protected static final String THROUGHPUT_PER_PORT = "SELECT "
+	static final String THROUGHPUT_PER_PORT = "SELECT "
 			+ "(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded,SUM(bytes) AS bytes_total "
@@ -103,7 +103,7 @@ public abstract class GraphUtilities
 	/*
 	 * throughput per each port per minute Local trafic ommited
 	 */
-	protected static final String THROUGHPUT_PER_PORT_PER_MINUTE = "SELECT stamp_inserted, "
+	static final String THROUGHPUT_PER_PORT_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
 			+ "SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded,SUM(bytes) AS bytes_total "
@@ -116,7 +116,7 @@ public abstract class GraphUtilities
 	/*
 	 * List all the throughput per an especific Port group by ip
 	 */
-	protected static final String THROUGHPUT_ONE_PORT_PER_MINUTE_PER_IP = "SELECT stamp_inserted, "
+	static final String THROUGHPUT_ONE_PORT_PER_MINUTE_PER_IP = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
 			+ "(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
@@ -127,7 +127,7 @@ public abstract class GraphUtilities
 			+ "AND stamp_inserted <= ? "
 			+ "GROUP BY  stamp_inserted, local_ip, port having port = ?;";
 
-	protected static final String THROUGHPUT_ONE_PORT = "SELECT "
+	static final String THROUGHPUT_ONE_PORT = "SELECT "
 			+ "(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
 			+ "(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port, "
 			+ "SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, "
