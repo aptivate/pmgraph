@@ -381,6 +381,7 @@ public class DataAccess
 		start = start - (start % 60000);
 		end = end - (end % 60000);
 
+		long initTime = System.currentTimeMillis();
 		// Get database connection and network properties
 		PreparedStatement ipStatement = m_conn.prepareStatement(
 				GraphUtilities.THROUGHPUT_PER_PORT_PER_MINUTE,
@@ -406,6 +407,8 @@ public class DataAccess
 		}
 		ipResults.close();
 		ipStatement.close();
+		long endTime = System.currentTimeMillis() - initTime;
+		m_logger.debug("Execution Time in mysql query: " + endTime + " miliseg");	
 		return resultData;
 	}
 
