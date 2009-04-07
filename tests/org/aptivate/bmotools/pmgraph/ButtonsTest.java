@@ -30,7 +30,7 @@ public class ButtonsTest extends TestCase
 		WebConversation wc;
 		WebRequest request;
 		WebResponse response;
-		String nextURL;
+		String nextURL, currentURL;
 		WebLink link;
 
 		// Create a conversation
@@ -58,6 +58,13 @@ public class ButtonsTest extends TestCase
 		link = response.getLinkWithName("next");
 		assertEquals("Compare the next link.", nextURL, link.getURLString());
 
+		// Obtain the current page on web site
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph());
+		response = wc.getResponse(request);
+
+		// Find the "next" link
+		link = response.getLinkWithName("current");
+		assertTrue("Found current button", link != null);
 	}
 
 	/* This test tests the prev button */
