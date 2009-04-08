@@ -52,21 +52,24 @@
         <title>pmGraph</title>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
         <link rel="Stylesheet" href="styles/main.css" type="text/css" />
-        <script type="text/javascript">       
-       
-       // <![CDATA[		       					
+        <% if (errorMsg != null) { %>
+        <script type="text/javascript"> 
+        // <![CDATA[		       					
 			function onLoad()
 			{
-				<% if (errorMsg != null) { %>
-					alert("<%=errorMsg%>");
-					// Set focus
-					document.getElementById ("fromDate").focus();
-				<% } %>
+				alert("<%=errorMsg%>");
+				// Set focus
+				document.getElementById ("fromDate").focus();
 			}
 		// ]]>	
         </script>
+        <% } %>
     </head>
-    <body onload="onLoad();">
+    <% if (errorMsg != null) { %>
+    	<body onload="onLoad();">   
+    <% } else { %>
+    	<body>
+    <% } %>
         <div id="container">
             <div id="header">
                 <img id="logo" alt="Logo Banner" src="images/logo.png" />
