@@ -41,7 +41,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=75000&end=225000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=150000&end=300000&resultLimit=15&view=IP";
+		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=150000&end=300000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the "next" link
 		link = response.getLinkWithName("next");
@@ -52,7 +52,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=150000&end=300000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=225000&end=375000&resultLimit=15&view=IP";
+		nextURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=225000&end=375000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the "next" link
 		link = response.getLinkWithName("next");
@@ -84,7 +84,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=150000&end=450000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15&view=IP";
+		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the "prev" link
 		link = response.getLinkWithName("prev");
@@ -95,7 +95,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=0&end=300000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=150000&resultLimit=15&view=IP";
+		prevURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=150000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the "next" link
 		link = response.getLinkWithName("prev");
@@ -119,7 +119,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=0&end=300000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=450000&resultLimit=15&view=IP";
+		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=450000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the Zoom- link
 		link = response.getLinkWithName("zoomOut");
@@ -130,7 +130,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=-150000&end=450000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-450000&end=750000&resultLimit=15&view=IP";
+		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-450000&end=750000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the Zoom- link
 		link = response.getLinkWithName("zoomOut");
@@ -170,7 +170,7 @@ public class ButtonsTest extends TestCase
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=-450000&end=750000&resultLimit=15");
 		response = wc.getResponse(request);
-		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=450000&resultLimit=15&view=IP";
+		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=-150000&end=450000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the Zoom+ link
 		link = response.getLinkWithName("zoomIn");
@@ -181,7 +181,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=-150000&end=450000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15&view=IP";
+		zoomURL = "/pmgraph/index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the Zoom+ link
 		link = response.getLinkWithName("zoomIn");

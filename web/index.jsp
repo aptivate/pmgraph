@@ -1,13 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"%>
+<%@ page import="java.util.List"%>
 <%@ page import="java.text.SimpleDateFormat"%>
 <%@ page import="java.text.DateFormat"%>
 <%@ page import="java.text.ParseException"%>
-<%@ page import="org.aptivate.bmotools.pmgraph.PageUrl"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.UrlBuilder"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.Configuration"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.PageUrlException"%>
-<%@ page import="org.aptivate.bmotools.pmgraph.PageUrl.View" %>
+<%@ page import="org.aptivate.bmotools.pmgraph.View" %>
 <%
     // Graph parameters
     String param;
@@ -16,6 +17,7 @@
     long now = new Date().getTime();
     long scrollAmount, zoomAmount, newZoomInStart, newZoomInEnd, 
     	newZoomOutStart, newZoomOutEnd, graphSpan;
+    String colon="", alignPort="align_right", name="";
         
          //the sort parameters
     //sortBy: bytes_total | downloaded | uploaded
@@ -24,7 +26,7 @@
 	String order = request.getParameter("order");
     
     //methods to get new URL
-    PageUrl pageUrl = new PageUrl();
+    UrlBuilder pageUrl = new UrlBuilder();
 
     // Input Validation
     String errorMsg = null;    
@@ -40,12 +42,12 @@
 	}	
 	
    	// Change start and end Time
-	long startTime = pageUrl.getStartTime();
-	long endTime = pageUrl.getEndTime();
+	long startTime = pageUrl.getParams().getStartTime();
+	long endTime = pageUrl.getParams().getEndTime();
 
-    graphSpan =  pageUrl.getGraphSpan();  
-    scrollAmount =  pageUrl.getScrollAmount();  
-    zoomAmount = pageUrl.getZoomAmount(); 
+    graphSpan =  pageUrl.getParams().getGraphSpan();  
+    scrollAmount =  pageUrl.getParams().getScrollAmount();  
+    zoomAmount = pageUrl.getParams().getZoomAmount();
 %>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
@@ -83,44 +85,90 @@
 					</tr>				
 					<tr>
 						<td>Date (dd/mm/yyyy)</td>   
-			   			<td> <input type="text" id="fromDate" name="fromDate" value="<%=pageUrl.getFromDateAsString()%>" size="8" /> </td>
-            		    <td> <input type="text" id="toDate"   name="toDate" value="<%=pageUrl.getToDateAsString()%>"  size="8" /> </td>
+			   			<td class="align_right"> <input type="text" id="fromDate" name="fromDate" value="<%=pageUrl.getParams().getFromDateAsString()%>" size="8" /> </td>
+            		    <td> <input type="text" id="toDate"   name="toDate" value="<%=pageUrl.getParams().getToDateAsString()%>"  size="8" /> </td>
 				    </tr>
 					<tr>
 						<td>Time (hh:mm:ss)</td>  
-						<td> <input type="text" id="fromTime" name="fromTime" value="<%=pageUrl.getFromTimeAsString()%>" size="8" /> </td>
-						<td> <input type="text" id="toTime"   name="toTime"   value="<%=pageUrl.getToTimeAsString()%>" size="8" /> </td>	     
+						<td class="align_right"> <input type="text" id="fromTime" name="fromTime" value="<%=pageUrl.getParams().getFromTimeAsString()%>" size="8" /> </td>
+						<td> <input type="text" id="toTime"   name="toTime"   value="<%=pageUrl.getParams().getToTimeAsString()%>" size="8" /> </td>	     
 					</tr>
 					<tr>  
 						<td>Show Top </td>   
 						<td class="align_right">
-						<input type="text" id="resultLimit"  name="resultLimit"   value="<%=pageUrl.getResultLimit()%>" size="3" /></td><td> Results</td>
+						<input type="text" id="resultLimit"  name="resultLimit"   value="<%=pageUrl.getParams().getResultLimit()%>" size="3" /></td><td> Results</td>
 					</tr>
-					<% if (!pageUrl.isEspecificPortIpQuery()) { %>
+					<tr>  
+					<% if ((pageUrl.getParams().getIp() != null) && (pageUrl.getParams().getPort() != null)){
+						colon=":";
+						alignPort = "align_left";
+					%>
+						<td>Selected Ip:port</td>   
+					<%} else { %>	
+						<% if (pageUrl.getParams().getIp() != null) { %>
+							<td>Selected Ip</td>   
+						<%} else  {%>
+							<% if (pageUrl.getParams().getPort() != null) { %>
+								<td>Selected Port</td>   
+							<%} %>
+						<%} %>
+					<%} %>										
+					<% if (pageUrl.getParams().getIp() != null) { %>
+						<td class="align_left">
+						<input type="text" id="ip"  name="ip"   value="<%=pageUrl.getParams().getIp()%>" size="12" /></td>
+					<%} %>					
+					<% if (pageUrl.getParams().getPort() != null) { %>
+						<td class="<%=alignPort %>"><%=colon %>
+						<input type="text" id="port"  name="port"   value="<%=pageUrl.getParams().getPort()%>" size="6" /></td>
+					<%} %>							
+					</tr>
+					<tr>  
+					<% if ((pageUrl.getParams().getRemoteIp() != null) && (pageUrl.getParams().getRemotePort() != null)){
+						colon=":";
+						alignPort = "align_left";
+					%>
+						<td>Selected Remote Ip:port</td>   
+					<%} else { %>	
+						<% if (pageUrl.getParams().getRemoteIp() != null) { %>
+							<td>Selected Remote Ip</td>   
+						<%} else  {%>
+							<% if (pageUrl.getParams().getRemotePort() != null) { %>
+								<td>Selected Remote Port</td>   
+							<%} %>
+						<%} %>
+					<%} %>										
+					<% if (pageUrl.getParams().getRemoteIp() != null) { %>
+						<td class="align_left">
+						<input type="text" id="remote_ip"  name="remote_ip"   value="<%=pageUrl.getParams().getRemoteIp()%>" size="12" /></td>
+					<%} %>					
+					<% if (pageUrl.getParams().getRemotePort() != null) { %>
+						<td class="<%=alignPort %>"><%=colon %>
+						<input type="text" id="remote_port"  name="remote_port"   value="<%=pageUrl.getParams().getRemotePort()%>" size="6" /></td>
+					<%} %>							
+					</tr>
+					
 					<tr>  
 						<td>View </td>   
 						<td class="align_right">
 						<select id="view"  name="view" >
-							<option value="IP" >IP</option>
-							<% if (pageUrl.getView() == View.PORT) { %>
-								<option value="PORT" selected="selected" >Local Port</option>							
-							<%} else { %>											
-								<option value="PORT">Local Port</option>														
-							<%} %>												
+							<% List<View> views = View.getAvailableViews(pageUrl.getParams());
+							for (View view : views) {  // for each view available
+								name = view.toString().toLowerCase().replace("_"," ");
+								if (pageUrl.getParams().getView() == view) { %>
+									<option value="<%=view %>" selected="selected" ><%=name %></option>		
+								<%} else { %>											
+									<option value="<%=view %>" ><%=name %></option>	
+								<%} %>
+							<% } %>
 						</select>
 						</td>
-					</tr>	
-					<%} %>				
-					<tr>  
-						<td> </td>   
-						<td colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>
+						<td  colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>
 					</tr>
 				</table>   
 				</form>
 	            </div>         
             </div>
-            <div style="clear:both;"></div>
-            
+            <div style="clear:both;"></div>            
             <div id="main">
                 <!-- Graph parameter controls not yet functional -->
                 <div id="graph">
@@ -138,8 +186,7 @@
 
                        	<a name="zoomOut"
                        	   href="<%=pageUrl.getZoomOutURL(report, graph, startTime, endTime)%>" 
-                       	   class="control">Zoom -</a>     
-                       		
+                       	   class="control">Zoom -</a>                            		
                        	<%if (pageUrl.showZoomIn(startTime,endTime)) {%>
                         	<a	name="zoomIn"
                         		href="<%=pageUrl.getZoomInURL(report, graph, startTime, endTime)%>" 
@@ -161,7 +208,9 @@
                     <jsp:include page="<%=pageUrl.getLegendURL(startTime, endTime, sortBy, order)%>" />
                 </div>
             </div>
- 
+ 			<div class="left">
+ 				<a href="javascript:history.back(1);">Back</a>
+ 			</div>
             <!-- <div id="footer"></div> -->
         </div>
     </body>

@@ -7,8 +7,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
-import org.aptivate.bmotools.pmgraph.GraphFactory;
-import org.aptivate.bmotools.pmgraph.PageUrl.View;
 import org.jfree.chart.JFreeChart;
 
 /**
@@ -33,21 +31,22 @@ public class GraphsTest extends GraphTestBase
 		m_testUtils.InsertSampleData();
 	}
 
-	private void checkGraph(View view) throws Exception
+	private void checkGraph(RequestParams requestParams) throws Exception
 	{
 		JFreeChart chart;
 		long values[][];
 		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
 
-		switch (view)
+		chart = graphFactory. stackedThroughputGraph(requestParams);
+		
+		switch (requestParams.getView())
 		{
 		default:
 			m_logger.warn(" View Unknown assumed default view IP");
-		case IP:
-			chart = graphFactory.stackedThroughput(m_testUtils.t1.getTime(),
-					m_testUtils.t4.getTime(), 15);
-			assertEquals("Network Throughput Per IP", chart.getTitle()
+		case LOCAL_IP:
+			
+			assertEquals("Network Throughput", chart.getTitle()
 					.getText());
 			// check values per each serie.
 			rows = new String[] { "10.0.156.120", "10.0.156.110",
@@ -78,10 +77,8 @@ public class GraphsTest extends GraphTestBase
 
 			break;
 
-		case PORT:
-			chart = graphFactory.stackedThroughputPerPort(m_testUtils.t1
-					.getTime(), m_testUtils.t4.getTime(), 15);
-			assertEquals("Network Throughput Per Port", chart.getTitle()
+		case LOCAL_PORT:			
+			assertEquals("Network Throughput", chart.getTitle()
 					.getText());
 			// check values per each serie.
 			rows = new String[] { "90", "10000", "12300", "23500", "23400" };
@@ -109,8 +106,12 @@ public class GraphsTest extends GraphTestBase
 
 	public void testCumulativeGraphIpView() throws Exception
 	{
-		checkGraph(View.IP);
-		checkGraph(View.PORT);
+		RequestParams requestParams = new RequestParams(m_testUtils.t1.getTime(), 
+				m_testUtils.t4.getTime(),View.LOCAL_IP, 15);
+		checkGraph(requestParams);
+		requestParams = new RequestParams(m_testUtils.t1.getTime(),
+				m_testUtils.t4.getTime(),View.LOCAL_PORT, 15);		
+		checkGraph(requestParams);
 
 	}
 

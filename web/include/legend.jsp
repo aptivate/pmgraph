@@ -10,7 +10,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.net.InetAddress"  %>
 <%@ page import="java.net.UnknownHostException" %>
-<%@ page import="org.aptivate.bmotools.pmgraph.PageUrl.View" %>
+<%@ page import="org.aptivate.bmotools.pmgraph.View" %>
 <%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
 <%
     long startP = Long.parseLong(request.getParameter("start"));
@@ -43,10 +43,11 @@
 	if ("bytes_total".equals(sortBy))
 		col3 = col3 + arrow;
     //methods to get new URL
-    PageUrl pageUrl = new PageUrl();
+    UrlBuilder pageUrl = new UrlBuilder();
 	try
 	{ 
 		 pageUrl.setParameters(request);
+		 
 	}	
 	catch (PageUrlException e)
 	{
@@ -54,31 +55,21 @@
 	}		
 	
 	LegendData legendData = new LegendData();
-
-	// Legend for a especific IP it's a port graph
-	if (pageUrl.getIp() != null) {
-		results = legendData.getLegendDataOneIp(start, end, sortBy, order,pageUrl);		
-	} else {
-		if (pageUrl.getPort() != null) {
-			results = legendData.getLegendDataOnePort(start, end, sortBy, order,pageUrl);				
-		} else {
-			if (pageUrl.getView() == View.PORT) {
-				results = legendData.getLegendDataPerPort(start, end, sortBy, order,pageUrl);		
-			} else  {		// Vista de  IPs vista por defecto
-				results = legendData.getLegendData(start, end, sortBy, order,pageUrl);
-			}
-		}
-	}
-		    
+	results = legendData.getLegendData(sortBy, order,pageUrl.getParams());
 %>
 <table id="legend_tbl">
 		<tr class="legend_th">
 		    <td></td>
-		    <%if ((pageUrl.getIp() == null) && (pageUrl.getView() != View.PORT)) { %>
+		    <%switch (pageUrl.getParams().getView()) {		
+				case LOCAL_PORT:
+				case REMOTE_PORT:		%>
+	                <td rowspan="2">Port</td>	            
+            <%break;
+	            default:
+				case LOCAL_IP:	
+				case REMOTE_IP:	%>
 	            <td rowspan="2">Host IP</td>
 	            <td rowspan="2">Host Name</td>
-            <%} else { %>
-                <td rowspan="2">Port</td>
             <%} %>
             <td colspan="2" class="center">
              <a name="bytes_total" 
@@ -101,13 +92,20 @@
 		    </td>
 		</tr>
 	<%
-			int i= 0;
-			GraphFactory graphFactory = new GraphFactory();
-			
-			if ((pageUrl.getIp() != null) || (pageUrl.getView() == View.PORT)) {
+		int i= 0;
+		GraphFactory graphFactory = new GraphFactory();
+		
+		switch (pageUrl.getParams().getView()) {
+		
+			case LOCAL_PORT:
+			case REMOTE_PORT:		
 			  for (GraphData result : results) 
 			    {
-			    	Integer port  = result.getPort();	    	
+					Integer port;
+				  	if (pageUrl.getParams().getView() == View.REMOTE_PORT) 				  		
+				  		port = result.getRemotePort();
+				  	else
+					  	port = result.getPort();
 			        Color c = graphFactory.getSeriesColor(port);
 			        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
 		%>				    <tr class="row<%=i % 2%>">
@@ -115,10 +113,10 @@
 							<%   if (GraphFactory.OTHER_PORT == port) {
 								%><td>Others</td><%
 							} else {
-								if (!pageUrl.isEspecificPortIpQuery()) {
-									%><td><a href="<%=pageUrl.getUrlOnePortGraph(start, end, port)%>" ><%=port%></a></td><%
+								if (pageUrl.getParams().getView() == View.REMOTE_PORT) {
+									%><td><a href="<%=pageUrl.getUrlGraph(start, end, port, "remote_port")%>" ><%=port%></a></td><%
 								} else {
-									%><td><%=port%></td><%
+									%><td><a href="<%=pageUrl.getUrlGraph(start, end, port, "port")%>" ><%=port%></a></td><%
 								}
 							}
 							%>
@@ -128,11 +126,17 @@
 				   <%
 		    		i++;
 				}			  		   
-			} 
-		  else {
+			break;
+			default:
+			case LOCAL_IP:	
+			case REMOTE_IP:				
 			  for (GraphData result : results) 
 			    {
-			    	String ip = result.getLocalIp();	    	
+					String ip;
+				  	if (pageUrl.getParams().getView() == View.REMOTE_IP)
+				    	ip = result.getRemoteIp();
+				  	else
+				  		ip = result.getLocalIp();	    	
 			        Color c = graphFactory.getSeriesColor(ip);
 			        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
 					HostResolver hostResolver = new HostResolver();
@@ -142,10 +146,14 @@
 		%>				    <tr class="row<%=i % 2%>">
 					        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
 					       <%
-					        if ((!pageUrl.isEspecificPortIpQuery()) && (!"Others".equalsIgnoreCase(ip))) {
-									%><td><a href="<%=pageUrl.getUrlOneIpGraph(start, end, ip)%>" ><%=ip%></a></td><%
-								} else {
-									%><td><%=ip%></td><%
+					        if ((!"Others".equalsIgnoreCase(ip))) {
+					        	if (pageUrl.getParams().getView() == View.REMOTE_IP) {
+									%><td><a href="<%=pageUrl.getUrlGraph(start, end, ip, "remote_ip")%>" ><%=ip%></a></td><%
+					        	} else {
+									%><td><a href="<%=pageUrl.getUrlGraph(start, end, ip, "ip")%>" ><%=ip%></a></td><%
+					        	}
+							} else {
+								%><td><%=ip%></td><%
 							}%>					        
 					        <td><%=hostName%></td>        					
 					        <td class="numval"><%=(result.getDownloaded() / 1048576)%></td>
@@ -154,6 +162,7 @@
 				   <%
 		    		i++;
 				}			  
+			  break;
 		  }
 			%>
 </table>

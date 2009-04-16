@@ -7,8 +7,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
-import org.aptivate.bmotools.pmgraph.GraphFactory;
-import org.aptivate.bmotools.pmgraph.PageUrl.View;
 import org.jfree.chart.JFreeChart;
 
 /**
@@ -51,22 +49,26 @@ public class SpecificGraphsTest extends GraphTestBase
 	{
 		JFreeChart chart;
 		GraphFactory graphFactory = new GraphFactory();
+		RequestParams request;
 
 		switch (view)
 		{
 		default:
 			m_logger.warn(" View Unknown assumed default view IP");
-		case IP:
-			chart = graphFactory.stackedThroughputOneIp(m_testUtils.t1
-					.getTime(), m_testUtils.t4.getTime(), 15, ipOrPort);
-			assertEquals("Network Throughput Per IP: " + ipOrPort, chart
+		case LOCAL_IP:
+			request = new RequestParams(m_testUtils.t1
+					.getTime(), m_testUtils.t4.getTime(),View.LOCAL_PORT, 15, ipOrPort);
+			chart = graphFactory.stackedThroughputGraph(request);
+			
+			assertEquals("Network Throughput For Local Ip = " + ipOrPort, chart
 					.getTitle().getText());
 			break;
-		case PORT:
-			chart = graphFactory.stackedThroughputOnePort(m_testUtils.t1
-					.getTime(), m_testUtils.t4.getTime(), 15, Integer
-					.valueOf(ipOrPort));
-			assertEquals("Network Throughput Per Port: " + ipOrPort, chart
+		case LOCAL_PORT:			
+			request = new RequestParams(m_testUtils.t1
+					.getTime(), m_testUtils.t4.getTime(),View.LOCAL_IP, 15, Integer.valueOf(ipOrPort));
+			chart = graphFactory.stackedThroughputGraph(request);
+
+			assertEquals("Network Throughput For Local Port = " + ipOrPort, chart
 					.getTitle().getText());
 			break;
 		}
@@ -90,7 +92,8 @@ public class SpecificGraphsTest extends GraphTestBase
 				{ 0, 0, 0, 0 }, // 443 up
 				{ 0, 0, 100, 0 }, // 443 down
 		};
-		checkOneIpPort("10.0.156.110", values, ports, View.IP);
+		
+		checkOneIpPort("10.0.156.110", values, ports, View.LOCAL_IP);
 
 		ports = new String[] { "110", "80", "443" };
 		values = new long[][] { { 0, 0, 0, 0 }, // 110 up
@@ -100,13 +103,13 @@ public class SpecificGraphsTest extends GraphTestBase
 				{ 0, 0, -150, 0 }, // 443 up
 				{ 0, 0, 75, 0 }, // 443 down
 		};
-		checkOneIpPort("10.0.156.130", values, ports, View.IP);
+		checkOneIpPort("10.0.156.130", values, ports, View.LOCAL_IP);
 
 		ports = new String[] { "443" };
 		values = new long[][] { { -50, -100, -600, 0 }, // 443 up
 				{ 100, 50, 300, 0 }, // 443 down
 		};
-		checkOneIpPort("10.0.156.131", values, ports, View.IP);
+		checkOneIpPort("10.0.156.131", values, ports, View.LOCAL_IP);
 
 	}
 
@@ -121,7 +124,7 @@ public class SpecificGraphsTest extends GraphTestBase
 				{ -150, 0, 0, 0 }, // 10.0.156.130 up
 				{ 125, 0, 0, 0 }, // 10.0.156.130 down
 		};
-		checkOneIpPort("80", values, ips, View.PORT);
+		checkOneIpPort("80", values, ips, View.LOCAL_PORT);
 
 		// Port 110
 		ips = new String[] { "10.0.156.110", "10.0.156.130" };
@@ -130,7 +133,7 @@ public class SpecificGraphsTest extends GraphTestBase
 				{ 0, 0, 0, 0 }, // 10.0.156.130 up
 				{ 100, 500, 0, 0 }, // 10.0.156.130 down
 		};
-		checkOneIpPort("110", values, ips, View.PORT);
+		checkOneIpPort("110", values, ips, View.LOCAL_PORT);
 
 		// Port 443
 		ips = new String[] { "10.0.156.131", "10.0.156.130", "10.0.156.110" };
@@ -141,7 +144,7 @@ public class SpecificGraphsTest extends GraphTestBase
 				{ 0, 0, 0, 0 }, // 10.0.156.110 up
 				{ 0, 0, 100, 0 }, // 10.0.156.110 down
 		};
-		checkOneIpPort("443", values, ips, View.PORT);
+		checkOneIpPort("443", values, ips, View.LOCAL_PORT);
 
 	}
 

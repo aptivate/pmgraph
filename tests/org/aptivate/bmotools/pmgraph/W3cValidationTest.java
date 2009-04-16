@@ -103,28 +103,28 @@ public class W3cValidationTest extends TestCase
 		// Port View.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
-						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&view=PORT");
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&view=LOCAL_PORT");
 		response = wc.getResponse(request);
 		w3cValidator(response);
 
 		// Specific IP View.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
-						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&ip=10.0.156.110");
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&ip=10.0.156.110&view=LOCAL_PORT");
 		response = wc.getResponse(request);
 		w3cValidator(response);
 
 		// Specific Port.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
-						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&port=90");
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&port=90&view=LOCAL_IP");
 		response = wc.getResponse(request);
 		w3cValidator(response);
 
 		// Limitting results ip view.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
-						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&limitResult=2");
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&limitResult=2&view=LOCAL_IP");
 		response = wc.getResponse(request);
 		w3cValidator(response);
 
