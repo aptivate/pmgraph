@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -35,6 +36,7 @@ public class QueryBuilder
 	
 	static final String REMOTE_IP = "remote_ip";
 	
+	private List<Object> m_listData;
 	
 
 	/**
@@ -65,80 +67,81 @@ public class QueryBuilder
 		
 		this.m_localSubnet = Configuration.getLocalSubnet();
 		m_conn = getConnection();
+		m_listData = new ArrayList<Object>();
 	}
 	
 	
-	private String buildSelect(RequestParams requestParams, List<Object> data, boolean perMinute) {
+	private String buildSelect(RequestParams requestParams, boolean perMinute) {
 		StringBuffer sql = new StringBuffer();		 
 		
 		sql.append(" "+TIME_STAMP+", ");
 		sql.append("SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, ");
-		data.add (m_localSubnet + "%");
+		m_listData.add (m_localSubnet + "%");
 		sql.append("SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded, ");
-		data.add (m_localSubnet + "%");
+		m_listData.add (m_localSubnet + "%");
 		
 		switch (requestParams.getView()) {
 
 			case LOCAL_PORT:
 			case LOCAL_IP:
 				sql.append(" (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, ");		
-				data.add (m_localSubnet + "%");
+				m_listData.add (m_localSubnet + "%");
 				sql.append("(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port ");
-				data.add (m_localSubnet + "%");
+				m_listData.add (m_localSubnet + "%");
 				break;
 			case REMOTE_PORT:	
 				sql.append("(CASE WHEN ip_src LIKE ? THEN dst_port ELSE src_port END) AS remote_port ");
-				data.add (m_localSubnet + "%");
+				m_listData.add (m_localSubnet + "%");
 				break;			
 			case REMOTE_IP:		// Show Remote IP
 				sql.append("(CASE WHEN ip_src LIKE ? THEN ip_dst ELSE ip_src END) AS remote_ip ");
-				data.add (m_localSubnet + "%");
+				m_listData.add (m_localSubnet + "%");
 				break;
 
 		}
 		return (sql.toString());
 	}
 	
-	private String buildWhere(RequestParams requestParams, List <Object> data) {
+	private String buildWhere(RequestParams requestParams) {
 		StringBuffer where = new StringBuffer();
 		String comparator = " LIKE ";
 		String ip = m_localSubnet + "%";
 		
 
 		where.append("WHERE stamp_inserted >= ? " + "AND stamp_inserted <= ? ");	
-		data.add (new Timestamp (requestParams.getRoundedStartTime()));
-		data.add (new Timestamp (requestParams.getRoundedEndTime()));
+		m_listData.add (new Timestamp (requestParams.getRoundedStartTime()));
+		m_listData.add (new Timestamp (requestParams.getRoundedEndTime()));
 		if (requestParams.getIp() != null) {	// for an specific local IP
 			comparator = " = ";
 			ip = requestParams.getIp();
 			where.append(" AND (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) = ? ");
-			data.add (m_localSubnet + "%");
-			data.add (requestParams.getIp());
+			m_listData.add (m_localSubnet + "%");
+			m_listData.add (requestParams.getIp());
 		}
 		if (requestParams.getPort() != null) {	// for an specific local Port
 			where.append(" AND (CASE WHEN ip_src "+comparator+" ? THEN src_port ELSE dst_port END) = ? ");
-			data.add (ip);
-			data.add (requestParams.getPort());
+			m_listData.add (ip);
+			m_listData.add (requestParams.getPort());
 		}
 		if (requestParams.getRemoteIp() != null) {	// for an specific local IP
 			where.append(" AND (CASE WHEN ip_src LIKE ? THEN ip_dst ELSE ip_src END) = ? ");
-			data.add (m_localSubnet + "%");
-			data.add (requestParams.getRemoteIp());
+			m_listData.add (m_localSubnet + "%");
+			m_listData.add (requestParams.getRemoteIp());
 		}
 		if (requestParams.getRemotePort() != null) {	// for an specific local Port
 			where.append(" AND (CASE WHEN ip_src "+comparator+" ? THEN dst_port ELSE src_port END) = ? ");
-			data.add (ip);
-			data.add (requestParams.getRemotePort());
+			m_listData.add (ip);
+			m_listData.add (requestParams.getRemotePort());
 		}
 		where.append(" AND ((NOT (ip_src LIKE ?) AND ip_dst "+comparator+" ?) OR (NOT (ip_dst LIKE ?) AND ip_src "+comparator+" ?)) ");
-		data.add (m_localSubnet + "%");
-		data.add (ip);
-		data.add (m_localSubnet + "%");
-		data.add (ip);
+		m_listData.add (m_localSubnet + "%");
+		m_listData.add (ip);
+		m_listData.add (m_localSubnet + "%");
+		m_listData.add (ip);
 		return (where.toString());
 	}
 	
-	private String buildGroupBy (RequestParams requestParams, List <Object> data, boolean perMinute) {
+	private String buildGroupBy (RequestParams requestParams, boolean perMinute) {
 		StringBuffer groupBy = new StringBuffer();
 		
 		if (perMinute) {
@@ -168,29 +171,30 @@ public class QueryBuilder
 		return "";
 	}
 	
-	PreparedStatement buildQuery (RequestParams requestParams, List<Object> data,  boolean perMinute) throws SQLException {
+	PreparedStatement buildQuery (RequestParams requestParams, boolean perMinute) throws SQLException {
 		
 		StringBuffer sql = new StringBuffer("SELECT ");
-		sql.append (buildSelect(requestParams, data,  perMinute));		
+		sql.append (buildSelect(requestParams, perMinute));		
 		sql.append ("FROM acct_v6 ");
-		sql.append (buildWhere(requestParams,data));
-		sql.append (buildGroupBy(requestParams, data, perMinute));
+		sql.append (buildWhere(requestParams));
+		sql.append (buildGroupBy(requestParams, perMinute));
 		
 		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
 				ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 		
 		// set the query parameters depending of the query type
-		setQueryParams (ipStatement, data);		
+		setQueryParams (ipStatement);		
 		return (ipStatement);
 	}
 
-	void setQueryParams (PreparedStatement statement, List<Object> data) throws SQLException {
+	void setQueryParams (PreparedStatement statement) throws SQLException {
 
 		int i= 1;
-		for (Object d1 : data) {
+		for (Object d1 : m_listData) {
 			statement.setObject (i,d1);
 			i++;
 		}
+		m_listData.clear();
 	}
 	
 	protected void finalize()
