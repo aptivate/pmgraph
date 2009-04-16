@@ -105,9 +105,8 @@ class DataAccess
 
 		long initTime = System.currentTimeMillis();
 		ArrayList<GraphData> resultData = new ArrayList<GraphData>();
-		List<Object> data = new ArrayList<Object>();
-		
-		PreparedStatement statement = m_queryBuilder.buildQuery (requestParams, data, perMinute);
+				
+		PreparedStatement statement = m_queryBuilder.buildQuery (requestParams, perMinute);
 		
 		m_logger.debug(statement);
 		ResultSet ipResults = statement.executeQuery();
