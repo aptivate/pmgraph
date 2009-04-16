@@ -39,9 +39,6 @@ public class ErrorMessageTest extends TestCase {
 
 	public ErrorMessageTest() throws Exception {
 		m_testUtils = new TestUtils();
-	}
-
-	public void setUp() throws Exception {
 		m_testUtils.CreateTable();
 		m_testUtils.InsertSampleData();
 		m_wc = new WebConversation();
@@ -50,6 +47,11 @@ public class ErrorMessageTest extends TestCase {
 		m_response = m_wc.getResponse(m_request);
 		m_theForm = m_response.getFormWithID("SetDateAndTime");
 		m_subButton = m_theForm.getSubmitButton("Go");
+				
+	}
+
+	public void setUp() throws Exception {
+
 	}
 
 	/**
@@ -176,7 +178,6 @@ public class ErrorMessageTest extends TestCase {
 	 */
 	public void testLimitNumberErrorMessage() throws Exception {
 		final String limitNumberError = "ResultLimit parameter should by a number ! \n Default resultLimit value assumed.";
-		// Obtain the uploaded page on web site
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph()
 				+ "?start=0&end=300000");
 		//wrong setting of result limit
