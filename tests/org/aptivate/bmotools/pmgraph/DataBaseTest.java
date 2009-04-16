@@ -22,13 +22,11 @@ public class DataBaseTest extends TestCase
 		testUtils.CreateTable();
 		testUtils.InsertSampleData();
 		DataAccess dataAccess = new DataAccess();
-		List<GraphData> resultPerIP = dataAccess.getThroughputPerIP(0, 300000);
-		List<GraphData> resultPerIPSort = dataAccess.getThroughputPerIP(0,
-				300000);
-		List<GraphData> resultPerIPPerMinute = dataAccess
-				.getThroughputPIPPMinute(0, 300000);
+		
+		RequestParams requestParams = new RequestParams(0, 300000,View.LOCAL_IP, 10);
+		List<GraphData> resultPerIP = dataAccess.getThroughput(requestParams, true);
+		List<GraphData> resultPerIPPerMinute = dataAccess.getThroughput(requestParams, false);
 		assertTrue("get result per IP", !resultPerIP.isEmpty());
-		assertTrue("get result per IP", !resultPerIPSort.isEmpty());
 		assertTrue("get result per IP", !resultPerIPPerMinute.isEmpty());
 	}
 

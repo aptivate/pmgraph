@@ -53,6 +53,7 @@ td {
 #date_form {
 	float: right;
 	clear: right;
+	margin-bottom: 10px;
 }
 
 #container {
@@ -131,5 +132,17 @@ td {
 }
 
 .align_right {
+	text-align: right;
+}
+
+.left {
+	text-align: left;
+	padding-left: 20px;
+	padding-bottom: 5px;
+}
+select {
+	text-transform: capitalize;
+}
+input {
 	text-align: right;
 }

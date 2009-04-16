@@ -9,8 +9,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
-import org.aptivate.bmotools.pmgraph.Configuration;
-import org.aptivate.bmotools.pmgraph.PageUrl.View;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
@@ -81,7 +79,7 @@ public class LegendTest extends LegendTestBase
 		long downloaded[] = { 47, 9 };
 		String ips[] = { "10.0.156.10", "10.0.156.1" };
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ips,
-				View.IP);
+				View.LOCAL_IP);
 
 	}
 
@@ -237,7 +235,7 @@ public class LegendTest extends LegendTestBase
 
 		// the default is 'sort by download DESC', the sortLink is opposite to
 		// the DESC
-		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=IP";
+		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=LOCAL_IP";
 
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
@@ -246,7 +244,7 @@ public class LegendTest extends LegendTestBase
 						+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15");
 		response = wc.getResponse(request);
 		link = response.getLinkWithName("downloaded");
-		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=IP";
+		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=LOCAL_IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		// Get the table data from the page
@@ -259,7 +257,7 @@ public class LegendTest extends LegendTestBase
 			long uploaded[] = { 14, 108, 28 };
 			String ips[] = { "10.0.156.1", "10.0.156.120", "10.0.156.10" };
 			checkUploadDownloadLegendTable(table, downloaded, uploaded, ips,
-					View.IP);
+					View.LOCAL_IP);
 
 		}
 
@@ -268,7 +266,7 @@ public class LegendTest extends LegendTestBase
 						+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15");
 		response = wc.getResponse(request);
 		link = response.getLinkWithName("uploaded");
-		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&view=IP";
+		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&view=LOCAL_IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
@@ -279,7 +277,7 @@ public class LegendTest extends LegendTestBase
 			long uploaded[] = { 108, 28, 14 };
 			String ips[] = { "10.0.156.120", "10.0.156.10", "10.0.156.1" };
 			checkUploadDownloadLegendTable(table, downloaded, uploaded, ips,
-					View.IP);
+					View.LOCAL_IP);
 			// Check the table data
 			// .10 47 = 500000*100/1024/1024 28
 			// .120 38 = 400000*100/1024/1024 108
@@ -387,7 +385,7 @@ public class LegendTest extends LegendTestBase
 		long downloaded[] = { 5, 4 };
 		String ips[] = { "10.0.156.110", "Others" };
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ips,
-				View.PORT);
+				View.LOCAL_PORT);
 	}
 
 	public static Test suite()

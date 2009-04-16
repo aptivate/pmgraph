@@ -20,14 +20,16 @@ public class GraphData
 	private Timestamp m_time;
 
 	private String m_localIp;
+	
+	private String m_remoteIp;
 
 	private Long m_downloaded;
 
 	private Long m_uploaded;
 
-	private Long m_bytesTotal;
-
 	private Integer m_port;
+	
+	private Integer m_remotePort;
 
 	/**
 	 * Create a DbData from a result set taking into acount the columns returned
@@ -40,60 +42,88 @@ public class GraphData
 	public GraphData(ResultSet rs) throws SQLException
 	{
 
-		this(rs.getTimestamp("stamp_inserted"), rs.getString("local_ip"), rs
-				.getLong("downloaded"), rs.getLong("uploaded"), rs
-				.getLong("bytes_total"));
+		setTime(rs.getTimestamp("stamp_inserted"));
+		setDownloaded(rs.getLong("downloaded"));
+		setUploaded(rs.getLong("uploaded"));		
+		try {
+			setLocalIp(rs.getString("local_ip"));
+		}catch (SQLException e) {
+			;
+		}
+		try {
+			setRemoteIp(rs.getString("remote_ip"));
+		}catch (SQLException e) {
+			;
+		}
+		
+		try {
+			setPort(rs.getInt("port"));
+		}catch (SQLException e) {
+			;
+		}
+		try {
+			setRemotePort(rs.getInt("remote_port"));
+		}catch (SQLException e) {
+			//e.printStackTrace();
+		}
+		
 	}
 
 	public GraphData(Timestamp time, String localIp, Long downloaded,
-			Long uploaded, Long byteTotal) throws SQLException
+			Long uploaded) throws SQLException
 	{
 		this.m_time = time;
 		this.m_localIp = localIp;
 		this.m_downloaded = downloaded;
 		this.m_uploaded = uploaded;
-		this.m_bytesTotal = byteTotal;
 	}
 
-	public GraphData(String localIp, Long downloaded, Long uploaded,
-			Long bytesTotal) throws SQLException
+	public GraphData(String localIp, Long downloaded, Long uploaded) throws SQLException
 	{
 		this.m_time = null;
 		this.m_localIp = localIp;
 		this.m_downloaded = downloaded;
 		this.m_uploaded = uploaded;
-		this.m_bytesTotal = bytesTotal;
+
 	}
 
 	public GraphData(Timestamp time, String localIp, Long downloaded,
-			Long uploaded, Long byteTotal, Integer port) throws SQLException
+			Long uploaded, Integer port) throws SQLException
 	{
 		this.m_time = time;
 		this.m_localIp = localIp;
 		this.m_downloaded = downloaded;
-		this.m_uploaded = uploaded;
-		this.m_bytesTotal = byteTotal;
+		this.m_uploaded = uploaded;		
 		this.m_port = port;
 	}
 
 	public GraphData(String localIp, Long downloaded, Long uploaded,
-			Long byteTotal, Integer port) throws SQLException
+			Integer port) throws SQLException
 	{
 		this.m_localIp = localIp;
 		this.m_downloaded = downloaded;
-		this.m_uploaded = uploaded;
-		this.m_bytesTotal = byteTotal;
+		this.m_uploaded = uploaded;		
 		this.m_port = port;
 	}
 
 	public GraphData(Timestamp time, Long downloaded, Long uploaded,
-			Long byteTotal, Integer port) throws SQLException
+			Integer port) throws SQLException
 	{
 		this.m_time = time;
 		this.m_downloaded = downloaded;
-		this.m_uploaded = uploaded;
-		this.m_bytesTotal = byteTotal;
+		this.m_uploaded = uploaded;		
 		this.m_port = port;
+	}
+	
+	public GraphData(Timestamp time, String localIp, String remoteIp, 
+			Long downloaded, Long uploaded) 
+			throws SQLException
+	{
+		this.m_time = time;
+		this.m_localIp = localIp;
+		this.m_downloaded = downloaded;
+		this.m_uploaded = uploaded;		
+		this.m_remoteIp = remoteIp;
 	}
 
 	public Long getDownloaded()
@@ -138,14 +168,9 @@ public class GraphData
 
 	public Long getBytesTotal()
 	{
-		return m_bytesTotal;
+		return m_uploaded + m_downloaded;
 	}
-
-	public void setBytesTotal(Long total)
-	{
-		m_bytesTotal = total;
-	}
-
+	
 	public Integer getPort()
 	{
 		return m_port;
@@ -154,6 +179,26 @@ public class GraphData
 	public void setPort(Integer port)
 	{
 		this.m_port = port;
+	}
+
+	public String getRemoteIp()
+	{
+		return m_remoteIp;
+	}
+
+	public void setRemoteIp(String remoteIp)
+	{
+		this.m_remoteIp = remoteIp;
+	}
+
+	public Integer getRemotePort()
+	{
+		return m_remotePort;
+	}
+
+	public void setRemotePort(Integer remotePort)
+	{
+		this.m_remotePort = remotePort;
 	}
 
 }

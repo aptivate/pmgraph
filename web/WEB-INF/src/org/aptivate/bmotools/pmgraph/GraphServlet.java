@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.aptivate.bmotools.pmgraph.PageUrl.View;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 
@@ -42,7 +41,7 @@ public class GraphServlet extends HttpServlet
 	 * graphs (using the JFreeChart library) showing logged traffic to the
 	 * browser.
 	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse res)
+	public void doGet(HttpServletRequest request, HttpServletResponse res)
 			throws ServletException, IOException
 	{
 		try
@@ -50,82 +49,32 @@ public class GraphServlet extends HttpServlet
 			JFreeChart chart = null;
 			// Get the parameters for graph building from the request string
 			// TODO make these conditionals...
-			String graphType = req.getParameter("graph");
-			long start = Long.parseLong(req.getParameter("start"));
-			long end = Long.parseLong(req.getParameter("end"));
-			int width = Integer.parseInt(req.getParameter("width"));
-			int height = Integer.parseInt(req.getParameter("height"));
-			int limitResult = Integer.parseInt(req.getParameter("resultLimit"));
-			String ip = null;
-			if ((req.getParameter("ip") != null)
-					&& (!"".equalsIgnoreCase(req.getParameter("ip"))))
+			String graphType = request.getParameter("graph");
+			Integer width = Integer.valueOf (request.getParameter("width"));
+			Integer height = Integer.valueOf (request.getParameter("height"));
+			
+			UrlBuilder pageUrl = new UrlBuilder();
+			try
+			{ 
+				 pageUrl.setParameters(request);
+			}	
+			catch (PageUrlException e)
 			{
-				ip = req.getParameter("ip");
-			}
-			Integer port = null;
-			if ((req.getParameter("port") != null)
-					&& (!"".equalsIgnoreCase(req.getParameter("port"))))
-			{
-				port = Integer.valueOf(req.getParameter("port"));
-			}
-
-			View view;
-			if ((req.getParameter("view") != null)
-					&& (!"".equalsIgnoreCase(req.getParameter("view"))))
-			{
-				try
-				{
-					view = View.valueOf(req.getParameter("view"));
-				}
-				catch (IllegalArgumentException e)
-				{
-					view = View.IP; // Default is Ip view
-				}
-			}
-			else
-			{
-				view = View.IP; // Default is Ip view
-			}
-
+				e.printStackTrace();
+			}		
+			
 			GraphFactory graphFactory = new GraphFactory();
 
 			// Create graph of appropriate type
 			if (graphType.equals("total"))
 			{
-				chart = graphFactory.totalThroughput(start, end);
+				// chart = graphFactory.totalThroughput(start, end);
 			}
 			else if (graphType.equals("cumul"))
 			{
-				if (ip != null)
-				{ // Ip chart view Ignored
-					chart = graphFactory.stackedThroughputOneIp(start, end,
-							limitResult, ip);
-				}
-				else
-				{
-					if (port != null)
-					{ // Port chart view Ignored
-						chart = graphFactory.stackedThroughputOnePort(start,
-								end, limitResult, port);
-					}
-					else
-					{ // View Aplied
-
-						switch (view)
-						{
-						case IP:
-							chart = graphFactory.stackedThroughput(start, end,
-									limitResult);
-							break;
-						case PORT: // Query is different for port View
-							chart = graphFactory.stackedThroughputPerPort(
-									start, end, limitResult);
-							break;
-						default:
-							m_logger.error("Unexpected view in query");
-						}
-					}
-				}
+				
+				chart = graphFactory.stackedThroughputGraph(pageUrl.getParams());	
+				
 			}
 			// If chart created write as png
 			if (chart != null)

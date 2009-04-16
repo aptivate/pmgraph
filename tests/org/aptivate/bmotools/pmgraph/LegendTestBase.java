@@ -5,7 +5,6 @@ import java.sql.SQLException;
 
 import junit.framework.TestCase;
 
-import org.aptivate.bmotools.pmgraph.PageUrl.View;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.WebTable;
@@ -54,7 +53,7 @@ abstract class LegendTestBase extends TestCase
 			switch (view)
 			{
 			default:
-			case IP:
+			case LOCAL_IP:
 				// Columns in the table are Color, Host IP, Host Name,
 				// Downloaded, Uploaded
 				assertEquals("Check the Downloaded Value", String
@@ -62,7 +61,7 @@ abstract class LegendTestBase extends TestCase
 				assertEquals("Check the Uploaded Value", String
 						.valueOf(uploaded[i - 2]), table.getCellAsText(i, 4));
 				break;
-			case PORT:
+			case LOCAL_PORT:
 				// Columns in the table are Color, IP, Downloaded, Uploaded
 				assertEquals("Check the Downloaded Value", String
 						.valueOf(downloaded[i - 2]), table.getCellAsText(i, 2));

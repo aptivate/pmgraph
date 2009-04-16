@@ -87,7 +87,7 @@ public class LegendData
 
 		if (!"".equalsIgnoreCase(sortby))
 		{
-			if (dataAccess.UPLOADED.equalsIgnoreCase(sortby))
+			if (QueryBuilder.UPLOADED.equalsIgnoreCase(sortby))
 			{
 				if ("DESC".equalsIgnoreCase(order))
 					return (new UploadComparator(true));
@@ -96,7 +96,7 @@ public class LegendData
 			}
 			else
 			{
-				if (dataAccess.BYTES.equalsIgnoreCase(sortby))
+				if (QueryBuilder.BYTES.equalsIgnoreCase(sortby))
 				{
 					if ("DESC".equalsIgnoreCase(order))
 						return (new BytesTotalComparator(true));
@@ -105,7 +105,7 @@ public class LegendData
 				}
 				else
 				{
-					if (dataAccess.DOWNLOADED.equalsIgnoreCase(sortby))
+					if (QueryBuilder.DOWNLOADED.equalsIgnoreCase(sortby))
 					{
 						if ("DESC".equalsIgnoreCase(order))
 							return (new DownloadComparator(true));
@@ -131,44 +131,49 @@ public class LegendData
 	 * @throws SQLException
 	 */
 	private List<GraphData> limitList(List<GraphData> dataList, String sortBy,
-			String order, PageUrl pageUrl, boolean isPort) throws SQLException
+			String order, RequestParams requestParams) throws SQLException
 	{
 		List<GraphData> legendData = new ArrayList<GraphData>();
 		GraphData others = null;
 		int i = 0;
 		for (GraphData portResult : dataList)
 		{
-			if (i < pageUrl.getResultLimit())
+			if (i < requestParams.getResultLimit())
 			{
 				legendData.add(portResult);
 			}
 			else
 			{
-				if (i == pageUrl.getResultLimit())
+				if (i == requestParams.getResultLimit())
 				{
-					if (isPort)
-					{ // For port views constructor is diferent
-						// Is for a specific IP get the Ip from the request
-						if (pageUrl.getIp() != null)
-							others = new GraphData(null, pageUrl.getIp(), 0L,
-									0L, 0L, GraphFactory.OTHER_PORT);
-						else
-						{
+					switch (requestParams.getView()) {
+						case LOCAL_PORT:
 							others = new GraphData(null, GraphFactory.OTHER_IP,
-									0L, 0L, 0L, GraphFactory.OTHER_PORT);
-						}
+									0L, 0L, GraphFactory.OTHER_PORT);
+							break;
+						case REMOTE_PORT:
+							// For port views constructor is diferent
+							// Is for a specific IP get the Ip from the request
+							if (requestParams.getIp() != null)
+								others = new GraphData(null, requestParams.getIp(), 0L,
+										0L, GraphFactory.OTHER_PORT);
+							break;
+						case LOCAL_IP:
+							// Ip view
+							others = new GraphData(GraphFactory.OTHER_IP, 0L, 0L);
+						break;
+						case REMOTE_IP:
+							// Ip view
+							others = new GraphData(null,
+									requestParams.getIp(),GraphFactory.OTHER_IP, 0L, 0L);
+
 					}
-					else
-						// Ip view
-						others = new GraphData(GraphFactory.OTHER_IP, 0L, 0L,
-								0L);
+						
 				}
 				others.setUploaded(others.getUploaded()
 						+ portResult.getUploaded());
 				others.setDownloaded(others.getDownloaded()
 						+ portResult.getDownloaded());
-				others.setBytesTotal(others.getBytesTotal()
-						+ portResult.getBytesTotal());
 			}
 			i++;
 		}
@@ -196,7 +201,7 @@ public class LegendData
 	 * @param end
 	 * @param sortBy
 	 * @param order
-	 * @param pageUrl
+	 * @param requestParams
 	 * @return The generated List containing the data that should be 
 	 * showed on the legend when the graph is a legend data graph.
 	 * @throws ClassNotFoundException
@@ -205,85 +210,16 @@ public class LegendData
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getLegendData(long start, long end, String sortBy,
-			String order, PageUrl pageUrl) throws ClassNotFoundException,
+	public List<GraphData> getLegendData(String sortBy,
+			String order, RequestParams requestParams) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException
 	{
 
-		List<GraphData> ipResults = dataAccess.getThroughputPerIP(start, end);
+		List<GraphData> ipResults = dataAccess.getThroughput(requestParams, false);
 		// allways sort using Bytes total to have same order that in the graph
 		Collections.sort(ipResults, new BytesTotalComparator(true));
 
-		return limitList(ipResults, sortBy, order, pageUrl, false);
-	}
-
-	/**
-	 * 
-	 * @param start
-	 * @param end
-	 * @param sortBy
-	 * @param order
-	 * @param pageUrl
-	 * @return The generated List containing the data that should
-	 * be showed on the legend, ewhen the graph is for an especific 
-	 * Ip
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws IOException
-	 * @throws SQLException
-	 */
-	public List<GraphData> getLegendDataOneIp(long start, long end,
-			String sortBy, String order, PageUrl pageUrl)
-			throws ClassNotFoundException, IllegalAccessException,
-			InstantiationException, IOException, SQLException
-	{
-
-		List<GraphData> portResults = dataAccess.getThroughputOneIpPerPort(
-				start, end, pageUrl.getIp());
-		// allways sort using Bytes total to have same order that in the graph
-		Collections.sort(portResults, new BytesTotalComparator(true));
-		return limitList(portResults, sortBy, order, pageUrl, true);
-	}
-
-	/**
-	 * 
-	 * @param start
-	 * @param end
-	 * @param sortBy
-	 * @param order
-	 * @param pageUrl
-	 * @return A list of GraphData containing informaction for each IP
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws IOException
-	 * @throws SQLException
-	 */
-	public List<GraphData> getLegendDataPerPort(long start, long end,
-			String sortBy, String order, PageUrl pageUrl)
-			throws ClassNotFoundException, IllegalAccessException,
-			InstantiationException, IOException, SQLException
-	{
-
-		List<GraphData> portResults = dataAccess.getThroughputPerPort(start,
-				end);
-		// allways sort using Bytes total to have same order that in the graph
-		Collections.sort(portResults, new BytesTotalComparator(true));
-		return limitList(portResults, sortBy, order, pageUrl, true);
-	}
-
-	public List<GraphData> getLegendDataOnePort(long start, long end,
-			String sortBy, String order, PageUrl pageUrl)
-			throws ClassNotFoundException, IllegalAccessException,
-			InstantiationException, IOException, SQLException
-	{
-
-		List<GraphData> portResults = dataAccess.getThroughputOnePort(start,
-				end, pageUrl.getPort());
-		// allways sort using Bytes total to have same order that in the graph
-		Collections.sort(portResults, new BytesTotalComparator(true));
-		return limitList(portResults, sortBy, order, pageUrl, true);
+		return limitList(ipResults, sortBy, order, requestParams);
 	}
 }
