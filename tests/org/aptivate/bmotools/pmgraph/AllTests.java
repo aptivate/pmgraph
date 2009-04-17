@@ -22,9 +22,10 @@ public class AllTests extends TestCase
 		suite.addTest(TimeFormTest.suite());
 		suite.addTest(ResultEntryTest.suite());
 		suite.addTest(LegendTestPortView.suite());
-		suite.addTest(SpecificGraphsTest.suite());
-		suite.addTest(W3cValidationTest.suite());
+		suite.addTest(SpecificGraphsTest.suite());		
 		suite.addTest(ErrorMessageTest.suite());
+		suite.addTest(QueryBuilderTest.suite());
+		suite.addTest(W3cValidationTest.suite());
 		return suite;
 	}
 }

@@ -42,7 +42,13 @@ public class GraphData
 	public GraphData(ResultSet rs) throws SQLException
 	{
 
-		setTime(rs.getTimestamp("stamp_inserted"));
+		try {
+			setTime(rs.getTimestamp("stamp_inserted"));
+		}catch (SQLException e) {
+			;
+		}
+		
+		
 		setDownloaded(rs.getLong("downloaded"));
 		setUploaded(rs.getLong("uploaded"));		
 		try {
