@@ -44,7 +44,8 @@ public class GraphsTest extends GraphTestBase
 		{
 		default:
 			m_logger.warn(" View Unknown assumed default view IP");
-		case LOCAL_IP:
+		
+		case LOCAL_IP:		// is selected a local IP
 			
 			assertEquals("Network Throughput", chart.getTitle()
 					.getText());
@@ -77,7 +78,7 @@ public class GraphsTest extends GraphTestBase
 
 			break;
 
-		case LOCAL_PORT:			
+		case LOCAL_PORT:	// is selected a local port		
 			assertEquals("Network Throughput", chart.getTitle()
 					.getText());
 			// check values per each serie.
@@ -104,11 +105,12 @@ public class GraphsTest extends GraphTestBase
 		checkChartData(values, rows, chart);
 	}
 
-	public void testCumulativeGraphIpView() throws Exception
+	public void testCumulativeGraph() throws Exception
 	{
 		RequestParams requestParams = new RequestParams(m_testUtils.t1.getTime(), 
 				m_testUtils.t4.getTime(),View.LOCAL_IP, 15);
 		checkGraph(requestParams);
+		
 		requestParams = new RequestParams(m_testUtils.t1.getTime(),
 				m_testUtils.t4.getTime(),View.LOCAL_PORT, 15);		
 		checkGraph(requestParams);
