@@ -74,7 +74,10 @@ public class QueryBuilder
 	private String buildSelect(RequestParams requestParams, boolean perMinute) {
 		StringBuffer sql = new StringBuffer();		 
 		
-		sql.append(" "+TIME_STAMP+", ");
+		
+		if (perMinute)
+			sql.append(" "+TIME_STAMP+", ");
+		
 		sql.append("SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, ");
 		m_listData.add (m_localSubnet + "%");
 		sql.append("SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded, ");

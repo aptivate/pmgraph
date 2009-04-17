@@ -59,7 +59,22 @@ public class RequestParams
 		m_resultLimit = resultLimit;
 	}
 	
+	RequestParams (Map<String, Object> params)
+	{
+		m_params = params;
+	}
 	
+	void setView (View view)
+	{
+		m_view = view;
+	}
+	
+	void setStart (long start) {
+		m_fromDateAndTime = new Date (start);
+	}
+	void setEnd (long end) {
+		m_toDateAndTime = new Date (end);
+	}	
 
 	public String getFromDateAsString()
 	{
