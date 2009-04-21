@@ -1,0 +1,14 @@
+Source: pmgraph
+Section: contrib/misc
+Priority: optional
+Maintainer: Noe Gonzalez <noeg@fen-ndiyo3>
+Build-Depends: debhelper (>> 5), javahelper , ant
+Build-Depends-Indep: sun-java6-jdk
+Standards-Version: 3.7.3
+Homepage: <homepage>
+
+Package: pmgraph
+Architecture: all
+Depends: ${java:Depends}, ${misc:Depends}
+Description: Short Description
+ Long Description
