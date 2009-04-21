@@ -1,0 +1,6 @@
+#!/bin/sh
+CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat5.5 | grep Default | sed -e 's/.*: //'`
+. /etc/default/tomcat5.5
+
+CATALINA_BASE=${CATALINA_BASE:-$CATALINA_DEFAULT_BASE}
+ln -sf /usr/share/pmgraph/pmgraph.war $CATALINA_BASE/webapps/pmgraph.war
