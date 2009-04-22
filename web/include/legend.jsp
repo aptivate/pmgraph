@@ -13,8 +13,6 @@
 <%@ page import="org.aptivate.bmotools.pmgraph.View" %>
 <%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
 <%
-    long startP = Long.parseLong(request.getParameter("start"));
-    long endP = Long.parseLong(request.getParameter("end"));
     StringBuffer othersHostName = new StringBuffer("");
     StringBuffer othersIp = new StringBuffer("");
     long othersDownloaded = 0;
@@ -22,14 +20,26 @@
 	String othersFillColour="";
 	List<GraphData> results ;
     
-    // Round our times to the nearest minute
-    long start = startP - (startP % 60000);
-    long end = endP - (endP % 60000);
-    
     //sortBy = downloaded | uploaded |total_byties
 	String sortBy = request.getParameter("sortBy");
 	//order: DESC | ASC
 	String order = request.getParameter("order");
+    
+	 //methods to get new URL
+    UrlBuilder pageUrl = new UrlBuilder();
+
+    // Input Validation
+    String errorMsg = null;    
+	
+	// Validate Parameters
+	try
+	{ 
+		 pageUrl.setParameters(request);
+	}	
+	catch (PageUrlException e)
+	{
+		errorMsg = e.getMessage();
+	}	
 
 	String arrow = order.equals("ASC")?" &#8679;":" &#8681;";
 	String col1 = "Downloaded";
@@ -42,17 +52,6 @@
 		col2 = col2 + arrow;	
 	if ("bytes_total".equals(sortBy))
 		col3 = col3 + arrow;
-    //methods to get new URL
-    UrlBuilder pageUrl = new UrlBuilder();
-	try
-	{ 
-		 pageUrl.setParameters(request);
-		 
-	}	
-	catch (PageUrlException e)
-	{
-		e.printStackTrace();
-	}		
 	
 	LegendData legendData = new LegendData();
 	results = legendData.getLegendData(sortBy, order,pageUrl.getParams());
@@ -73,7 +72,7 @@
             <%} %>
             <td colspan="2" class="center">
              <a name="bytes_total" 
-                       href="<%=pageUrl.getIndexURL(startP, endP, "bytes_total")%>"
+                       href="<%=pageUrl.getIndexURL("bytes_total")%>"
                        > <%=col3%></a> 
            </td>
 		</tr>
@@ -82,12 +81,12 @@
 		    <td></td>
 		    <td>
 		    <a name="downloaded" 
-                       href="<%=pageUrl.getIndexURL(startP, endP, "downloaded")%>"
+                       href="<%=pageUrl.getIndexURL("downloaded")%>"
                        ><%=col1%></a>
 		    </td>
 		    <td>
 		     <a name="uploaded" 
-                       href="<%=pageUrl.getIndexURL(startP, endP, "uploaded")%>"
+                       href="<%=pageUrl.getIndexURL("uploaded")%>"
                        ><%=col2%></a>
 		    </td>
 		</tr>
@@ -114,9 +113,9 @@
 								%><td>Others</td><%
 							} else {
 								if (pageUrl.getParams().getView() == View.REMOTE_PORT) {
-									%><td><a href="<%=pageUrl.getUrlGraph(start, end, port, "remote_port")%>" ><%=port%></a></td><%
+									%><td><a href="<%=pageUrl.getUrlGraph(port, "remote_port")%>" ><%=port%></a></td><%
 								} else {
-									%><td><a href="<%=pageUrl.getUrlGraph(start, end, port, "port")%>" ><%=port%></a></td><%
+									%><td><a href="<%=pageUrl.getUrlGraph(port, "port")%>" ><%=port%></a></td><%
 								}
 							}
 							%>
@@ -148,9 +147,9 @@
 					       <%
 					        if ((!"Others".equalsIgnoreCase(ip))) {
 					        	if (pageUrl.getParams().getView() == View.REMOTE_IP) {
-									%><td><a href="<%=pageUrl.getUrlGraph(start, end, ip, "remote_ip")%>" ><%=ip%></a></td><%
+									%><td><a href="<%=pageUrl.getUrlGraph(ip, "remote_ip")%>" ><%=ip%></a></td><%
 					        	} else {
-									%><td><a href="<%=pageUrl.getUrlGraph(start, end, ip, "ip")%>" ><%=ip%></a></td><%
+									%><td><a href="<%=pageUrl.getUrlGraph(ip, "ip")%>" ><%=ip%></a></td><%
 					        	}
 							} else {
 								%><td><%=ip%></td><%
