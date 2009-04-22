@@ -29,6 +29,10 @@ public class RequestParams
 	private String m_sortBy;
 
 	private String m_order;
+	
+	private String m_graph = "cumul";
+	
+	private String m_report = "totals";
 
 	Map<String, Object> m_params;
 
@@ -78,6 +82,13 @@ public class RequestParams
 		m_toDateAndTime = new Date (end);
 	}	
 
+	public String getGraph(){
+		return m_graph;
+	}
+	
+	public String getReport(){
+		return m_report;
+	}
 	public String getFromDateAsString()
 	{
 
