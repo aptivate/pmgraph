@@ -37,20 +37,22 @@ public class RequestParams
 		m_params = new HashMap<String, Object>();
 	}
 	
-	public RequestParams(long start, long end, View view, int resultLimit,
+	//Currently, this method is used in test code only
+	RequestParams(long start, long end, View view, int resultLimit,
 			Integer port)
 	{
 		this(start, end, view, resultLimit);
 		m_params.put("port", port);
 	}
-	public RequestParams(long start, long end, View view, int resultLimit,
+	//Currently, this method is used in test code only
+	RequestParams(long start, long end, View view, int resultLimit,
 			String ip)
 	{
 		this(start, end, view, resultLimit);
 		m_params.put("ip", ip);
 	}
-	
-	public RequestParams(long start, long end, View view, int resultLimit)
+	//Currently, this method is used in test code only
+	RequestParams(long start, long end, View view, int resultLimit)
 	{
 		this();
 		m_fromDateAndTime = new Date (start);
@@ -206,7 +208,7 @@ public class RequestParams
 		return m_toDateAndTime.getTime() - (m_toDateAndTime.getTime() % 60000);
 	}
 	
-
+	//Currently this method isn't used
 	public Map<String, Object> getParams()
 	{
 		return m_params;
@@ -223,8 +225,8 @@ public class RequestParams
 		{
 			if (request.getParameter("fromDate") != null)
 			{
-				m_fromDateAndTime = getDateTimeFromFromData(request, "from");
-				m_toDateAndTime = getDateTimeFromFromData(request, "to");
+				m_fromDateAndTime = setDateTimeFromFromData(request, "from");
+				m_toDateAndTime = setDateTimeFromFromData(request, "to");
 			}
 			else
 			{ // if user has not defined date time get it from start and end
@@ -270,6 +272,7 @@ public class RequestParams
 		{
 			try
 			{
+				
 				m_resultLimit = Integer.parseInt(request
 						.getParameter("resultLimit"));
 			}
@@ -410,7 +413,7 @@ public class RequestParams
 	 * @throws PageUrlException
 	 * @throws Exception
 	 */
-	private Date getDateTimeFromFromData(HttpServletRequest request, String name)
+	private Date setDateTimeFromFromData(HttpServletRequest request, String name)
 			throws PageUrlException
 	{
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(
