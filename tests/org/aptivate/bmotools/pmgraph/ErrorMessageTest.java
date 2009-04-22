@@ -50,10 +50,6 @@ public class ErrorMessageTest extends TestCase {
 				
 	}
 
-	public void setUp() throws Exception {
-
-	}
-
 	/**
 	 * input time/date in wrong format, and see if we can get the error alert
 	 */
