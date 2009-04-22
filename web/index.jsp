@@ -15,8 +15,7 @@
     String report = (param = request.getParameter("report")) != null ? param : "totals";
     String graph = (param = request.getParameter("graph")) != null ? param : "cumul";
     long now = new Date().getTime();
-    long scrollAmount, zoomAmount, newZoomInStart, newZoomInEnd, 
-    	newZoomOutStart, newZoomOutEnd, graphSpan;
+    long scrollAmount, zoomAmount, graphSpan;
     String colon="", alignPort="align_right", name="";
         
          //the sort parameters
@@ -25,7 +24,7 @@
 	//order: DESC | ASC
 	String order = request.getParameter("order");
     
-    //methods to get new URL
+	 //methods to get new URL
     UrlBuilder pageUrl = new UrlBuilder();
 
     // Input Validation
@@ -173,39 +172,39 @@
                 <!-- Graph parameter controls not yet functional -->
                 <div id="graph">
                     <img id="graphimage" alt="Bandwidth Graph" 
-                            src="<%=pageUrl.getServetURL(graph, startTime, endTime)%>"
+                            src="<%=pageUrl.getServetURL()%>"
                             width="760" height="350" />
                 </div>
                 
                 <!-- Move back/forward or zoom in/out -->
                 <div id="controls">
                     <a name="prev"
-                       href="<%=pageUrl.getIndexURL(report, graph, (startTime - scrollAmount), (endTime - scrollAmount))%>"
+                       href="<%=pageUrl.getIndexURL((startTime - scrollAmount), (endTime - scrollAmount))%>"
                         class="control">Prev.</a>
                     <div id="controlscenter">
 
                        	<a name="zoomOut"
-                       	   href="<%=pageUrl.getZoomOutURL(report, graph, startTime, endTime)%>" 
+                       	   href="<%=pageUrl.getZoomOutURL()%>" 
                        	   class="control">Zoom -</a>                            		
-                       	<%if (pageUrl.showZoomIn(startTime,endTime)) {%>
+                       	<%if (pageUrl.showZoomIn()) {%>
                         	<a	name="zoomIn"
-                        		href="<%=pageUrl.getZoomInURL(report, graph, startTime, endTime)%>" 
+                        		href="<%=pageUrl.getZoomInURL()%>" 
                         		class="control">Zoom +</a>
                       	<%}%>             
                     </div>
-                    <%if (pageUrl.isShowCurrent(startTime, endTime)) {%>
+                    <%if (pageUrl.isShowCurrent()) {%>
                     <!-- show current -->
                     <a name="current" 
-                       href="<%=pageUrl.getIndexURL(report, graph, (now - graphSpan), now)%>" 
+                       href="<%=pageUrl.getIndexURL((now - graphSpan), now)%>" 
                        class="control">Current</a>
                     <%} else {%>
                     <a name="next" 
-                       href="<%=pageUrl.getIndexURL(report, graph, (startTime + scrollAmount), (endTime + scrollAmount))%>" 
+                       href="<%=pageUrl.getIndexURL((startTime + scrollAmount), (endTime + scrollAmount))%>" 
                        class="control">Next</a>
                     <%}%>
                 </div>  
                 <div id="legend">
-                    <jsp:include page="<%=pageUrl.getLegendURL(startTime, endTime, sortBy, order)%>" />
+                    <jsp:include page="<%=pageUrl.getLegendURL()%>" />
                 </div>
             </div>
  			<div class="left">
