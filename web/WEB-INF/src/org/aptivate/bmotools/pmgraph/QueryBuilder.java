@@ -190,7 +190,7 @@ public class QueryBuilder
 		return (ipStatement);
 	}
 
-	void setQueryParams (PreparedStatement statement) throws SQLException {
+	private void setQueryParams (PreparedStatement statement) throws SQLException {
 
 		int i= 1;
 		for (Object d1 : m_listData) {
