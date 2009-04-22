@@ -72,21 +72,19 @@ public class UrlBuilder
 		return newUrl;
 
 	}
-
-	public String getLegendURL(long start, long end, String sortBy, String order)
-	{
-
-		String newURL = m_legendURL + "?start=" + start + "&end=" + end
-				+ "&sortBy=" + sortBy + "&order=" + order + "&resultLimit="
+	
+	public String getLegendURL() {
+		String newURL = m_legendURL + "?start=" + m_params.getStartTime() + "&end=" + m_params.getEndTime()
+				+ "&sortBy=" + m_params.getSortBy() + "&order=" + m_params.getOrder() + "&resultLimit="
 				+ m_params.getResultLimit();
 		newURL += buildIpPortViewParameters(true);
 		return newURL;
 	}
 
-	public String getServetURL(String graph, long start, long end)
+	public String getServetURL()
 	{
-		String newURL = m_servletURL + "?graph=" + graph + "&amp;start="
-				+ start + "&amp;end=" + end + "&amp;width=780"
+		String newURL = m_servletURL + "?graph=" + m_params.getGraph() + "&amp;start="
+				+ m_params.getStartTime() + "&amp;end=" + m_params.getEndTime() + "&amp;width=780"
 				+ "&amp;height=350" + "&amp;resultLimit="
 				+ m_params.getResultLimit();
 
@@ -94,23 +92,26 @@ public class UrlBuilder
 		return newURL;
 	}
 
-	public String getIndexURL(String report, String graph, long start, long end)
+	public String getIndexURL()
 	{
-		String newURL = m_indexURL + "?report=" + report + "&amp;graph="
-				+ graph + "&amp;start=" + start + "&amp;end=" + end
+		String newURL = m_indexURL + "?report=" + m_params.getReport() + "&amp;graph="
+				+ m_params.getGraph() + "&amp;start=" + m_params.getStartTime() + "&amp;end=" + m_params.getEndTime()
 				+ "&amp;resultLimit=" + m_params.getResultLimit();
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
 	}
+		
+	public String getIndexURL(long start, long end)
+	{
+		String newURL = m_indexURL + "?report=" + m_params.getReport() + "&amp;graph="
+				+ m_params.getGraph() + "&amp;start=" + start + "&amp;end=" + end
+				+ "&amp;resultLimit=" + m_params.getResultLimit();
+		newURL += buildIpPortViewParameters(false);
+		return newURL;
+	}
+	
 
-	/**
-	 * 
-	 * @param start
-	 * @param end
-	 * @param sortBy
-	 * @return The URL to the Web aplication.
-	 */
-	public String getIndexURL(long start, long end, String sortBy)
+	public String getIndexURL(String sortBy)
 	{
 		String order = "DESC";
 		// change sortin order just if the result is order by this column
@@ -122,15 +123,18 @@ public class UrlBuilder
 				order = "ASC";
 		}
 
-		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
+		String newURL = m_indexURL + "?start=" + m_params.getStartTime() + "&amp;end=" + m_params.getEndTime()
 				+ "&amp;sortBy=" + sortBy + "&amp;order=" + order
 				+ "&amp;resultLimit=" + m_params.getResultLimit();
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
 	}
-
-	public String getUrlGraph(long start, long end, Object paramValue, String paramName)
+	
+	public String getUrlGraph(Object paramValue, String paramName)
 	{
+		 // Round our times to the nearest minute
+	    long start = m_params.getStartTime() - (m_params.getStartTime() % 60000);
+	    long end = m_params.getEndTime() - (m_params.getEndTime() % 60000);
 		String newURL = "";
 		String extra = "";
 
@@ -152,20 +156,20 @@ public class UrlBuilder
 				+ "&amp;view=" + view;
 		return newURL;
 	}
-
-	public String getZoomInURL(String report, String graph, long start, long end)
+	
+	public String getZoomInURL()
 	{
-		long newZoomInStart = start + m_params.getZoomAmount() / 2;
-		long newZoomInEnd = end - m_params.getZoomAmount() / 2;
+		long newZoomInStart = m_params.getStartTime() + m_params.getZoomAmount() / 2;
+		long newZoomInEnd = m_params.getEndTime() - m_params.getZoomAmount() / 2;
 
-		return getIndexURL(report, graph, newZoomInStart, newZoomInEnd);
+		return getIndexURL(newZoomInStart, newZoomInEnd);
 	}
 
-	public String getZoomOutURL(String report, String graph, long start,
-			long end)
+
+	public String getZoomOutURL()
 	{
-		long newZoomOutStart = start - m_params.getZoomAmount();
-		long newZoomOutEnd = end + m_params.getZoomAmount();
+		long newZoomOutStart = m_params.getStartTime() - m_params.getZoomAmount();
+		long newZoomOutEnd = m_params.getEndTime() + m_params.getZoomAmount();
 		long temp = new Date().getTime();
 
 		// limit the zoom if it create a date in the future
@@ -175,7 +179,7 @@ public class UrlBuilder
 			newZoomOutEnd = temp;
 		}
 
-		return getIndexURL(report, graph, newZoomOutStart, newZoomOutEnd);
+		return getIndexURL(newZoomOutStart, newZoomOutEnd);
 	}
 
 	/**
@@ -186,10 +190,10 @@ public class UrlBuilder
 	 * @param end
 	 * @return boolean
 	 */
-	public boolean showZoomIn(long start, long end)
+	public boolean showZoomIn()
 	{
-		long newZoomInStart = ((start + m_params.getZoomAmount() / 2) / 6000);
-		long newZoomInEnd = ((end - m_params.getZoomAmount() / 2) / 6000);
+		long newZoomInStart = ((m_params.getStartTime() + m_params.getZoomAmount() / 2) / 6000);
+		long newZoomInEnd = ((m_params.getEndTime() - m_params.getZoomAmount() / 2) / 6000);
 
 		return ((newZoomInEnd - newZoomInStart) > 15);
 	}
@@ -202,10 +206,10 @@ public class UrlBuilder
 	 * @param end
 	 * @return boolean
 	 */
-	public boolean isShowCurrent(long start, long end)
+	public boolean isShowCurrent()
 	{
 		long now = new Date().getTime();
-		return (end + m_params.getScrollAmount() >= now);
+		return (m_params.getEndTime() + m_params.getScrollAmount() >= now);
 	}
 
 }
