@@ -43,25 +43,23 @@ public class RequestParamsTest extends TestCase{
 	}
 	
 	/**
-	 * Set mock httpServletRequest
-	 * @param hashMap
-	 */
-	private void setMockReqParams(HashMap<String, String> hashMap){
-		for(String key : hashMap.keySet()){
-		expect(m_request.getParameter(key)).andReturn(hashMap.get(key)).anyTimes();
-		}
-        replay(m_request);
-	}
-	
-	/**
 	 * Get the RequestParams object, using the mock HttpServletRequest object
 	 * @return RequestParams
 	 * @throws Exception
 	 */
-	private RequestParams getRequestParams() throws Exception{
+	private RequestParams getRequestParamsFromMockRequest(HashMap<String, String> hashMap) throws Exception{
+		//create mock request
+		for(String key : hashMap.keySet()){
+			expect(m_request.getParameter(key)).andReturn(hashMap.get(key)).anyTimes();
+			}
+	    replay(m_request);
+	    
+	    //get RequestParams and call public method 'setParameters'.
+	    //m_request is the mock httpServletRequest
 		RequestParams requestParams = new RequestParams(); 
 		requestParams.setParameters(m_request);
 		reset(m_request);
+		
 		return requestParams;
 	}
 		
@@ -97,8 +95,7 @@ public class RequestParamsTest extends TestCase{
 				hashMapReq.put(reqData.getName(), reqData.getTextTrim());
 			}
 			
-			setMockReqParams(hashMapReq);
-			RequestParams requestParams = getRequestParams();
+			RequestParams requestParams = getRequestParamsFromMockRequest(hashMapReq);
 			
 			Element expectResult = servletRequest.element("expectResult");
 			HashMap<String, String> hashMapExpect = new HashMap<String, String>(); 
