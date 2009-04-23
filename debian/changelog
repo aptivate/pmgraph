@@ -1,5 +1,6 @@
-pmgraph (1.0-1) unstable; urgency=low
+pmgraph (1.0-1) stable; urgency=low
 
   * Initial release. (Closes: #XXXXXX)
 
- -- Noe Gonzalez <noeg@fen-ndiyo3>  Mon, 20 Apr 2009 12:20:04 +0100
+ --  Aptivate <info+pmgraph@aptivate.org>  Mon, 20 Apr 2009 12:20:04 +0100
+

@@ -1,14 +1,14 @@
 Source: pmgraph
-Section: contrib/misc
+Section: net
 Priority: optional
-Maintainer: Noe Gonzalez <noeg@fen-ndiyo3>
+Maintainer: Aptivate <info+pmgraph@aptivate.org>
 Build-Depends: debhelper (>> 5), javahelper , ant
 Build-Depends-Indep: sun-java6-jdk
 Standards-Version: 3.7.3
-Homepage: <homepage>
+Homepage: http://pmgraph.sourceforge.net
 
 Package: pmgraph
 Architecture: all
-Depends: ${java:Depends}, ${misc:Depends}
-Description: Short Description
- Long Description
+Depends: tomcat (>= 5.5), pmacct (>= 0.11)
+Description: pmGraph is a software application for network monitoring to work with pmacct
+        The purpose of pmGraph is to work with pmacct, a network monitoring and auditing tool pmacct runs on a firewall, router or bridge, or collects information from multiple routers, and stores the information in a database. The database permits powerful analysis, but is difficult to use. pmGraph helps by providing a simple graphical overview of the network data recorded by pmacct.  
