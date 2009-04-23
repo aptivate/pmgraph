@@ -1,13 +1,15 @@
-This package was Debianised by Noe Gonzalez <noeg@fen-ndiyo3> on Mon Apr 20 12:20:03 BST 2009
+This package was Debianised by Aptivate <info+pmgraph@aptivate.org> on Mon Apr 20 12:20:03 BST 2009
 
-This package was downloaded from <homepage>.
+This package was downloaded from http://pmgraph.sourceforge.net.
 
-Upstream Author: ... 
+Upstream Author: Aptivate <info+pmgraph@aptivate.org>.
 
-Copyright ...
+This software is copyright (c) 2006-09 by Aptivate, a not-for-profit company 
+registered in England and Wales, company number 04980791.
 
-<Insert Licence statement>
+You are free to distribute this software under the terms of
+the GNU General Public License.
 
-The packaging is Copyright 2009 Noe Gonzalez <noeg@fen-ndiyo3> and is licenced
-under the terms of the BSD licence. On Debian systems the BSD licence can be
-found in /usr/share/common-licenses/BSD.
+On Debian systems, the complete text of the GNU General Public
+License can be found in the file `/usr/share/common-licenses/GPL'.
+
