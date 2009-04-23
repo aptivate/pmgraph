@@ -1,6 +1,25 @@
-#!/bin/sh
+#!/bin/bash
 CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat5.5 | grep Default | sed -e 's/.*: //'`
 . /etc/default/tomcat5.5
 
 CATALINA_BASE=${CATALINA_BASE:-$CATALINA_DEFAULT_BASE}
 ln -sf /usr/share/pmgraph/pmgraph.war $CATALINA_BASE/webapps/pmgraph.war
+
+echo Please, enter Mysql root passwd
+stty_orig=`stty -g`
+stty -echo
+read PASSWD
+stty $stty_orig
+echo "Root passwd: $PASSWD"
+
+# Create database and user.
+echo Creating Mysql data base...
+mysql -u root -p$PASSWD < /usr/share/pmgraph/conf/pmacct-create-db_v6.mysql
+echo mysql -u root -p$PASSWD < /usr/share/pmgraph/conf/pmacct-create-db_v6.mysql
+
+# Copy default pmacct config file
+echo Configuring pmacct base...
+test -s /etc/pmacct/pmacctd.conf && mv /etc/pmacct/pmacctd.conf /etc/pmacct/pmacctd.conf.old
+cp /usr/share/pmgraph/conf/pmacctd.conf /etc/pmacct/pmacctd.conf
+        
+

@@ -52,7 +52,6 @@ binary-indep: build-indep install-indep
 	dh_install -i
 	dh_installdocs -i
 	dh_installchangelogs -i
-	jh_manifest -i
 	dh_link -i
 	jh_exec -i
 	jh_depends -i -j sun5
