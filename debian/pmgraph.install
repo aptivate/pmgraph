@@ -1,1 +1,3 @@
 dist/pmgraph.war usr/share/pmgraph
+dist/pmacct-create-db_v6.mysql usr/share/pmgraph/conf
+dist/pmacctd.conf usr/share/pmgraph/conf
