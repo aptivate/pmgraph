@@ -25,5 +25,7 @@ class ErrorMessages
 	final static String TIME_IN_FUTURE = "The From and To Date and Time cannot be in the future.";
 
 	final static String VIEW_FORMAT_ERROR = "Wrong view selected default view assumed !";
+	
+	final static String IP_FORMAT_ERROR = "Invalid IP format used";
 
 }
