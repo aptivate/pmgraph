@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -316,16 +317,23 @@ public class RequestParams
 	 * @throws IOException
 	 */
 	private void setIpPortFromRequest(HttpServletRequest request)
-			throws PageUrlException
+			throws PageUrlException, NumberFormatException
 	{
 		Integer port;
 
-		if ((request.getParameter("ip") != null)
-				&& (!"".equalsIgnoreCase(request.getParameter("ip"))))
+		if ((request.getParameter("ip") != null) && (!"".equalsIgnoreCase(request.getParameter("ip"))))
 		{
-			m_params.put("ip", request.getParameter("ip"));
-		}
+			if (isValidIP(request.getParameter("ip")))
+			{ 
+				m_params.put("ip", request.getParameter("ip"));
+		    }
+		    else
+		    {
+			throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+		    }
+	    }
 
+		
 		if ((request.getParameter("port") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("port"))))
 		{
@@ -346,6 +354,29 @@ public class RequestParams
 			}
 
 		}
+	}
+
+	private boolean isValidIP(String ip) throws NumberFormatException {
+		//IP address should have format n.n.n.n where n is in the range 0-255
+		StringTokenizer st = new StringTokenizer(ip, ".");
+		if ( st.countTokens() != 4) {
+			return false;
+		}
+		
+		while (st.hasMoreTokens()) {
+			try 
+			{
+				int ipElement = Integer.valueOf(st.nextToken());
+				if (ipElement < 0 || ipElement >255) {
+					return false;
+				}
+			}
+			catch( Exception e) 
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private void setRemoteIpPortFromRequest(HttpServletRequest request)
