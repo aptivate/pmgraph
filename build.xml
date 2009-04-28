@@ -20,6 +20,7 @@
     <property name="nowar.lib.directory" value="lib/"/>
     <property name="war.lib.directory" value="web/WEB-INF/lib/"/>
     <property name="build.compiler" value="modern"/>
+    <property name="conf.directory" value="config"/>
 <!--Allow shell environment variables to be called with the "env." prefix -->	
 	<property environment="env"/>
 	
@@ -49,6 +50,7 @@
     <property name="war.webxml" value="${jsp.directory}/WEB-INF/web.xml"/>
     <property name="war.directory" value="${distribution.directory}"/>
     <property name="war.filename" value="pmgraph.war"/>
+
 
     <!--exclude all unit test files from the jar file-->
     <!-- <property name="jar.excludes" value="**/test/**"/> -->
@@ -182,13 +184,17 @@
 -->
     <target name="war" depends="jar">
         <mkdir dir="${war.directory}"/>
-    	
     	 <copy todir="${build.directory}" >
     	    <fileset dir="${properties.directory}">
     	    <include name="*.dist.properties"/>
     	    </fileset>
     	    <mapper type="glob" from="*.dist.properties" to="*.properties"/>
     	  </copy>
+	   	 <copy todir="${war.directory}" >
+	   	    <fileset dir="${conf.directory}">
+		   	    <include name="*"/>
+	   	    </fileset>
+	   	  </copy>
         <war warfile="${war.directory}/${war.filename}"
 			webxml="${war.webxml}"
 			duplicate="fail"

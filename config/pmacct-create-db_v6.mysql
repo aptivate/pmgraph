@@ -1,7 +1,7 @@
 drop database if exists pmacct;
 create database pmacct;
 
-grant all on pmacct.* to pmacct identified by 'ytogl4dfh7';
+GRANT SELECT,INSERT ON pmacct.* TO 'pmacct'@'localhost' identified by 'secret';
 
 use pmacct;
 
@@ -27,3 +27,5 @@ create table acct_v6 (
 	stamp_updated DATETIME,
 	PRIMARY KEY (agent_id, class_id, mac_src, mac_dst, vlan, as_src, as_dst, ip_src, ip_dst, src_port, dst_port, ip_proto, tos, stamp_inserted)
 );
+
+alter table acct_v6 add index (stamp_inserted,ip_src,ip_dst,bytes);
