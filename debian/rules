@@ -57,6 +57,7 @@ binary-indep: build-indep install-indep
 	jh_depends -i -j sun5
 	dh_compress -i
 	dh_fixperms -i
+	dh_installdebconf  # add deb conf scripts to DEBIAN dir
 	dh_installdeb -i
 	dh_gencontrol -i
 	dh_md5sums -i

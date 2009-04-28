@@ -1,15 +1,18 @@
-#!/bin/bash
+#!/bin/sh -e
+
+# Source debconf library.
+. /usr/share/debconf/confmodule
+
 CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat5.5 | grep Default | sed -e 's/.*: //'`
 . /etc/default/tomcat5.5
 
 CATALINA_BASE=${CATALINA_BASE:-$CATALINA_DEFAULT_BASE}
 ln -sf /usr/share/pmgraph/pmgraph.war $CATALINA_BASE/webapps/pmgraph.war
 
-echo Please, enter Mysql root passwd
-stty_orig=`stty -g`
-stty -echo
-read PASSWD
-stty $stty_orig
+
+# Check their answer.
+db_get pmgraph/mysql
+PASSWD=$RET
 
 # Create database and user.
 echo Creating Mysql data base...
@@ -25,4 +28,3 @@ test -s /etc/pmacct/pmacctd.conf && mv /etc/pmacct/pmacctd.conf /etc/pmacct/pmac
 echo -e \\t* Current pmacct config file moved to /etc/pmacct/pmacctd.conf.old.
 cp /usr/share/pmgraph/conf/pmacctd.conf /etc/pmacct/pmacctd.conf
         
-
