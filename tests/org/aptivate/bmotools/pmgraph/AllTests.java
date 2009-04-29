@@ -21,10 +21,10 @@ public class AllTests extends TestCase
 		suite.addTest(LegendTest.suite());
 		suite.addTest(TimeFormTest.suite());
 		suite.addTest(ResultEntryTest.suite());
+		suite.addTest(IPandPortEntryTest.suite());
 		suite.addTest(LegendTestPortView.suite());
 		suite.addTest(SpecificGraphsTest.suite());		
 		suite.addTest(ErrorMessageTest.suite());
-		suite.addTest(IPandPortEntryTest.suite());
 		suite.addTest(QueryBuilderTest.suite());
 		suite.addTest(W3cValidationTest.suite());
 		suite.addTest(RequestParamsTest.suite());

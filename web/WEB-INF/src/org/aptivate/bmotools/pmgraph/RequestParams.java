@@ -329,7 +329,7 @@ public class RequestParams
 		    }
 		    else
 		    {
-			throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+		    	throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
 		    }
 	    }
 
@@ -337,12 +337,10 @@ public class RequestParams
 		if ((request.getParameter("port") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("port"))))
 		{
-
 			try
 			{
 				port = Integer.valueOf(request.getParameter("port"));
-				m_params.put("port", Integer.valueOf(request
-						.getParameter("port")));
+				m_params.put("port", Integer.valueOf(request.getParameter("port")));
 			}
 			catch (NumberFormatException e)
 			{
@@ -352,7 +350,10 @@ public class RequestParams
 			{
 				throw new PageUrlException(ErrorMessages.NEGATIVE_PORT_NUMBER);
 			}
-
+			if(port > 65535)
+			{
+				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
+			}
 		}
 	}
 
@@ -371,7 +372,7 @@ public class RequestParams
 					return false;
 				}
 			}
-			catch( Exception e) 
+			catch(NumberFormatException e) 
 			{
 				return false;
 			}
@@ -380,14 +381,21 @@ public class RequestParams
 	}
 
 	private void setRemoteIpPortFromRequest(HttpServletRequest request)
-			throws PageUrlException
+			throws PageUrlException, NumberFormatException
 	{
 		Integer port;
 
 		if ((request.getParameter("remote_ip") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("remote_ip"))))
 		{
-			m_params.put("remote_ip", request.getParameter("remote_ip"));
+			if (isValidIP(request.getParameter("remote_ip")))
+			{ 
+				m_params.put("remote_ip", request.getParameter("remote_ip"));
+		    }
+		    else
+		    {
+		    	throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+		    }
 		}
 
 		if ((request.getParameter("remote_port") != null)
@@ -407,6 +415,10 @@ public class RequestParams
 			if (port < 0)
 			{
 				throw new PageUrlException(ErrorMessages.NEGATIVE_PORT_NUMBER);
+			}
+			if (port > 65535)
+			{
+				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
 			}
 
 		}
