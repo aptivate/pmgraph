@@ -20,7 +20,7 @@ import com.meterware.httpunit.WebResponse;
 
 /**
  * Tests the error messages are shown
- * @author sylviaw mod by Anne and Ida
+ * @author sylviaw 
  *
  */
 public class ErrorMessageTest extends TestCase {
