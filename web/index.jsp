@@ -43,7 +43,7 @@
    	// Change start and end Time
 	long startTime = pageUrl.getParams().getStartTime();
 	long endTime = pageUrl.getParams().getEndTime();
-
+	
     graphSpan =  pageUrl.getParams().getGraphSpan();  
     scrollAmount =  pageUrl.getParams().getScrollAmount();  
     zoomAmount = pageUrl.getParams().getZoomAmount();
@@ -208,8 +208,9 @@
                 </div>
             </div>
  			<div class="left">
- 				<a href="javascript:history.back(1);">Back</a>
- 			</div>
+ 				<a href="javascript:history.back(1);">Back</a> 	 				 				
+ 			    <a href="<%=pageUrl.getIndexURL(startTime, endTime, true)%>">Reset</a>			
+ 			</div> 			
             <!-- <div id="footer"></div> -->
         </div>
     </body>
