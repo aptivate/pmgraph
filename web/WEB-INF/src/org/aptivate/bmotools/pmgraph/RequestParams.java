@@ -394,7 +394,7 @@ public class RequestParams
 		    }
 		    else
 		    {
-		    	throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+			   throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
 		    }
 		}
 
