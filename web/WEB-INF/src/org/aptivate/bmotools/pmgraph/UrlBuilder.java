@@ -110,6 +110,15 @@ public class UrlBuilder
 		return newURL;
 	}
 	
+	public String getIndexURL(long start, long end, boolean resetFlag)
+	{
+		String newURL = m_indexURL + "?report=" + m_params.getReport() + "&amp;graph="
+				+ m_params.getGraph() + "&amp;start=" + start + "&amp;end=" + end
+				+ "&amp;resultLimit=" + m_params.getResultLimit();				
+		return newURL;
+	}
+
+	
 
 	public String getIndexURL(String sortBy)
 	{
