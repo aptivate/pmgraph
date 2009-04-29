@@ -98,6 +98,20 @@ public class ErrorMessageTest extends TestCase {
 		assertEquals("Test Short Span", ErrorMessages.TIME_NOT_ENOUGH, m_wc.popNextAlert());
 
 	}
+	
+	/**
+	 * test error message for wrong input of start and end
+	 * @throws Exception
+	 */
+	public void testStartEndErrorMessage() throws Exception {
+		
+		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph()
+				+ "?start=gdg&end=300000");
+		m_response = m_wc.getResponse(m_request);
+		
+		assertEquals("Test Start and End", ErrorMessages.START_END_FORMAT_ERROR , m_wc.popNextAlert());
+	}
+	
 
 	/**
 	 * test error message for wrong input of limit number

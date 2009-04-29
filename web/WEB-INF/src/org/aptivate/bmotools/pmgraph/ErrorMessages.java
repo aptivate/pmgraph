@@ -12,6 +12,8 @@ class ErrorMessages
 
 	final static String DATE_TIME_FORMAT_ERROR = "The date format should be : dd/mm/yyyy and the time format should be : hh:mm:ss ";
 
+    final static String START_END_FORMAT_ERROR = "Start and End parameters should be numbers ! Default start and end parameters assumed.";
+	
 	final static String RESULT_LIMIT_FORMAT_ERROR = "The number of results should be numeric ! Default number of results assumed.";
 
 	final static String PORT_FORMAT_ERROR = "Port number must be a positive number !";

@@ -512,15 +512,23 @@ public class RequestParams
 	 * @throws Exception
 	 */
 	private void setDatesFromStartEnd(HttpServletRequest request)
-			throws NumberFormatException
+			throws PageUrlException
 	{
 		if ((request.getParameter("start") != null)
 				&& (request.getParameter("end") != null))
 		{
-			m_fromDateAndTime = new Date(Long.valueOf(request
-					.getParameter("start")));
-			m_toDateAndTime = new Date(Long
-					.valueOf(request.getParameter("end")));
+			try
+			{
+				m_fromDateAndTime = new Date(Long.valueOf(request
+						.getParameter("start")));
+				m_toDateAndTime = new Date(Long
+						.valueOf(request.getParameter("end")));
+			}
+			catch (NumberFormatException e)
+			{
+				throw new PageUrlException(ErrorMessages.START_END_FORMAT_ERROR );
+			}
+		
 		}
 		else
 		{
