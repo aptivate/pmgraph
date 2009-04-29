@@ -173,7 +173,7 @@ public class IPandPortEntryTest extends TestCase
 				+ "?start=0&end=300000&port=65536");
 		response = wc.getResponse(request);
 		
-		assertEquals("Check port alert3.", ErrorMessages.PORT_FORMAT_ERROR, wc.popNextAlert());
+		assertEquals("Check port alert3.", ErrorMessages.PORT_NUMBER_TOO_BIG, wc.popNextAlert());
 		assertEquals("Check no more alerts.", "", wc.popNextAlert());
 	}
 
@@ -222,7 +222,7 @@ public class IPandPortEntryTest extends TestCase
 				+ "?start=0&end=300000&remote_port=65536");
 		response = wc.getResponse(request);
 		
-		assertEquals("Check remote port alert3.", ErrorMessages.PORT_FORMAT_ERROR, wc.popNextAlert());
+		assertEquals("Check remote port alert3.", ErrorMessages.PORT_NUMBER_TOO_BIG, wc.popNextAlert());
 		assertEquals("Check no more alerts.", "", wc.popNextAlert());
 	}
 	public static Test suite()

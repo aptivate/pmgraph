@@ -352,7 +352,7 @@ public class RequestParams
 			}
 			if(port > 65535)
 			{
-				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
+				throw new PageUrlException(ErrorMessages.PORT_NUMBER_TOO_BIG);
 			}
 		}
 	}
@@ -418,7 +418,7 @@ public class RequestParams
 			}
 			if (port > 65535)
 			{
-				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
+				throw new PageUrlException(ErrorMessages.PORT_NUMBER_TOO_BIG);
 			}
 
 		}
