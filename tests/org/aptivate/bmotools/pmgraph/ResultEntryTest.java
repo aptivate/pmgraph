@@ -31,8 +31,6 @@ public class ResultEntryTest extends TestCase
 	/* This test tests the No of Results Entry */
 	public void testCheckResultsEntry() throws Exception
 	{
-		final String RESULT_LIMIT_FORMAT_ERROR = "ResultLimit parameter should by a number ! \n" + 
-		" Default resultLimit value assumed.";
 		final String defaultResults = "" + Configuration.getResultLimit();
 
 		// Open a graph page
@@ -66,7 +64,7 @@ public class ResultEntryTest extends TestCase
 				+ "?start=0&end=300000&resultLimit=p");
 		response = wc.getResponse(request);
 		
-		assertEquals("Check result alert.", RESULT_LIMIT_FORMAT_ERROR, wc.popNextAlert());
+		assertEquals("Check result alert.", ErrorMessages.RESULT_LIMIT_FORMAT_ERROR, wc.popNextAlert());
 		assertEquals("Check no more alerts.", "", wc.popNextAlert());
 		
 		// Should now be set to default value and give no error when submitted
@@ -83,7 +81,7 @@ public class ResultEntryTest extends TestCase
 				+ "?start=0&end=300000&resultLimit=-6");
 		response = wc.getResponse(request);
 		
-		assertEquals("Check -ve result alert.", RESULT_LIMIT_FORMAT_ERROR, wc.popNextAlert());
+		assertEquals("Check -ve result alert.", ErrorMessages.RESULT_LIMIT_FORMAT_ERROR, wc.popNextAlert());
 		
     	assertEquals("Check no more alerts.", "", wc.popNextAlert());
 
