@@ -22,12 +22,12 @@ import com.meterware.httpunit.WebResponse;
  * @author noeg
  * 
  */
-public class TimeFormTest extends TestCase
+public class TimeFormEntryTest extends TestCase
 {
 
 	private TestUtils m_testUtil;
 
-	public TimeFormTest() throws Exception
+	public TimeFormEntryTest() throws Exception
 	{
 		m_testUtil = new TestUtils();
 		// Create a table and insert rows into it
@@ -186,6 +186,6 @@ public class TimeFormTest extends TestCase
 
 	public static Test suite()
 	{
-		return new TestSuite(TimeFormTest.class);
+		return new TestSuite(TimeFormEntryTest.class);
 	}
 }
