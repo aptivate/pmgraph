@@ -200,7 +200,7 @@ public class QueryBuilder
 		m_listData.clear();
 	}
 	
-	protected void finalize()
+	void releaseConnection()
 	{
 		try
 		{
