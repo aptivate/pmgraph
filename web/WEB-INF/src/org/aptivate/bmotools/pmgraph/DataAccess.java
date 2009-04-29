@@ -27,8 +27,6 @@ import org.apache.log4j.Logger;
  */
 class DataAccess
 {
-	private QueryBuilder m_queryBuilder;
-	
 	private Logger m_logger = Logger.getLogger(DataAccess.class
 			.getName());
 
@@ -45,8 +43,7 @@ class DataAccess
 	DataAccess() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException
 	{
-		m_queryBuilder = new QueryBuilder ();
-
+		
 	}
 	
 	/**
@@ -100,13 +97,15 @@ class DataAccess
 	}
 	
 	List<GraphData> getThroughput(RequestParams requestParams, boolean perMinute) throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException
+			IllegalAccessException, ClassNotFoundException, SQLException, IOException
 	{
-
+		QueryBuilder queryBuilder;
+		queryBuilder = new QueryBuilder ();
+		
 		long initTime = System.currentTimeMillis();
 		ArrayList<GraphData> resultData = new ArrayList<GraphData>();
 				
-		PreparedStatement statement = m_queryBuilder.buildQuery (requestParams, perMinute);
+		PreparedStatement statement = queryBuilder.buildQuery (requestParams, perMinute);
 		
 		m_logger.debug(statement);
 		ResultSet ipResults = statement.executeQuery();
@@ -117,6 +116,7 @@ class DataAccess
 		}
 		ipResults.close();
 		statement.close();
+		queryBuilder.releaseConnection();
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Execution Time in mysql query: " + endTime + " miliseg");	
 		return resultData;
