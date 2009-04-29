@@ -20,7 +20,7 @@ public class AllTests extends TestCase
 		suite.addTest(GraphsTest.suite());
 		suite.addTest(LegendTest.suite());
 		suite.addTest(StartAndEndEntryTest.suite());
-		suite.addTest(TimeFormTest.suite());
+		suite.addTest(TimeFormEntryTest.suite());
 		suite.addTest(ResultEntryTest.suite());
 		suite.addTest(IPandPortEntryTest.suite());
 		suite.addTest(LegendTestPortView.suite());
