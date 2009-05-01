@@ -146,3 +146,7 @@ select {
 input {
 	text-align: right;
 }
+.text_overflow {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
