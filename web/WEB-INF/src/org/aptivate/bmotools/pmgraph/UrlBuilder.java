@@ -13,9 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 public class UrlBuilder
 {
 
-	private final String m_indexURL = "/pmgraph/index.jsp";
+	private final String m_indexURL = "index.jsp";
 
-	private final String m_servletURL = "/pmgraph/graphservlet";
+	private final String m_servletURL = "graphservlet";
 
 	private final String m_legendURL = "/include/legend.jsp";
 

@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 /**
  * 
  * 
@@ -18,6 +20,7 @@ import java.util.List;
 public class LegendData
 {
 	private DataAccess dataAccess;
+	private Logger m_logger = Logger.getLogger(LegendData.class);
 
 	private class UploadComparator implements Comparator
 	{
@@ -158,18 +161,23 @@ public class LegendData
 								others = new GraphData(null, requestParams.getIp(), 0L,
 										0L, GraphFactory.OTHER_PORT);
 							break;
-						case LOCAL_IP:
-							// Ip view
-							others = new GraphData(GraphFactory.OTHER_IP, 0L, 0L);
-						break;
 						case REMOTE_IP:
 							// Ip view
 							others = new GraphData(null,
 									requestParams.getIp(),GraphFactory.OTHER_IP, 0L, 0L);
-
+							break;							
+						default:
+						case LOCAL_IP:
+							// Ip view
+							others = new GraphData(GraphFactory.OTHER_IP, 0L, 0L);
+							break;
 					}
 						
 				}
+				m_logger.debug ("Legend view: " + requestParams.getView());
+				m_logger.debug ("other: " + others);
+				
+				
 				others.setUploaded(others.getUploaded()
 						+ portResult.getUploaded());
 				others.setDownloaded(others.getDownloaded()
