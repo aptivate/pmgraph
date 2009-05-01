@@ -1,7 +1,7 @@
 drop database if exists pmacct;
 create database pmacct;
 
-GRANT SELECT,INSERT ON pmacct.* TO 'pmacct'@'localhost' identified by 'secret';
+GRANT SELECT,INSERT, LOCK TABLES ON pmacct.* TO 'pmacct'@'localhost' identified by 'secret';
 
 use pmacct;
 
