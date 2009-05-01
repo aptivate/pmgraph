@@ -19,7 +19,7 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 /**
- * Tests the error messages are shown correctly.
+ * Tests the error messages are shown correctly
  * @author sylviaw 
  *
  */
