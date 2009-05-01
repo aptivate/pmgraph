@@ -235,7 +235,7 @@ public class LegendTest extends LegendTestBase
 
 		// the default is 'sort by download DESC', the sortLink is opposite to
 		// the DESC
-		String sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=LOCAL_IP";
+		String sortLink = "index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=LOCAL_IP";
 
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
@@ -244,7 +244,7 @@ public class LegendTest extends LegendTestBase
 						+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15");
 		response = wc.getResponse(request);
 		link = response.getLinkWithName("downloaded");
-		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=LOCAL_IP";
+		sortLink = "index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=LOCAL_IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		// Get the table data from the page
@@ -266,7 +266,7 @@ public class LegendTest extends LegendTestBase
 						+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15");
 		response = wc.getResponse(request);
 		link = response.getLinkWithName("uploaded");
-		sortLink = "/pmgraph/index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&view=LOCAL_IP";
+		sortLink = "index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&view=LOCAL_IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
