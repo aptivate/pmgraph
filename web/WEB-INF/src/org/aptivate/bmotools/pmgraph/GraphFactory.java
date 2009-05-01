@@ -315,6 +315,7 @@ public class GraphFactory
 			long theEnd)
 	{
 
+		m_logger.info("Create Jfreechart Graph instance");
 		JFreeChart chart = ChartFactory.createStackedXYAreaChart(title, // chart
 				// title
 				"Category", // domain axis label
@@ -323,6 +324,9 @@ public class GraphFactory
 				PlotOrientation.VERTICAL, // orientation
 				true, // include legend
 				true, false);
+		
+		m_logger.info("Graph already created.");
+		
 		XYPlot plot = chart.getXYPlot();
 
 		DateAxis xAxis;
