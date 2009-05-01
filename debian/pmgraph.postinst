@@ -27,4 +27,11 @@ echo Configuring pmacct to work with mysql database and use pmacct user...
 test -s /etc/pmacct/pmacctd.conf && mv /etc/pmacct/pmacctd.conf /etc/pmacct/pmacctd.conf.old
 echo -e \\t* Current pmacct config file moved to /etc/pmacct/pmacctd.conf.old.
 cp /usr/share/pmgraph/conf/pmacctd.conf /etc/pmacct/pmacctd.conf
-        
+ 
+db_get pmgraph/java_security
+if [ "$RET" = "true" ]; then
+	JAVASECURITY=`grep -B1 TOMCAT5_SECURITY /etc/default/tomcat5.5 | grep -v \# | sed -e 's/.*=//'`
+	if [ "$JAVASECURITY" != "no" ]; then
+		echo "TOMCAT5_SECURITY=no" >> /etc/default/tomcat5.5
+	fi
+fi
