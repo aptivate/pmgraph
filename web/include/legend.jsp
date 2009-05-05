@@ -54,21 +54,26 @@
 		col3 = col3 + arrow;
 	
 	LegendData legendData = new LegendData();
-	results = legendData.getLegendData(sortBy, order,pageUrl.getParams());
+	results = legendData.getLegendData(sortBy, order, pageUrl.getParams());
 %>
 <table id="legend_tbl">
 		<tr class="legend_th">
 		    <td></td>
 		    <%switch (pageUrl.getParams().getView()) {		
-				case LOCAL_PORT:
+				case LOCAL_PORT:        %>
+                    <td rowspan="2">Local Port</td>
+                <%break;
 				case REMOTE_PORT:		%>
-	                <td rowspan="2">Port</td>	            
+	                <td rowspan="2">Remote Port</td>	            
             <%break;
 	            default:
-				case LOCAL_IP:	
-				case REMOTE_IP:	%>
-	            <td rowspan="2">Host IP</td>
-	            <td rowspan="2">Host Name</td>
+				case LOCAL_IP:  %>
+				    <td rowspan="2">Local IP</td>
+	                <td rowspan="2">Local Host Name</td>
+ 	        <%break;
+			    case REMOTE_IP:	%>
+	                <td rowspan="2">Remote IP</td>
+ 	                <td rowspan="2">Remote Host Name</td>
             <%} %>
             <td colspan="2" class="center">
              <a name="bytes_total" 
