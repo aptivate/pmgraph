@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 public class LegendData
 {
 	private DataAccess dataAccess;
+
 	private Logger m_logger = Logger.getLogger(LegendData.class);
 
 	private class UploadComparator implements Comparator
@@ -96,8 +97,7 @@ public class LegendData
 					return (new UploadComparator(true));
 				else
 					return (new UploadComparator(false));
-			}
-			else
+			} else
 			{
 				if (QueryBuilder.BYTES.equalsIgnoreCase(sortby))
 				{
@@ -105,8 +105,7 @@ public class LegendData
 						return (new BytesTotalComparator(true));
 					else
 						return (new BytesTotalComparator(false));
-				}
-				else
+				} else
 				{
 					if (QueryBuilder.DOWNLOADED.equalsIgnoreCase(sortby))
 					{
@@ -129,8 +128,8 @@ public class LegendData
 	 * @param order
 	 * @param pageUrl
 	 * @param isPort
-	 * @return A List<GraphData> limited to the number of results requested by 
-	 * the user and sorted propertly.
+	 * @return A List<GraphData> limited to the number of results requested by
+	 *         the user and sorted propertly.
 	 * @throws SQLException
 	 */
 	private List<GraphData> limitList(List<GraphData> dataList, String sortBy,
@@ -144,12 +143,12 @@ public class LegendData
 			if (i < requestParams.getResultLimit())
 			{
 				legendData.add(portResult);
-			}
-			else
+			} else
 			{
 				if (i == requestParams.getResultLimit())
 				{
-					switch (requestParams.getView()) {
+					switch (requestParams.getView())
+					{
 						case LOCAL_PORT:
 							others = new GraphData(null, GraphFactory.OTHER_IP,
 									0L, 0L, GraphFactory.OTHER_PORT);
@@ -157,27 +156,27 @@ public class LegendData
 						case REMOTE_PORT:
 							// For port views constructor is diferent
 							// Is for a specific IP get the Ip from the request
-							if (requestParams.getIp() != null)
-								others = new GraphData(null, requestParams.getIp(), 0L,
-										0L, GraphFactory.OTHER_PORT);
+							others = new GraphData(null, requestParams.getIp(),
+									0L, 0L);
+							others.setRemotePort(GraphFactory.OTHER_PORT);
 							break;
 						case REMOTE_IP:
 							// Ip view
-							others = new GraphData(null,
-									requestParams.getIp(),GraphFactory.OTHER_IP, 0L, 0L);
-							break;							
+							others = new GraphData(null, requestParams.getIp(),
+									GraphFactory.OTHER_IP, 0L, 0L);
+							break;
 						default:
 						case LOCAL_IP:
 							// Ip view
-							others = new GraphData(GraphFactory.OTHER_IP, 0L, 0L);
+							others = new GraphData(GraphFactory.OTHER_IP, 0L,
+									0L);
 							break;
 					}
-						
+
 				}
-				m_logger.debug ("Legend view: " + requestParams.getView());
-				m_logger.debug ("other: " + others);
-				
-				
+				m_logger.debug("Legend view: " + requestParams.getView());
+				m_logger.debug("other: " + others);
+
 				others.setUploaded(others.getUploaded()
 						+ portResult.getUploaded());
 				others.setDownloaded(others.getDownloaded()
@@ -210,21 +209,22 @@ public class LegendData
 	 * @param sortBy
 	 * @param order
 	 * @param requestParams
-	 * @return The generated List containing the data that should be 
-	 * showed on the legend when the graph is a legend data graph.
+	 * @return The generated List containing the data that should be showed on
+	 *         the legend when the graph is a legend data graph.
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public List<GraphData> getLegendData(String sortBy,
-			String order, RequestParams requestParams) throws ClassNotFoundException,
+	public List<GraphData> getLegendData(String sortBy, String order,
+			RequestParams requestParams) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException
 	{
 
-		List<GraphData> ipResults = dataAccess.getThroughput(requestParams, false);
+		List<GraphData> ipResults = dataAccess.getThroughput(requestParams,
+				false);
 		// allways sort using Bytes total to have same order that in the graph
 		Collections.sort(ipResults, new BytesTotalComparator(true));
 
