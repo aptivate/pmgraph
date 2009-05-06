@@ -1,6 +1,7 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
+import java.security.AccessControlException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -50,19 +51,19 @@ public class GraphServlet extends HttpServlet
 			// Get the parameters for graph building from the request string
 			// TODO make these conditionals...
 			String graphType = request.getParameter("graph");
-			Integer width = Integer.valueOf (request.getParameter("width"));
-			Integer height = Integer.valueOf (request.getParameter("height"));
-			
+			Integer width = Integer.valueOf(request.getParameter("width"));
+			Integer height = Integer.valueOf(request.getParameter("height"));
+
 			UrlBuilder pageUrl = new UrlBuilder();
 			try
-			{ 
-				 pageUrl.setParameters(request);
-			}	
+			{
+				pageUrl.setParameters(request);
+			}
 			catch (PageUrlException e)
 			{
 				e.printStackTrace();
-			}		
-			
+			}
+
 			GraphFactory graphFactory = new GraphFactory();
 
 			// Create graph of appropriate type
@@ -72,16 +73,31 @@ public class GraphServlet extends HttpServlet
 			}
 			else if (graphType.equals("cumul"))
 			{
-				
-				chart = graphFactory.stackedThroughputGraph(pageUrl.getParams());	
-				
+
+				chart = graphFactory
+						.stackedThroughputGraph(pageUrl.getParams());
+
 			}
 			// If chart created write as png
 			if (chart != null)
 			{
 				res.setContentType("image/png");
-				ChartUtilities.writeChartAsPNG(res.getOutputStream(), chart,
-						width, height);
+				try
+				{
+					ChartUtilities.writeChartAsPNG(res.getOutputStream(),
+							chart, width, height);
+				}
+				catch (AccessControlException e)
+				{
+					m_logger.fatal(
+							ErrorMessages.JFREECHART_ERROR_JAVA_SECURITY, e);
+				}
+				catch (NoClassDefFoundError e)
+				{
+					m_logger.fatal(
+							ErrorMessages.JAVA_AWT_LIBRARY_ERROR_JAVA_SECURITY,
+							e);
+				}
 			}
 			else
 			{

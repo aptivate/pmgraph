@@ -47,8 +47,7 @@ import org.jfree.data.xy.XYSeries;
 public class GraphFactory
 {
 
-	private Logger m_logger = Logger.getLogger(GraphFactory.class
-			.getName());
+	private Logger m_logger = Logger.getLogger(GraphFactory.class.getName());
 
 	public static final int OTHER_PORT = -1;
 
@@ -83,8 +82,9 @@ public class GraphFactory
 	 * @param renderer
 	 * @param minutes
 	 * @param start
-	 * @return A Initialize a series for a port graph with all the values to zero and add
-	 * it to the datase and to the hashmap containing all the series.
+	 * @return A Initialize a series for a port graph with all the values to
+	 *         zero and add it to the datase and to the hashmap containing all
+	 *         the series.
 	 */
 	private XYSeries InizializeSeries(String name, String id,
 			DefaultTableXYDataset dataset,
@@ -103,7 +103,8 @@ public class GraphFactory
 		// Set the same color for the upload and download series of an
 		// port
 		Color color;
-		switch (view) {
+		switch (view)
+		{
 			case LOCAL_PORT:
 			case REMOTE_PORT:
 				color = getSeriesColor(Integer.valueOf(id));
@@ -119,39 +120,44 @@ public class GraphFactory
 		renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
 		return series;
 	}
-	
+
 	/**
-	 *  Create the chart title taking into account the request type.
-	 *  
+	 * Create the chart title taking into account the request type.
+	 * 
 	 * @param requestParams
-	 * @returnNewVolunteerProcess.CoderEmailText 
+	 * @returnNewVolunteerProcess.CoderEmailText
 	 */
-	private String chartTitle (RequestParams requestParams) {
-		String title= "";
-		
-		 if (requestParams.getIp() != null) {
-			 title = " For Local Ip = "+requestParams.getIp();
-		 }
-		 if (requestParams.getPort() != null) {
-			 title += " For Local Port = "+ requestParams.getPort();
-		 }
-		return "Network Throughput" + title;		
+	private String chartTitle(RequestParams requestParams)
+	{
+		String title = "";
+
+		if (requestParams.getIp() != null)
+		{
+			title = " For Local Ip = " + requestParams.getIp();
+		}
+		if (requestParams.getPort() != null)
+		{
+			title += " For Local Port = " + requestParams.getPort();
+		}
+		return "Network Throughput" + title;
 	}
-	
+
 	/**
 	 * 
 	 * @param pageUrl
 	 * @param graphData
 	 * @return
 	 */
-	private String serieId (RequestParams requestParams, GraphData graphData) {
-		
-		switch (requestParams.getView()) {
+	private String serieId(RequestParams requestParams, GraphData graphData)
+	{
+
+		switch (requestParams.getView())
+		{
 			case LOCAL_PORT:
 				return graphData.getPort().toString();
 			case REMOTE_PORT:
 				return graphData.getRemotePort().toString();
-				
+
 			default:
 			case LOCAL_IP:
 				return graphData.getLocalIp().trim();
@@ -160,26 +166,27 @@ public class GraphFactory
 		}
 
 	}
-	
+
 	/**
 	 * 
 	 * @param requestParams
 	 * @return
 	 */
-	private Color serieOtherColor (RequestParams requestParams) {
-		
-		switch (requestParams.getView()) {
+	private Color serieOtherColor(RequestParams requestParams)
+	{
+
+		switch (requestParams.getView())
+		{
 			case LOCAL_PORT:
 			case REMOTE_PORT:
 				return getSeriesColor(OTHER_PORT);
-	
+
 			default:
 			case LOCAL_IP:
 			case REMOTE_IP:
 				return getSeriesColor(OTHER_IP);
 		}
 	}
-	
 
 	/**
 	 * Create a JFreeChart with the data in the List thrptResults creating a new
@@ -194,10 +201,11 @@ public class GraphFactory
 	 * @param title
 	 * @param portGraph
 	 *            The series are Ip's or Ports
-	 * @return A JFreeChart with the data in the List thrptResults creating a new
-	 * series per each port, or Ip
+	 * @return A JFreeChart with the data in the List thrptResults creating a
+	 *         new series per each port, or Ip
 	 */
-	private JFreeChart fillGraph(List<GraphData> thrptResults, RequestParams requestParams)
+	private JFreeChart fillGraph(List<GraphData> thrptResults,
+			RequestParams requestParams)
 	{
 		HashMap<String, XYSeries> graph_XYSeries = new HashMap<String, XYSeries>();
 		HashMap<Long, Long> otherUp = null;
@@ -206,12 +214,11 @@ public class GraphFactory
 		long end = requestParams.getRoundedEndTime();
 		long theStart = requestParams.getStartTime();
 		long theEnd = requestParams.getEndTime();
-		
-		
+
 		String title = chartTitle(requestParams);
 
 		int minutes = (int) (end - start) / 60000;
-		
+
 		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
 		JFreeChart chart = createStackedXYGraph(title, dataset, start, end,
 				theStart, theEnd);
@@ -222,9 +229,9 @@ public class GraphFactory
 		// For each query result, get data and write to the appropriate series
 		for (GraphData thrptResult : thrptResults)
 		{
-			String id =  serieId (requestParams, thrptResult);
+			String id = serieId(requestParams, thrptResult);
 			Timestamp inserted = thrptResult.getTime();
-			 
+
 			// values in the database are in bytes per interval (normally 1
 			// minute)
 			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
@@ -235,10 +242,12 @@ public class GraphFactory
 			// for it
 			if (!graph_XYSeries.containsKey(id + "<down>"))
 			{
-				if (j < requestParams.getResultLimit()) // Is in the Top X results.
+				if (j < requestParams.getResultLimit()) // Is in the Top X
+														// results.
 				{
 					InizializeSeries(id + "<down>", id, dataset,
-							graph_XYSeries, renderer, minutes, start, requestParams.getView());
+							graph_XYSeries, renderer, minutes, start,
+							requestParams.getView());
 					InizializeSeries(id + "<up>", id, dataset, graph_XYSeries,
 							renderer, minutes, start, requestParams.getView());
 				}
@@ -277,7 +286,7 @@ public class GraphFactory
 						+ (0 - uploaded));
 			}
 		}
-		// Other Group 
+		// Other Group
 		if (otherUp != null) // if exist data for the other group.
 		{
 			XYSeries downSeries = new XYSeries("other <down>", true, false);
@@ -289,7 +298,7 @@ public class GraphFactory
 				upSeries.add(time, otherUp.get(time));
 
 			}
-			Color color = serieOtherColor (requestParams);			
+			Color color = serieOtherColor(requestParams);
 			dataset.addSeries(downSeries);
 			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
 			dataset.addSeries(upSeries);
@@ -324,9 +333,9 @@ public class GraphFactory
 				PlotOrientation.VERTICAL, // orientation
 				true, // include legend
 				true, false);
-		
+
 		m_logger.info("Graph already created.");
-		
+
 		XYPlot plot = chart.getXYPlot();
 
 		DateAxis xAxis;
@@ -482,28 +491,31 @@ public class GraphFactory
 	 * @throws InstantiationException
 	 * @throws IOException
 	 * @throws SQLException
+	 * @throws PageUrlException
 	 */
-	JFreeChart stackedThroughputGraph(RequestParams requestParams) throws ClassNotFoundException,
-			IllegalAccessException, InstantiationException, IOException,
-			SQLException, NoSuchAlgorithmException
+	JFreeChart stackedThroughputGraph(RequestParams requestParams)
+			throws ClassNotFoundException, IllegalAccessException,
+			InstantiationException, IOException, SQLException,
+			NoSuchAlgorithmException, ConfigurationException
 	{
-		
+
 		DataAccess dataAccess = new DataAccess();
-		List<GraphData> thrptResults = dataAccess.getThroughput(
-				requestParams, true);
-		
+		List<GraphData> thrptResults = dataAccess.getThroughput(requestParams,
+				true);
+
 		m_logger.debug("Start creating chart.");
 		long initTime = System.currentTimeMillis();
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
-				
-		JFreeChart chart = fillGraph(thrptResults,
-				requestParams);
-		
-		if (m_logger.isDebugEnabled()) {
+
+		JFreeChart chart = fillGraph(thrptResults, requestParams);
+
+		if (m_logger.isDebugEnabled())
+		{
 			long endTime = System.currentTimeMillis() - initTime;
-			m_logger.debug("Execution Time creating chart : " + endTime + " miliseg");
+			m_logger.debug("Execution Time creating chart : " + endTime
+					+ " miliseg");
 		}
-		thrptResults=null;
+		thrptResults = null;
 		return chart;
 	}
 }

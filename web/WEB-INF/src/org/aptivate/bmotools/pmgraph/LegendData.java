@@ -97,7 +97,8 @@ public class LegendData
 					return (new UploadComparator(true));
 				else
 					return (new UploadComparator(false));
-			} else
+			}
+			else
 			{
 				if (QueryBuilder.BYTES.equalsIgnoreCase(sortby))
 				{
@@ -105,7 +106,8 @@ public class LegendData
 						return (new BytesTotalComparator(true));
 					else
 						return (new BytesTotalComparator(false));
-				} else
+				}
+				else
 				{
 					if (QueryBuilder.DOWNLOADED.equalsIgnoreCase(sortby))
 					{
@@ -143,7 +145,8 @@ public class LegendData
 			if (i < requestParams.getResultLimit())
 			{
 				legendData.add(portResult);
-			} else
+			}
+			else
 			{
 				if (i == requestParams.getResultLimit())
 				{
@@ -216,11 +219,12 @@ public class LegendData
 	 * @throws InstantiationException
 	 * @throws IOException
 	 * @throws SQLException
+	 * @throws PageUrlException
 	 */
 	public List<GraphData> getLegendData(String sortBy, String order,
 			RequestParams requestParams) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
-			SQLException
+			SQLException, ConfigurationException
 	{
 
 		List<GraphData> ipResults = dataAccess.getThroughput(requestParams,
