@@ -14,21 +14,17 @@ import org.apache.log4j.Logger;
  * 
  * History:
  * 
- * 	11-03-2009	Modified by Noe A. Rodriguez Glez. 
- * 	
- * 		Removed static methods in order to make the class threadsave.
- * 		Use of a Configuration class which contains all configuration 
- * 		data.
- * 		Add coments.
- * 		Log4java logging
-		Avoided Order By querys in order to reduce execution time, now
-		all sortening is doing using Collection.sort.
- *
+ * 11-03-2009 Modified by Noe A. Rodriguez Glez.
+ * 
+ * Removed static methods in order to make the class threadsave. Use of a
+ * Configuration class which contains all configuration data. Add coments.
+ * Log4java logging Avoided Order By querys in order to reduce execution time,
+ * now all sortening is doing using Collection.sort.
+ * 
  */
 class DataAccess
 {
-	private Logger m_logger = Logger.getLogger(DataAccess.class
-			.getName());
+	private Logger m_logger = Logger.getLogger(DataAccess.class.getName());
 
 	/**
 	 * Create the connection object and set the m_localSubnet to the subnet
@@ -43,9 +39,9 @@ class DataAccess
 	DataAccess() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException
 	{
-		
+
 	}
-	
+
 	/**
 	 * Get a list of GraphData containing the total THROUGHPUT for the IP's
 	 * which match with the m_localSubnet atribute and are between stard and end
@@ -69,44 +65,39 @@ class DataAccess
 			InstantiationException, IOException, SQLException
 	{
 		ArrayList<GraphData> resultData = new ArrayList<GraphData>();
-/*
-		// Round our times to the nearest minute
-		start = start - (start % 60000);
-		end = end - (end % 60000);
-		// Prepare and execute the SQL query
-		PreparedStatement statement = m_conn
-				.prepareStatement(GraphUtilities.THROUGHPUT_PER_MINUTE);
-		statement.setString(1, m_localSubnet + "%");
-		statement.setString(2, m_localSubnet + "%");
-		statement.setString(3, m_localSubnet + "%");
-		statement.setString(4, m_localSubnet + "%");
-		statement.setString(5, m_localSubnet + "%");
-		statement.setString(6, m_localSubnet + "%");
-		statement.setTimestamp(7, new Timestamp(start));
-		statement.setTimestamp(8, new Timestamp(end));
-		m_logger.debug(statement);
-		ResultSet results = statement.executeQuery();
-		while (results.next())
-		{
-			resultData.add(new GraphData(results));
-
-		}
-		statement.close();
-*/
+		/*
+		 * // Round our times to the nearest minute start = start - (start %
+		 * 60000); end = end - (end % 60000); // Prepare and execute the SQL
+		 * query PreparedStatement statement = m_conn
+		 * .prepareStatement(GraphUtilities.THROUGHPUT_PER_MINUTE);
+		 * statement.setString(1, m_localSubnet + "%"); statement.setString(2,
+		 * m_localSubnet + "%"); statement.setString(3, m_localSubnet + "%");
+		 * statement.setString(4, m_localSubnet + "%"); statement.setString(5,
+		 * m_localSubnet + "%"); statement.setString(6, m_localSubnet + "%");
+		 * statement.setTimestamp(7, new Timestamp(start));
+		 * statement.setTimestamp(8, new Timestamp(end));
+		 * m_logger.debug(statement); ResultSet results =
+		 * statement.executeQuery(); while (results.next()) { resultData.add(new
+		 * GraphData(results));
+		 *  } statement.close();
+		 */
 		return resultData;
 	}
-	
-	List<GraphData> getThroughput(RequestParams requestParams, boolean perMinute) throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException, IOException
+
+	List<GraphData> getThroughput(RequestParams requestParams, boolean perMinute)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException, IOException,
+			ConfigurationException
 	{
 		QueryBuilder queryBuilder;
-		queryBuilder = new QueryBuilder ();
-		
+		queryBuilder = new QueryBuilder();
+
 		long initTime = System.currentTimeMillis();
 		ArrayList<GraphData> resultData = new ArrayList<GraphData>();
-				
-		PreparedStatement statement = queryBuilder.buildQuery (requestParams, perMinute);
-		
+
+		PreparedStatement statement = queryBuilder.buildQuery(requestParams,
+				perMinute);
+
 		m_logger.debug(statement);
 		ResultSet ipResults = statement.executeQuery();
 		while (ipResults.next())
@@ -118,8 +109,9 @@ class DataAccess
 		statement.close();
 		queryBuilder.releaseConnection();
 		long endTime = System.currentTimeMillis() - initTime;
-		m_logger.debug("Execution Time in mysql query: " + endTime + " miliseg");	
+		m_logger
+				.debug("Execution Time in mysql query: " + endTime + " miliseg");
 		return resultData;
-	}	
+	}
 
 }

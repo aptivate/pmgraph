@@ -150,3 +150,13 @@ input {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+.error_panel {
+	
+	background-color: #f86c6c;
+	width:  80%;
+	border: solid red 2px;
+	margin: 0 auto;
+	padding: 3px;
+	margin-bottom: 1em;
+	
+}

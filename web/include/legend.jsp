@@ -18,7 +18,7 @@
     long othersDownloaded = 0;
 	long othersUploaded = 0;
 	String othersFillColour="";
-	List<GraphData> results ;
+	List<GraphData> results = new ArrayList<GraphData>();
     
     //sortBy = downloaded | uploaded |total_byties
 	String sortBy = request.getParameter("sortBy");
@@ -29,18 +29,8 @@
     UrlBuilder pageUrl = new UrlBuilder();
 
     // Input Validation
-    String errorMsg = null;    
+    String errorMsg = null, configError= null;    
 	
-	// Validate Parameters
-	try
-	{ 
-		 pageUrl.setParameters(request);
-	}	
-	catch (PageUrlException e)
-	{
-		errorMsg = e.getMessage();
-	}	
-
 	String arrow = order.equals("ASC")?" &#8679;":" &#8681;";
 	String col1 = "Downloaded";
 	String col2 = "Uploaded";
@@ -52,10 +42,24 @@
 		col2 = col2 + arrow;	
 	if ("bytes_total".equals(sortBy))
 		col3 = col3 + arrow;
-	
-	LegendData legendData = new LegendData();
-	results = legendData.getLegendData(sortBy, order, pageUrl.getParams());
+   
+    // Validate Parameters
+	try
+	{ 
+		pageUrl.setParameters(request);
+		LegendData legendData = new LegendData();
+		results = legendData.getLegendData(sortBy, order,pageUrl.getParams());
+	}	
+	catch (PageUrlException e)
+	{
+		errorMsg = e.getMessage();
+	}	
+	catch (	ConfigurationException e)
+	{
+		configError = e.getMessage();
+	}	
 %>
+<%@page import="java.util.ArrayList"%>
 <table id="legend_tbl">
 		<tr class="legend_th">
 		    <td></td>
@@ -168,5 +172,10 @@
 				}			  
 			  break;
 		  }
-			%>
+%>
 </table>
+<% if (configError != null) { %>
+	<div class="error_panel">
+		<%=configError %>
+	</div>
+<%} %>

@@ -2,7 +2,7 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.security.AccessControlException;
 
 import org.apache.log4j.Logger;
 import org.talamonso.OMAPI.Connection;
@@ -45,14 +45,16 @@ public class HostResolver
 		}
 		catch (OmapiInitException e)
 		{
-			m_logger.info("Unable to get a connection to DHCP server possible wrong address (DHCP name resolution disabled)",
-							e);
+			m_logger.info("Unable to get a connection to DHCP server "
+					+ "possible wrong address (DHCP name resolution disabled)",
+					e);
 			this.m_connection = null;
 		}
 		catch (OmapiConnectionException e)
 		{
-			m_logger.info("Unable to connect to DHCP server possible key wrong or server disable (DHCP name resolution disabled)",
-							e);
+			m_logger.info("Unable to connect to DHCP server possible "
+					+ "key wrong or server disable (DHCP name resolution "
+					+ "disabled)", e);
 			this.m_connection = null;
 		}
 	}
@@ -71,14 +73,23 @@ public class HostResolver
 	 */
 	public String getHostname(String IpAddress)
 	{
+		String hostName = "Unknown Host";
 
 		try
 		{
 			InetAddress inetadress = Address.getByAddress(IpAddress);
-			return Address.getHostName(inetadress);
+			hostName = Address.getHostName(inetadress);
 		}
-		catch (UnknownHostException e)
+		catch (java.lang.Error e)
 		{
+			m_logger.error(ErrorMessages.DNS_ERROR_JAVA_SECURITY);
+			m_logger.error(e);
+		}
+		catch (Exception e)
+		{
+			if (e instanceof AccessControlException)
+				m_logger.error(ErrorMessages.DNS_ERROR_JAVA_SECURITY, e);
+
 			m_logger.debug("Unknown host using DNS trying DHCP.");
 			// Lets try using DHCP cause we can't get any info with DNS
 
@@ -94,12 +105,12 @@ public class HostResolver
 				}
 				catch (OmapiException e1)
 				{
-					m_logger.info("Hostname not found using DNS and DHCP unknown host returned.",
-									e1);
+					m_logger.info("Hostname not found using "
+							+ "DNS and DHCP unknown host returned.", e1);
 				}
 			}
 		}
-		return ("Unknown Host");
+		return (hostName);
 	}
 
 	protected void finalize()
