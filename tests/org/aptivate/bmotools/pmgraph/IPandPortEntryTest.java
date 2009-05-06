@@ -31,7 +31,6 @@ public class IPandPortEntryTest extends TestCase
 	/* This test tests Selected Local IP */
 	public void testCheckIPEntry() throws Exception
 	{
-		// Open a graph page
 		// Create a conversation
 		WebConversation wc = new WebConversation();
 
@@ -42,11 +41,10 @@ public class IPandPortEntryTest extends TestCase
 
 		WebForm theForm = response.getFormWithID("SetDateAndTime");
 
-		assertNotNull("Check if there is text box Selected Ip.", response
-				.getElementWithID("ip"));
+		assertNotNull("Check if there is text box Selected Ip.", response.getElementWithID("ip"));
 		
-		assertEquals("Check the ip initial value.","10.0.156.120", response
-				.getElementWithID("ip").getAttribute("value"));
+		assertEquals("Check the ip initial value.","10.0.156.120", response.getElementWithID("ip")
+																		   .getAttribute("value"));
 
 		// Check valid values
 		response.getElementWithID("ip").setAttribute("value", "10.0.156.121");
@@ -76,13 +74,18 @@ public class IPandPortEntryTest extends TestCase
 		
 		assertEquals("Check IP alert3.", ErrorMessages.IP_FORMAT_ERROR, wc.popNextAlert());
 		assertEquals("Check no more alerts.", "", wc.popNextAlert());
-
+		
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?start=0&end=300000&ip=10.0..156.250");
+		response = wc.getResponse(request);
+		
+		assertEquals("Check IP alert4.", ErrorMessages.IP_FORMAT_ERROR, wc.popNextAlert());
+		assertEquals("Check no more alerts.", "", wc.popNextAlert());
 	}
 	
 	/* This test tests Selected Remote IP */
 	public void testCheckRemoteIPEntry() throws Exception
 	{
-		// Open a graph page
 		// Create a conversation
 		WebConversation wc = new WebConversation();
 
@@ -126,12 +129,18 @@ public class IPandPortEntryTest extends TestCase
 		
 		assertEquals("Check remote IP alert3.", ErrorMessages.IP_FORMAT_ERROR, wc.popNextAlert());
 		assertEquals("Check no more alerts.", "", wc.popNextAlert());
+		
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?start=0&end=300000&remote_ip=4.250..2.10");
+		response = wc.getResponse(request);
+		
+		assertEquals("Check remote IP alert4.", ErrorMessages.IP_FORMAT_ERROR, wc.popNextAlert());
+		assertEquals("Check no more alerts.", "", wc.popNextAlert());
 	}
 	
 	/* This test tests Selected Local Port */
 	public void testCheckPort() throws Exception
 	{
-		// Open a graph page
 		// Create a conversation
 		WebConversation wc = new WebConversation();
 
@@ -180,7 +189,6 @@ public class IPandPortEntryTest extends TestCase
 	/* This test tests Selected Remote Port */
 	public void testCheckRemotePort() throws Exception
 	{
-		// Open a graph page
 		// Create a conversation
 		WebConversation wc = new WebConversation();
 
