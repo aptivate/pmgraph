@@ -76,20 +76,26 @@ public class RequestParams
 		m_view = view;
 	}
 	
-	void setStart (long start) {
+	void setStart (long start) 
+	{
 		m_fromDateAndTime = new Date (start);
 	}
-	void setEnd (long end) {
+	
+	void setEnd (long end) 
+	{
 		m_toDateAndTime = new Date (end);
 	}	
 
-	public String getGraph(){
+	public String getGraph()
+	{
 		return m_graph;
 	}
 	
-	public String getReport(){
+	public String getReport()
+	{
 		return m_report;
 	}
+	
 	public String getFromDateAsString()
 	{
 
@@ -98,19 +104,16 @@ public class RequestParams
 
 	public String getToDateAsString()
 	{
-
 		return (getDateAsString(m_toDateAndTime));
 	}
 
 	public String getFromTimeAsString()
 	{
-
 		return (getTimeAsString(m_fromDateAndTime));
 	}
 
 	public String getToTimeAsString()
 	{
-
 		return (getTimeAsString(m_toDateAndTime));
 	}
 
@@ -167,7 +170,6 @@ public class RequestParams
 	private String getDateAsString(Date date)
 	{
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy");
-
 		return dateTimeFormat.format(date);
 	}
 
@@ -285,21 +287,18 @@ public class RequestParams
 			try
 			{
 				
-				m_resultLimit = Integer.parseInt(request
-						.getParameter("resultLimit"));
+				m_resultLimit = Integer.parseInt(request.getParameter("resultLimit"));
 			}
 			catch (NumberFormatException e)
 			{
 				m_resultLimit = Configuration.getResultLimit();
-				throw new PageUrlException(
-						ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
+				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
 
 			if (m_resultLimit < 0)
 			{
 				m_resultLimit = Configuration.getResultLimit();
-				throw new PageUrlException(
-						ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
+				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
 		}
 		else
@@ -321,7 +320,8 @@ public class RequestParams
 	{
 		Integer port;
 
-		if ((request.getParameter("ip") != null) && (!"".equalsIgnoreCase(request.getParameter("ip"))))
+		if ((request.getParameter("ip") != null) 
+				&& (!"".equalsIgnoreCase(request.getParameter("ip"))))
 		{
 			if (isValidIP(request.getParameter("ip")))
 			{ 
@@ -332,7 +332,6 @@ public class RequestParams
 		    	throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
 		    }
 	    }
-
 		
 		if ((request.getParameter("port") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("port"))))
@@ -357,18 +356,28 @@ public class RequestParams
 		}
 	}
 
-	private boolean isValidIP(String ip) throws NumberFormatException {
+	private boolean isValidIP(String ip) throws NumberFormatException
+	{
 		//IP address should have format n.n.n.n where n is in the range 0-255
-		StringTokenizer st = new StringTokenizer(ip, ".");
-		if ( st.countTokens() != 4) {
+		StringTokenizer initial_st = new StringTokenizer(ip, ".", true);
+		if (initial_st.countTokens() != 7) 
+		{
 			return false;
 		}
 		
-		while (st.hasMoreTokens()) {
+		StringTokenizer st = new StringTokenizer(ip, ".");
+		if (st.countTokens() != 4) 
+		{
+			return false;
+		}
+		
+		while (st.hasMoreTokens()) 
+		{
 			try 
 			{
 				int ipElement = Integer.valueOf(st.nextToken());
-				if (ipElement < 0 || ipElement >255) {
+				if (ipElement < 0 || ipElement > 255) 
+				{
 					return false;
 				}
 			}
@@ -435,7 +444,6 @@ public class RequestParams
 	private void setViewFromRequest(HttpServletRequest request)
 			throws PageUrlException
 	{
-
 		if ((request.getParameter("view") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("view"))))
 		{
@@ -528,7 +536,6 @@ public class RequestParams
 			{
 				throw new PageUrlException(ErrorMessages.START_END_FORMAT_ERROR );
 			}
-		
 		}
 		else
 		{
@@ -551,7 +558,6 @@ public class RequestParams
 
 	private void setDatesDefault()
 	{
-
 		long now = new Date().getTime();
 		m_fromDateAndTime = new Date(now - 180 * 60000);
 		m_toDateAndTime = new Date(now);
@@ -636,5 +642,4 @@ public class RequestParams
 		if (exception != null)
 			throw exception;
 	}
-
 }
