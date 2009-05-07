@@ -64,7 +64,7 @@ abstract class GraphUtilities
 			+ "GROUP BY stamp_inserted, local_ip;";
 
 	/*
-	 * List all the throughput per an especific Ip group by minutes and ports
+	 * List all the throughput per specific Ip group by minutes and ports
 	 */
 	static final String THROUGHPUT_ONE_IP_PER_PORT_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src = ? THEN src_port ELSE dst_port END) AS port, "
@@ -77,7 +77,7 @@ abstract class GraphUtilities
 			+ "GROUP BY stamp_inserted, port;";
 
 	/*
-	 * List all the throughput per an especific Ip group by ports
+	 * List all the throughput per specific Ip, group by ports
 	 */
 	static final String THROUGHPUT_ONE_IP_PER_PORT = "SELECT "
 			+ "(CASE WHEN ip_src = ? THEN src_port ELSE dst_port END) AS port, "
@@ -89,7 +89,7 @@ abstract class GraphUtilities
 			+ "GROUP BY port;";
 
 	/*
-	 * Total throughput per each port Local trafic ommited
+	 * Total throughput per port, Local traffic omitted
 	 */
 	static final String THROUGHPUT_PER_PORT = "SELECT "
 			+ "(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port, "
@@ -101,7 +101,7 @@ abstract class GraphUtilities
 			+ "GROUP BY port;";
 
 	/*
-	 * throughput per each port per minute Local trafic ommited
+	 * throughput per port per minute, Local traffic omitted
 	 */
 	static final String THROUGHPUT_PER_PORT_PER_MINUTE = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port, "
@@ -114,7 +114,7 @@ abstract class GraphUtilities
 			+ "GROUP BY stamp_inserted, port;";
 
 	/*
-	 * List all the throughput per an especific Port group by ip
+	 * List all the throughput per specific Port, group by ip
 	 */
 	static final String THROUGHPUT_ONE_PORT_PER_MINUTE_PER_IP = "SELECT stamp_inserted, "
 			+ "(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, "
@@ -138,7 +138,7 @@ abstract class GraphUtilities
 			+ "GROUP BY local_ip having port = ?;";
 	
 	
-	/* Queries for remote IP for an specific IP and port. 
+	/* Queries for remote IP for a specific IP and port. 
 	 * */
 	static final String THROUGHPUT_PER_MINUTE_ONE_IP_ONE_PORT_REMOTE_IP = "SELECT "
 		+ " stamp_inserted, "
