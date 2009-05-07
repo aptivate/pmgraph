@@ -6,8 +6,8 @@ import java.util.Comparator;
  * 
  * @author Noe A. Rodriguez Glez.
  *
- *  Just a simple comparator to be used when the method of java Collection
- *  are used. This comparator sort the result in a List of GraphData by the
+ *  Just a simple comparator to be used when the methods of java Collection
+ *  are used. This comparator sorts the results in a List of GraphData by the
  *  byteTotal field.
  */
 
