@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 /**
  * @author Noe A. Rodriguez Glez.
  * 
- * Bean which contains a line of the information collected for the pmacct in the
+ * Bean which contains a line of information collected for the pmacct in the
  * data base.
  * 
  */
@@ -32,8 +32,8 @@ public class GraphData
 	private Integer m_remotePort;
 
 	/**
-	 * Create a DbData from a result set taking into acount the columns returned
-	 * by the throught per Ip query.
+	 * Create a GraphData object from a result set using the columns returned
+	 * by the database query.
 	 * 
 	 * @param rs
 	 * @throws SQLException
