@@ -1,8 +1,8 @@
 package org.aptivate.bmotools.pmgraph;
 
 /**
- *  Just a simple exception class to be able to create a 
- *  exception when is not posible to collect data for 
+ *  Just a simple exception class to create an 
+ *  exception when is not possible to collect data for 
  *  the date and time. 
  * @author noeg
  *
