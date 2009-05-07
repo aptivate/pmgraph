@@ -13,13 +13,13 @@ public enum View
 		List<View> views = new ArrayList<View>();
 		
 		for (View view : View.values()) {  // for each view 
-			// if the ip is selected local ip view doesn't have sense
+			// if the ip is selected, local ip view doesn't make sense
 			if ((view == LOCAL_IP) && (requestParams.getIp() != null)) 
 				continue;
 			if ((view == LOCAL_PORT) && (requestParams.getPort() != null)) 
 				continue;
 			
-			// if the remote ip is selected remote ip view doesn't have sense
+			// if the remote ip is selected, remote ip view doesn't make sense
 			if ((view == REMOTE_IP) && (requestParams.getRemoteIp() != null)) 
 				continue;			
 			if ((view == REMOTE_PORT) && (requestParams.getRemotePort() != null)) 
@@ -34,7 +34,7 @@ public enum View
 		for (View view : View.values()) {  // for each view 
 		
 			
-			// if the ip is selected local ip view doesn't have sense
+			// if the ip is selected, local ip view doesn't make sense
 			if (((view == LOCAL_IP) && (requestParams.getIp() != null)) 
 				|| ((view == LOCAL_IP) && ("ip".equals(paramName)))) 
 				continue;
