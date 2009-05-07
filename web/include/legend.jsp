@@ -11,6 +11,7 @@
 <%@ page import="java.net.InetAddress"  %>
 <%@ page import="java.net.UnknownHostException" %>
 <%@ page import="org.aptivate.bmotools.pmgraph.View" %>
+<%@ page import="org.aptivate.bmotools.pmgraph.ConfigurationException" %>
 <%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
 <%
     StringBuffer othersHostName = new StringBuffer("");
