@@ -41,8 +41,8 @@ public class QueryBuilder
 	private List<Object> m_listData;
 
 	/**
-	 * Just get a conection to the database using the Configuration Class to
-	 * obtain the values of the conection string.
+	 * Just get a connection to the database using the Configuration Class to
+	 * obtain the values of the connection string.
 	 * 
 	 * @return java.sql.Connection to database
 	 * @throws InstantiationException
@@ -79,7 +79,7 @@ public class QueryBuilder
 				m_logger.fatal("Java Security Exception: "
 						+ cause.getLocalizedMessage());
 				m_logger
-						.fatal("If you have java security enable please add a exception in the policy "
+						.fatal("If you have java security enabled please add a exception in the policy "
 								+ "file to allow this web application to connect to the mysql port. ");
 				throw (new ConfigurationException(
 						ErrorMessages.MYSQL_CONNECTION_ERROR_JAVA_SECURITY));
@@ -164,7 +164,7 @@ public class QueryBuilder
 		m_listData.add(new Timestamp(requestParams.getRoundedStartTime()));
 		m_listData.add(new Timestamp(requestParams.getRoundedEndTime()));
 		if (requestParams.getIp() != null)
-		{ // for an specific local IP
+		{ // for a specific local IP
 			comparator = " = ";
 			ip = requestParams.getIp();
 			where
@@ -173,7 +173,7 @@ public class QueryBuilder
 			m_listData.add(requestParams.getIp());
 		}
 		if (requestParams.getPort() != null)
-		{ // for an specific local Port
+		{ // for a specific local Port
 			where.append(" AND (CASE WHEN ip_src " + comparator
 					+ " ? THEN src_port ELSE dst_port END) = ? ");
 			m_listData.add(ip);
@@ -186,7 +186,7 @@ public class QueryBuilder
 			m_listData.add(requestParams.getRemoteIp());
 		}
 		if (requestParams.getRemotePort() != null)
-		{ // for an specific local Port
+		{ // for a specific local Port
 			where.append(" AND (CASE WHEN ip_src " + comparator
 					+ " ? THEN dst_port ELSE src_port END) = ? ");
 			m_listData.add(ip);
@@ -249,7 +249,7 @@ public class QueryBuilder
 		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
 				ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 
-		// set the query parameters depending of the query type
+		// set the query parameters depending on the query type
 		setQueryParams(ipStatement);
 		return (ipStatement);
 	}
@@ -275,7 +275,7 @@ public class QueryBuilder
 		}
 		catch (SQLException e)
 		{
-			m_logger.error("Error freing connection in finalize method", e);
+			m_logger.error("Error freeing connection in finalize method", e);
 		}
 	}
 
