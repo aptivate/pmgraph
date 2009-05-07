@@ -1,8 +1,8 @@
 package org.aptivate.bmotools.pmgraph;
 
 /**
- * A Class to put together all the error messages in orther to make then more
- * easy to change.
+ * A Class to hold all the error messages in order to make them easier
+ * to change.
  * 
  * @author Noe Andres Rodriguez Glez.
  * 
@@ -30,18 +30,18 @@ class ErrorMessages
 
 	final static String IP_FORMAT_ERROR = "Invalid IP format entered";
 
-	final static String MYSQL_CONNECTION_ERROR_JAVA_SECURITY = "Unable to get a connection to Mysql server due to java security restringtion. "
+	final static String MYSQL_CONNECTION_ERROR_JAVA_SECURITY = "Unable to get a connection to Mysql server due to java security restriction. "
 			+ "Disable java security or add necesary exceptions (check the log file form more info)";
 
 	final static String MYSQL_CONNECTION_ERROR = "Unable to get a mysql connection, please check your database.properties file";
 
-	final static String JFREECHART_ERROR_JAVA_SECURITY = "A Security Exception has occurred while triying to "
-			+ "create graph image. This error is acaused by Java security policy, disable java security or add "
-			+ "convenient exception in policy file.";
+	final static String JFREECHART_ERROR_JAVA_SECURITY = "A Security Exception has occurred while trying to "
+			+ "create graph image. This error is caused by Java security policy, disable java security or add "
+			+ "a suitable exception in policy file.";
 
-	final static String JAVA_AWT_LIBRARY_ERROR_JAVA_SECURITY = "A Security Exception has occurred while triying to access "
-			+ "sun.awt.* clasess. This error is acaused by Java security policy, disable java security or add "
-			+ "convenient exception in policy file.";
+	final static String JAVA_AWT_LIBRARY_ERROR_JAVA_SECURITY = "A Security Exception has occurred while trying to access "
+			+ "sun.awt.* clasess. This error is caused by Java security policy, disable java security or add "
+			+ "a suitable exception in policy file.";
 
 	final static String DNS_ERROR_JAVA_SECURITY = "Unable to access DNS server, check java security policy file.";
 
