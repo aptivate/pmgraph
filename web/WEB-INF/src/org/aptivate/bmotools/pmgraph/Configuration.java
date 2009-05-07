@@ -10,9 +10,8 @@ import java.util.Properties;
 /**
  * @author Noe Andres Rodriguez Gonzalez.
  * 
- * That is the configuration class of the application is a way to make all
- * access to configuration data in a single place reducing the problems of
- * changing where the configuration data is stored
+ * This configuration class for the application is used to keep all
+ * access to configuration data in a single place. 
  * 
  */
 public class Configuration
@@ -21,10 +20,10 @@ public class Configuration
 	static final String CONFIGURATION_FILE = "/database.properties";
 
 	/**
-	 * read the content of teh properties file and return it in a Properties
+	 * Read the content of the properties file and return it in a Properties
 	 * object
 	 * 
-	 * @return java.utils.Properties object created after reading the properties
+	 * @return java.utils.Properties - object created after reading the properties
 	 *         file.
 	 * @throws IOException
 	 */
