@@ -66,18 +66,10 @@ public class GraphServlet extends HttpServlet
 
 			GraphFactory graphFactory = new GraphFactory();
 
-			// Create graph of appropriate type
-			if (graphType.equals("total"))
-			{
-				// chart = graphFactory.totalThroughput(start, end);
-			}
-			else if (graphType.equals("cumul"))
-			{
+	
+			chart = graphFactory
+					.stackedThroughputGraph(pageUrl.getParams());
 
-				chart = graphFactory
-						.stackedThroughputGraph(pageUrl.getParams());
-
-			}
 			// If chart created write as png
 			if (chart != null)
 			{
