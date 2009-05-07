@@ -184,7 +184,7 @@
 							} else {
 								%><td><%=ip%></td><%
 							}%>					        
-					        <td><%=hostName%></td>        					
+					        <td ><div class="text_overflow"><%=hostName%></div></td>        					
 					        <td class="numval"><%=(result.getDownloaded() / 1048576)%></td>
 					        <td class="numval"><%=(result.getUploaded() / 1048576)%></td>
 					    </tr>
