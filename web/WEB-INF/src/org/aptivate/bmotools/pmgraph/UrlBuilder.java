@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * @author sylviaw create URL and check if the inputed URL is valid - History:
+ * @author sylviaw Create URL and check if the entered URL is valid - History:
  *         Noe A. Rodriguez Glez. 18-03-2009 W3C URL compilance Page Date time
  *         Validation moved to this class.
  */
@@ -39,16 +39,14 @@ public class UrlBuilder
 	}
 
 	/**
-	 * Just create a String with the parameters for the URL for parameters ip,
-	 * port, View. the parameters have priority if and specific Ip querry is
-	 * build the parameters port andt view are ignored, port have more priority
-	 * than view, then if a port is selected the view is ignored.
+	 * Just create a String with the parameters for the URL using the parameters 
+	 * for ip, port and view. 
 	 * 
 	 * @param jspInclude
-	 *            is this a URL for a JSP include? if false &amp; used to
+	 *            is this a URL for a JSP include? if false '&amp;' is used to
 	 *            separate parameters
 	 * @return String to add to a URL in order to include View parameter
-	 *         depending to de the IP or port parameters or the view parameter.
+	 *         depending to the the IP, port or view parameters.
 	 */
 	private String buildIpPortViewParameters(boolean jspInclude)
 	{
@@ -120,7 +118,7 @@ public class UrlBuilder
 	public String getIndexURL(String sortBy)
 	{
 		String order = "DESC";
-		// change sortin order just if the result is order by this column
+		// change sorting order if the result has been ordered by this column
 		// else keep default sorting == DESC
 
 		if (sortBy.equalsIgnoreCase(m_params.getSortBy()))
@@ -178,7 +176,7 @@ public class UrlBuilder
 		long newZoomOutEnd = m_params.getEndTime() + m_params.getZoomAmount();
 		long temp = new Date().getTime();
 
-		// limit the zoom if it create a date in the future
+		// limit the zoom if it creates a date in the future
 		if (newZoomOutEnd > temp)
 		{
 			newZoomOutStart -= (newZoomOutEnd - temp);
@@ -205,7 +203,7 @@ public class UrlBuilder
 	}
 
 	/**
-	 * test if scrolling forward would take us past the current time if that is
+	 * Test if scrolling forward would take us past the current time. If that is
 	 * the case we will show a "Current" button instead of the "Next" button
 	 * 
 	 * @param start
