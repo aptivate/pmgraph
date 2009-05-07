@@ -123,9 +123,19 @@
 								%><td>Others</td><%
 							} else {
 								if (pageUrl.getParams().getView() == View.REMOTE_PORT) {
-									%><td><a href="<%=pageUrl.getUrlGraph(port, "remote_port")%>" ><%=port%></a></td><%
+										if ((pageUrl.getParams().getRemoteIp() == null) || (pageUrl.getParams().getPort() == null) || 
+										    (pageUrl.getParams().getIp() == null)) {
+									        %><td><a href="<%=pageUrl.getUrlGraph(port, "remote_port")%>" ><%=port%></a></td><%
+										} else {
+										    %><td><%=port%></td><%
+										}
 								} else {
-									%><td><a href="<%=pageUrl.getUrlGraph(port, "port")%>" ><%=port%></a></td><%
+									if ((pageUrl.getParams().getRemoteIp() == null) || (pageUrl.getParams().getRemotePort() == null) || 
+										(pageUrl.getParams().getIp() == null)) {
+									    %><td><a href="<%=pageUrl.getUrlGraph(port, "port")%>" ><%=port%></a></td><%
+									} else {
+										%><td><%=port%></td><%
+									}
 								}
 							}
 							%>
@@ -157,9 +167,19 @@
 					       <%
 					        if ((!"Others".equalsIgnoreCase(ip))) {
 					        	if (pageUrl.getParams().getView() == View.REMOTE_IP) {
-									%><td><a href="<%=pageUrl.getUrlGraph(ip, "remote_ip")%>" ><%=ip%></a></td><%
+					        		if ((pageUrl.getParams().getRemotePort() == null) || (pageUrl.getParams().getPort() == null) || 
+										(pageUrl.getParams().getIp() == null)) {
+					        		    %><td><a href="<%=pageUrl.getUrlGraph(ip, "remote_ip")%>" ><%=ip%></a></td><%
+					        		} else {
+					        			%><td><%=ip%></td><%
+					        		}
 					        	} else {
-									%><td><a href="<%=pageUrl.getUrlGraph(ip, "ip")%>" ><%=ip%></a></td><%
+					        		if ((pageUrl.getParams().getRemotePort() == null) || (pageUrl.getParams().getPort() == null) || 
+										(pageUrl.getParams().getRemoteIp() == null)) {
+									    %><td><a href="<%=pageUrl.getUrlGraph(ip, "ip")%>" ><%=ip%></a></td><%
+					        		} else {
+					        			%><td><%=ip%></td><%
+					        		}
 					        	}
 							} else {
 								%><td><%=ip%></td><%
