@@ -25,7 +25,8 @@ public class HostResolver
 	private static Logger m_logger = Logger.getLogger(HostResolver.class);
 
 	private Connection m_connection;
-
+	private final int HOSTNAME_LENGTH_LIMIT = 40;
+	
 	public HostResolver() throws IOException
 	{
 
@@ -59,6 +60,15 @@ public class HostResolver
 		}
 	}
 
+	private String limitString (String text) {
+		
+		if (text.length() > HOSTNAME_LENGTH_LIMIT) {
+			return (text.substring(0, HOSTNAME_LENGTH_LIMIT)+"...");
+		}
+		return text;
+	}
+	
+	
 	/**
 	 * In order to obtain the hostname of a IP the DNS server is asked if this
 	 * fails the DHCP server is asked. The DHCP server have to be configured in
@@ -110,7 +120,7 @@ public class HostResolver
 				}
 			}
 		}
-		return (hostName);
+		return ( limitString (hostName));
 	}
 
 	protected void finalize()
