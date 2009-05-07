@@ -33,7 +33,7 @@ import org.jfree.data.xy.XYSeries;
  * @author Thomas Sharp
  * @version 0.1
  * 
- * History: Noe A. Rodrigez Glez. 12-03-2009 Use a standar method to asign
+ * History: Noe A. Rodrigez Glez. 12-03-2009 Use a standard method to assign
  * colors to series.
  * 
  * Changed the way in which the stackedThroughput graph is created in order to
@@ -42,7 +42,7 @@ import org.jfree.data.xy.XYSeries;
  * Removed the use of Alpha chanel on graphs because it caused problems with the
  * colors of the series.
  * 
- * Added some coments.
+ * Added some comments.
  */
 public class GraphFactory
 {
@@ -72,8 +72,8 @@ public class GraphFactory
 	}
 
 	/**
-	 * Initialize a series for a port graph with all the values to zero and add
-	 * it to the datase and to the hashmap containing all the series.
+	 * Initialize a series for a port graph with all the values set to zero and add
+	 * it to the database and to the hashmap containing all the series.
 	 * 
 	 * @param name
 	 * @param id
@@ -82,9 +82,7 @@ public class GraphFactory
 	 * @param renderer
 	 * @param minutes
 	 * @param start
-	 * @return A Initialize a series for a port graph with all the values to
-	 *         zero and add it to the datase and to the hashmap containing all
-	 *         the series.
+	 * @return A series for a port graph with all the values set to zero 
 	 */
 	private XYSeries InizializeSeries(String name, String id,
 			DefaultTableXYDataset dataset,
@@ -100,7 +98,7 @@ public class GraphFactory
 		// keep the series in a hash in order to reuse it when we have
 		// results for the same currentPort
 		port_XYSeries.put(name, series);
-		// Set the same color for the upload and download series of an
+		// Set the same color for the upload and download series of a
 		// port
 		Color color;
 		switch (view)
@@ -122,7 +120,7 @@ public class GraphFactory
 	}
 
 	/**
-	 * Create the chart title taking into account the request type.
+	 * Create the chart title based on the request type.
 	 * 
 	 * @param requestParams
 	 * @returnNewVolunteerProcess.CoderEmailText
@@ -202,7 +200,7 @@ public class GraphFactory
 	 * @param portGraph
 	 *            The series are Ip's or Ports
 	 * @return A JFreeChart with the data in the List thrptResults creating a
-	 *         new series per each port, or Ip
+	 *         new series for each port or Ip
 	 */
 	private JFreeChart fillGraph(List<GraphData> thrptResults,
 			RequestParams requestParams)
@@ -238,7 +236,7 @@ public class GraphFactory
 			long downloaded = ((thrptResult.getDownloaded() * 8) / 1024) / 60;
 			long uploaded = ((thrptResult.getUploaded() * 8) / 1024) / 60;
 
-			// check if the ip already have its own serie if not we create one
+			// check if the ip already has its own series if not we create one
 			// for it
 			if (!graph_XYSeries.containsKey(id + "<down>"))
 			{
@@ -252,7 +250,7 @@ public class GraphFactory
 							renderer, minutes, start, requestParams.getView());
 				}
 				else
-				// Isn't in top X create a serie to the rest of result
+				// Isn't in top X create a series to keep the rest of the results
 				{
 					// Create a hashMap to keep stacked values for group other
 					if (otherUp == null)
@@ -271,14 +269,14 @@ public class GraphFactory
 			XYSeries downSeries = graph_XYSeries.get(id + "<down>");
 			XYSeries upSeries = graph_XYSeries.get(id + "<up>");
 			if (downSeries != null)
-			{ // We created series for this port then it should be in the
+			{ // We created a series for this port so it should be in the
 				// limit top
 				// update the values of the series
 				downSeries.update(inserted.getTime(), downloaded);
 				upSeries.update(inserted.getTime(), (0 - uploaded));
 			}
 			else
-			{ // the port belong to the group other just stack values
+			{ // the port belongs to the group other - just stack values
 				otherDown.put(inserted.getTime(), otherDown.get(inserted
 						.getTime())
 						+ downloaded);
@@ -287,7 +285,7 @@ public class GraphFactory
 			}
 		}
 		// Other Group
-		if (otherUp != null) // if exist data for the other group.
+		if (otherUp != null) // if data exists for the other group.
 		{
 			XYSeries downSeries = new XYSeries("other <down>", true, false);
 			XYSeries upSeries = new XYSeries("other <up>", true, false);
@@ -309,7 +307,7 @@ public class GraphFactory
 	}
 
 	/**
-	 * A method which creates tha chart with the defaults options for the
+	 * A method which creates the chart with the default options for the
 	 * stacked charts
 	 * 
 	 * @param dataset
@@ -370,7 +368,7 @@ public class GraphFactory
 	}
 
 	/**
-	 * Return a color obtained from create a hash with the bytes of the Ip.
+	 * Return a color obtained from creating a hash with the bytes of the Ip.
 	 * 
 	 * @param ip
 	 * @return Color for the selected IP.
@@ -389,7 +387,7 @@ public class GraphFactory
 	}
 
 	/**
-	 * Return a color obtained from create a hash with the bytes of the Port.
+	 * Return a color obtained from creating a hash with the bytes of the Port.
 	 * 
 	 * @param port
 	 * @return Color for the selected port
