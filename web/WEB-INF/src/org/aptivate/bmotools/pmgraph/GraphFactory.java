@@ -402,78 +402,7 @@ public class GraphFactory
 		return getColorFromByteArray(portBytes);
 	}
 
-	/**
-	 * Produces a JFreeChart showing total upload and download throughput for
-	 * the time period between start and end.
-	 * 
-	 * @param start
-	 *            Time in seconds since epoch, in which the chart will start
-	 * @param end
-	 *            Time in seconds since epoch, in which the chart will end
-	 * @return a new JFreeChart
-	 * @throws ClassNotFoundException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
-	 * @throws IOException
-	 * @throws SQLException
-	 * 
-	 * 
-	 */
-	JFreeChart totalThroughput(long start, long end)
-			throws ClassNotFoundException, IllegalAccessException,
-			InstantiationException, IOException, SQLException
-	{
-		// Get database connection
-		DataAccess dataAccess = new DataAccess();
-
-		List<GraphData> results = dataAccess.getTotalThroughput(start, end);
-
-		// Round our times to the nearest minute
-		start = start - (start % 60000);
-		end = end - (end % 60000);
-		// Initialise the XYSeries with 0 values for each minute
-		XYSeries downSeries = new XYSeries("Downloaded", true, false);
-		XYSeries upSeries = new XYSeries("Uploaded", true, false);
-		int minutes = (int) (end - start) / 60000;
-		for (int i = 0; i <= minutes; i++)
-		{
-			downSeries.add(start + i * 60000, 0);
-			upSeries.add(start + i * 60000, 0);
-		}
-
-		for (GraphData dbData : results)
-		{
-			Date inserted = dbData.getTime();
-			// bytes * 8 = bits bits * 1024 = kilobits kilobits / 60 = kB/s
-			long downloaded = ((dbData.getDownloaded() * 8) / 1024) / 60;
-			long uploaded = ((dbData.getUploaded() * 8) / 1024) / 60;
-			downSeries.update(inserted.getTime(), downloaded);
-			upSeries.update(inserted.getTime(), 0 - uploaded);
-		}
-
-		// Put our data into a "chartable" container
-		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
-		dataset.addSeries(downSeries);
-		dataset.addSeries(upSeries);
-
-		// Configure the chart elements and create and return the chart
-		DateAxis xAxis = new DateAxis();
-		xAxis.setLowerMargin(0);
-		xAxis.setUpperMargin(0);
-		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
-		XYPlot plot = new XYPlot(dataset, xAxis, yAxis, null);
-		plot.setOrientation(PlotOrientation.VERTICAL);
-		plot.addRangeMarker(new ValueMarker(0));
-		plot.setRenderer(new XYAreaRenderer(XYAreaRenderer.AREA));
-		plot.getRenderer().setSeriesPaint(0, Color.blue);
-		plot.getRenderer().setSeriesPaint(1, Color.blue);
-
-		JFreeChart chart = new JFreeChart("Total Network Throughput",
-				JFreeChart.DEFAULT_TITLE_FONT, plot, false);
-		chart.addSubtitle(new TextTitle(new Date(end).toString()));
-		chart.setBackgroundPaint(null);
-		return chart;
-	}
+	
 
 	/**
 	 * Produces a JFreeChart showing total upload and download throughput for

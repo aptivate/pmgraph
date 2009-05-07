@@ -83,7 +83,7 @@ public class UrlBuilder
 
 	public String getServetURL()
 	{
-		String newURL = m_servletURL + "?graph=" + m_params.getGraph() + "&amp;start="
+		String newURL = m_servletURL + "?start="
 				+ m_params.getStartTime() + "&amp;end=" + m_params.getEndTime() + "&amp;width=780"
 				+ "&amp;height=350" + "&amp;resultLimit="
 				+ m_params.getResultLimit();
@@ -94,8 +94,7 @@ public class UrlBuilder
 
 	public String getIndexURL()
 	{
-		String newURL = m_indexURL + "?report=" + m_params.getReport() + "&amp;graph="
-				+ m_params.getGraph() + "&amp;start=" + m_params.getStartTime() + "&amp;end=" + m_params.getEndTime()
+		String newURL = m_indexURL + "?start=" + m_params.getStartTime() + "&amp;end=" + m_params.getEndTime()
 				+ "&amp;resultLimit=" + m_params.getResultLimit();
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
@@ -103,8 +102,7 @@ public class UrlBuilder
 		
 	public String getIndexURL(long start, long end)
 	{
-		String newURL = m_indexURL + "?report=" + m_params.getReport() + "&amp;graph="
-				+ m_params.getGraph() + "&amp;start=" + start + "&amp;end=" + end
+		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
 				+ "&amp;resultLimit=" + m_params.getResultLimit();
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
@@ -112,8 +110,7 @@ public class UrlBuilder
 	
 	public String getIndexURL(long start, long end, boolean resetFlag)
 	{
-		String newURL = m_indexURL + "?report=" + m_params.getReport() + "&amp;graph="
-				+ m_params.getGraph() + "&amp;start=" + start + "&amp;end=" + end
+		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
 				+ "&amp;resultLimit=" + m_params.getResultLimit();				
 		return newURL;
 	}
