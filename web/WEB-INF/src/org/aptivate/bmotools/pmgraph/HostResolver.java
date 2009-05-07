@@ -16,8 +16,8 @@ import org.xbill.DNS.Address;
 /**
  * @author Noe Andres Rodriguez Gonzalez.
  * 
- * A class containing the host resolver method. In order to obtain the hostname
- * of a IP the DNS server is used if this fails de DHCP server is asked.
+ * A class containing the host resolver method. The DNS server is used to obtain 
+ * the hostname, if this fails the DHCP server is used.
  * 
  */
 public class HostResolver
@@ -70,15 +70,15 @@ public class HostResolver
 	
 	
 	/**
-	 * In order to obtain the hostname of a IP the DNS server is asked if this
-	 * fails the DHCP server is asked. The DHCP server have to be configured in
+	 * The DNS server is used to obtain the hostname of a IP, if this
+	 * fails the DHCP server is used. The DHCP server has to be configured in
 	 * the config file of the application
 	 * 
 	 * @param IpAddress
 	 *            String representation of the IP
 	 * 
-	 * @return An String containig the hostName for the provided IP. If the
-	 *         lookup for the Hostname is unsucessfull return the string
+	 * @return An String containing the hostName for the provided IP. If the
+	 *         lookup for the Hostname is unsuccessful return the string
 	 *         "Unknown Host"
 	 */
 	public String getHostname(String IpAddress)
@@ -101,7 +101,7 @@ public class HostResolver
 				m_logger.error(ErrorMessages.DNS_ERROR_JAVA_SECURITY, e);
 
 			m_logger.debug("Unknown host using DNS trying DHCP.");
-			// Lets try using DHCP cause we can't get any info with DNS
+			// Lets try using DHCP because we can't get any info with DNS
 
 			// If the DHCP server is available
 			if (this.m_connection != null)
