@@ -217,7 +217,7 @@ public class RequestParams
 	private void setDatesFromRequest(HttpServletRequest request)
 			throws PageUrlException
 	{
-		// set to default to eer have a value even if any Exception happens
+		// set to default to have a value even if any Exception occurs
 		setDatesDefault();
 
 		// try to get date time defined by user
@@ -294,7 +294,7 @@ public class RequestParams
 	}
 
 	/**
-	 * If a Ip parameter is set un the request the ip value is set.
+	 * If a Ip parameter is set in the request the ip value is set.
 	 * 
 	 * @param request
 	 * @throws NumberFormatException
@@ -421,8 +421,8 @@ public class RequestParams
 
 	/**
 	 * Set the view selected by the user, to a Port view or to a Ip port, Port
-	 * view show in the graph the throughput per port. Ip view show throughput
-	 * per IP. The views are ommited when a especific Ip or Port is selected.
+	 * view shows in the graph the throughput per port. Ip view shows throughput
+	 * per IP. The views are omitted when a specific Ip or Port is selected.
 	 * 
 	 * @param request
 	 * @throws PageUrlException
@@ -499,7 +499,7 @@ public class RequestParams
 
 	/**
 	 * Assign the start and end dates for the graph using start end request
-	 * values assuming they are timestamps. If that is not posible a default
+	 * values assuming they are timestamps. If that is not possible a default
 	 * start and end time are assigned.
 	 * 
 	 * @param request
@@ -550,7 +550,7 @@ public class RequestParams
 	}
 
 	/**
-	 * Set all the parameters of the request necesary to build new URLs
+	 * Set all the parameters of the request necessary to build new URLs
 	 * 
 	 * @param request
 	 * @throws PageUrlException
