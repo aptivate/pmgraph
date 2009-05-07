@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
  * 
  * @author Noe A. Rodriguez Glez.
  * 
- * Create the List of data necesary for generate a Leyenda.
+ * Create the List of data needed to generate a Legend.
  * 
  */
 public class LegendData
@@ -80,11 +80,11 @@ public class LegendData
 	}
 
 	/**
-	 * Retun an appropiate comparator for de requested sorting
+	 * Return an appropriate comparator for the requested sort
 	 * 
 	 * @param sortby
 	 * @param order
-	 * @return A conparator to be used in the sorting of the results list
+	 * @return A comparator to be used to sort the results list
 	 */
 	private Comparator getComparator(String sortby, String order)
 	{
@@ -123,7 +123,7 @@ public class LegendData
 	}
 
 	/**
-	 * Limit the list and sort it acondinggly the user request
+	 * Limit the list and sort it according to the user request
 	 * 
 	 * @param dataList
 	 * @param sortBy
@@ -131,7 +131,7 @@ public class LegendData
 	 * @param pageUrl
 	 * @param isPort
 	 * @return A List<GraphData> limited to the number of results requested by
-	 *         the user and sorted propertly.
+	 *         the user and sorted properly.
 	 * @throws SQLException
 	 */
 	private List<GraphData> limitList(List<GraphData> dataList, String sortBy,
@@ -157,8 +157,8 @@ public class LegendData
 									0L, 0L, GraphFactory.OTHER_PORT);
 							break;
 						case REMOTE_PORT:
-							// For port views constructor is diferent
-							// Is for a specific IP get the Ip from the request
+							// For port views, constructor is different
+							// If it is for a specific IP get the Ip from the request
 							others = new GraphData(null, requestParams.getIp(),
 									0L, 0L);
 							others.setRemotePort(GraphFactory.OTHER_PORT);
@@ -189,8 +189,8 @@ public class LegendData
 		}
 		if (others != null)
 			legendData.add(others);
-		// once the result that are going to be showed are selected sort then
-		// acordingly what the user has requested.
+		// once the results that are going to be shown are selected, sort then
+		// according to what the user has requested.
 		Comparator c = getComparator(sortBy, order);
 		if (c != null)
 			Collections.sort(legendData, c);
@@ -212,7 +212,7 @@ public class LegendData
 	 * @param sortBy
 	 * @param order
 	 * @param requestParams
-	 * @return The generated List containing the data that should be showed on
+	 * @return The generated List containing the data that should be shown on
 	 *         the legend when the graph is a legend data graph.
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
@@ -229,7 +229,7 @@ public class LegendData
 
 		List<GraphData> ipResults = dataAccess.getThroughput(requestParams,
 				false);
-		// allways sort using Bytes total to have same order that in the graph
+		// always sort using Bytes total to have the same order as in the graph
 		Collections.sort(ipResults, new BytesTotalComparator(true));
 
 		return limitList(ipResults, sortBy, order, requestParams);
