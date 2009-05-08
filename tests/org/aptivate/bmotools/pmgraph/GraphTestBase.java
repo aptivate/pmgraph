@@ -39,6 +39,19 @@ abstract class GraphTestBase extends TestCase
 		m_testUtils = new TestUtils();
 	}
 
+	/**
+	 *  Check that the chart contains the expected data points.
+	 *     First it checks the graph has an upload and download 
+	 *    series for each of the values of the array "rows".
+	 *    
+	 *    Secondly checks if each has the expected number of time points.
+	 *    
+	 *     Finally checks the data points.
+	 *  
+	 * @param values values of each series.
+	 * @param rows 
+	 * @param chart
+	 */
 	protected void checkChartData(long values[][], String[] rows,
 			JFreeChart chart)
 	{
@@ -57,7 +70,6 @@ abstract class GraphTestBase extends TestCase
 
 		// Check if there are a series per each por for upload and another for
 		// download data.
-
 		for (int n = 0; n < rows.length; n++)
 		{
 			assertTrue("missing item " + rows[n],
@@ -82,6 +94,7 @@ abstract class GraphTestBase extends TestCase
 			series.put(s.getKey().toString(), s);
 		}
 
+		// check that each series has the correct values for each time.
 		for (int n = 0; n < rows.length; n++)
 		{
 			XYSeries s = series.get(rows[n] + "<up>"); // check Up series

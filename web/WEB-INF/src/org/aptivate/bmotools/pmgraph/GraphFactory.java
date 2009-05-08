@@ -137,6 +137,14 @@ public class GraphFactory
 		{
 			title += " For Local Port = " + requestParams.getPort();
 		}
+		if (requestParams.getRemoteIp() != null)
+		{
+			title += " For Remote Ip = " + requestParams.getRemoteIp();
+		}
+		if (requestParams.getRemotePort() != null)
+		{
+			title += " For Remote Port = " + requestParams.getRemotePort();
+		}
 		return "Network Throughput" + title;
 	}
 

@@ -62,6 +62,18 @@ public class RequestParams
 		m_resultLimit = resultLimit;
 	}
 	
+	//	Currently, this method is used in test code only
+	void setRemoteIp (String remoteIp) {
+		
+		m_params.put("remote_ip", remoteIp);		
+	}
+	
+	//	Currently, this method is used in test code only
+	void setPort (Integer port) {
+		
+		m_params.put("port", port);		
+	}
+	
 	RequestParams (Map<String, Object> params)
 	{
 		m_params = params;

@@ -42,10 +42,10 @@ class DataAccess
 
 		m_logger.debug(statement);
 		ResultSet ipResults = statement.executeQuery();
+
 		while (ipResults.next())
 		{
 			resultData.add(new GraphData(ipResults));
-
 		}
 		ipResults.close();
 		statement.close();
