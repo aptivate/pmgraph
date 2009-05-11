@@ -15,6 +15,9 @@ import org.apache.log4j.Logger;
  * @author Noe A. Rodriguez Glez.
  * 
  * Create the List of data needed to generate a Legend.
+ * Sort the Legend data as the user have selected
+ * Limit the results in the legend creating the Others
+ * group.
  * 
  */
 public class LegendData
@@ -118,6 +121,7 @@ public class LegendData
 					}
 				}
 			}
+			m_logger.error ("Invalid sorting selected not sorting assumed. Usert have set sort parameter in the URL wrongly");
 		}
 		return null;
 	}
