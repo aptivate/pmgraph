@@ -40,8 +40,8 @@ public class LegendTestPortView extends TestCase
 	}
 
 	/**
-	 * Just check if the donwloaded and uploaded values of a legend tambel match
-	 * the values especified in the parameters.
+	 * Just check if the donwloaded and uploaded values of a legend table match
+	 * the values specified by the parameters.
 	 * 
 	 * @param table
 	 * @param downloaded
