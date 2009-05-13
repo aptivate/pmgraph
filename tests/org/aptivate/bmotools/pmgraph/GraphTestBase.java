@@ -21,8 +21,8 @@ import org.jfree.data.xy.XYSeries;
 /**
  * Abstract Class which contains the method which checks if the values of a
  * JFreechart correspond with the rows and values array passed. It can be used
- * whenever we try to chech the values of a graph then it is used for the port
- * grap and for the Ip graphs.
+ * whenever we try to check the values of a graph then it is used for the port
+ * graph and for the Ip graphs.
  * 
  * @author Noe A. Rodriguez Gonzalez.
  * 
@@ -68,7 +68,7 @@ abstract class GraphTestBase extends TestCase
 		DefaultTableXYDataset dataset = (DefaultTableXYDataset) plot
 				.getDataset();
 
-		// Check if there are a series per each por for upload and another for
+		// Check if there are a series for each port for upload and another for
 		// download data.
 		for (int n = 0; n < rows.length; n++)
 		{
@@ -82,7 +82,7 @@ abstract class GraphTestBase extends TestCase
 		assertEquals(rows.length * 2, dataset.getSeriesCount());
 		Map<String, XYSeries> series = new HashMap<String, XYSeries>();
 
-		// check the number of elements of each serie.
+		// check the number of elements of each series.
 		for (int n = 0; n < dataset.getSeriesCount(); n++)
 		{
 			XYSeries s = dataset.getSeries(n);
