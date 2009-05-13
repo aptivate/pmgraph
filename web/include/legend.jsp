@@ -198,6 +198,9 @@
 		  }
 %>
 </table>
+<%if (pageUrl.getParams().getView() == View.REMOTE_PORT) {%>
+	<a href="javascript:window.open('port_assignement.html');void(0);">Port and services equivalence</a>
+<%} %>
 <% if (configError != null) { %>
 	<div class="error_panel">
 		<%=configError %>
