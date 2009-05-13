@@ -32,18 +32,6 @@
     // Input Validation
     String errorMsg = null, configError= null;    
 	
-	String arrow = order.equals("ASC")?" &#8679;":" &#8681;";
-	String col1 = "Downloaded";
-	String col2 = "Uploaded";
-	String col3 = "Totals (MB)";
-	
-	if("downloaded".equals(sortBy))
-		col1 = col1 + arrow;
-	if("uploaded".equals(sortBy))
-		col2 = col2 + arrow;	
-	if ("bytes_total".equals(sortBy))
-		col3 = col3 + arrow;
-   
     // Validate Parameters
 	try
 	{ 
@@ -59,6 +47,18 @@
 	{
 		configError = e.getMessage();
 	}	
+	
+	String arrow = "ASC".equals(pageUrl.getParams().getOrder())?" &#8679;":" &#8681;";
+	String col1 = "Downloaded";
+	String col2 = "Uploaded";
+	String col3 = "Totals (MB)";
+	
+	if("downloaded".equals(pageUrl.getParams().getSortBy()))
+		col1 = col1 + arrow;
+	if("uploaded".equals(pageUrl.getParams().getSortBy()))
+		col2 = col2 + arrow;	
+	if ("bytes_total".equals(pageUrl.getParams().getSortBy()))
+		col3 = col3 + arrow;
 %>
 <%@page import="java.util.ArrayList"%>
 <table id="legend_tbl">
@@ -117,6 +117,9 @@
 					  	port = result.getPort();
 			        Color c = graphFactory.getSeriesColor(port);
 			        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
+			     /*   String downloadMb = (result.getDownloaded() / 1048576)?(result.getDownloaded() / 1048576):"less than 1";
+			        String uploadMb = (result.getUploaded() / 1048576)?(result.getUploaded() / 1048576):"less than 1";*/
+
 		%>				    <tr class="row<%=i % 2%>">
 					        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
 							<%   if (GraphFactory.OTHER_PORT == port) {
@@ -139,8 +142,8 @@
 								}
 							}
 							%>
-					        <td class="numval"><%=(result.getDownloaded() / 1048576)%></td>
-					        <td class="numval"><%=(result.getUploaded() / 1048576)%></td>
+					        <td class="numval"><%=((result.getDownloaded() / 1048576)!=0)?(result.getDownloaded() / 1048576):"&lt;1"%></td>
+					        <td class="numval"><%=((result.getUploaded() / 1048576)!=0)?(result.getUploaded() / 1048576):"&lt;1"%></td>
 					    </tr>
 				   <%
 		    		i++;
@@ -185,8 +188,8 @@
 								%><td><%=ip%></td><%
 							}%>					        
 					        <td ><div class="text_overflow"><%=hostName%></div></td>        					
-					        <td class="numval"><%=(result.getDownloaded() / 1048576)%></td>
-					        <td class="numval"><%=(result.getUploaded() / 1048576)%></td>
+					        <td class="numval"><%=((result.getDownloaded() / 1048576)!=0)?(result.getDownloaded() / 1048576):"&lt;1"%></td>
+					        <td class="numval"><%=((result.getUploaded() / 1048576)!=0)?(result.getUploaded() / 1048576):"&lt;1"%></td>
 					    </tr>
 				   <%
 		    		i++;

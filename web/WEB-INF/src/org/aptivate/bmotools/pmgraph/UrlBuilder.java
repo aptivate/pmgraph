@@ -71,11 +71,31 @@ public class UrlBuilder
 
 	}
 	
+	private String buildSortParameters(boolean jspInclude)
+	{
+		String newUrl = "";
+		String separator = "&amp;";
+
+		if (jspInclude)
+			separator = "&";
+
+		if (m_params.getOrder() != null)
+			newUrl += separator + "order=" + m_params.getOrder();
+
+		if (m_params.getSortBy() != null)
+			newUrl += separator + "sortBy=" + m_params.getSortBy();
+
+		return newUrl;
+
+	}
+	
+	
 	public String getLegendURL() {
 		String newURL = m_legendURL + "?start=" + m_params.getStartTime() + "&end=" + m_params.getEndTime()
-				+ "&sortBy=" + m_params.getSortBy() + "&order=" + m_params.getOrder() + "&resultLimit="
-				+ m_params.getResultLimit();
+				+"&resultLimit="+ m_params.getResultLimit();
+		
 		newURL += buildIpPortViewParameters(true);
+		newURL += buildSortParameters(true);
 		return newURL;
 	}
 
@@ -86,7 +106,7 @@ public class UrlBuilder
 				+ "&amp;height=350" + "&amp;resultLimit="
 				+ m_params.getResultLimit();
 
-		newURL += buildIpPortViewParameters(false);
+		newURL += buildIpPortViewParameters(false);		
 		return newURL;
 	}
 
@@ -95,6 +115,7 @@ public class UrlBuilder
 		String newURL = m_indexURL + "?start=" + m_params.getStartTime() + "&amp;end=" + m_params.getEndTime()
 				+ "&amp;resultLimit=" + m_params.getResultLimit();
 		newURL += buildIpPortViewParameters(false);
+		newURL += buildSortParameters(false);
 		return newURL;
 	}
 		
@@ -102,6 +123,7 @@ public class UrlBuilder
 	{
 		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
 				+ "&amp;resultLimit=" + m_params.getResultLimit();
+		newURL += buildSortParameters(false);
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
 	}
@@ -109,7 +131,9 @@ public class UrlBuilder
 	public String getIndexURL(long start, long end, boolean resetFlag)
 	{
 		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
-				+ "&amp;resultLimit=" + m_params.getResultLimit();				
+				+ "&amp;resultLimit=" + m_params.getResultLimit();	
+		newURL += buildSortParameters(false);
+		newURL += buildIpPortViewParameters(false);
 		return newURL;
 	}
 
