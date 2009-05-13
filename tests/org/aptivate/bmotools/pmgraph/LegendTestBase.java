@@ -11,7 +11,7 @@ import com.meterware.httpunit.WebTable;
 
 /**
  * Abstract Class which contains the method which checks if the values in the
- * legend table contains the data especified
+ * legend table contains the data specified
  * 
  * @author Noe A. Rodriguez Gonzalez.
  * 
@@ -29,8 +29,8 @@ abstract class LegendTestBase extends TestCase
 	}
 
 	/**
-	 * Just check if the donwloaded and uploaded values of a legend tambel match
-	 * the values especified in the parameters.
+	 * Just check if the donwloaded and uploaded values of a legend tabele match
+	 * the values specified by the parameters.
 	 * 
 	 * @param table
 	 * @param downloaded
