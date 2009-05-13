@@ -4,11 +4,11 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.aptivate.bmotools.pmgraph.ErrorMessages;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.SubmitButton;
@@ -35,6 +35,61 @@ public class TimeFormEntryTest extends TestCase
 		m_testUtil.InsertSampleData();
 	}
 
+	/* This test tests the SetTime form uses the correct default values*/
+	public void testCheckDefaults() throws Exception
+	{
+		// Open a graph page
+		// Create a conversation
+		WebConversation wc = new WebConversation();
+
+		// Obtain the upload page on web site
+		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph());
+		WebResponse response = wc.getResponse(request);
+		
+		checkDefaultValuesDisplayed(response);
+	}
+	
+	/* This test tests the SetTime form uses the correct default values after invalid entry*/
+	public void testCheckDefaultsAfterError() throws Exception
+	{
+		// Open a graph page
+		// Create a conversation
+		WebConversation wc = new WebConversation();
+
+		// Obtain the upload page on web site with invalid date
+		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?toDate=0a/03/2009");
+		
+		WebResponse response = wc.getResponse(request);
+		
+		checkDefaultValuesDisplayed(response);
+	}
+
+	private void checkDefaultValuesDisplayed(WebResponse response) throws SAXException 
+	{
+		// Check initial values
+		DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd/MM/yyyy");
+
+		LocalDate toDate = new LocalDate();
+		
+		assertEquals("Check the toDate initial value.", dateFormat.print(toDate), response
+				.getElementWithID("toDate").getAttribute("value"));
+
+		assertEquals("Check the fromDate initial value.", dateFormat.print(toDate),
+				response.getElementWithID("fromDate").getAttribute("value"));
+
+		LocalTime currentTime = new LocalTime();
+		LocalTime displayedTime = new LocalTime(response.getElementWithID("toTime").getAttribute("value"));
+		long diff = currentTime.getMillisOfDay() - displayedTime.getMillisOfDay();
+		assertTrue("Check the toTime initial value.", Math.abs(diff) < 60000);
+		
+		displayedTime = new LocalTime(response.getElementWithID("fromTime").getAttribute("value"));
+		
+		diff = (currentTime.minusHours(3)).getMillisOfDay() - displayedTime.getMillisOfDay();
+		assertTrue("Check the fromTime initial value.", Math.abs(diff) < 60000);
+	}
+		
+	
 	/* This test tests the SetTime form */
 	public void testCheckSetTimeForm() throws Exception
 	{
@@ -121,8 +176,7 @@ public class TimeFormEntryTest extends TestCase
 		// Check wrong fromDate values
 		for (int i = 0; i < noElements; i++)
 		{
-			response.getElementWithID("fromDate").setAttribute("value",
-					fromDateArray[i]);
+			response.getElementWithID("fromDate").setAttribute("value", fromDateArray[i]);
 			subButton.click();
 
 			assertEquals("Check from date format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, wc.popNextAlert());
