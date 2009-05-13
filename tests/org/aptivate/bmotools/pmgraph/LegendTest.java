@@ -336,7 +336,7 @@ public class LegendTest extends LegendTestBase
 			String uploaded = table.getCellAsText(Configuration
 					.getResultLimit() + 2, 4);
 			assertEquals("Check the IP Address", "Others", hostIP);
-			assertEquals("Check the Downloaded Value", "0", downloaded);
+			assertEquals("Check the Downloaded Value", "<1", downloaded);
 			assertEquals("Check the Upload Value", "23", uploaded);
 		}
 		// Check a user defined limit of results.
@@ -362,7 +362,7 @@ public class LegendTest extends LegendTestBase
 			String downloaded = table.getCellAsText(8 + 2, 3);
 			String uploaded = table.getCellAsText(8 + 2, 4);
 			assertEquals("Check the IP Address", "Others", hostIP);
-			assertEquals("Check the Downloaded Value", "0", downloaded);
+			assertEquals("Check the Downloaded Value", "<1", downloaded);
 			assertEquals("Check the Upload Value", "8", uploaded);
 		}
 

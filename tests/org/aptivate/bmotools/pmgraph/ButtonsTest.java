@@ -30,18 +30,16 @@ public class ButtonsTest extends TestCase
 		WebConversation wc;
 		WebRequest request;
 		WebResponse response;
-		String nextURL, currentURL;
+		String nextURL;
 		WebLink link;
-
+		nextURL = "index.jsp?start=150000&end=300000&resultLimit=15&view=LOCAL_IP";
+		
 		// Create a conversation
 		wc = new WebConversation();
-
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=75000&end=225000&resultLimit=15");
 		response = wc.getResponse(request);
-
-		nextURL = "index.jsp?start=150000&end=300000&resultLimit=15&view=LOCAL_IP";
 
 		// Find the "next" link
 		link = response.getLinkWithName("next");
@@ -51,9 +49,8 @@ public class ButtonsTest extends TestCase
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=150000&end=300000&resultLimit=15");
 		response = wc.getResponse(request);
-
+		
 		nextURL = "index.jsp?start=225000&end=375000&resultLimit=15&view=LOCAL_IP";
-
 		// Find the "next" link
 		link = response.getLinkWithName("next");
 		assertEquals("Compare the next link.", nextURL, link.getURLString());
@@ -65,6 +62,41 @@ public class ButtonsTest extends TestCase
 		// Find the "next" link
 		link = response.getLinkWithName("current");
 		assertTrue("Found current button", link != null);
+	}
+	
+	public void testCheckButtonsKeepSorting() throws Exception
+	{
+		WebConversation wc;
+		WebRequest request;
+		WebResponse response;
+		String nextURL;
+		WebLink link;
+		nextURL = "index.jsp?start=150000&end=450000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
+		String prevURL = "index.jsp?start=-150000&end=150000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
+		String zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
+		String zoomInURL = "index.jsp?start=75000&end=225000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
+		
+		// Create a conversation
+		wc = new WebConversation();
+		// Obtain the upload page on web site
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?start=0&end=300000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT");
+		response = wc.getResponse(request);
+
+		// Find the "next" link
+		link = response.getLinkWithName("next");
+		assertEquals("Compare the next link.", nextURL, link.getURLString());
+		
+		// Find the "prev" link
+		link = response.getLinkWithName("prev");
+		assertEquals("Compare the prev link.", prevURL, link.getURLString());
+		// Find the Zoom- link
+		link = response.getLinkWithName("zoomOut");
+		assertEquals("Compare the zoom- link.", zoomURL, link.getURLString());
+//		 Check thar there isn't the Zoom+ link in the page
+		link = response.getLinkWithName("zoomIn");
+		assertEquals("Compare the zoom- link.", zoomInURL, link.getURLString());
+
 	}
 
 	/* This test tests the prev button */
