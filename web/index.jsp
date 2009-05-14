@@ -212,9 +212,9 @@
                     <jsp:include page="<%=pageUrl.getLegendURL()%>" />
                 </div>
             </div>
- 			<div class="left">
- 				<a href="javascript:history.back(1);">Back</a> 	 				 				
- 			    <a href="<%=pageUrl.getIndexURL(startTime, endTime, true)%>">Reset</a>			
+ 			<div class="center">
+ 				<a class="left" href="javascript:history.back(1);">Back</a> 	 				 				
+ 			    <a class="align_right" href="<%=pageUrl.getIndexURL(startTime, endTime, true)%>">Reset</a>			
  			</div> 			
             <!-- <div id="footer"></div> -->
         </div>
