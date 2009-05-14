@@ -99,7 +99,7 @@
 					</tr>
 					<% if ((pageUrl.getParams().getIp() != null) || (pageUrl.getParams().getPort() != null)){	%>				
 					<tr>  
-					<%}%>
+					
 					<% if ((pageUrl.getParams().getIp() != null) && (pageUrl.getParams().getPort() != null)){
 						colon=":";
 						alignPort = "align_left";
@@ -121,13 +121,11 @@
 					<% if (pageUrl.getParams().getPort() != null) { %>
 						<td class="<%=alignPort %>"><%=colon %>
 						<input type="text" id="port"  name="port"   value="<%=pageUrl.getParams().getPort()%>" size="6" /></td>
-					<%} %>		
-					<% if ((pageUrl.getParams().getIp() != null) || (pageUrl.getParams().getPort() != null)){%>					
+					<%} %>					
 					</tr>  
 					<%}%>			
 					<% if ((pageUrl.getParams().getRemoteIp() != null) || (pageUrl.getParams().getRemotePort() != null)){%>					
 					<tr>  
-					<%}%>  
 					<% if ((pageUrl.getParams().getRemoteIp() != null) && (pageUrl.getParams().getRemotePort() != null)){
 						colon=":";
 						alignPort = "align_left";
@@ -150,7 +148,6 @@
 						<td class="<%=alignPort %>"><%=colon %>
 						<input type="text" id="remote_port"  name="remote_port"   value="<%=pageUrl.getParams().getRemotePort()%>" size="6" /></td>
 					<%} %>							
-					<% if ((pageUrl.getParams().getRemoteIp() != null) || (pageUrl.getParams().getRemotePort() != null)){%>					
 					</tr>  
 					<%}%>
 					
