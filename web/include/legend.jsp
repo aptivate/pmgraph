@@ -36,16 +36,17 @@
 	try
 	{ 
 		pageUrl.setParameters(request);
-		LegendData legendData = new LegendData();
-		results = legendData.getLegendData(sortBy, order,pageUrl.getParams());
 	}	
 	catch (PageUrlException e)
 	{
-		errorMsg = e.getMessage();
+		errorMsg = e.getLocalizedMessage();
 	}	
-	catch (	ConfigurationException e)
+	try {
+		LegendData legendData = new LegendData();
+		results = legendData.getLegendData(sortBy, order,pageUrl.getParams());
+	} catch (	ConfigurationException e)
 	{
-		configError = e.getMessage();
+		configError = e.getLocalizedMessage();
 	}	
 	
 	String arrow = "ASC".equals(pageUrl.getParams().getOrder())?" &#8679;":" &#8681;";
@@ -116,10 +117,9 @@
 				  	else
 					  	port = result.getPort();
 			        Color c = graphFactory.getSeriesColor(port);
-			        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
-			     /*   String downloadMb = (result.getDownloaded() / 1048576)?(result.getDownloaded() / 1048576):"less than 1";
-			        String uploadMb = (result.getUploaded() / 1048576)?(result.getUploaded() / 1048576):"less than 1";*/
-
+			        String fillColour = Integer.toHexString(c.getRGB() & 0x00ffffff);
+		        	fillColour = "#"+ "000000".substring( 0, 6 - fillColour.length() ) + fillColour;
+		        	
 		%>				    <tr class="row<%=i % 2%>">
 					        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
 							<%   if (GraphFactory.OTHER_PORT == port) {

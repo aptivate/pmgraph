@@ -8,8 +8,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.ChartFactory;
@@ -73,49 +74,42 @@ public class GraphFactory
 	/**
 	 * Initialize a series for a port graph with all the values set to zero and add
 	 * it to the database and to the hashmap containing all the series.
-	 * 
-	 * @param name
-	 * @param id
 	 * @param dataset
-	 * @param port_XYSeries
+	 * @param series
 	 * @param renderer
-	 * @param minutes
 	 * @param start
-	 * @return A series for a port graph with all the values set to zero 
+	 * @param name
+	 * @param view
 	 */
-	private XYSeries InizializeSeries(String name, String id,
-			DefaultTableXYDataset dataset,
-			HashMap<String, XYSeries> port_XYSeries, XYItemRenderer renderer,
-			long minutes, long start, View view)
+	private void series2DataSet(DefaultTableXYDataset dataset,
+			Map<String, long[]> series, XYItemRenderer renderer,
+			long start,	String name, View view)
 	{
-
-		XYSeries series = new XYSeries(name, true, false);
-		for (int i = 0; i <= minutes; i++)
-		{
-			series.add(Long.valueOf(start + i * 60000), Long.valueOf(0));
-		}
-		// keep the series in a hash in order to reuse it when we have
-		// results for the same currentPort
-		port_XYSeries.put(name, series);
-		// Set the same color for the upload and download series of a
-		// port
-		Color color;
-		switch (view)
-		{
-			case LOCAL_PORT:
-			case REMOTE_PORT:
-				color = getSeriesColor(Integer.valueOf(id));
-				break;
-			default:
-			case LOCAL_IP:
-			case REMOTE_IP:
-				color = getSeriesColor(id);
-				break;
-		}
 		// Put the series into the graph
-		dataset.addSeries(series);
-		renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
-		return series;
+		for (String id : series.keySet()) {
+			Color color;
+			switch (view)
+			{
+				case LOCAL_PORT:
+				case REMOTE_PORT:
+					color = getSeriesColor(Integer.valueOf(id));
+					break;
+				default:
+				case LOCAL_IP:
+				case REMOTE_IP:
+					color = getSeriesColor(id);
+					break;
+			}
+			XYSeries serie = new XYSeries(id+name, true, false);
+			long[] values =series.get(id);
+			int j=0;
+			for (long val: values) {
+				serie.add(Long.valueOf(start + j * 60000), Long.valueOf(val));
+				j++;
+			}
+			dataset.addSeries(serie);
+			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
+		}
 	}
 
 	/**
@@ -212,18 +206,20 @@ public class GraphFactory
 	private JFreeChart fillGraph(List<GraphData> thrptResults,
 			RequestParams requestParams)
 	{
-		HashMap<String, XYSeries> graph_XYSeries = new HashMap<String, XYSeries>();
-		HashMap<Long, Long> otherUp = null;
-		HashMap<Long, Long> otherDown = null;
+		LinkedHashMap<String, long[]> downSeries = new LinkedHashMap<String, long[]>();
+		LinkedHashMap<String, long[]> upSeries = new LinkedHashMap<String, long[]>();
 		long start = requestParams.getRoundedStartTime();
 		long end = requestParams.getRoundedEndTime();
 		long theStart = requestParams.getStartTime();
 		long theEnd = requestParams.getEndTime();
+		boolean other = false; 
 
 		String title = chartTitle(requestParams);
 
 		int minutes = (int) (end - start) / 60000;
-
+		long[] otherUp = new long[minutes+1];
+		long[] otherDown = new long[minutes+1];
+		
 		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
 		JFreeChart chart = createStackedXYGraph(title, dataset, start, end,
 				theStart, theEnd);
@@ -232,11 +228,23 @@ public class GraphFactory
 
 		int j = 0;
 		// For each query result, get data and write to the appropriate series
+		
+		m_logger.debug("Strat sorting result list.");
+		long initTime = System.currentTimeMillis();
+		Collections.sort(thrptResults, new BytesTotalComparator(true));
+		
+		long endTime = System.currentTimeMillis() - initTime;
+		m_logger.debug("Time spended in sorting: " + endTime
+				+ " miliseg");
+		
+		m_logger.debug("Start Filing the chart with data.");
+		initTime = System.currentTimeMillis();
+		m_logger.debug("Number of rows in result set = "+thrptResults.size());
+		
 		for (GraphData thrptResult : thrptResults)
 		{
 			String id = serieId(requestParams, thrptResult);
 			Timestamp inserted = thrptResult.getTime();
-
 			// values in the database are in bytes per interval (normally 1
 			// minute)
 			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
@@ -245,71 +253,70 @@ public class GraphFactory
 
 			// check if the ip already has its own series if not we create one
 			// for it
-			if (!graph_XYSeries.containsKey(id + "<down>"))
+			if (!upSeries.containsKey(id))
 			{
 				if (j < requestParams.getResultLimit()) // Is in the Top X
 														// results.
 				{
-					InizializeSeries(id + "<down>", id, dataset,
-							graph_XYSeries, renderer, minutes, start,
-							requestParams.getView());
-					InizializeSeries(id + "<up>", id, dataset, graph_XYSeries,
-							renderer, minutes, start, requestParams.getView());
+					long upSerie[] = new long [minutes+1];
+					long downSerie[] = new long [minutes+1];
+					upSeries.put(id, upSerie);
+					downSeries.put(id, downSerie);
 				}
 				else
 				// Isn't in top X create a series to keep the rest of the results
 				{
 					// Create a hashMap to keep stacked values for group other
-					if (otherUp == null)
-					{
-						otherUp = new HashMap<Long, Long>();
-						otherDown = new HashMap<Long, Long>();
-						for (int i = 0; i <= minutes; i++)
-						{
-							otherUp.put(Long.valueOf(start + i * 60000), 0L);
-							otherDown.put(Long.valueOf(start + i * 60000), 0L);
-						}
-					}
+					other= true;
 				}
 				j++;
 			}
-			XYSeries downSeries = graph_XYSeries.get(id + "<down>");
-			XYSeries upSeries = graph_XYSeries.get(id + "<up>");
-			if (downSeries != null)
+			long[] dSeries = downSeries.get(id);
+			long[] uSeries = upSeries.get(id);
+			if (upSeries.containsKey(id))
 			{ // We created a series for this port so it should be in the
 				// limit top
 				// update the values of the series
-				downSeries.update(inserted.getTime(), downloaded);
-				upSeries.update(inserted.getTime(), (0 - uploaded));
+				dSeries[((int)(inserted.getTime()-start))/60000]= downloaded;
+				uSeries[((int)(inserted.getTime()-start))/60000]= 0-uploaded;
 			}
 			else
 			{ // the port belongs to the group other - just stack values
-				otherDown.put(inserted.getTime(), otherDown.get(inserted
-						.getTime())
-						+ downloaded);
-				otherUp.put(inserted.getTime(), otherUp.get(inserted.getTime())
-						+ (0 - uploaded));
+				otherDown[((int)(inserted.getTime()-start))/60000] += downloaded;
+				otherUp[((int)(inserted.getTime()-start))/60000] += 0-uploaded;
 			}
 		}
+		// Once the data that should be in the graph is created lets go to introduce it in the dataset of the chart.
+		
+		series2DataSet(dataset,downSeries, renderer, start,
+				"<down>", requestParams.getView());
+		series2DataSet(dataset,upSeries, renderer, start,
+				"<up>", requestParams.getView());
+
+		
 		// Other Group
-		if (otherUp != null) // if data exists for the other group.
+		if (other) // if data exists for the other group.
 		{
-			XYSeries downSeries = new XYSeries("other <down>", true, false);
-			XYSeries upSeries = new XYSeries("other <up>", true, false);
+			XYSeries dSeries = new XYSeries("other <down>", true, false);
+			XYSeries uSeries = new XYSeries("other <up>", true, false);
 			for (int i = 0; i <= minutes; i++)
 			{
 				Long time = Long.valueOf(start + i * 60000);
-				downSeries.add(time, otherDown.get(time));
-				upSeries.add(time, otherUp.get(time));
+				dSeries.add(time, (Long)otherDown[i]);
+				uSeries.add(time, (Long)otherUp[i]);
 
 			}
 			Color color = serieOtherColor(requestParams);
-			dataset.addSeries(downSeries);
+			dataset.addSeries(dSeries);
 			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
-			dataset.addSeries(upSeries);
+			dataset.addSeries(uSeries);
 			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
 
 		}
+		endTime = System.currentTimeMillis() - initTime;
+		m_logger.debug("Data iserted in chart Time : " + endTime
+				+ " miliseg");
+		
 		return chart;
 	}
 
@@ -329,7 +336,7 @@ public class GraphFactory
 			long theEnd)
 	{
 
-		m_logger.info("Create Jfreechart Graph instance");
+		m_logger.debug("Create Jfreechart Graph instance");
 		JFreeChart chart = ChartFactory.createStackedXYAreaChart(title, // chart
 				// title
 				"Category", // domain axis label
@@ -339,7 +346,7 @@ public class GraphFactory
 				true, // include legend
 				true, false);
 
-		m_logger.info("Graph already created.");
+		m_logger.debug("Jfreechart Graph instance already created.");
 
 		XYPlot plot = chart.getXYPlot();
 
