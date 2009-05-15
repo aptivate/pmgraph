@@ -74,8 +74,8 @@ abstract class GraphTestBase extends TestCase
 		{
 			assertTrue("missing item " + rows[n],
 					dataset.getSeriesCount() > (n << 1));
-			assertEquals(rows[n] + "<down>", dataset.getSeries(n << 1).getKey());
-			assertEquals(rows[n] + "<up>", dataset.getSeries((n << 1) + 1)
+			assertEquals(rows[n] + "<down>", dataset.getSeries(n).getKey());
+			assertEquals(rows[n] + "<up>", dataset.getSeries((rows.length + n))
 					.getKey());
 		}
 
