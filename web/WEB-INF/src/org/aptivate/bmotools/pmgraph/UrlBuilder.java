@@ -91,15 +91,8 @@ public class UrlBuilder
 	
 	
 	public String getLegendURL() {
-		String newURL = m_legendURL;
-			/*+ "?start=" + m_params.getStartTime() + "&end=" + m_params.getEndTime()
-				+"&resultLimit="+ m_params.getResultLimit();
-		*/
-		//newURL += buildIpPortViewParameters(true);
-		//newURL += buildSortParameters(true);
-		System.out.println ( newURL);
-		
-		return newURL;
+
+		return m_legendURL;
 	}
 
 	public String getServetURL()
