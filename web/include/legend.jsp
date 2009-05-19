@@ -160,7 +160,8 @@
 				  	else
 				  		ip = result.getLocalIp();	    	
 			        Color c = graphFactory.getSeriesColor(ip);
-			        String fillColour = "#" + Integer.toHexString(c.getRGB() & 0x00ffffff);
+			        String fillColour = Integer.toHexString(c.getRGB() & 0x00ffffff);
+		        	fillColour = "#"+ "000000".substring( 0, 6 - fillColour.length() ) + fillColour;			        
 					HostResolver hostResolver = new HostResolver();
 			        String hostName = hostResolver.getHostname(ip);		
 			        if (GraphFactory.OTHER_IP.equalsIgnoreCase(ip))
