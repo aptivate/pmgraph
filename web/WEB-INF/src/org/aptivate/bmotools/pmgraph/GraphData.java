@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * @author Noe A. Rodriguez Glez.
@@ -39,40 +40,21 @@ public class GraphData
 	 * @throws SQLException
 	 * @throws UnknownHostException
 	 */
-	public GraphData(ResultSet rs) throws SQLException
+	public GraphData(ResultSet rs, List columns) throws SQLException
 	{
 
-		try {
+		if (columns.contains("stamp_inserted"))
 			setTime(rs.getTimestamp("stamp_inserted"));
-		}catch (SQLException e) {
-			;
-		}
-		
-		
 		setDownloaded(rs.getLong("downloaded"));
 		setUploaded(rs.getLong("uploaded"));		
-		try {
+		if (columns.contains("local_ip"))
 			setLocalIp(rs.getString("local_ip"));
-		}catch (SQLException e) {
-			;
-		}
-		try {
+		if (columns.contains("remote_ip"))
 			setRemoteIp(rs.getString("remote_ip"));
-		}catch (SQLException e) {
-			;
-		}
-		
-		try {
+		if (columns.contains("port"))
 			setPort(rs.getInt("port"));
-		}catch (SQLException e) {
-			;
-		}
-		try {
+		if (columns.contains("remote_port"))	
 			setRemotePort(rs.getInt("remote_port"));
-		}catch (SQLException e) {
-			//e.printStackTrace();
-		}
-		
 	}
 
 	public GraphData(Timestamp time, String localIp, Long downloaded,
