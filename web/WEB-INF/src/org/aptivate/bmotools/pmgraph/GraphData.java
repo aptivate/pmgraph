@@ -56,6 +56,17 @@ public class GraphData
 		if (columns.contains("remote_port"))	
 			setRemotePort(rs.getInt("remote_port"));
 	}
+	
+	public GraphData(GraphData source) 
+	{
+		this.m_time = source.m_time;
+		this.m_localIp = source.m_localIp;
+		this.m_downloaded = source.m_downloaded;
+		this.m_uploaded = source.m_uploaded;		
+		this.m_remoteIp = source.m_remoteIp;
+		this.m_remotePort = source.m_remotePort;
+		this.m_port = source.m_port;
+	}
 
 	public GraphData(Timestamp time, String localIp, Long downloaded,
 			Long uploaded) throws SQLException
@@ -142,6 +153,16 @@ public class GraphData
 	public void setUploaded(Long uploaded)
 	{
 		this.m_uploaded = uploaded;
+	}
+	
+	public void incrementUploaded(Long uploaded)
+	{
+		this.m_uploaded += uploaded;
+	}
+	
+	public void incrementDownloaded(Long downloaded)
+	{
+		this.m_downloaded += downloaded;
 	}
 
 	public String getLocalIp()

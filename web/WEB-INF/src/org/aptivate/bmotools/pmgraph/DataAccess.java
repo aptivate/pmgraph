@@ -31,7 +31,7 @@ class DataAccess
 	
 	
 	private List getColumnInResultSet(ResultSet rs) throws SQLException {
-		ArrayList<String> columns = new ArrayList();
+		ArrayList<String> columns = new ArrayList<String>();
 		
 		if (rs != null) {
 		  ResultSetMetaData rsMetaData = rs.getMetaData();
