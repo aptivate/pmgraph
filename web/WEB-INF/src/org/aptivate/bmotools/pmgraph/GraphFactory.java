@@ -378,6 +378,7 @@ public class GraphFactory
 		plot.setBackgroundPaint(Color.WHITE);
 		plot.setRangeGridlinesVisible(true);
 		plot.setRangeGridlinePaint(Color.GRAY);
+		plot.setDomainGridlinePaint(Color.GRAY);
 		chart.addSubtitle(new TextTitle(new Date(end).toString()));
 		chart.setBackgroundPaint(null);
 		chart.removeLegend();
