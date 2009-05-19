@@ -6,8 +6,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,8 +74,9 @@ public class GraphFactory
 	}
 
 	/**
-	 * Initialize a series for a port graph with all the values set to zero and add
-	 * it to the database and to the hashmap containing all the series.
+	 * Initialize a series for a port graph with all the values set to zero and
+	 * add it to the database and to the hashmap containing all the series.
+	 * 
 	 * @param dataset
 	 * @param series
 	 * @param renderer
@@ -82,11 +85,12 @@ public class GraphFactory
 	 * @param view
 	 */
 	private void series2DataSet(DefaultTableXYDataset dataset,
-			Map<String, long[]> series, XYItemRenderer renderer,
-			long start,	String name, View view)
+			Map<String, long[]> series, XYItemRenderer renderer, long start,
+			String name, View view)
 	{
 		// Put the series into the graph
-		for (String id : series.keySet()) {
+		for (String id : series.keySet())
+		{
 			Color color;
 			switch (view)
 			{
@@ -100,10 +104,11 @@ public class GraphFactory
 					color = getSeriesColor(id);
 					break;
 			}
-			XYSeries serie = new XYSeries(id+name, true, false);
-			long[] values =series.get(id);
-			int j=0;
-			for (long val: values) {
+			XYSeries serie = new XYSeries(id + name, true, false);
+			long[] values = series.get(id);
+			int j = 0;
+			for (long val : values)
+			{
 				serie.add(Long.valueOf(start + j * 60000), Long.valueOf(val));
 				j++;
 			}
@@ -188,6 +193,53 @@ public class GraphFactory
 	}
 
 	/**
+	 *  Retun a list of the X id with most traffic.
+	 * @param thrptResults
+	 * @param requestParams
+	 * @return
+	 */
+	private List getTopResults(List<GraphData> thrptResults,
+			RequestParams requestParams)
+	{
+
+		List<GraphData> topList = new ArrayList<GraphData>();
+		ArrayList<String> topId = new ArrayList<String>();
+		Map<String, GraphData> aux = new HashMap<String, GraphData>();
+
+		// create a list acumulating up load and download per each minute
+		for (GraphData thrptResult : thrptResults)
+		{
+			String id = serieId(requestParams, thrptResult);
+			GraphData data = aux.get(id);
+			if (data != null)
+			{
+				data.incrementUploaded(thrptResult.getUploaded());
+				data.incrementDownloaded(thrptResult.getDownloaded());
+			}
+			else
+			{
+				aux.put(id, new GraphData(thrptResult));
+
+			}
+		}
+		for (GraphData thrptResult : aux.values())
+		{
+			topList.add(thrptResult);
+		}
+		// sort the list using byt total
+		Collections.sort(topList, new BytesTotalComparator(true));
+		if (topList.size() > requestParams.getResultLimit())
+		{
+			topList = topList.subList(0, (int) requestParams.getResultLimit());
+		}
+		for (GraphData thrptResult : topList)
+		{
+			topId.add(serieId(requestParams, thrptResult));
+		}
+		return (topId);
+	}
+
+	/**
 	 * Create a JFreeChart with the data in the List thrptResults creating a new
 	 * series per each port, or Ip
 	 * 
@@ -212,14 +264,14 @@ public class GraphFactory
 		long end = requestParams.getRoundedEndTime();
 		long theStart = requestParams.getStartTime();
 		long theEnd = requestParams.getEndTime();
-		boolean other = false; 
+		boolean other = false;
 
 		String title = chartTitle(requestParams);
 
 		int minutes = (int) (end - start) / 60000;
-		long[] otherUp = new long[minutes+1];
-		long[] otherDown = new long[minutes+1];
-		
+		long[] otherUp = new long[minutes + 1];
+		long[] otherDown = new long[minutes + 1];
+
 		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
 		JFreeChart chart = createStackedXYGraph(title, dataset, start, end,
 				theStart, theEnd);
@@ -228,19 +280,20 @@ public class GraphFactory
 
 		int j = 0;
 		// For each query result, get data and write to the appropriate series
-		
+
 		m_logger.debug("Strat sorting result list.");
 		long initTime = System.currentTimeMillis();
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
-		
+
+		List<GraphData> topIds = getTopResults(thrptResults, requestParams);
+
 		long endTime = System.currentTimeMillis() - initTime;
-		m_logger.debug("Time spended in sorting: " + endTime
-				+ " miliseg");
-		
+		m_logger.debug("Time spended in sorting: " + endTime + " miliseg");
+
 		m_logger.debug("Start Filing the chart with data.");
 		initTime = System.currentTimeMillis();
-		m_logger.debug("Number of rows in result set = "+thrptResults.size());
-		
+		m_logger.debug("Number of rows in result set = " + thrptResults.size());
+
 		for (GraphData thrptResult : thrptResults)
 		{
 			String id = serieId(requestParams, thrptResult);
@@ -255,19 +308,20 @@ public class GraphFactory
 			// for it
 			if (!upSeries.containsKey(id))
 			{
-				if (j < requestParams.getResultLimit()) // Is in the Top X
-														// results.
+				if (topIds.contains(id)) // Is in the Top X
+				// results.
 				{
-					long upSerie[] = new long [minutes+1];
-					long downSerie[] = new long [minutes+1];
+					long upSerie[] = new long[minutes + 1];
+					long downSerie[] = new long[minutes + 1];
 					upSeries.put(id, upSerie);
 					downSeries.put(id, downSerie);
 				}
 				else
-				// Isn't in top X create a series to keep the rest of the results
+				// Isn't in top X create a series to keep the rest of the
+				// results
 				{
 					// Create a hashMap to keep stacked values for group other
-					other= true;
+					other = true;
 				}
 				j++;
 			}
@@ -277,23 +331,23 @@ public class GraphFactory
 			{ // We created a series for this port so it should be in the
 				// limit top
 				// update the values of the series
-				dSeries[((int)(inserted.getTime()-start))/60000]= downloaded;
-				uSeries[((int)(inserted.getTime()-start))/60000]= 0-uploaded;
+				dSeries[((int) (inserted.getTime() - start)) / 60000] = downloaded;
+				uSeries[((int) (inserted.getTime() - start)) / 60000] = 0 - uploaded;
 			}
 			else
 			{ // the port belongs to the group other - just stack values
-				otherDown[((int)(inserted.getTime()-start))/60000] += downloaded;
-				otherUp[((int)(inserted.getTime()-start))/60000] += 0-uploaded;
+				otherDown[((int) (inserted.getTime() - start)) / 60000] += downloaded;
+				otherUp[((int) (inserted.getTime() - start)) / 60000] += 0 - uploaded;
 			}
 		}
-		// Once the data that should be in the graph is created lets go to introduce it in the dataset of the chart.
-		
-		series2DataSet(dataset,downSeries, renderer, start,
-				"<down>", requestParams.getView());
-		series2DataSet(dataset,upSeries, renderer, start,
-				"<up>", requestParams.getView());
+		// Once the data that should be in the graph is created lets go to
+		// introduce it in the dataset of the chart.
 
-		
+		series2DataSet(dataset, downSeries, renderer, start, "<down>",
+				requestParams.getView());
+		series2DataSet(dataset, upSeries, renderer, start, "<up>",
+				requestParams.getView());
+
 		// Other Group
 		if (other) // if data exists for the other group.
 		{
@@ -302,8 +356,8 @@ public class GraphFactory
 			for (int i = 0; i <= minutes; i++)
 			{
 				Long time = Long.valueOf(start + i * 60000);
-				dSeries.add(time, (Long)otherDown[i]);
-				uSeries.add(time, (Long)otherUp[i]);
+				dSeries.add(time, (Long) otherDown[i]);
+				uSeries.add(time, (Long) otherUp[i]);
 
 			}
 			Color color = serieOtherColor(requestParams);
@@ -314,15 +368,14 @@ public class GraphFactory
 
 		}
 		endTime = System.currentTimeMillis() - initTime;
-		m_logger.debug("Data iserted in chart Time : " + endTime
-				+ " miliseg");
-		
+		m_logger.debug("Data iserted in chart Time : " + endTime + " miliseg");
+
 		return chart;
 	}
 
 	/**
-	 * A method which creates the chart with the default options for the
-	 * stacked charts
+	 * A method which creates the chart with the default options for the stacked
+	 * charts
 	 * 
 	 * @param dataset
 	 * @param start
@@ -417,8 +470,6 @@ public class GraphFactory
 				(byte) (port >>> 16), (byte) (port >>> 8), (byte) port };
 		return getColorFromByteArray(portBytes);
 	}
-
-	
 
 	/**
 	 * Produces a JFreeChart showing total upload and download throughput for
