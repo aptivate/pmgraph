@@ -40,15 +40,15 @@ if [ -x "/etc/init.d/tomcat5.5" ]; then
         if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
                 invoke-rc.d tomcat5.5 restart || exit $?
         else
-                /etc/init.d/tomcat5.5 start || exit $?
+                /etc/init.d/tomcat5.5 restart || exit $?
         fi
 fi
 
 if [ -x "/etc/init.d/pmacct" ]; then
         if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                invoke-rc.d pmacct start || exit $?
+                invoke-rc.d pmacct restart || exit $?
         else
-                /etc/init.d/pmacct start || exit $?
+                /etc/init.d/pmacct restart || exit $?
         fi
 fi
 

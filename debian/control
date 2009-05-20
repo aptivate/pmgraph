@@ -1,7 +1,7 @@
 Source: pmgraph
 Section: net
 Priority: optional
-Maintainer: Aptivate <info+pmgraph@aptivate.org>
+Maintainer: Aptivate <pmgraph-team@aptivate.org>
 Build-Depends: debhelper (>> 5), javahelper , ant (>= 1.7)
 Build-Depends-Indep: sun-java6-jdk
 Standards-Version: 3.7.3
