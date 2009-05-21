@@ -1,12 +1,10 @@
-drop database if exists pmacct;
-create database pmacct;
+create database if not exists pmacct;
 
 GRANT SELECT,INSERT, LOCK TABLES ON pmacct.* TO 'pmacct'@'localhost' identified by 'secret';
 
 use pmacct;
 
-drop table if exists acct_v6; 
-create table acct_v6 (
+create table if not exists acct_v6 (
 	ip_src CHAR(15) NOT NULL,
 	ip_dst CHAR(15) NOT NULL,
 	src_port INT(2) UNSIGNED NOT NULL,
@@ -21,3 +19,5 @@ create table acct_v6 (
 );
 
 alter table acct_v6 add index (stamp_inserted,ip_src,ip_dst,bytes);
+
+optimize table acct_v6;

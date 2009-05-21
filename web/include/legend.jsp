@@ -47,6 +47,8 @@
 	} catch (	ConfigurationException e)
 	{
 		configError = e.getLocalizedMessage();
+		if (e.getCause() != null)
+			configError += "<p>" +e.getCause().getLocalizedMessage() + "</p>";
 	}	
 	
 	String arrow = "ASC".equals(pageUrl.getParams().getOrder())?" &#8679;":" &#8681;";

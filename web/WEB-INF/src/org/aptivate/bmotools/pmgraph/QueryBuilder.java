@@ -1,6 +1,7 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.security.AccessControlException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -69,10 +70,10 @@ public class QueryBuilder
 		catch (CommunicationsException e)
 		{
 			Throwable cause = e.getCause();
-			m_logger.info("-------" + e.getCause());
 			// detect if the error is because of
 			if ((cause instanceof AccessControlException)
-					|| (cause instanceof SecurityException))
+					|| (cause instanceof SecurityException)
+					|| (cause instanceof SocketException))
 			{
 				m_logger
 						.fatal("Unable to get a mysql connection due to a Java security Exception: ");
@@ -82,7 +83,7 @@ public class QueryBuilder
 						.fatal("If you have java security enabled please add a exception in the policy "
 								+ "file to allow this web application to connect to the mysql port. ");
 				throw (new ConfigurationException(
-						ErrorMessages.MYSQL_CONNECTION_ERROR_JAVA_SECURITY));
+						ErrorMessages.MYSQL_CONNECTION_ERROR_JAVA_SECURITY, cause));
 			}
 			else
 			{
@@ -91,7 +92,7 @@ public class QueryBuilder
 						+ e.getLocalizedMessage());
 				
 				throw (new ConfigurationException(
-						"Unable to get a mysql connection, please check your database.properties file"));
+						"Unable to get a mysql connection, please check your database.properties file:", e));
 			}
 		}
 		catch (SQLException e)
@@ -101,7 +102,7 @@ public class QueryBuilder
 				+ e.getLocalizedMessage());
 			
 			throw (new ConfigurationException(
-					ErrorMessages.MYSQL_CONNECTION_ERROR));
+					ErrorMessages.MYSQL_CONNECTION_ERROR, e));
 		}
 
 	}

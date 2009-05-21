@@ -11,10 +11,11 @@ public class ConfigurationException extends Exception
 {
 	private static final long serialVersionUID = 6894195620443302817L;
 
-	public ConfigurationException(String message)
+
+	public ConfigurationException(String message, Throwable cause)
 	{
 
-		super(message);
+		super(message, cause);
 	}
-
+	
 }
