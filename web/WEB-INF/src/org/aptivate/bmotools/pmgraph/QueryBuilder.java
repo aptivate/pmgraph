@@ -136,10 +136,11 @@ public class QueryBuilder
 		{
 
 			case LOCAL_PORT:
-			case LOCAL_IP:
-				sql.append(" (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip, ");
-				m_listData.add(m_localSubnet + "%");
 				sql.append("(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port ");
+				m_listData.add(m_localSubnet + "%");
+				break;
+			case LOCAL_IP:
+				sql.append("(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip ");
 				m_listData.add(m_localSubnet + "%");
 				break;
 			case REMOTE_PORT:
@@ -169,31 +170,31 @@ public class QueryBuilder
 			comparator = " = ";
 			ip = requestParams.getIp();
 			where
-					.append(" AND (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) = ? ");
+					.append("AND (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) = ? ");
 			m_listData.add(m_localSubnet + "%");
 			m_listData.add(requestParams.getIp());
 		}
 		if (requestParams.getPort() != null)
 		{ // for a specific local Port
-			where.append(" AND (CASE WHEN ip_src " + comparator
+			where.append("AND (CASE WHEN ip_src " + comparator
 					+ " ? THEN src_port ELSE dst_port END) = ? ");
 			m_listData.add(ip);
 			m_listData.add(requestParams.getPort());
 		}
 		if (requestParams.getRemoteIp() != null)
 		{ // for an specific local IP
-			where.append(" AND (CASE WHEN ip_src LIKE ? THEN ip_dst ELSE ip_src END) = ? ");
+			where.append("AND (CASE WHEN ip_src LIKE ? THEN ip_dst ELSE ip_src END) = ? ");
 			m_listData.add(m_localSubnet + "%");
 			m_listData.add(requestParams.getRemoteIp());
 		}
 		if (requestParams.getRemotePort() != null)
 		{ // for a specific local Port
-			where.append(" AND (CASE WHEN ip_src " + comparator
+			where.append("AND (CASE WHEN ip_src " + comparator
 					+ " ? THEN dst_port ELSE src_port END) = ? ");
 			m_listData.add(ip);
 			m_listData.add(requestParams.getRemotePort());
 		}
-		where.append(" AND ((NOT (ip_src LIKE ?) AND ip_dst " + comparator
+		where.append("AND ((NOT (ip_src LIKE ?) AND ip_dst " + comparator
 				+ " ?) OR (NOT (ip_dst LIKE ?) AND ip_src " + comparator
 				+ " ?)) ");
 		m_listData.add(m_localSubnet + "%");
