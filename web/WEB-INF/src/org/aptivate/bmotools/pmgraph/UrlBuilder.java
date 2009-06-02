@@ -126,10 +126,18 @@ public class UrlBuilder
 	
 	public String getIndexURL(long start, long end, boolean resetFlag)
 	{
-		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
+		String newURL="";
+		if(resetFlag)
+		{
+			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end;
+		}
+		else
+		{
+			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
 				+ "&amp;resultLimit=" + m_params.getResultLimit();	
-		newURL += buildSortParameters(false);
-		newURL += buildIpPortViewParameters(false);
+			newURL += buildSortParameters(false);
+			newURL += buildIpPortViewParameters(false);
+		}
 		return newURL;
 	}
 
