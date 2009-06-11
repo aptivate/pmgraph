@@ -69,7 +69,7 @@ public class Configuration
 	{
 
 		Properties properties = readConfiguration();
-		return properties.getProperty("DHCPAdress");
+		return properties.getProperty("DHCPAddress");
 	}
 
 	public static String getDHCPName() throws IOException
