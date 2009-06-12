@@ -16,7 +16,8 @@
     String graph = (param = request.getParameter("graph")) != null ? param : "cumul";
     long now = new Date().getTime();
     long scrollAmount, zoomAmount, graphSpan;
-    String colon="", alignPort="align_right", name="";
+    String colon="", alignPort="align_right", name="";   
+    
         
          //the sort parameters
     //sortBy: bytes_total | downloaded | uploaded
@@ -47,12 +48,73 @@
     graphSpan =  pageUrl.getParams().getGraphSpan();  
     scrollAmount =  pageUrl.getParams().getScrollAmount();  
     zoomAmount = pageUrl.getParams().getZoomAmount();
+    
+    //dynamic parameter
+    boolean dynamicFlag=pageUrl.getParams().getDynamic(); 
+      
 %>
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <title>pmGraph</title>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
         <link rel="Stylesheet" href="styles/main.css" type="text/css" />
+        <% if (dynamicFlag) { %>
+        <script type="text/javascript">  
+        	function onReload()			
+        	{	
+        		document.getElementById("dynamic").checked="true";
+				t=setTimeout('update()',100000);															
+			}			
+						
+			function checkTime(i)
+			{
+				if (i<10)
+				{
+					i="0" + i;
+				}
+				return i;
+			}						
+						
+			function update()
+			{
+			    var today=new Date();
+				var h=today.getHours();
+
+				var fh=h-3;
+				// At midnight h = 0 & fh = -3, wrap fh to show correct time. 
+				if( fh < 0 ) {
+				   fh = 24 + fh;
+				}				
+
+				var m=today.getMinutes();
+				var s=today.getSeconds();
+				// add a zero in front of numbers<10
+				h=checkTime(h);
+				fh=checkTime(fh);
+				m=checkTime(m);
+				s=checkTime(s);		
+				var toTime1 = document.getElementById('toTime').value=h+":"+m+":"+s;
+				var fromTime1 = document.getElementById('fromTime').value=fh+":"+m+":"+s;
+				var url = window.location.href;								
+				var componentList = url.split('?');
+				var newUrl = componentList[0];
+				var szDocument = componentList[componentList.length-1];				
+				var documentFilename = szDocument.split('&');				
+				documentFilename[2] = "fromTime=" + fromTime1;
+				documentFilename[3] = "toTime=" + toTime1;	
+				newUrl = newUrl + "?" + documentFilename[0];			
+				var i;				
+				for (i=1;i<=(documentFilename.length-1);i++)
+				{
+					newUrl = newUrl + "&" + documentFilename[i];
+				}
+				//console.log(newUrl);
+				window.location.replace(newUrl);				
+											
+			}
+        </script>
+        <% } %>
         <% if (errorMsg != null) { %>
         <script type="text/javascript"> 
         // <![CDATA[		       					
@@ -68,6 +130,8 @@
     </head>
     <% if (errorMsg != null) { %>
     	<body onload="onLoad();">   
+    <% } else if (dynamicFlag) { %>
+    	<body onload="onReload();">
     <% } else { %>
     	<body>
     <% } %>
@@ -76,6 +140,18 @@
                 <img id="logo" alt="Logo Banner" src="images/logo.png" />
             <div id="date_form">
             	<form id="SetDateAndTime"  action="">
+            	<script type="text/javascript">  
+				        function check()
+						{							
+							alert("Click 'Draw Graph' button to enable Dynamic Updation.");	
+							document.getElementById( 'dynamic' ).value = "true";														
+						}   
+						function uncheck()
+						{							
+							alert("Click 'Draw Graph' button to disable Dynamic Updation.");	
+							document.getElementById( 'dynamic' ).value = "false";														
+						}   
+					</script>
             	<table class="layout_table" id="date_table">
 					<tr>
 						<th> </th>   
@@ -150,7 +226,7 @@
 					<%} %>							
 					</tr>  
 					<%}%>
-					
+						
 					<tr>  
 						<td>View </td>   
 						<td class="align_right">
@@ -165,9 +241,19 @@
 								<%} %>
 							<% } %>
 						</select>
-						</td>
-						<td  colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>
+						</td>					
+						
 					</tr>
+					
+					<tr>						
+						<td>Dynamic Updation: </td> 
+						<td class="align_right">																
+						<input type="checkbox" id="dynamic" name="dynamic" value="false" onclick="if (this.checked) {check();} else {uncheck();}" />						
+						</td>	
+						<td  colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>					
+					</tr>				
+																	
+
 				</table>   
 				</form>
 	            </div>         
@@ -184,7 +270,7 @@
                 <!-- Move back/forward or zoom in/out -->
                 <div id="controls">
                     <a name="prev"
-                       href="<%=pageUrl.getIndexURL((startTime - scrollAmount), (endTime - scrollAmount))%>"
+                       href="<%=pageUrl.getIndexURL((startTime - scrollAmount), (endTime - scrollAmount), dynamicFlag)%>"
                         class="control">Prev.</a>
                     <div id="controlscenter">
 
@@ -200,11 +286,11 @@
                     <%if (pageUrl.isShowCurrent()) {%>
                     <!-- show current -->
                     <a name="current" 
-                       href="<%=pageUrl.getIndexURL((now - graphSpan), now)%>" 
+                       href="<%=pageUrl.getIndexURL((now - graphSpan), now, dynamicFlag)%>" 
                        class="control">Current</a>
                     <%} else {%>
                     <a name="next" 
-                       href="<%=pageUrl.getIndexURL((startTime + scrollAmount), (endTime + scrollAmount))%>" 
+                       href="<%=pageUrl.getIndexURL((startTime + scrollAmount), (endTime + scrollAmount), dynamicFlag)%>" 
                        class="control">Next</a>
                     <%}%>
                 </div>  
@@ -214,7 +300,7 @@
             </div>
  			<div class="center">
  				<a class="left" href="javascript:history.back(1);">Back</a> 	 				 				
- 			    <a class="align_right" href="<%=pageUrl.getIndexURL(startTime, endTime, true)%>">Reset</a>			
+ 			    <a class="align_right" href="<%=pageUrl.getIndexURL(startTime, endTime, true, false)%>">Reset</a>			
  			</div> 			
             <!-- <div id="footer"></div> -->
         </div>
