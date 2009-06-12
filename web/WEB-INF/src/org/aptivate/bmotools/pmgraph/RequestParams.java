@@ -10,6 +10,10 @@ import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * RuchiR. 12-06-2009 Additions made for dynamic updation feature.
+ */
+
 public class RequestParams
 {
 
@@ -18,6 +22,8 @@ public class RequestParams
 	private Date m_toDateAndTime;
 
 	private Integer m_resultLimit;
+
+	private boolean m_dynamic;
 
 	private View m_view;
 
@@ -37,63 +43,70 @@ public class RequestParams
 	{
 		m_params = new HashMap<String, Object>();
 	}
-	
-	//Currently, this method is used in test code only
-	RequestParams(long start, long end, View view, int resultLimit,
-			Integer port)
+
+	// Currently, this method is used in test code only
+	RequestParams(long start, long end, View view, int resultLimit, Integer port)
 	{
 		this(start, end, view, resultLimit);
 		m_params.put("port", port);
 	}
-	//Currently, this method is used in test code only
-	RequestParams(long start, long end, View view, int resultLimit,
-			String ip)
+
+	// Currently, this method is used in test code only
+	RequestParams(long start, long end, View view, int resultLimit, String ip)
 	{
 		this(start, end, view, resultLimit);
 		m_params.put("ip", ip);
 	}
-	//Currently, this method is used in test code only
+
+	// Currently, this method is used in test code only
 	RequestParams(long start, long end, View view, int resultLimit)
 	{
 		this();
-		m_fromDateAndTime = new Date (start);
-		m_toDateAndTime = new Date (end);
+		m_fromDateAndTime = new Date(start);
+		m_toDateAndTime = new Date(end);
 		m_view = view;
 		m_resultLimit = resultLimit;
 	}
-	
-	//	Currently, this method is used in test code only
-	void setRemoteIp (String remoteIp) {
-		
-		m_params.put("remote_ip", remoteIp);		
+
+	// Currently, this method is used in test code only
+	void setRemoteIp(String remoteIp)
+	{
+
+		m_params.put("remote_ip", remoteIp);
 	}
-	
-	//	Currently, this method is used in test code only
-	void setPort (Integer port) {
-		
-		m_params.put("port", port);		
+
+	// Currently, this method is used in test code only
+	void setPort(Integer port)
+	{
+
+		m_params.put("port", port);
 	}
-	
-	RequestParams (Map<String, Object> params)
+
+	RequestParams(Map<String, Object> params)
 	{
 		m_params = params;
 	}
-	
-	void setView (View view)
+
+	void setView(View view)
 	{
 		m_view = view;
 	}
-	
-	void setStart (long start) 
+
+	void setStart(long start)
 	{
-		m_fromDateAndTime = new Date (start);
+		m_fromDateAndTime = new Date(start);
 	}
-	
-	void setEnd (long end) 
+
+	void setEnd(long end)
 	{
-		m_toDateAndTime = new Date (end);
-	}	
-	
+		m_toDateAndTime = new Date(end);
+	}
+
+	void setDynamic(boolean dynamic)
+	{
+		m_dynamic = dynamic;
+	}
+
 	public String getFromDateAsString()
 	{
 
@@ -138,6 +151,11 @@ public class RequestParams
 	public View getView()
 	{
 		return m_view;
+	}
+
+	public boolean getDynamic()
+	{
+		return m_dynamic;
 	}
 
 	public long getGraphSpan()
@@ -219,8 +237,8 @@ public class RequestParams
 	{
 		return m_toDateAndTime.getTime() - (m_toDateAndTime.getTime() % 60000);
 	}
-	
-	//Currently this method isn't used
+
+	// Currently this method isn't used
 	public Map<String, Object> getParams()
 	{
 		return m_params;
@@ -239,14 +257,12 @@ public class RequestParams
 			{
 				m_fromDateAndTime = setDateTimeFromFromData(request, "from");
 				m_toDateAndTime = setDateTimeFromFromData(request, "to");
-			}
-			else
+			} else
 			{ // if user has not defined date time get it from start and end
 				// parameters
 				setDatesFromStartEnd(request);
 			}
-		}
-		catch (PageUrlException e)
+		} catch (PageUrlException e)
 		{
 			setDatesFromStartEnd(request);
 			throw e;
@@ -284,25 +300,45 @@ public class RequestParams
 		{
 			try
 			{
-				
-				m_resultLimit = Integer.parseInt(request.getParameter("resultLimit"));
-			}
-			catch (NumberFormatException e)
+
+				m_resultLimit = Integer.parseInt(request
+						.getParameter("resultLimit"));
+			} catch (NumberFormatException e)
 			{
 				m_resultLimit = Configuration.getResultLimit();
-				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
+				throw new PageUrlException(
+						ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
 
 			if (m_resultLimit < 0)
 			{
 				m_resultLimit = Configuration.getResultLimit();
-				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
+				throw new PageUrlException(
+						ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
-		}
-		else
+		} else
 		{ // if user has not defined resultLimit get it from default
 			m_resultLimit = Configuration.getResultLimit();
 		}
+	}
+
+	/**
+	 * If a Dynamic parameter is set in the request the checkbox value is set.
+	 * 
+	 * @param request
+	 * @throws NumberFormatException
+	 * @throws PageUrlException
+	 * @throws IOException
+	 */
+	private void setDynamicFromRequest(HttpServletRequest request)
+			throws PageUrlException
+	{
+
+		if (request.getParameter("dynamic") != null)
+		{
+			m_dynamic = Boolean.parseBoolean(request.getParameter("dynamic"));
+		} else
+			m_dynamic = false;
 	}
 
 	/**
@@ -318,28 +354,27 @@ public class RequestParams
 	{
 		Integer port;
 
-		if ((request.getParameter("ip") != null) 
+		if ((request.getParameter("ip") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("ip"))))
 		{
 			if (isValidIP(request.getParameter("ip")))
-			{ 
+			{
 				m_params.put("ip", request.getParameter("ip"));
-		    }
-		    else
-		    {
-		    	throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
-		    }
-	    }
-		
+			} else
+			{
+				throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+			}
+		}
+
 		if ((request.getParameter("port") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("port"))))
 		{
 			try
 			{
 				port = Integer.valueOf(request.getParameter("port"));
-				m_params.put("port", Integer.valueOf(request.getParameter("port")));
-			}
-			catch (NumberFormatException e)
+				m_params.put("port", Integer.valueOf(request
+						.getParameter("port")));
+			} catch (NumberFormatException e)
 			{
 				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
 			}
@@ -347,7 +382,7 @@ public class RequestParams
 			{
 				throw new PageUrlException(ErrorMessages.NEGATIVE_PORT_NUMBER);
 			}
-			if(port > 65535)
+			if (port > 65535)
 			{
 				throw new PageUrlException(ErrorMessages.PORT_NUMBER_TOO_BIG);
 			}
@@ -356,30 +391,29 @@ public class RequestParams
 
 	private boolean isValidIP(String ip) throws NumberFormatException
 	{
-		//IP address should have format n.n.n.n where n is in the range 0-255
+		// IP address should have format n.n.n.n where n is in the range 0-255
 		StringTokenizer initial_st = new StringTokenizer(ip, ".", true);
-		if (initial_st.countTokens() != 7) 
+		if (initial_st.countTokens() != 7)
 		{
 			return false;
 		}
-		
+
 		StringTokenizer st = new StringTokenizer(ip, ".");
-		if (st.countTokens() != 4) 
+		if (st.countTokens() != 4)
 		{
 			return false;
 		}
-		
-		while (st.hasMoreTokens()) 
+
+		while (st.hasMoreTokens())
 		{
-			try 
+			try
 			{
 				int ipElement = Integer.valueOf(st.nextToken());
-				if (ipElement < 0 || ipElement > 255) 
+				if (ipElement < 0 || ipElement > 255)
 				{
 					return false;
 				}
-			}
-			catch(NumberFormatException e) 
+			} catch (NumberFormatException e)
 			{
 				return false;
 			}
@@ -396,13 +430,12 @@ public class RequestParams
 				&& (!"".equalsIgnoreCase(request.getParameter("remote_ip"))))
 		{
 			if (isValidIP(request.getParameter("remote_ip")))
-			{ 
+			{
 				m_params.put("remote_ip", request.getParameter("remote_ip"));
-		    }
-		    else
-		    {
-			   throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
-		    }
+			} else
+			{
+				throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+			}
 		}
 
 		if ((request.getParameter("remote_port") != null)
@@ -414,8 +447,7 @@ public class RequestParams
 				port = Integer.valueOf(request.getParameter("remote_port"));
 				m_params.put("remote_port", Integer.valueOf(request
 						.getParameter("remote_port")));
-			}
-			catch (NumberFormatException e)
+			} catch (NumberFormatException e)
 			{
 				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
 			}
@@ -448,14 +480,12 @@ public class RequestParams
 			try
 			{
 				m_view = View.valueOf(request.getParameter("view"));
-			}
-			catch (IllegalArgumentException e)
+			} catch (IllegalArgumentException e)
 			{
 				m_view = View.LOCAL_IP; // Default view Value
 				throw (new PageUrlException(ErrorMessages.VIEW_FORMAT_ERROR));
 			}
-		}
-		else
+		} else
 		{
 			m_view = View.LOCAL_IP; // Default view Value
 		}
@@ -489,8 +519,7 @@ public class RequestParams
 			{
 				date = dateTimeFormat.parse(request.getParameter(name + "Date")
 						+ "-" + request.getParameter(name + "Time"));
-			}
-			catch (ParseException e)
+			} catch (ParseException e)
 			{
 				throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
 			}
@@ -502,8 +531,7 @@ public class RequestParams
 				throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
 			}
 			return date;
-		}
-		else
+		} else
 		{
 			throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
 		}
@@ -527,15 +555,13 @@ public class RequestParams
 			{
 				m_fromDateAndTime = new Date(Long.valueOf(request
 						.getParameter("start")));
-				m_toDateAndTime = new Date(Long
-						.valueOf(request.getParameter("end")));
-			}
-			catch (NumberFormatException e)
+				m_toDateAndTime = new Date(Long.valueOf(request
+						.getParameter("end")));
+			} catch (NumberFormatException e)
 			{
-				throw new PageUrlException(ErrorMessages.START_END_FORMAT_ERROR );
+				throw new PageUrlException(ErrorMessages.START_END_FORMAT_ERROR);
 			}
-		}
-		else
+		} else
 		{
 			setDatesDefault();
 		}
@@ -577,8 +603,7 @@ public class RequestParams
 		try
 		{
 			setDatesFromRequest(request);
-		}
-		catch (PageUrlException e)
+		} catch (PageUrlException e)
 		{ // Catch exception in order to continue setting parameters
 			if (exception == null)
 				exception = e;
@@ -589,8 +614,7 @@ public class RequestParams
 		try
 		{
 			setResultLimitFromRequest(request);
-		}
-		catch (PageUrlException e)
+		} catch (PageUrlException e)
 		{
 			if (exception == null)
 				exception = e;
@@ -601,9 +625,20 @@ public class RequestParams
 
 		try
 		{
-			setViewFromRequest(request);
+			setDynamicFromRequest(request);
+		} catch (PageUrlException e)
+		{ // Catch exception in order to continue setting parameters
+			if (exception == null)
+				exception = e;
+			else
+				exception = new PageUrlException(exception.getMessage() + " "
+						+ e.getMessage());
 		}
-		catch (PageUrlException e)
+
+		try
+		{
+			setViewFromRequest(request);
+		} catch (PageUrlException e)
 		{
 			if (exception == null)
 				exception = e;
@@ -615,8 +650,7 @@ public class RequestParams
 		try
 		{
 			setIpPortFromRequest(request);
-		}
-		catch (PageUrlException e)
+		} catch (PageUrlException e)
 		{ // Catch exception in order to continue setting parameters
 			if (exception == null)
 				exception = e;
@@ -627,8 +661,7 @@ public class RequestParams
 		try
 		{
 			setRemoteIpPortFromRequest(request);
-		}
-		catch (PageUrlException e)
+		} catch (PageUrlException e)
 		{ // Catch exception in order to continue setting parameters
 			if (exception == null)
 				exception = e;
