@@ -246,7 +246,7 @@
 					</tr>
 					
 					<tr>						
-						<td>Dynamic Updation: </td> 
+						<td>Dynamic Update: </td> 
 						<td class="align_right">																
 						<input type="checkbox" id="dynamic" name="dynamic" value="false" onclick="if (this.checked) {check();} else {uncheck();}" />						
 						</td>	
