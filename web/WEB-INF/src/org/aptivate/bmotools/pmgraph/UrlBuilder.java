@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author sylviaw Create URL and check if the entered URL is valid - History:
  *         Noe A. Rodriguez Glez. 18-03-2009 W3C URL compilance Page Date time
  *         Validation moved to this class. RuchiR. 12-06-2009 Changes made for
- *         dynamic updation feature.
+ *         dynamic update feature.
  */
 public class UrlBuilder
 {
