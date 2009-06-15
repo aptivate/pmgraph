@@ -32,7 +32,7 @@ public class ButtonsTest extends TestCase
 		WebResponse response;
 		String nextURL;
 		WebLink link;
-		nextURL = "index.jsp?start=150000&end=300000&resultLimit=15&view=LOCAL_IP";
+		nextURL = "index.jsp?start=150000&end=300000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 		
 		// Create a conversation
 		wc = new WebConversation();
@@ -50,7 +50,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=150000&end=300000&resultLimit=15");
 		response = wc.getResponse(request);
 		
-		nextURL = "index.jsp?start=225000&end=375000&resultLimit=15&view=LOCAL_IP";
+		nextURL = "index.jsp?start=225000&end=375000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 		// Find the "next" link
 		link = response.getLinkWithName("next");
 		assertEquals("Compare the next link.", nextURL, link.getURLString());
@@ -71,16 +71,16 @@ public class ButtonsTest extends TestCase
 		WebResponse response;
 		String nextURL;
 		WebLink link;
-		nextURL = "index.jsp?start=150000&end=450000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
-		String prevURL = "index.jsp?start=-150000&end=150000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
-		String zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
-		String zoomInURL = "index.jsp?start=75000&end=225000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
+		nextURL = "index.jsp?start=150000&end=450000&resultLimit=5&dynamic=false&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
+		String prevURL = "index.jsp?start=-150000&end=150000&resultLimit=5&dynamic=false&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
+		String zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=5&dynamic=false&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
+		String zoomInURL = "index.jsp?start=75000&end=225000&resultLimit=5&dynamic=false&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
 		
 		// Create a conversation
 		wc = new WebConversation();
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
-				+ "?start=0&end=300000&resultLimit=5&order=DESC&sortBy=uploaded&view=LOCAL_PORT");
+				+ "?start=0&end=300000&resultLimit=5&dynamic=false&order=DESC&sortBy=uploaded&view=LOCAL_PORT");
 		response = wc.getResponse(request);
 
 		// Find the "next" link
@@ -116,7 +116,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=150000&end=450000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		prevURL = "index.jsp?start=0&end=300000&resultLimit=15&view=LOCAL_IP";
+		prevURL = "index.jsp?start=0&end=300000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
 		// Find the "prev" link
 		link = response.getLinkWithName("prev");
@@ -127,7 +127,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=0&end=300000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		prevURL = "index.jsp?start=-150000&end=150000&resultLimit=15&view=LOCAL_IP";
+		prevURL = "index.jsp?start=-150000&end=150000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
 		// Find the "next" link
 		link = response.getLinkWithName("prev");
@@ -151,7 +151,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=0&end=300000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=15&view=LOCAL_IP";
+		zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
 		// Find the Zoom- link
 		link = response.getLinkWithName("zoomOut");
@@ -162,7 +162,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=-150000&end=450000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		zoomURL = "index.jsp?start=-450000&end=750000&resultLimit=15&view=LOCAL_IP";
+		zoomURL = "index.jsp?start=-450000&end=750000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
 		// Find the Zoom- link
 		link = response.getLinkWithName("zoomOut");
@@ -202,7 +202,7 @@ public class ButtonsTest extends TestCase
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=-450000&end=750000&resultLimit=15");
 		response = wc.getResponse(request);
-		zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=15&view=LOCAL_IP";
+		zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
 		// Find the Zoom+ link
 		link = response.getLinkWithName("zoomIn");
@@ -213,7 +213,7 @@ public class ButtonsTest extends TestCase
 				+ "?start=-150000&end=450000&resultLimit=15");
 		response = wc.getResponse(request);
 
-		zoomURL = "index.jsp?start=0&end=300000&resultLimit=15&view=LOCAL_IP";
+		zoomURL = "index.jsp?start=0&end=300000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
 		// Find the Zoom+ link
 		link = response.getLinkWithName("zoomIn");

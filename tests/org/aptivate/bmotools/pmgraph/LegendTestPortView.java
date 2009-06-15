@@ -98,17 +98,17 @@ public class LegendTestPortView extends TestCase
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
-						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15&view=LOCAL_PORT");
+						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15&dynamic=false&view=LOCAL_PORT");
 		WebResponse response = wc.getResponse(request);
 		WebLink link = response.getLinkWithName("downloaded");
 		// the default is 'sort by download DESC', the sortLink is opposite to
 		// the DESC
-		String sortLink = "index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&view=LOCAL_PORT";
+		String sortLink = "index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&dynamic=false&view=LOCAL_PORT";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
-						+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15&view=LOCAL_PORT");
+						+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15&dynamic=false&view=LOCAL_PORT");
 		response = wc.getResponse(request);
 
 		// Get the table data from the page
@@ -122,10 +122,10 @@ public class LegendTestPortView extends TestCase
 
 		request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
-						+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15&view=LOCAL_PORT");
+						+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15&dynamic=false&view=LOCAL_PORT");
 		response = wc.getResponse(request);
 		link = response.getLinkWithName("uploaded");
-		sortLink = "index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&view=LOCAL_PORT";
+		sortLink = "index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&dynamic=false&view=LOCAL_PORT";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
