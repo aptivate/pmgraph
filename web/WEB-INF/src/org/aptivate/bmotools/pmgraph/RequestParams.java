@@ -11,7 +11,7 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * RuchiR. 12-06-2009 Additions made for dynamic updation feature.
+ * RuchiR. 12-06-2009 Additions made for dynamic update feature.
  */
 
 public class RequestParams

@@ -143,12 +143,12 @@
             	<script type="text/javascript">  
 				        function check()
 						{							
-							alert("Click 'Draw Graph' button to enable Dynamic Updation.");	
+							alert("Click 'Draw Graph' button to enable Dynamic Update.");	
 							document.getElementById( 'dynamic' ).value = "true";														
 						}   
 						function uncheck()
 						{							
-							alert("Click 'Draw Graph' button to disable Dynamic Updation.");	
+							alert("Click 'Draw Graph' button to disable Dynamic Update.");	
 							document.getElementById( 'dynamic' ).value = "false";														
 						}   
 					</script>
