@@ -237,8 +237,38 @@ public class TimeFormEntryTest extends TestCase
 		subButton.click();
 		assertEquals("From equals To.", ErrorMessages.TIME_NOT_ENOUGH, wc.popNextAlert());
 	}
+	
+	/* This test tests the time shortcut*/
+	public void testTimeShortcut() throws Exception
+	{
+		// Open a graph page
+		// Create a conversation
+		WebConversation wc = new WebConversation();
 
-	public static Test suite()
+		// Obtain the upload page on web site
+		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?fromDate=01%2F01%2F1970&toDate=01%2F01%2F1970&fromTime=14&toTime=19");
+		WebResponse response = wc.getResponse(request);
+
+		assertEquals("Check the fromTime initial value.", "14:00:00", response
+				.getElementWithID("fromTime").getAttribute("value"));
+				
+		assertEquals("Check the toTime initial value.", "19:00:00", response
+				.getElementWithID("toTime").getAttribute("value"));
+		
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?fromDate=01%2F01%2F1970&toDate=01%2F01%2F1970&fromTime=14%3A30&toTime=19%3A30");
+		response = wc.getResponse(request);
+
+		assertEquals("Check the fromTime initial value.", "14:30:00", response
+				.getElementWithID("fromTime").getAttribute("value"));
+				
+		assertEquals("Check the toTime initial value.", "19:30:00", response
+				.getElementWithID("toTime").getAttribute("value"));
+
+	}
+	
+		public static Test suite()
 	{
 		return new TestSuite(TimeFormEntryTest.class);
 	}

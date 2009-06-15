@@ -509,16 +509,31 @@ public class RequestParams
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(
 				"dd/MM/yyyy-HH:mm:ss");
 		Date date;
+		
+		String a = request.getParameter(name + "Time");
+		
+		String requestTime = request.getParameter(name + "Time");
+		
+		//shortcut time automatically add the rest
+		if (requestTime.length()==2)
+		{
+			requestTime = requestTime + ":00:00";
+		}
+
+		if (requestTime.length()==5)
+		{
+			requestTime = requestTime + ":00";
+		}
 
 		if ((request.getParameter(name + "Time") != null)
-				&& (request.getParameter(name + "Time").length() == 8)
+				&& (requestTime.length() == 8)
 				&& (request.getParameter(name + "Date") != null)
 				&& (request.getParameter(name + "Date").length() == 10))
 		{
 			try
 			{
 				date = dateTimeFormat.parse(request.getParameter(name + "Date")
-						+ "-" + request.getParameter(name + "Time"));
+						+ "-" + requestTime);
 			} catch (ParseException e)
 			{
 				throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
@@ -526,7 +541,7 @@ public class RequestParams
 			if ((date == null)
 					|| (dateTimeFormat.format(date).equals(
 							request.getParameter(name + "Date") + "-"
-									+ request.getParameter(name + "Time")) == false))
+									+ requestTime )== false))
 			{
 				throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
 			}
