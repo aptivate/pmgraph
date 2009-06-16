@@ -101,7 +101,7 @@
                        href="<%=pageUrl.getIndexURL("downloaded")%>"
                        ><%=col1%></a>
 		    </td>
-		    <td>_jsp._jspServic
+		    <td>
 		     <a name="uploaded" 
                        href="<%=pageUrl.getIndexURL("uploaded")%>"
                        ><%=col2%></a>
