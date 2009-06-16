@@ -31,6 +31,8 @@ public class GraphData
 	private Integer m_port;
 	
 	private Integer m_remotePort;
+	
+	private Protocol m_protocol;
 
 	/**
 	 * Create a GraphData object from a result set using the columns returned
@@ -55,6 +57,8 @@ public class GraphData
 			setPort(rs.getInt("port"));
 		if (columns.contains("remote_port"))	
 			setRemotePort(rs.getInt("remote_port"));
+		if (columns.contains("ip_proto"))	
+			setProtocol(Protocol.valueOf (rs.getString("ip_proto")));
 	}
 	
 	public GraphData(GraphData source) 
@@ -208,6 +212,16 @@ public class GraphData
 	public void setRemotePort(Integer remotePort)
 	{
 		this.m_remotePort = remotePort;
+	}
+
+	public Protocol getProtocol()
+	{
+		return m_protocol;
+	}
+
+	public void setProtocol(Protocol protocol)
+	{
+		this.m_protocol = protocol;
 	}
 
 }

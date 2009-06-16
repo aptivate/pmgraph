@@ -132,6 +132,9 @@ public class QueryBuilder
 			"THEN bytes ELSE 0 END) as uploaded, ");
 		m_listData.add(m_localSubnet + "%");
 
+		sql.append("ip_proto, ");				// id of the used protocol udp/tcp/icmp
+
+		
 		switch (requestParams.getView())
 		{
 
@@ -216,13 +219,13 @@ public class QueryBuilder
 		switch (requestParams.getView())
 		{
 			case LOCAL_PORT:
-				groupBy.append(" port");
+				groupBy.append(" port, ip_proto");
 				break;
 			case LOCAL_IP:
 				groupBy.append(" local_ip");
 				break;
 			case REMOTE_PORT:
-				groupBy.append(" remote_port");
+				groupBy.append(" remote_port, ip_proto");
 				break;
 			case REMOTE_IP:
 				groupBy.append(" remote_ip");

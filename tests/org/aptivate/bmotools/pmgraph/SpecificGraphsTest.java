@@ -100,7 +100,7 @@ public class SpecificGraphsTest extends GraphTestBase
 				{ 100, 500, 0, 0 }, // 110 down
 				{ -150, 0, 0, 0 }, // 80 up
 				{ 125, 0, 0, 0 }, // 80 down
-				{ 0, 0, -150, 0 }, // 443 up
+				{ 0, 0, 0, 0 }, // 443 up
 				{ 0, 0, 75, 0 }, // 443 down
 		};
 		checkOneIpPort("10.0.156.130", values, ports, View.LOCAL_IP);

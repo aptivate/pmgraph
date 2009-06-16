@@ -29,6 +29,7 @@ public class AllTests extends TestCase
 		suite.addTest(QueryBuilderTest.suite());
 		suite.addTest(W3cValidationTest.suite());
 		suite.addTest(RequestParamsTest.suite());
+		suite.addTest(PortsToServiceTest.suite());
 		return suite;
 	}
 }

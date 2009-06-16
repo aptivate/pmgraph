@@ -70,9 +70,13 @@
 		    <%switch (pageUrl.getParams().getView()) {		
 				case LOCAL_PORT:        %>
                     <td rowspan="2">Local Port</td>
+                    <td rowspan="2">Protocol</td>
+                    <td rowspan="2">Service</td>
                 <%break;
 				case REMOTE_PORT:		%>
 	                <td rowspan="2">Remote Port</td>	            
+                    <td rowspan="2">Protocol</td>
+                    <td rowspan="2">Service</td>	                
             <%break;
 	            default:
 				case LOCAL_IP:  %>
@@ -97,7 +101,7 @@
                        href="<%=pageUrl.getIndexURL("downloaded")%>"
                        ><%=col1%></a>
 		    </td>
-		    <td>
+		    <td>_jsp._jspServic
 		     <a name="uploaded" 
                        href="<%=pageUrl.getIndexURL("uploaded")%>"
                        ><%=col2%></a>
@@ -118,14 +122,15 @@
 				  		port = result.getRemotePort();
 				  	else
 					  	port = result.getPort();
-			        Color c = graphFactory.getSeriesColor(port);
+					String portName = Port2Services.getInstance().getService(port,result.getProtocol());
+					Color c = graphFactory.getSeriesColor(port);
 			        String fillColour = Integer.toHexString(c.getRGB() & 0x00ffffff);
 		        	fillColour = "#"+ "000000".substring( 0, 6 - fillColour.length() ) + fillColour;
 		        	
 		%>				    <tr class="row<%=i % 2%>">
 					        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
 							<%   if (GraphFactory.OTHER_PORT == port) {
-								%><td>Others</td><%
+								%><td>Others</td><td></td><%
 							} else {
 								if (pageUrl.getParams().getView() == View.REMOTE_PORT) {
 										if ((pageUrl.getParams().getRemoteIp() == null) || (pageUrl.getParams().getPort() == null) || 
@@ -139,11 +144,15 @@
 										(pageUrl.getParams().getIp() == null)) {
 									    %><td><a href="<%=pageUrl.getUrlGraph(port, "port")%>" ><%=port%></a></td><%
 									} else {
-										%><td><%=port%></td><%
+									    %><td><%=port%></td><%
 									}
 								}
+								%>
+								<td><%=result.getProtocol().toString()%></td>
+								<%	
 							}
 							%>
+							<td><%=portName%></td>
 					        <td class="numval"><%=((result.getDownloaded() / 1048576)!=0)?(result.getDownloaded() / 1048576):"&lt;1"%></td>
 					        <td class="numval"><%=((result.getUploaded() / 1048576)!=0)?(result.getUploaded() / 1048576):"&lt;1"%></td>
 					    </tr>
@@ -202,7 +211,7 @@
 %>
 </table>
 <%if (pageUrl.getParams().getView() == View.REMOTE_PORT) {%>
-	<a href="javascript:window.open('port_assignment.html');void(0);">Port and services equivalence</a>
+	<a href="javascript:window.open('port_assignment.html');void(0);">Well known ports list</a>
 <%} %>
 <% if (configError != null) { %>
 	<div class="error_panel">

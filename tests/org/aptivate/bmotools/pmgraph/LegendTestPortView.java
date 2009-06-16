@@ -51,19 +51,45 @@ public class LegendTestPortView extends TestCase
 	 * @throws SAXException
 	 */
 	private void checkUploadDownloadLegendTable(WebTable table,
-			long downloaded[], long uploaded[], String ipPort[])
+			long downloaded[], long uploaded[], String ipPort[],
+			String serviceHostName[], String services[])
 			throws IOException, SAXException
 	{
 
 		// Check the table data
+		String upload, download;
+		// It is i - 2 to avoid the headers in the table
 		for (int i = 2; i < table.getRowCount(); i++)
 		{
+			int column= 1;
 			assertEquals("Check the IP Or Port Address", ipPort[i - 2], table
-					.getCellAsText(i, 1));
-			assertEquals("Check the Downloaded Value", String
-					.valueOf(downloaded[i - 2]), table.getCellAsText(i, 2));
-			assertEquals("Check the Uploaded Value", String
-					.valueOf(uploaded[i - 2]), table.getCellAsText(i, 3));
+					.getCellAsText(i, column++));
+			
+			if (table.getColumnCount() == 6) {
+				assertEquals("Check the protocol", String
+						.valueOf( services[i - 2]), table.getCellAsText(i, column++));				
+			}
+			
+			
+			assertEquals("Check the service or Host Name", String
+					.valueOf( serviceHostName[i - 2]), table.getCellAsText(i, column++));
+			
+			
+			
+			if (downloaded[i - 2] == 0)
+				download ="<1";
+			else
+				download =String.valueOf (downloaded[i - 2]); 
+			assertEquals("Check the Downloaded Value", 
+					download, table.getCellAsText(i, column++));
+
+			if (uploaded[i - 2] == 0)
+				upload ="<1";
+			else
+				upload =String.valueOf (uploaded[i - 2]);
+			
+			assertEquals("Check the Uploaded Value", 
+					upload, table.getCellAsText(i, column));
 		}
 	}
 
@@ -80,11 +106,12 @@ public class LegendTestPortView extends TestCase
 		// Get the table data from the page
 		WebTable table = (WebTable) response
 				.getElementWithID(TestUtils.LEGEND_TBL);
-		long downloaded[] = { 9, 4, 1 };
-		long uploaded[] = { 5, 6, 9 };
-		String ports[] = { "110", "443", "80" };
-		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports);
-
+		long downloaded[] = { 9, 1, 4, 0};
+		long uploaded[] = { 5, 9, 6, 0};
+		String ports[] = { "110",  "80", "443", "443"};
+		String portName[] = { "pop3", "http", "https", "https"};
+		String services[] = {"tcp", "tcp", "tcp", "udp"};
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports,portName, services);		
 	}
 
 	/**
@@ -115,10 +142,12 @@ public class LegendTestPortView extends TestCase
 		WebTable table = (WebTable) response
 				.getElementWithID(TestUtils.LEGEND_TBL);
 
-		long uploaded[] = { 9, 6, 5 };
-		long downloaded[] = { 1, 4, 9 };
-		String ports[] = { "80", "443", "110" };
-		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports);
+		long uploaded[] = { 0, 9, 6, 5 };
+		long downloaded[] = { 0, 1, 4, 9 };
+		String ports[] =  { "443", "80", "443", "110" };
+		String portName[] = {"https","http", "https", "pop3" };
+		String services[] = {"udp", "tcp", "tcp", "tcp"};
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services);
 
 		request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
@@ -130,10 +159,13 @@ public class LegendTestPortView extends TestCase
 
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
-		uploaded = new long[] { 9, 6, 5 };
-		downloaded = new long[] { 1, 4, 9 };
-		ports = new String[] { "80", "443", "110" };
-		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports);
+		uploaded = new long[] {9, 6, 5, 0};
+		downloaded = new long[] { 1, 4, 9, 0 };
+		ports = new String[] { "80", "443", "110", "443" };
+		portName = new String[] {"http","https", "pop3", "https" };
+		services = new String[] {"tcp", "tcp", "tcp", "udp"};
+		
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services);
 
 	}
 
@@ -163,7 +195,9 @@ public class LegendTestPortView extends TestCase
 		long uploaded[] = { 5, 15 };
 		long downloaded[] = { 9, 6 };
 		String ports[] = { "110", "Others" };
-		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports);
+		String portName[] = {"pop3", "" };
+		String services[] = {"tcp", ""};
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services);
 	}
 
 	public static Test suite()

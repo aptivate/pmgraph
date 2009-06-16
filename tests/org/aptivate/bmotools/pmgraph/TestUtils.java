@@ -43,22 +43,13 @@ class TestUtils
 
 	// SQL query strings
 
-	/*
-	 * private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME +
-	 * "(" + BYTES + " bigint(20) unsigned NOT NULL, " + TIME + " datetime NOT
-	 * NULL, " + IP_SRC + " char(15) NOT NULL, " + IP_DEST + " char(15) NOT
-	 * NULL, " + "src_port int(2) unsigned NOT NULL, " + "dst_port int(2)
-	 * unsigned NOT NULL" + ");";
-	 */
+	/* Create the database table */
 	private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME
 			+ "(" + BYTES + " bigint NOT NULL, " + TIME
 			+ " timestamp NOT NULL, " + IP_SRC + " char(15) NOT NULL, "
 			+ IP_DEST + " char(15) NOT NULL, " + "src_port int NOT NULL, "
-			+ "dst_port int NOT NULL" + ");";
+			+ "dst_port int NOT NULL, " + " ip_proto char(6) NOT NULL" + " );";
 
-	private static final String INSERT_DATA = "INSERT INTO " + TABLE_NAME + "("
-			+ BYTES + "," + TIME + "," + IP_SRC + "," + IP_DEST
-			+ ",src_port, dst_port" + ") VALUES (?,?,?,?,?,?);";
 
 	private static final String DELETE_TABLE = "DROP TABLE " + TABLE_NAME + ";";
 
@@ -110,45 +101,45 @@ class TestUtils
 			/* don't care if it fails, table may not exist */
 			m_logger.error(e.getMessage(), e);
 		}
-
 		PreparedStatement pstmt = m_conn.prepareStatement(CREATE_TABLE);
 		m_logger.debug(pstmt);
 		pstmt.executeUpdate();
 	}
 
 	void insertNewRow(long bytes, Timestamp theTime, String ip_src,
-			String ip_dest) throws SQLException
+			String ip_dst) throws SQLException
 	{
-		PreparedStatement stmt = m_conn.prepareStatement(INSERT_DATA);
-		stmt.setLong(1, bytes);
-		stmt.setTimestamp(2, new Timestamp(theTime.getTime()));
-		stmt.setString(3, ip_src);
-		stmt.setString(4, ip_dest);
-		stmt.setInt(5, 0);
-		stmt.setInt(6, 0);
-
-		// Insert the row
-		stmt.executeUpdate();
+		insertRow(ip_src, ip_dst, 0,
+				0, bytes, new Timestamp(theTime.getTime())); 
 	}
 
 	private void insertRow(String ip_src, String ip_dst, int src_port,
 			int dst_port, long bytes, Timestamp t) throws SQLException
 	{
+		insertRow(ip_src, ip_dst, src_port,
+				dst_port, bytes, t, "tcp"); 
+	}
+
+	private void insertRow(String ip_src, String ip_dst, int src_port,
+			int dst_port, long bytes, Timestamp t, String proto) throws SQLException
+	{
 		PreparedStatement stmt = m_conn.prepareStatement("INSERT INTO "
 				+ TABLE_NAME + " (ip_src, ip_dst, src_port, dst_port, "
-				+ "bytes, stamp_inserted) VALUES (?,?,?,?,?,?)");
+				+ "bytes, stamp_inserted, ip_proto) VALUES (?,?,?,?,?,?,?)");
 		stmt.setString(1, ip_src);
 		stmt.setString(2, ip_dst);
 		stmt.setInt(3, src_port);
 		stmt.setInt(4, dst_port);
 		stmt.setLong(5, bytes);
 		stmt.setTimestamp(6, t);
+		stmt.setString(7, proto);
 
 		// Insert the row
 		m_logger.debug(stmt);
 		stmt.executeUpdate();
 	}
 
+	
 	void InsertSampleData() throws SQLException
 	{
 		// convert all values into something nice and large in kbps
@@ -200,8 +191,8 @@ class TestUtils
 		// convert all values into something nice and large in kbps
 		// all values divided by 128 and 60 in GraphFactory to convert
 		// bytes into kbps.
-		insertRow("10.0.156.110", "10.0.156.120", 1, 1, 9999 * 128 * 60, t1);
-		insertRow("10.0.156.120", "10.0.156.110", 1, 1, 9999 * 128 * 60, t1);
+		insertRow("10.0.156.110", "10.0.156.120", 1, 1, 9999 * 128 * 60, t1,"udp");
+		insertRow("10.0.156.120", "10.0.156.110", 1, 1, 9999 * 128 * 60, t1,"udp");
 		insertRow("10.0.156.110", "4.2.2.2", 80, 1080, 500 * 128 * 60, t1);
 		insertRow("10.0.156.110", "4.2.2.5", 80, 1180, 600 * 128 * 60, t1);
 		insertRow("10.0.156.130", "192.168.1.5", 80, 1025, 150 * 128 * 60, t1);
@@ -222,7 +213,7 @@ class TestUtils
 		insertRow("4.2.2.3", "10.0.156.131", 190, 443, 300 * 128 * 60, t3);
 		insertRow("4.2.2.4", "10.0.156.110", 190, 443, 100 * 128 * 60, t3);
 		insertRow("10.0.156.130", "4.2.2.4", 443, 10000, 150 * 128 * 60, t3);
-		insertRow("4.2.2.4", "10.0.156.130", 4000, 443, 75 * 128 * 60, t3);
+		insertRow("4.2.2.4", "10.0.156.130", 4000, 443, 75 * 128 * 60, t3,"udp");
 	}
 
 	String getUrlPmgraph()
