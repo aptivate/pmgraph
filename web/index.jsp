@@ -64,10 +64,10 @@
         	function onReload()			
         	{	
         		document.getElementById("dynamic").checked="true";
-				t=setTimeout('update()',100000);															
+				t=setTimeout('update()',180000);															
 			}			
 						
-			function checkTime(i)
+			function checkTimeDate(i)
 			{
 				if (i<10)
 				{
@@ -77,30 +77,54 @@
 			}						
 						
 			function update()
-			{
-			    var today=new Date();
+			{			    
+			    //date
+			    var today=new Date();			    
+			    var day=today.getDate();
+			    var mon=today.getMonth();
+			    var yr=today.getFullYear();
+			    // add a zero in front of numbers<10
+				day=checkTimeDate(day);
+				mon=mon+1;
+				mon=checkTimeDate(mon);
+			    
+				var toDate1 = document.getElementById('toDate').value=day+"/"+mon+"/"+yr;
+				var fromDate1 = document.getElementById('fromDate').value=day+"/"+mon+"/"+yr;
+				
+				//time
 				var h=today.getHours();
-
 				var fh=h-3;
+				
 				// At midnight h = 0 & fh = -3, wrap fh to show correct time. 
 				if( fh < 0 ) {
 				   fh = 24 + fh;
+				   var Yesterday = new date( today.getTime() - 86400000 ); 
+				   var YesterdayMon = Yesterday.getMonth(); 
+				   var YesterdayYear = Yesterday.getFullYear(); 
+				   var YesterdayDate = Yesterday.getDate(); 
+				   // add a zero in front of numbers<10
+				   YesterdayDate=checkTimeDate(YesterdayDate);
+				   YesterdayMon=YesterdayMon+1;
+				   YesterdayMon=checkTimeDate(YesterdayMon);
+				   fromDate1 = document.getElementById('fromDate').value=YesterdayDate+"/"+YesterdayMon+"/"+YesterdayYear;
 				}				
 
 				var m=today.getMinutes();
 				var s=today.getSeconds();
 				// add a zero in front of numbers<10
-				h=checkTime(h);
-				fh=checkTime(fh);
-				m=checkTime(m);
-				s=checkTime(s);		
+				h=checkTimeDate(h);
+				fh=checkTimeDate(fh);
+				m=checkTimeDate(m);
+				s=checkTimeDate(s);	
 				var toTime1 = document.getElementById('toTime').value=h+":"+m+":"+s;
 				var fromTime1 = document.getElementById('fromTime').value=fh+":"+m+":"+s;
 				var url = window.location.href;								
 				var componentList = url.split('?');
 				var newUrl = componentList[0];
 				var szDocument = componentList[componentList.length-1];				
-				var documentFilename = szDocument.split('&');				
+				var documentFilename = szDocument.split('&');	
+				documentFilename[0] = "fromDate=" + fromDate1;
+				documentFilename[1] = "toDate=" + toDate1;			
 				documentFilename[2] = "fromTime=" + fromTime1;
 				documentFilename[3] = "toTime=" + toTime1;	
 				newUrl = newUrl + "?" + documentFilename[0];			
