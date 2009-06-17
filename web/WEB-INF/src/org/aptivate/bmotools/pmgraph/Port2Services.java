@@ -6,22 +6,21 @@ import java.util.HashMap;
  * 
  * 
  * @author noeg
- *
- * List of maps between ports and services using de command 
- *
- *  sed  "s/^\([a-z0-9\-]\+\)[ \t]\+\([0-9]\{4,5\}\)\/tcp.*$/m_tcpPort2serviceMap\.put(\2, \"\1\");/gi" /etc/services | grep "\.put"
- *
+ * 
+ * List of maps between ports and services using de command
+ * 
+ * sed "s/^\([a-z0-9\-]\+\)[ \t]\+\([0-9]\{4,5\}\)\/tcp.*$/m_tcpPort2serviceMap\.put(\2, \"\1\");/gi"
+ * /etc/services | grep "\.put"
+ * 
  * in a linux system
  */
-
 
 public class Port2Services
 {
 	private static Port2Services m_instance;
-	
+
 	// UDP port services translation
-	private final HashMap<Integer, String> m_udpPort2serviceMap  = 
-		 new HashMap<Integer, String>();
+	private final HashMap<Integer, String> m_udpPort2serviceMap = new HashMap<Integer, String>();
 	{
 		m_udpPort2serviceMap.put(1, "tcpmux");
 		m_udpPort2serviceMap.put(5, "rje");
@@ -239,14 +238,9 @@ public class Port2Services
 		m_udpPort2serviceMap.put(60177, "tfido");
 		m_udpPort2serviceMap.put(60179, "fido");
 	}
-	
-	// ICMP port services translation
-	private final HashMap<Integer, String> m_icmpPort2serviceMap  = 
-		 new HashMap<Integer, String>();
-	
-	// TCP port services translation 
-	private final HashMap<Integer, String> m_tcpPort2serviceMap  = 
-	 new HashMap<Integer, String>();
+
+	// TCP port services translation
+	private final HashMap<Integer, String> m_tcpPort2serviceMap = new HashMap<Integer, String>();
 	{
 		m_tcpPort2serviceMap.put(1, "tcpmux");
 		m_tcpPort2serviceMap.put(5, "rje");
@@ -385,7 +379,6 @@ public class Port2Services
 		m_tcpPort2serviceMap.put(953, "rndc");
 		m_tcpPort2serviceMap.put(902, "vmware-authd");
 
-		
 		m_tcpPort2serviceMap.put(1080, "socks");
 		m_tcpPort2serviceMap.put(1236, "bvcontrol");
 		m_tcpPort2serviceMap.put(1300, "h323hostcallsc");
@@ -498,44 +491,50 @@ public class Port2Services
 		m_tcpPort2serviceMap.put(60177, "tfido");
 		m_tcpPort2serviceMap.put(60179, "fido");
 		m_tcpPort2serviceMap.put(3632, "distcc");
-		
+
 		// personalized ports
-		m_tcpPort2serviceMap.put(5666,"NRPE (Nagios)");
-		m_tcpPort2serviceMap.put(6882,"Bittorrent");
+		m_tcpPort2serviceMap.put(5666, "NRPE (Nagios)");
+		m_tcpPort2serviceMap.put(6882, "Bittorrent");
 	}
 
-	private Port2Services () {
-				
+	private Port2Services()
+	{
+
 	}
-	
-	public static Port2Services getInstance () {
-	
+
+	public static Port2Services getInstance()
+	{
+
 		if (m_instance == null)
 			m_instance = new Port2Services();
-		
+
 		return m_instance;
 	}
-	
-	public String getService (Integer portNumber, Protocol protocol) {
+
+	public String getService(Integer portNumber, Protocol protocol)
+	{
 		String service = null;
-		
-		if (protocol != null) {
-			switch (protocol) {
+
+		if (protocol != null)
+		{
+			switch (protocol)
+			{
 				case tcp:
-					service = m_tcpPort2serviceMap.get (portNumber);
+					service = m_tcpPort2serviceMap.get(portNumber);
 					break;
 				case udp:
-					service = m_udpPort2serviceMap.get (portNumber);
+					service = m_udpPort2serviceMap.get(portNumber);
 					break;
 				case icmp:
-					service = m_icmpPort2serviceMap.get (portNumber);
+					// ICMP protocol do not use ports, it is in the IP level and
+					// consequently it haven got place for the port.
 					break;
 			}
 		}
-				
-		if ( service != null)
+
+		if (service != null)
 			return service;
 		return "";
 	}
-	
+
 }

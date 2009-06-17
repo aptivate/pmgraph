@@ -136,6 +136,9 @@
 					Color c = graphFactory.getSeriesColor(port);
 			        String fillColour = Integer.toHexString(c.getRGB() & 0x00ffffff);
 		        	fillColour = "#"+ "000000".substring( 0, 6 - fillColour.length() ) + fillColour;
+		        	String portString = port.toString();
+		        	if (result.getProtocol() == Protocol.icmp)
+		        		portString = "n/a";
 		        	
 		%>				    <tr class="row<%=i % 2%>">
 					        <td style="background-color: <%=fillColour%>; width: 5px;"></td>
@@ -145,16 +148,16 @@
 								if (pageUrl.getParams().getView() == View.REMOTE_PORT) {
 										if ((pageUrl.getParams().getRemoteIp() == null) || (pageUrl.getParams().getPort() == null) || 
 										    (pageUrl.getParams().getIp() == null)) {
-									        %><td><a href="<%=pageUrl.getUrlGraph(port, "remote_port")%>" ><%=port%></a></td><%
+									        %><td><a href="<%=pageUrl.getUrlGraph(port, "remote_port")%>" ><%=portString%></a></td><%
 										} else {
-										    %><td><%=port%></td><%
+										    %><td><%=portString%></td><%
 										}
 								} else {
 									if ((pageUrl.getParams().getRemoteIp() == null) || (pageUrl.getParams().getRemotePort() == null) || 
 										(pageUrl.getParams().getIp() == null)) {
-									    %><td><a href="<%=pageUrl.getUrlGraph(port, "port")%>" ><%=port%></a></td><%
+									    %><td><a href="<%=pageUrl.getUrlGraph(port, "port")%>" ><%=portString%></a></td><%
 									} else {
-									    %><td><%=port%></td><%
+									    %><td><%=portString%></td><%
 									}
 								}
 								%>
