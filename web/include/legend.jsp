@@ -30,8 +30,8 @@
     UrlBuilder pageUrl = new UrlBuilder();
 
     // Input Validation
-    String errorMsg = null, configError= null;    
-	
+    String errorMsg = null, configError= null;   
+
     // Validate Parameters
 	try
 	{ 
@@ -41,6 +41,13 @@
 	{
 		errorMsg = e.getLocalizedMessage();
 	}	
+	
+	//time in seconds
+	long bitsConversion = 8;
+	long kbitsConversion = 1024;
+	RequestParams param = pageUrl.getParams();
+    long time = (param.getRoundedEndTime()-param.getRoundedStartTime())/1000;
+	
 	try {
 		LegendData legendData = new LegendData();
 		results = legendData.getLegendData(sortBy, order,pageUrl.getParams());
@@ -52,8 +59,8 @@
 	}	
 	
 	String arrow = "ASC".equals(pageUrl.getParams().getOrder())?" &#8679;":" &#8681;";
-	String col1 = "Downloaded";
-	String col2 = "Uploaded";
+	String col1 = "Down";
+	String col2 = "Up";
 	String col3 = "Totals (MB)";
 	
 	if("downloaded".equals(pageUrl.getParams().getSortBy()))
@@ -92,20 +99,23 @@
                        href="<%=pageUrl.getIndexURL("bytes_total")%>"
                        > <%=col3%></a> 
            </td>
+           <td colspan="2" class="center">Average (kb/s)</td>
 		</tr>
 		
 		<tr class="legend_th">
 		    <td></td>
 		    <td>
-		    <a name="downloaded" 
+		    <a name="downloaded" title="Downloaded. Click to sort"
                        href="<%=pageUrl.getIndexURL("downloaded")%>"
                        ><%=col1%></a>
 		    </td>
 		    <td>
-		     <a name="uploaded" 
+		     <a name="uploaded" title="Uploaded. Click to sort"
                        href="<%=pageUrl.getIndexURL("uploaded")%>"
                        ><%=col2%></a>
 		    </td>
+		    <td title="Downloaded">Down</td>
+		    <td title="Uploaded">Up</td>
 		</tr>
 	<%
 		int i= 0;
@@ -153,8 +163,10 @@
 							}
 							%>
 							<td><%=portName%></td>
-					        <td class="numval"><%=((result.getDownloaded() / 1048576)!=0)?(result.getDownloaded() / 1048576):"&lt;1"%></td>
+							<td class="numval"><%=((result.getDownloaded() / 1048576)!=0)?(result.getDownloaded() / 1048576):"&lt;1"%></td>
 					        <td class="numval"><%=((result.getUploaded() / 1048576)!=0)?(result.getUploaded() / 1048576):"&lt;1"%></td>
+					        <td class="numval"><%=((result.getDownloaded()*bitsConversion/kbitsConversion/time)!=0)?(result.getDownloaded()* bitsConversion/kbitsConversion/time):"&lt;1"%></td>
+					        <td class="numval"><%=((result.getUploaded()*bitsConversion /kbitsConversion/time)!=0)?(result.getUploaded() *bitsConversion/kbitsConversion/time):"&lt;1"%></td>
 					    </tr>
 				   <%
 		    		i++;
@@ -202,6 +214,8 @@
 					        <td ><div class="text_overflow"><%=hostName%></div></td>        					
 					        <td class="numval"><%=((result.getDownloaded() / 1048576)!=0)?(result.getDownloaded() / 1048576):"&lt;1"%></td>
 					        <td class="numval"><%=((result.getUploaded() / 1048576)!=0)?(result.getUploaded() / 1048576):"&lt;1"%></td>
+					       <td class="numval"><%=((result.getDownloaded()*bitsConversion/kbitsConversion/time)!=0)?(result.getDownloaded()*bitsConversion/kbitsConversion/time):"&lt;1"%></td>
+					        <td class="numval"><%=((result.getUploaded()*bitsConversion/kbitsConversion/time)!=0)?(result.getUploaded() *bitsConversion/kbitsConversion/time):"&lt;1"%></td>
 					    </tr>
 				   <%
 		    		i++;

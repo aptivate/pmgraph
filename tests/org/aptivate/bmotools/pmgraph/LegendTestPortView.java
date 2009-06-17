@@ -24,7 +24,10 @@ import com.meterware.httpunit.WebTable;
 public class LegendTestPortView extends TestCase
 {
 	protected TestUtils m_testUtils;
-
+	final long bitsConversion = 1024*8;
+	// time period in seconds from milliseconds
+	final long time = 300000/1000;
+	
 	public LegendTestPortView() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException,
 			IOException
@@ -52,12 +55,12 @@ public class LegendTestPortView extends TestCase
 	 */
 	private void checkUploadDownloadLegendTable(WebTable table,
 			long downloaded[], long uploaded[], String ipPort[],
-			String serviceHostName[], String services[])
+			String serviceHostName[], String services[], long averageDownloaded[], long averageUploaded[])
 			throws IOException, SAXException
 	{
 
 		// Check the table data
-		String upload, download;
+		String upload, download, averageUpload, averageDownload;
 		// It is i - 2 to avoid the headers in the table
 		for (int i = 2; i < table.getRowCount(); i++)
 		{
@@ -65,7 +68,7 @@ public class LegendTestPortView extends TestCase
 			assertEquals("Check the IP Or Port Address", ipPort[i - 2], table
 					.getCellAsText(i, column++));
 			
-			if (table.getColumnCount() == 6) {
+			if (table.getColumnCount() == 8) {
 				assertEquals("Check the protocol", String
 						.valueOf( services[i - 2]), table.getCellAsText(i, column++));				
 			}
@@ -89,7 +92,22 @@ public class LegendTestPortView extends TestCase
 				upload =String.valueOf (uploaded[i - 2]);
 			
 			assertEquals("Check the Uploaded Value", 
-					upload, table.getCellAsText(i, column));
+					upload, table.getCellAsText(i, column++));
+			
+			if (averageDownloaded[i - 2] == 0)
+				averageDownload ="<1";
+			else
+				averageDownload =String.valueOf (averageDownloaded[i - 2]); 
+			assertEquals("Check the Downloaded average Value", 
+					averageDownload, table.getCellAsText(i, column++));
+
+			if (averageUploaded[i - 2] == 0)
+				averageUpload ="<1";
+			else
+				averageUpload =String.valueOf (averageUploaded[i - 2]);
+			
+			assertEquals("Check the Uploaded average Value", 
+					averageUpload, table.getCellAsText(i, column));
 		}
 	}
 
@@ -106,12 +124,24 @@ public class LegendTestPortView extends TestCase
 		// Get the table data from the page
 		WebTable table = (WebTable) response
 				.getElementWithID(TestUtils.LEGEND_TBL);
-		long downloaded[] = { 9, 1, 4, 0};
-		long uploaded[] = { 5, 9, 6, 0};
+		
+		long[] downloaded = { 9, 1, 4, 0};
+		long[] uploaded = { 5, 9, 6, 0};
+		
+		/* The values for upload and download shown on the screen and tested for above have 
+		 been truncated so using these values to calculate the average does not work
+		 (is 9 really 9.3 or 9.6 when used in the calculation ?).  So for the purposes of having 
+		 a test that checks against future changes, the expected values have been set to match the actual 
+		 values we get when the test is run
+		*/
+		
+		long[] averageDownloaded= { 260, 45, 110 ,15};
+		long[] averageUploaded = { 160, 250, 180, 0};
+
 		String ports[] = { "110",  "80", "443", "443"};
 		String portName[] = { "pop3", "http", "https", "https"};
 		String services[] = {"tcp", "tcp", "tcp", "udp"};
-		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports,portName, services);		
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports,portName, services, averageDownloaded, averageUploaded);		
 	}
 
 	/**
@@ -147,7 +177,18 @@ public class LegendTestPortView extends TestCase
 		String ports[] =  { "443", "80", "443", "110" };
 		String portName[] = {"https","http", "https", "pop3" };
 		String services[] = {"udp", "tcp", "tcp", "tcp"};
-		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services);
+		
+		/* The values for upload and download shown on the screen and tested for above have 
+		 been truncated so using these values to calculate the average does not work
+		 (is 9 really 9.3 or 9.6 when used in the calculation ?).  So for the purposes of having 
+		 a test that checks against future changes, the expected values have been set to match the actual 
+		 values we get when the test is run
+		*/
+		
+		long[] averageDownloaded= { 15, 45, 110,260};
+		long[] averageUploaded = {0, 250, 180, 160};
+		
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
 
 		request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
@@ -161,11 +202,15 @@ public class LegendTestPortView extends TestCase
 
 		uploaded = new long[] {9, 6, 5, 0};
 		downloaded = new long[] { 1, 4, 9, 0 };
+		
 		ports = new String[] { "80", "443", "110", "443" };
 		portName = new String[] {"http","https", "pop3", "https" };
 		services = new String[] {"tcp", "tcp", "tcp", "udp"};
 		
-		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services);
+		averageDownloaded= new long[] {45, 110,260, 15};
+		averageUploaded = new long[] {250, 180, 160, 0};
+
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
 
 	}
 
@@ -197,7 +242,18 @@ public class LegendTestPortView extends TestCase
 		String ports[] = { "110", "Others" };
 		String portName[] = {"pop3", "" };
 		String services[] = {"tcp", ""};
-		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services);
+		
+		/* The values for upload and download shown on the screen and tested for above have 
+		 been truncated so using these values to calculate the average does not work
+		 (is 9 really 9.3 or 9.6 when used in the calculation ?).  So for the purposes of having 
+		 a test that checks against future changes, the expected values have been set to match the actual 
+		 values we get when the test is run
+		*/
+		
+		long averageDownloaded[] = {260, 170};
+		long averageUploaded[] = {160, 430};
+
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
 	}
 
 	public static Test suite()

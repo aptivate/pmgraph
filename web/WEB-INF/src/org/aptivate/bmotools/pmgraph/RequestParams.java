@@ -510,8 +510,6 @@ public class RequestParams
 				"dd/MM/yyyy-HH:mm:ss");
 		Date date;
 		
-		String a = request.getParameter(name + "Time");
-		
 		String requestTime = request.getParameter(name + "Time");
 		
 		//shortcut time automatically add the rest
