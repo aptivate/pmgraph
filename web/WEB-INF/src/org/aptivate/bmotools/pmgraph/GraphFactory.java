@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -54,6 +55,95 @@ public class GraphFactory
 	public static final int OTHER_PORT = -1;
 
 	public static final String OTHER_IP = "255.255.255.255";
+	
+	
+
+	/**
+	 *  This class contains the info tha represents a specific series.
+	 */
+	private class SeriesId
+	{
+
+		private String  m_id;
+		private Protocol  m_protocol;
+		
+		public SeriesId (String id, Protocol proto) {
+			m_id = id;
+			m_protocol = proto;
+		}
+		
+		public String getId()
+		{
+			return m_id;
+		}
+		public void setId(String m_id)
+		{
+			this.m_id = m_id;
+		}
+
+		public Protocol getProtocol()
+		{
+			return m_protocol;
+		}
+
+		public void setProtocol(Protocol m_protocol)
+		{
+			this.m_protocol = m_protocol;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode()
+		{
+			final int PRIME = 31;
+			int result = 1;
+			result = PRIME * result + ((m_id == null) ? 0 : m_id.hashCode());
+			result = PRIME * result + ((m_protocol == null) ? 0 : m_protocol.hashCode());
+			return result;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			final SeriesId other = (SeriesId) obj;
+			if (m_id == null)
+			{
+				if (other.m_id != null)
+					return false;
+			}
+			else if (!m_id.equals(other.m_id))
+				return false;
+			if (m_protocol == null)
+			{
+				if (other.m_protocol != null)
+					return false;
+			}
+			else if (!m_protocol.equals(other.m_protocol))
+				return false;
+			return true;
+		}
+		
+		@Override
+		public String toString () {
+			if (m_protocol != null)
+				return (m_id + m_protocol.toString());
+			return (m_id);
+		}
+	
+	}
+
+	
 
 	private Color getColorFromByteArray(byte[] bytes)
 	{
@@ -85,18 +175,20 @@ public class GraphFactory
 	 * @param view
 	 */
 	private void series2DataSet(DefaultTableXYDataset dataset,
-			Map<String, long[]> series, XYItemRenderer renderer, long start,
-			String name, View view)
+			Map<SeriesId, long[]> series, XYItemRenderer renderer, long start,
+			String name, RequestParams requestParams)
 	{
 		// Put the series into the graph
-		for (String id : series.keySet())
+		for (SeriesId seriesId : series.keySet())
 		{
 			Color color;
-			switch (view)
+			String id = seriesId.getId();
+			Protocol protocol = seriesId.getProtocol();
+			switch (requestParams.getView())
 			{
 				case LOCAL_PORT:
 				case REMOTE_PORT:
-					color = getSeriesColor(Integer.valueOf(id));
+					color = getSeriesColor(Integer.valueOf(id),protocol);
 					break;
 				default:
 				case LOCAL_IP:
@@ -104,15 +196,15 @@ public class GraphFactory
 					color = getSeriesColor(id);
 					break;
 			}
-			XYSeries serie = new XYSeries(id + name, true, false);
-			long[] values = series.get(id);
+			XYSeries xySeries = new XYSeries(seriesId.toString() + name, true, false);
+			long[] values = series.get(seriesId);
 			int j = 0;
 			for (long val : values)
 			{
-				serie.add(Long.valueOf(start + j * 60000), Long.valueOf(val));
+				xySeries.add(Long.valueOf(start + j * 60000), Long.valueOf(val));
 				j++;
 			}
-			dataset.addSeries(serie);
+			dataset.addSeries(xySeries);
 			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
 		}
 	}
@@ -152,7 +244,7 @@ public class GraphFactory
 	 * @param graphData
 	 * @return
 	 */
-	private String serieId(RequestParams requestParams, GraphData graphData)
+	private String getSerieId(RequestParams requestParams, GraphData graphData)
 	{
 
 		switch (requestParams.getView())
@@ -183,7 +275,7 @@ public class GraphFactory
 		{
 			case LOCAL_PORT:
 			case REMOTE_PORT:
-				return getSeriesColor(OTHER_PORT);
+				return getSeriesColor(OTHER_PORT,Protocol.tcp);
 
 			default:
 			case LOCAL_IP:
@@ -203,14 +295,15 @@ public class GraphFactory
 	{
 
 		List<GraphData> topList = new ArrayList<GraphData>();
-		ArrayList<String> topId = new ArrayList<String>();
-		Map<String, GraphData> aux = new HashMap<String, GraphData>();
+		ArrayList<SeriesId> topId = new ArrayList<SeriesId>();
+		Map<SeriesId, GraphData> aux = new HashMap<SeriesId, GraphData>();
 
-		// create a list acumulating up load and download per each minute
+		// create a list acumulating upload and download per each minute
 		for (GraphData thrptResult : thrptResults)
 		{
-			String id = serieId(requestParams, thrptResult);
-			GraphData data = aux.get(id);
+			String id = getSerieId(requestParams, thrptResult);
+			SeriesId seriesId = new SeriesId (id, thrptResult.getProtocol());
+			GraphData data = aux.get(seriesId);
 			if (data != null)
 			{
 				data.incrementUploaded(thrptResult.getUploaded());
@@ -218,7 +311,7 @@ public class GraphFactory
 			}
 			else
 			{
-				aux.put(id, new GraphData(thrptResult));
+				aux.put(seriesId, new GraphData(thrptResult));
 
 			}
 		}
@@ -226,7 +319,7 @@ public class GraphFactory
 		{
 			topList.add(thrptResult);
 		}
-		// sort the list using byt total
+		// sort the list using byte total
 		Collections.sort(topList, new BytesTotalComparator(true));
 		if (topList.size() > requestParams.getResultLimit())
 		{
@@ -234,7 +327,7 @@ public class GraphFactory
 		}
 		for (GraphData thrptResult : topList)
 		{
-			topId.add(serieId(requestParams, thrptResult));
+			topId.add(new SeriesId (getSerieId(requestParams, thrptResult), thrptResult.getProtocol()));
 		}
 		return (topId);
 	}
@@ -258,8 +351,8 @@ public class GraphFactory
 	private JFreeChart fillGraph(List<GraphData> thrptResults,
 			RequestParams requestParams)
 	{
-		LinkedHashMap<String, long[]> downSeries = new LinkedHashMap<String, long[]>();
-		LinkedHashMap<String, long[]> upSeries = new LinkedHashMap<String, long[]>();
+		LinkedHashMap<SeriesId, long[]> downSeries = new LinkedHashMap<SeriesId, long[]>();
+		LinkedHashMap<SeriesId, long[]> upSeries = new LinkedHashMap<SeriesId, long[]>();
 		long start = requestParams.getRoundedStartTime();
 		long end = requestParams.getRoundedEndTime();
 		long theStart = requestParams.getStartTime();
@@ -281,22 +374,21 @@ public class GraphFactory
 		int j = 0;
 		// For each query result, get data and write to the appropriate series
 
-		m_logger.debug("Strat sorting result list.");
+		m_logger.debug("Start sorting result list.");
 		long initTime = System.currentTimeMillis();
-		Collections.sort(thrptResults, new BytesTotalComparator(true));
-
 		List<GraphData> topIds = getTopResults(thrptResults, requestParams);
 
 		long endTime = System.currentTimeMillis() - initTime;
-		m_logger.debug("Time spended in sorting: " + endTime + " miliseg");
+		m_logger.debug("Time spent in sorting: " + endTime + " millisecond");
 
-		m_logger.debug("Start Filing the chart with data.");
+		m_logger.debug("Start Filling the chart with data.");
 		initTime = System.currentTimeMillis();
 		m_logger.debug("Number of rows in result set = " + thrptResults.size());
 
 		for (GraphData thrptResult : thrptResults)
 		{
-			String id = serieId(requestParams, thrptResult);
+			String id = getSerieId(requestParams, thrptResult);
+			SeriesId seriesId = new SeriesId (id,thrptResult.getProtocol());
 			Timestamp inserted = thrptResult.getTime();
 			// values in the database are in bytes per interval (normally 1
 			// minute)
@@ -306,15 +398,15 @@ public class GraphFactory
 
 			// check if the ip already has its own series if not we create one
 			// for it
-			if (!upSeries.containsKey(id))
+			if (!upSeries.containsKey(seriesId))
 			{
-				if (topIds.contains(id)) // Is in the Top X
+				if (topIds.contains(seriesId)) // Is in the Top X
 				// results.
 				{
 					long upSerie[] = new long[minutes + 1];
 					long downSerie[] = new long[minutes + 1];
-					upSeries.put(id, upSerie);
-					downSeries.put(id, downSerie);
+					upSeries.put(seriesId, upSerie);
+					downSeries.put(seriesId, downSerie);
 				}
 				else
 				// Isn't in top X create a series to keep the rest of the
@@ -325,9 +417,9 @@ public class GraphFactory
 				}
 				j++;
 			}
-			long[] dSeries = downSeries.get(id);
-			long[] uSeries = upSeries.get(id);
-			if (upSeries.containsKey(id))
+			long[] dSeries = downSeries.get(seriesId);
+			long[] uSeries = upSeries.get(seriesId);
+			if (upSeries.containsKey(seriesId))
 			{ // We created a series for this port so it should be in the
 				// limit top
 				// update the values of the series
@@ -344,9 +436,9 @@ public class GraphFactory
 		// introduce it in the dataset of the chart.
 
 		series2DataSet(dataset, downSeries, renderer, start, "<down>",
-				requestParams.getView());
+				requestParams);
 		series2DataSet(dataset, upSeries, renderer, start, "<up>",
-				requestParams.getView());
+				requestParams);
 
 		// Other Group
 		if (other) // if data exists for the other group.
@@ -463,11 +555,16 @@ public class GraphFactory
 	 * @param port
 	 * @return Color for the selected port
 	 */
-	public Color getSeriesColor(int port)
+	public Color getSeriesColor(int port, Protocol protocol)
 	{
 
 		byte[] portBytes = new byte[] { (byte) (port >>> 24),
 				(byte) (port >>> 16), (byte) (port >>> 8), (byte) port };
+		
+		if (protocol != null) {
+			byte protocolByte = (byte) protocol.ordinal() ;
+			portBytes [0] = (byte)(protocolByte | portBytes [0]);
+		}
 		return getColorFromByteArray(portBytes);
 	}
 

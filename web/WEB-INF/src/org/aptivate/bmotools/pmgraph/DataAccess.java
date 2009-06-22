@@ -63,7 +63,7 @@ class DataAccess
 		ResultSet ipResults = statement.executeQuery();
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger
-				.debug("Execution Time in mysql query: " + endTime + " miliseg");
+				.debug("Execution Time in mysql query: " + endTime + " ms");
 		initTime = System.currentTimeMillis();
 		
 		List columns = getColumnInResultSet(ipResults);
@@ -76,7 +76,7 @@ class DataAccess
 		queryBuilder.releaseConnection();
 		endTime = System.currentTimeMillis() - initTime;
 		m_logger
-				.debug("Creating array of results for query: " + endTime + " miliseg");
+				.debug("Creating array of results for query: " + endTime + " ms");
 		return resultData;
 	}
 

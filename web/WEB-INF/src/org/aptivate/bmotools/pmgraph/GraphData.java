@@ -70,6 +70,7 @@ public class GraphData
 		this.m_remoteIp = source.m_remoteIp;
 		this.m_remotePort = source.m_remotePort;
 		this.m_port = source.m_port;
+		this.m_protocol = source.m_protocol;
 	}
 
 	public GraphData(Timestamp time, String localIp, Long downloaded,
@@ -224,4 +225,81 @@ public class GraphData
 		this.m_protocol = protocol;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		final int PRIME = 31;
+		int result = 1;
+		result = PRIME * result + ((m_localIp == null) ? 0 : m_localIp.hashCode());
+		result = PRIME * result + ((m_port == null) ? 0 : m_port.hashCode());
+		result = PRIME * result + ((m_protocol == null) ? 0 : m_protocol.hashCode());
+		result = PRIME * result + ((m_remoteIp == null) ? 0 : m_remoteIp.hashCode());
+		result = PRIME * result + ((m_remotePort == null) ? 0 : m_remotePort.hashCode());
+		result = PRIME * result + ((m_time == null) ? 0 : m_time.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final GraphData other = (GraphData) obj;
+		if (m_localIp == null)
+		{
+			if (other.m_localIp != null)
+				return false;
+		}
+		else if (!m_localIp.equals(other.m_localIp))
+			return false;
+		if (m_port == null)
+		{
+			if (other.m_port != null)
+				return false;
+		}
+		else if (!m_port.equals(other.m_port))
+			return false;
+		if (m_protocol == null)
+		{
+			if (other.m_protocol != null)
+				return false;
+		}
+		else if (!m_protocol.equals(other.m_protocol))
+			return false;
+		if (m_remoteIp == null)
+		{
+			if (other.m_remoteIp != null)
+				return false;
+		}
+		else if (!m_remoteIp.equals(other.m_remoteIp))
+			return false;
+		if (m_remotePort == null)
+		{
+			if (other.m_remotePort != null)
+				return false;
+		}
+		else if (!m_remotePort.equals(other.m_remotePort))
+			return false;
+		if (m_time == null)
+		{
+			if (other.m_time != null)
+				return false;
+		}
+		else if (!m_time.equals(other.m_time))
+			return false;
+		return true;
+	}
+
+	
+	
 }

@@ -58,12 +58,20 @@ public class Configuration
 		return properties.getProperty("DatabaseUser");
 	}
 
+	public static String getResultDatabaseTable() throws IOException
+	{
+
+		Properties properties = readConfiguration();
+		return properties.getProperty("DatabaseTable");
+	}
+	
 	public static String getDatabasePass() throws IOException
 	{
 
 		Properties properties = readConfiguration();
 		return properties.getProperty("DatabasePass");
 	}
+	
 
 	public static String getDHCPAddress() throws IOException
 	{

@@ -131,14 +131,11 @@ public class QueryBuilder
 		sql.append("SUM(CASE WHEN ip_src LIKE ? " +
 			"THEN bytes ELSE 0 END) as uploaded, ");
 		m_listData.add(m_localSubnet + "%");
-
-		sql.append("ip_proto, ");				// id of the used protocol udp/tcp/icmp
-
 		
 		switch (requestParams.getView())
 		{
-
 			case LOCAL_PORT:
+				sql.append("ip_proto, ");				// id of the used protocol udp/tcp/icmp
 				sql.append("(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port ");
 				m_listData.add(m_localSubnet + "%");
 				break;
@@ -147,6 +144,7 @@ public class QueryBuilder
 				m_listData.add(m_localSubnet + "%");
 				break;
 			case REMOTE_PORT:
+				sql.append("ip_proto, ");				// id of the used protocol udp/tcp/icmp
 				sql.append("(CASE WHEN ip_src LIKE ? THEN dst_port ELSE src_port END) AS remote_port ");
 				m_listData.add(m_localSubnet + "%");
 				break;
@@ -240,14 +238,21 @@ public class QueryBuilder
 		}
 		return "";
 	}
-
+	/**
+	 * TODO
+	 * @param requestParams
+	 * @param perMinute
+	 * @return
+	 * @throws SQLException
+	 * @throws IOException 
+	 */
 	PreparedStatement buildQuery(RequestParams requestParams, boolean perMinute)
-			throws SQLException
+			throws SQLException, IOException
 	{
 
 		StringBuffer sql = new StringBuffer("SELECT ");
 		sql.append(buildSelect(requestParams, perMinute));
-		sql.append("FROM acct_v6 ");
+		sql.append("FROM "+Configuration.getResultDatabaseTable()+" ");
 		sql.append(buildWhere(requestParams));
 		sql.append(buildGroupBy(requestParams, perMinute));
 

@@ -84,7 +84,7 @@ public class SpecificGraphsTest extends GraphTestBase
 	public void testOneIpGraph() throws Exception
 	{
 		// check values per each serie.
-		String ports[] = new String[] { "110", "80", "443" };
+		String ports[] = new String[] { "110tcp", "80tcp", "443tcp" };
 		long values[][] = { { 0, -800, 0, 0 }, // 110 up
 				{ 0, 700, 0, 0 }, // 110 down
 				{ -1100, 0, 0, 0 }, // 80 up
@@ -95,17 +95,19 @@ public class SpecificGraphsTest extends GraphTestBase
 		
 		checkOneIpPort("10.0.156.110", values, ports, View.LOCAL_IP);
 
-		ports = new String[] { "110", "80", "443" };
+		ports = new String[] { "110tcp", "80tcp", "443tcp", "443udp" };
 		values = new long[][] { { 0, 0, 0, 0 }, // 110 up
 				{ 100, 500, 0, 0 }, // 110 down
 				{ -150, 0, 0, 0 }, // 80 up
 				{ 125, 0, 0, 0 }, // 80 down
-				{ 0, 0, 0, 0 }, // 443 up
-				{ 0, 0, 75, 0 }, // 443 down
+				{ 0, 0, -150, 0 }, // 443 up
+				{ 0, 0, 0, 0 }, // 443 down
+				{ 0, 0, 0, 0}, // 443 udp up
+				{ 0, 0, 75, 0 }, // 443 udp down
 		};
 		checkOneIpPort("10.0.156.130", values, ports, View.LOCAL_IP);
 
-		ports = new String[] { "443" };
+		ports = new String[] { "443tcp"};
 		values = new long[][] { { -50, -100, -600, 0 }, // 443 up
 				{ 100, 50, 300, 0 }, // 443 down
 		};

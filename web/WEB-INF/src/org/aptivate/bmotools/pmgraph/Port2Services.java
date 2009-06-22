@@ -7,7 +7,7 @@ import java.util.HashMap;
  * 
  * @author noeg
  * 
- * List of maps between ports and services using de command
+ * List of maps between ports and services using the command
  * 
  * sed "s/^\([a-z0-9\-]\+\)[ \t]\+\([0-9]\{4,5\}\)\/tcp.*$/m_tcpPort2serviceMap\.put(\2, \"\1\");/gi"
  * /etc/services | grep "\.put"

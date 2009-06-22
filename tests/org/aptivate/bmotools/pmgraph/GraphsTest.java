@@ -82,7 +82,7 @@ public class GraphsTest extends GraphTestBase
 			assertEquals("Network Throughput", chart.getTitle()
 					.getText());
 			// check values per each serie.
-			rows = new String[] { "90", "10000", "12300", "23500", "23400" };
+			rows = new String[] { "90tcp", "10000tcp", "12300tcp", "23500tcp", "23400tcp" };
 			// init array to zero values
 			values = new long[2 * rows.length][4];
 			// port 90
@@ -147,7 +147,7 @@ public class GraphsTest extends GraphTestBase
 					.getText());
 			
 			// check values for each series.
-			rows = new String[] { "10000", "90", "80"};
+			rows = new String[] { "10000tcp", "90tcp", "80tcp"};
 			
 			// init array to zero values			
 			values = new long[2 * rows.length][4];
@@ -187,7 +187,7 @@ public class GraphsTest extends GraphTestBase
 		default:				
 		case LOCAL_PORT:	// is selected a local port		
 			// check values per each serie.
-			rows = new String[] { "90", "10000", "23500", "23400"};
+			rows = new String[] { "90tcp", "10000tcp", "23500tcp", "23400tcp"};
 			// init array to zero values
 			values = new long[2 * rows.length][4];
 			
@@ -234,7 +234,7 @@ public class GraphsTest extends GraphTestBase
 		case REMOTE_PORT:	// Remote port view			
 			
 			// check values for each series.
-			rows = new String[] { "90", "10000", "80"};
+			rows = new String[] { "90tcp", "10000tcp", "80tcp"};
 			
 			// init array to zero values			
 			values = new long[2 * rows.length][4];
@@ -268,7 +268,7 @@ public class GraphsTest extends GraphTestBase
 		default:				
 		case LOCAL_PORT:	// is selected a local port		
 			// check values per each serie.
-			rows = new String[] { "10000", "90"};
+			rows = new String[] { "10000tcp", "90tcp"};
 			// init array to zero values
 			values = new long[2 * rows.length][4];			
 			values[1][1] = 1000 ; 
@@ -278,7 +278,7 @@ public class GraphsTest extends GraphTestBase
 		case REMOTE_PORT:	// Remote port view			
 			
 			// check values for each series.
-			rows = new String[] { "90", "10000"};			
+			rows = new String[] { "90tcp", "10000tcp"};			
 			// init array to zero values			
 			values = new long[2 * rows.length][4];
 			values[1][1] = 1000 ; 
@@ -308,7 +308,7 @@ public class GraphsTest extends GraphTestBase
 		case REMOTE_PORT:	// Remote port view			
 			
 			// check values for each series.
-			rows = new String[] {"90"};			
+			rows = new String[] {"90tcp"};			
 			// init array to zero values			
 			values = new long[2 * rows.length][4];
 

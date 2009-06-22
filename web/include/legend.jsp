@@ -133,7 +133,7 @@
 				  	else
 					  	port = result.getPort();
 					String portName = Port2Services.getInstance().getService(port,result.getProtocol());
-					Color c = graphFactory.getSeriesColor(port);
+					Color c = graphFactory.getSeriesColor(port, result.getProtocol());
 			        String fillColour = Integer.toHexString(c.getRGB() & 0x00ffffff);
 		        	fillColour = "#"+ "000000".substring( 0, 6 - fillColour.length() ) + fillColour;
 		        	String portString = port.toString();

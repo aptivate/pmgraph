@@ -43,7 +43,7 @@ public class LegendData
 			GraphData d1 = (GraphData) o1;
 			GraphData d2 = (GraphData) o2;
 			if (m_descending)
-				return (0 - d1.getUploaded().compareTo(d2.getUploaded()));
+				return (- d1.getUploaded().compareTo(d2.getUploaded()));
 			else
 				return (d1.getUploaded().compareTo(d2.getUploaded()));
 		}
