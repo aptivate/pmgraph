@@ -41,7 +41,7 @@ public enum View
 			if (((view == LOCAL_PORT) && (requestParams.getPort() != null))
 				|| ((view == LOCAL_PORT) && ("port".equals(paramName))))
 				continue;
-			// if the remote ip is selected remote ip view doesn't have sense
+			// if the remote ip is selected remote ip view doesn't mske sense
 			if (((view == REMOTE_IP) && (requestParams.getRemoteIp() != null))
 				|| ((view == REMOTE_IP) && ("remote_ip".equals(paramName))))
 				continue;			

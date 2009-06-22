@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
  * @author Noe A. Rodriguez Glez.
  * 
  * Create the List of data needed to generate a Legend.
- * Sort the Legend data as the user have selected
+ * Sort the Legend data according to the user selection
  * Limit the results in the legend creating the Others
  * group.
  * 
@@ -43,7 +43,7 @@ public class LegendData
 			GraphData d1 = (GraphData) o1;
 			GraphData d2 = (GraphData) o2;
 			if (m_descending)
-				return (- d1.getUploaded().compareTo(d2.getUploaded()));
+				return (-d1.getUploaded().compareTo(d2.getUploaded()));
 			else
 				return (d1.getUploaded().compareTo(d2.getUploaded()));
 		}
@@ -71,7 +71,7 @@ public class LegendData
 			GraphData d1 = (GraphData) o1;
 			GraphData d2 = (GraphData) o2;
 			if (m_descending)
-				return (0 - d1.getDownloaded().compareTo(d2.getDownloaded()));
+				return (-d1.getDownloaded().compareTo(d2.getDownloaded()));
 			else
 				return (d1.getDownloaded().compareTo(d2.getDownloaded()));
 		}
@@ -121,7 +121,7 @@ public class LegendData
 					}
 				}
 			}
-			m_logger.error ("Invalid sorting selected not sorting assumed. Usert have set sort parameter in the URL wrongly");
+			m_logger.error ("Invalid sorting selected, no sorting assumed. User has set the sort parameter in the URL incorrectly");
 		}
 		return null;
 	}
@@ -193,7 +193,7 @@ public class LegendData
 		}
 		if (others != null)
 			legendData.add(others);
-		// once the results that are going to be shown are selected, sort then
+		// once the results that are going to be shown are selected, sort them
 		// according to what the user has requested.
 		Comparator c = getComparator(sortBy, order);
 		if (c != null)
@@ -233,7 +233,7 @@ public class LegendData
 
 		List<GraphData> ipResults = dataAccess.getThroughput(requestParams,
 				false);
-		// always sort using Bytes total to have the same order as in the graph
+		// always sort using Bytes total to keep the same order as in the graph
 		Collections.sort(ipResults, new BytesTotalComparator(true));
 
 		return limitList(ipResults, sortBy, order, requestParams);

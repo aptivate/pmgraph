@@ -12,8 +12,7 @@ import java.util.List;
 /**
  * @author Noe A. Rodriguez Glez.
  * 
- * Bean which contains a line of information collected for the pmacct in the
- * data base.
+ * Bean which contains a row of information collected from the pmacct database.
  * 
  */
 public class GraphData

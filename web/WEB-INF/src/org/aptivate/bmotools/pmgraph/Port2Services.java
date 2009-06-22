@@ -526,8 +526,8 @@ public class Port2Services
 					service = m_udpPort2serviceMap.get(portNumber);
 					break;
 				case icmp:
-					// ICMP protocol do not use ports, it is in the IP level and
-					// consequently it haven got place for the port.
+					// ICMP protocol does not use ports, it is in the IP level and
+					// consequently it hasn't got place for the port.
 					break;
 			}
 		}

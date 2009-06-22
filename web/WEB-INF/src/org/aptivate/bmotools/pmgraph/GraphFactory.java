@@ -59,7 +59,7 @@ public class GraphFactory
 	
 
 	/**
-	 *  This class contains the info tha represents a specific series.
+	 *  This class contains the info that represents a specific series.
 	 */
 	private class SeriesId
 	{
@@ -244,7 +244,7 @@ public class GraphFactory
 	 * @param graphData
 	 * @return
 	 */
-	private String getSerieId(RequestParams requestParams, GraphData graphData)
+	private String getSeriesId(RequestParams requestParams, GraphData graphData)
 	{
 
 		switch (requestParams.getView())
@@ -268,7 +268,7 @@ public class GraphFactory
 	 * @param requestParams
 	 * @return
 	 */
-	private Color serieOtherColor(RequestParams requestParams)
+	private Color seriesOtherColor(RequestParams requestParams)
 	{
 
 		switch (requestParams.getView())
@@ -298,10 +298,10 @@ public class GraphFactory
 		ArrayList<SeriesId> topId = new ArrayList<SeriesId>();
 		Map<SeriesId, GraphData> aux = new HashMap<SeriesId, GraphData>();
 
-		// create a list acumulating upload and download per each minute
+		// create a list accumulating upload and download per minute
 		for (GraphData thrptResult : thrptResults)
 		{
-			String id = getSerieId(requestParams, thrptResult);
+			String id = getSeriesId(requestParams, thrptResult);
 			SeriesId seriesId = new SeriesId (id, thrptResult.getProtocol());
 			GraphData data = aux.get(seriesId);
 			if (data != null)
@@ -327,7 +327,7 @@ public class GraphFactory
 		}
 		for (GraphData thrptResult : topList)
 		{
-			topId.add(new SeriesId (getSerieId(requestParams, thrptResult), thrptResult.getProtocol()));
+			topId.add(new SeriesId (getSeriesId(requestParams, thrptResult), thrptResult.getProtocol()));
 		}
 		return (topId);
 	}
@@ -387,7 +387,7 @@ public class GraphFactory
 
 		for (GraphData thrptResult : thrptResults)
 		{
-			String id = getSerieId(requestParams, thrptResult);
+			String id = getSeriesId(requestParams, thrptResult);
 			SeriesId seriesId = new SeriesId (id,thrptResult.getProtocol());
 			Timestamp inserted = thrptResult.getTime();
 			// values in the database are in bytes per interval (normally 1
@@ -452,7 +452,7 @@ public class GraphFactory
 				uSeries.add(time, (Long) otherUp[i]);
 
 			}
-			Color color = serieOtherColor(requestParams);
+			Color color = seriesOtherColor(requestParams);
 			dataset.addSeries(dSeries);
 			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
 			dataset.addSeries(uSeries);

@@ -28,20 +28,20 @@ class ErrorMessages
 
 	final static String VIEW_FORMAT_ERROR = "Wrong view selected - default view assumed !";
 
-	final static String IP_FORMAT_ERROR = "Invalid IP format entered";
+	final static String IP_FORMAT_ERROR = "Invalid IP format entered. Format should be n.n.n.n where n is in the range 0-255";
 
 	final static String MYSQL_CONNECTION_ERROR_JAVA_SECURITY = "Unable to get a connection to Mysql server due to java security restriction. "
-			+ "Disable java security or add necesary exceptions (check the log file for more info).\n ";
+			+ "Disable java security or add necessary permissions (check the log file for more info).\n ";
 
 	final static String MYSQL_CONNECTION_ERROR = "Unable to get a mysql connection, please check your database.properties file";
 
 	final static String JFREECHART_ERROR_JAVA_SECURITY = "A Security Exception has occurred while trying to "
 			+ "create graph image. This error is caused by Java security policy, disable java security or add "
-			+ "a suitable exception in policy file.\n";
+			+ "a suitable permission in the policy file.\n";
 
 	final static String JAVA_AWT_LIBRARY_ERROR_JAVA_SECURITY = "A Security Exception has occurred while trying to access "
 			+ "sun.awt.* clasess. This error is caused by Java security policy, disable java security or add "
-			+ "a suitable exception in policy file.\n";
+			+ "a suitable permission in the policy file.\n";
 
 	final static String DNS_ERROR_JAVA_SECURITY = "Unable to access DNS server, check java security policy file.\n";
 
