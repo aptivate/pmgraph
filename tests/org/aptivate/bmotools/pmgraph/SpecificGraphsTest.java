@@ -44,7 +44,7 @@ public class SpecificGraphsTest extends GraphTestBase
 	 *            Is a port grap or a Ip graph default is Ip graph
 	 * @throws Exception
 	 */
-	private void checkOneIpPort(String ipOrPort, long values[][],
+	private void checkOneIpPort(String ipOrPort, float values[][],
 			String[] rows, View view) throws Exception
 	{
 		JFreeChart chart;
@@ -85,7 +85,7 @@ public class SpecificGraphsTest extends GraphTestBase
 	{
 		// check values per each serie.
 		String ports[] = new String[] { "110tcp", "80tcp", "443tcp" };
-		long values[][] = { { 0, -800, 0, 0 }, // 110 up
+		float values[][] = { { 0, -800, 0, 0 }, // 110 up
 				{ 0, 700, 0, 0 }, // 110 down
 				{ -1100, 0, 0, 0 }, // 80 up
 				{ 100, 0, 0, 0 }, // 80 down
@@ -96,7 +96,7 @@ public class SpecificGraphsTest extends GraphTestBase
 		checkOneIpPort("10.0.156.110", values, ports, View.LOCAL_IP);
 
 		ports = new String[] { "110tcp", "80tcp", "443tcp", "443udp" };
-		values = new long[][] { { 0, 0, 0, 0 }, // 110 up
+		values = new float[][] { { 0, 0, 0, 0 }, // 110 up
 				{ 100, 500, 0, 0 }, // 110 down
 				{ -150, 0, 0, 0 }, // 80 up
 				{ 125, 0, 0, 0 }, // 80 down
@@ -108,7 +108,7 @@ public class SpecificGraphsTest extends GraphTestBase
 		checkOneIpPort("10.0.156.130", values, ports, View.LOCAL_IP);
 
 		ports = new String[] { "443tcp"};
-		values = new long[][] { { -50, -100, -600, 0 }, // 443 up
+		values = new float[][] { { -50, -100, -600, 0 }, // 443 up
 				{ 100, 50, 300, 0 }, // 443 down
 		};
 		checkOneIpPort("10.0.156.131", values, ports, View.LOCAL_IP);
@@ -121,7 +121,7 @@ public class SpecificGraphsTest extends GraphTestBase
 		// check values per each serie.
 		// Port 80
 		String ips[] = new String[] { "10.0.156.110", "10.0.156.130" };
-		long values[][] = { { -1100, 0, 0, 0 }, // 10.0.156.110 up
+		float values[][] = { { -1100, 0, 0, 0 }, // 10.0.156.110 up
 				{ 100, 0, 0, 0 }, // 10.0.156.110 down
 				{ -150, 0, 0, 0 }, // 10.0.156.130 up
 				{ 125, 0, 0, 0 }, // 10.0.156.130 down
@@ -130,7 +130,7 @@ public class SpecificGraphsTest extends GraphTestBase
 
 		// Port 110
 		ips = new String[] { "10.0.156.110", "10.0.156.130" };
-		values = new long[][] { { 0, -800, 0, 0 }, // 10.0.156.110 up
+		values = new float[][] { { 0, -800, 0, 0 }, // 10.0.156.110 up
 				{ 0, 700, 0, 0 }, // 10.0.156.110 down
 				{ 0, 0, 0, 0 }, // 10.0.156.130 up
 				{ 100, 500, 0, 0 }, // 10.0.156.130 down
@@ -139,7 +139,7 @@ public class SpecificGraphsTest extends GraphTestBase
 
 		// Port 443
 		ips = new String[] { "10.0.156.131", "10.0.156.130", "10.0.156.110" };
-		values = new long[][] { { -50, -100, -600, 0 }, // 10.0.156.131 up
+		values = new float[][] { { -50, -100, -600, 0 }, // 10.0.156.131 up
 				{ 100, 50, 300, 0 }, // 10.0.156.131 down
 				{ 0, 0, -150, 0 }, // 10.0.156.120 up
 				{ 0, 0, 75, 0 }, // 10.0.156.120 down

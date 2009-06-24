@@ -34,7 +34,7 @@ public class GraphsTest extends GraphTestBase
 	private void checkGraph(RequestParams requestParams) throws Exception
 	{
 		JFreeChart chart;
-		long values[][];
+		float values[][];
 		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
 
@@ -56,7 +56,7 @@ public class GraphsTest extends GraphTestBase
 					"10.0.156.137", "10.0.156.138", "10.0.156.139",
 					"10.0.156.140" };
 			// init array to zero values
-			values = new long[2 * rows.length][4];
+			values = new float[2 * rows.length][4];
 
 			// IP 10.0.156.120 just values differents of zero
 			values[0][1] = -500 * 11;
@@ -73,7 +73,7 @@ public class GraphsTest extends GraphTestBase
 			for (int n = 2; n < rows.length; n++)
 			{
 				assertEquals("10.0.156." + (130 + n - 1), rows[n]);
-				values[n * 2][3] = Long.valueOf(-100 * (12 - n) - 50);
+				values[n * 2][3] = Float.valueOf(-100 * (12 - n) - 50);
 			}
 
 			break;
@@ -84,7 +84,7 @@ public class GraphsTest extends GraphTestBase
 			// check values per each serie.
 			rows = new String[] { "90tcp", "10000tcp", "12300tcp", "23500tcp", "23400tcp" };
 			// init array to zero values
-			values = new long[2 * rows.length][4];
+			values = new float[2 * rows.length][4];
 			// port 90
 			values[0][1] = -5500; // upload
 			values[0][3] = -6000; //  upload
@@ -108,7 +108,7 @@ public class GraphsTest extends GraphTestBase
 			// check values for each series.
 			rows = new String[] { "4.2.2.2", "4.2.2.3", "4.2.2.4", "4.2.2.5", "4.2.2.6", "4.2.2.7", "4.2.2.8", "4.2.2.9", "4.2.2.10", "4.2.2.11", "4.2.2.12" };
 			// init array to zero values			
-			values = new long[2 * rows.length][4];
+			values = new float[2 * rows.length][4];
 			
 			 values[0][3] = -6000; 
 			 values[1][3] = 145; 
@@ -150,7 +150,7 @@ public class GraphsTest extends GraphTestBase
 			rows = new String[] { "10000tcp", "90tcp", "80tcp"};
 			
 			// init array to zero values			
-			values = new long[2 * rows.length][4];
+			values = new float[2 * rows.length][4];
 			
 			// port 10000
 			values[0][1] = -5500; 
@@ -166,14 +166,14 @@ public class GraphsTest extends GraphTestBase
 			
 			break;
 		}
-		checkChartData(values, rows, chart);
+		checkChartData(values, rows, chart); 
 	}
 	
 	
 	private void checkGraphOneParameter(RequestParams requestParams) throws Exception
 	{
 		JFreeChart chart;
-		long values[][];
+		float values[][];
 		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
 
@@ -189,9 +189,9 @@ public class GraphsTest extends GraphTestBase
 			// check values per each serie.
 			rows = new String[] { "90tcp", "10000tcp", "23500tcp", "23400tcp"};
 			// init array to zero values
-			values = new long[2 * rows.length][4];
+			values = new float[2 * rows.length][4];
 			
-			values[0][1] = -5500 ; 
+			values[0][1] = -5500 ; 			
 			values[3][1] = 5500 ; 
 			values[5][3] = 75 ; 
 			values[7][1] = 50 ; 
@@ -200,47 +200,46 @@ public class GraphsTest extends GraphTestBase
 	
 		case REMOTE_IP:	// Remote ip view			
 			// check values for each series.
-			rows = new String[] { "4.2.2.3", "4.2.2.4", "4.2.2.5", "4.2.2.6", "4.2.2.7", "4.2.2.8", "4.2.2.9", "4.2.2.10", "4.2.2.11", "4.2.2.12", "4.2.2.2" };
-
-			// init array to zero values			
-			values = new long[2 * rows.length][4];
-
-			 values[0][1] = -500 ; 
-			 values[1][1] = 1000 ; 
-			 values[2][1] = -500 ; 
-			 values[3][1] = 900 ; 
-			 values[4][1] = -500 ; 
-			 values[5][1] = 800 ; 
-			 values[6][1] = -500 ; 
-			 values[7][1] = 700 ; 
-			 values[8][1] = -500 ; 
-			 values[9][1] = 600 ; 
-			 values[10][1] = -500 ; 
-			 values[11][1] = 500 ; 
-			 values[12][1] = -500 ; 
-			 values[13][1] = 400 ; 
-			 values[14][1] = -500 ; 
-			 values[15][1] = 300 ; 
-			 values[16][1] = -500 ; 
-			 values[17][1] = 200 ; 
-			 values[18][1] = -500 ; 
-			 values[19][1] = 100 ; 
-			 values[20][1] = -500 ; 
-			 values[21][1] = 50 ; 
-			 values[21][3] = 75 ; 
-			 
+			
+			
+			rows = new String[] {"4.2.2.3", "4.2.2.4", "4.2.2.5", "4.2.2.6", "4.2.2.7", "4.2.2.8", "4.2.2.9", "4.2.2.10", "4.2.2.11", "4.2.2.2", "4.2.2.12", };
+			values = new float[2 * 11][4];
+			values[1][1] = 1000.0f; // Download values Time 1 
+			values[3][1] = 900.0f; // Download values Time 1 
+			values[5][1] = 800.0f; // Download values Time 1 
+			values[7][1] = 700.0f; // Download values Time 1 
+			values[9][1] = 600.0f; // Download values Time 1 
+			values[11][1] = 500.0f; // Download values Time 1 
+			values[13][1] = 400.0f; // Download values Time 1 
+			values[15][1] = 300.0f; // Download values Time 1 
+			values[17][1] = 200.0f; // Download values Time 1 
+			values[19][1] = 50.0f; // Download values Time 1 
+			values[19][3] = 75.0f; // Download values Time 3 
+			values[21][1] = 100.0f; // Download values Time 1 
+			// upload series
+			values[0][1] = -500.0f; // Upload values Time 1
+			values[2][1] = -500.0f; // Upload values Time 1
+			values[4][1] = -500.0f; // Upload values Time 1
+			values[6][1] = -500.0f; // Upload values Time 1
+			values[8][1] = -500.0f; // Upload values Time 1
+			values[10][1] = -500.0f; // Upload values Time 1
+			values[12][1] = -500.0f; // Upload values Time 1
+			values[14][1] = -500.0f; // Upload values Time 1
+			values[16][1] = -500.0f; // Upload values Time 1
+			values[18][1] = -500.0f; // Upload values Time 1
+			values[20][1] = -500.0f; // Upload values Time 1
 			break;
 			
 		case REMOTE_PORT:	// Remote port view			
 			
 			// check values for each series.
-			rows = new String[] { "90tcp", "10000tcp", "80tcp"};
+			rows = new String[] { "10000tcp", "90tcp",  "80tcp"};
 			
 			// init array to zero values			
-			values = new long[2 * rows.length][4];
+			values = new float[2 * rows.length][4];
 			
-			values[1][1] = 5500 ; 
-			values[2][1] = -5500 ; 
+			values[0][1] = -5500 ; 
+			values[3][1] = 5500 ; 
 			values[5][3] = 75 ; 
 			values[5][1] = 50 ; 
 			
@@ -253,7 +252,7 @@ public class GraphsTest extends GraphTestBase
 	private void checkGraphTwoParameter(RequestParams requestParams) throws Exception
 	{
 		JFreeChart chart;
-		long values[][];
+		float values[][];
 		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
 
@@ -270,7 +269,7 @@ public class GraphsTest extends GraphTestBase
 			// check values per each serie.
 			rows = new String[] { "10000tcp", "90tcp"};
 			// init array to zero values
-			values = new long[2 * rows.length][4];			
+			values = new float[2 * rows.length][4];			
 			values[1][1] = 1000 ; 
 			values[2][1] = -500 ; 
 			break;
@@ -280,7 +279,7 @@ public class GraphsTest extends GraphTestBase
 			// check values for each series.
 			rows = new String[] { "90tcp", "10000tcp"};			
 			// init array to zero values			
-			values = new long[2 * rows.length][4];
+			values = new float[2 * rows.length][4];
 			values[1][1] = 1000 ; 
 			values[2][1] = -500 ;
 			break;
@@ -291,7 +290,7 @@ public class GraphsTest extends GraphTestBase
 	private void checkGraphThreeParameter(RequestParams requestParams) throws Exception
 	{
 		JFreeChart chart;
-		long values[][];
+		float values[][];
 		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
 
@@ -310,7 +309,7 @@ public class GraphsTest extends GraphTestBase
 			// check values for each series.
 			rows = new String[] {"90tcp"};			
 			// init array to zero values			
-			values = new long[2 * rows.length][4];
+			values = new float[2 * rows.length][4];
 
 			 values[1][1] = 1000 ; 
 			break;
@@ -349,7 +348,7 @@ public class GraphsTest extends GraphTestBase
 	/**
 	 * 
 	 * @throws Exception
-	 */
+	*/ 
 	public void testCumulativeGraphOneParameter() throws Exception
 	{
 		RequestParams requestParams = new RequestParams(m_testUtils.t1.getTime(), 

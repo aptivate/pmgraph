@@ -52,7 +52,7 @@ abstract class GraphTestBase extends TestCase
 	 * @param rows 
 	 * @param chart
 	 */
-	protected void checkChartData(long values[][], String[] rows,
+	protected void checkChartData(float values[][], String[] rows,
 			JFreeChart chart)
 	{
 
