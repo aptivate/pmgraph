@@ -9,26 +9,22 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.aptivate.bmotools.pmgraph.DataAccess;
-import org.aptivate.bmotools.pmgraph.GraphData;
+import org.aptivate.bmotools.pmgraph.DataPoint;
 
 public class DataBaseTest extends TestCase
 {
 
-	public void testDataAccesss() throws ClassNotFoundException,
-			IllegalAccessException, InstantiationException, IOException,
-			SQLException, ConfigurationException
+	public void testDataAccesss() throws ClassNotFoundException, IllegalAccessException,
+			InstantiationException, IOException, SQLException, ConfigurationException
 	{
 		TestUtils testUtils = new TestUtils();
 		testUtils.CreateTable();
 		testUtils.InsertSampleData();
 		DataAccess dataAccess = new DataAccess();
 
-		RequestParams requestParams = new RequestParams(0, 300000,
-				View.LOCAL_IP, 10);
-		List<GraphData> resultPerIP = dataAccess.getThroughput(requestParams,
-				true);
-		List<GraphData> resultPerIPPerMinute = dataAccess.getThroughput(
-				requestParams, false);
+		RequestParams requestParams = new RequestParams(0, 300000, View.LOCAL_IP, 10);
+		List<DataPoint> resultPerIP = dataAccess.getThroughput(requestParams, true);
+		List<DataPoint> resultPerIPPerMinute = dataAccess.getThroughput(requestParams, false);
 		assertTrue("get result per IP", !resultPerIP.isEmpty());
 		assertTrue("get result per IP", !resultPerIPPerMinute.isEmpty());
 	}

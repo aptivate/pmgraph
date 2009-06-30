@@ -14,10 +14,9 @@ import org.apache.log4j.Logger;
  * 
  * @author Noe A. Rodriguez Glez.
  * 
- * Create the List of data needed to generate a Legend.
- * Sort the Legend data according to the user selection
- * Limit the results in the legend creating the Others
- * group.
+ * Create the List of data needed to generate a Legend. Sort the Legend data
+ * according to the user selection Limit the results in the legend creating the
+ * Others group.
  * 
  */
 public class LegendData
@@ -31,8 +30,7 @@ public class LegendData
 
 		private boolean m_descending;
 
-		public UploadComparator(boolean descending)
-		{
+		public UploadComparator(boolean descending) {
 
 			m_descending = descending;
 		}
@@ -40,8 +38,8 @@ public class LegendData
 		public int compare(Object o1, Object o2)
 		{
 
-			GraphData d1 = (GraphData) o1;
-			GraphData d2 = (GraphData) o2;
+			DataPoint d1 = (DataPoint) o1;
+			DataPoint d2 = (DataPoint) o2;
 			if (m_descending)
 				return (-d1.getUploaded().compareTo(d2.getUploaded()));
 			else
@@ -59,8 +57,7 @@ public class LegendData
 
 		private boolean m_descending;
 
-		public DownloadComparator(boolean descending)
-		{
+		public DownloadComparator(boolean descending) {
 
 			m_descending = descending;
 		}
@@ -68,8 +65,8 @@ public class LegendData
 		public int compare(Object o1, Object o2)
 		{
 
-			GraphData d1 = (GraphData) o1;
-			GraphData d2 = (GraphData) o2;
+			DataPoint d1 = (DataPoint) o1;
+			DataPoint d2 = (DataPoint) o2;
 			if (m_descending)
 				return (-d1.getDownloaded().compareTo(d2.getDownloaded()));
 			else
@@ -100,8 +97,7 @@ public class LegendData
 					return (new UploadComparator(true));
 				else
 					return (new UploadComparator(false));
-			}
-			else
+			} else
 			{
 				if (QueryBuilder.BYTES.equalsIgnoreCase(sortby))
 				{
@@ -109,8 +105,7 @@ public class LegendData
 						return (new BytesTotalComparator(true));
 					else
 						return (new BytesTotalComparator(false));
-				}
-				else
+				} else
 				{
 					if (QueryBuilder.DOWNLOADED.equalsIgnoreCase(sortby))
 					{
@@ -121,7 +116,8 @@ public class LegendData
 					}
 				}
 			}
-			m_logger.error ("Invalid sorting selected, no sorting assumed. User has set the sort parameter in the URL incorrectly");
+			m_logger.error("Invalid sorting selected, no sorting assumed." +
+					" User has set the sort parameter in the URL incorrectly");
 		}
 		return null;
 	}
@@ -138,56 +134,41 @@ public class LegendData
 	 *         the user and sorted properly.
 	 * @throws SQLException
 	 */
-	private List<GraphData> limitList(List<GraphData> dataList, String sortBy,
+	private List<DataPoint> limitList(List<DataPoint> dataList, String sortBy,
 			String order, RequestParams requestParams) throws SQLException
 	{
-		List<GraphData> legendData = new ArrayList<GraphData>();
-		GraphData others = null;
+		List<DataPoint> legendData = new ArrayList<DataPoint>();
+		DataPoint others = null;
 		int i = 0;
-		for (GraphData portResult : dataList)
+		for (DataPoint portResult : dataList)
 		{
 			if (i < requestParams.getResultLimit())
 			{
 				legendData.add(portResult);
-			}
-			else
+			} else
 			{
 				if (i == requestParams.getResultLimit())
 				{
 					switch (requestParams.getView())
 					{
-						case LOCAL_PORT:
-							others = new GraphData(null, GraphFactory.OTHER_IP,
-									0L, 0L, GraphFactory.OTHER_PORT);
-							break;
-						case REMOTE_PORT:
-							// For port views, constructor is different
-							// If it is for a specific IP get the Ip from the request
-							others = new GraphData(null, requestParams.getIp(),
-									0L, 0L);
-							others.setRemotePort(GraphFactory.OTHER_PORT);
-							break;
-						case REMOTE_IP:
-							// Ip view
-							others = new GraphData(null, requestParams.getIp(),
-									GraphFactory.OTHER_IP, 0L, 0L);
-							break;
-						default:
-						case LOCAL_IP:
-							// Ip view
-							others = new GraphData(GraphFactory.OTHER_IP, 0L,
-									0L);
-							break;
+					case LOCAL_PORT:
+					case REMOTE_PORT:
+						others = new PortDataPoint(PortDataPoint.OTHER_PORT);
+						break;
+					default:
+					case LOCAL_IP:
+					case REMOTE_IP:
+						// Ip view
+						others = new IpDataPoint(IpDataPoint.OTHER_IP);
+						break;
 					}
 
 				}
 				m_logger.debug("Legend view: " + requestParams.getView());
 				m_logger.debug("other: " + others);
 
-				others.setUploaded(others.getUploaded()
-						+ portResult.getUploaded());
-				others.setDownloaded(others.getDownloaded()
-						+ portResult.getDownloaded());
+				others.addToUploaded(portResult.getUploaded());
+				others.addToDownloaded(portResult.getDownloaded());
 			}
 			i++;
 		}
@@ -203,8 +184,7 @@ public class LegendData
 	}
 
 	public LegendData() throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SQLException, IOException
-	{
+			ClassNotFoundException, SQLException, IOException {
 
 		dataAccess = new DataAccess();
 	}
@@ -225,13 +205,13 @@ public class LegendData
 	 * @throws SQLException
 	 * @throws PageUrlException
 	 */
-	public List<GraphData> getLegendData(String sortBy, String order,
+	public List<DataPoint> getLegendData(String sortBy, String order,
 			RequestParams requestParams) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, ConfigurationException
 	{
 
-		List<GraphData> ipResults = dataAccess.getThroughput(requestParams,
+		List<DataPoint> ipResults = dataAccess.getThroughput(requestParams,
 				false);
 		// always sort using Bytes total to keep the same order as in the graph
 		Collections.sort(ipResults, new BytesTotalComparator(true));

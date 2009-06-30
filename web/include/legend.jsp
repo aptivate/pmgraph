@@ -1,25 +1,21 @@
 <!-- Table which reads database to produce legend corresponding to graph -->
 
-<%@ page import="java.awt.Color" %>
-<%@ page import="java.security.MessageDigest" %>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="java.sql.Timestamp" %>
-<%@ page import="org.aptivate.bmotools.pmgraph.*" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.net.InetAddress"  %>
-<%@ page import="java.net.UnknownHostException" %>
-<%@ page import="org.aptivate.bmotools.pmgraph.View" %>
-<%@ page import="org.aptivate.bmotools.pmgraph.ConfigurationException" %>
-<%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
+<%@ page import="java.awt.Color"%>
+<%@ page import="java.security.MessageDigest"%>
+<%@ page import="java.sql.Connection"%>
+<%@ page import="java.sql.PreparedStatement"%>
+<%@ page import="java.sql.ResultSet"%>
+<%@ page import="java.sql.Timestamp"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.*"%>
+<%@ page import="java.util.List"%>
+<%@ page import="java.net.InetAddress"%>
+<%@ page import="java.net.UnknownHostException"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.View"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.ConfigurationException"%>
+<%@ page pageEncoding="utf-8" language="java"
+	contentType="text/html; charset=utf-8"%>
 <%
-  //   StringBuffer othersHostName = new StringBuffer("");
-  //  StringBuffer othersIp = new StringBuffer("");
-  //  long othersDownloaded = 0;
-	//long othersUploaded = 0;
-//	String othersFillColour="";
-	List<GraphData> results = new ArrayList<GraphData>();
+	List<DataPoint> results = new ArrayList<DataPoint>();
 	
 	ArrayList<ArrayList<LegendTableEntry>> headers = new ArrayList<ArrayList<LegendTableEntry>>();
 	ArrayList<ArrayList<LegendTableEntry>> rows = new ArrayList<ArrayList<LegendTableEntry>>();
@@ -75,121 +71,92 @@
 %>
 <%@page import="java.util.ArrayList"%>
 <table id="legend_tbl">
-
-<%
-LegendTable table = View.getLegendTable(pageUrl, results);
-headers = table.getHeaders(); 
-rows = table.getRows();
-%>
-
-
-<%
-for (ArrayList<LegendTableEntry> row: headers)
-{
-%>
-	<tr class="legend_th">
-<%
-			for (LegendTableEntry column: row)
-			{
-	%>
-		<th
-		<% if (column.isDoubleColSpan())
-		{%>
-			colspan="2"
-		<%}
-		if (column.isDoubleRowSpan()) 
-		{%>	
-			rowspan="2"
-		<%} %>	
-		>
-		<%
-				if (column.getLink()!=null)
-				{
-		%>	
-			 <a href="<%=column.getLink()%>" name= "<%=column.getName()%>"><%=column.getValue()%></a>
-		<%
-				}
-				else
-				{
-		%>	 
-			<%=column.getValue()%>	
-		<%
-			}
-			%>			
-		</th>			
-<%
-			}
-			%>
-	</tr><%
-	}
-	%>
-
-<%
-int i = 0;
-for (ArrayList<LegendTableEntry> row: rows)
-{
-%>
-	<tr class="row<%=i % 2%>">
-	<td style="background-color: <%=row.get(0).getValue()%>; width: 5px;"></td>
-<%
-	int j = 0; 
-	for (LegendTableEntry column: row)
+	<%
+	LegendTable table = View.getLegendTable(pageUrl, results);
+	headers = table.getHeaders(); 
+	rows = table.getRows();
+	for (ArrayList<LegendTableEntry> row: headers)
 	{
-		if(column != row.get(0))
+	%>
+	<tr class="legend_th">
+	<%
+		for (LegendTableEntry column: row)
 		{
-%>
-		<td	
-		<%if (j>2)
-		{%>
-		class="numval"
-		<%}
+		%><th<%			
 			if (column.isDoubleColSpan())
-			{%>
+			{%> 
 				colspan="2"
 			<%}
 			if (column.isDoubleRowSpan()) 
-			{%>	
-				rowspan="2"
-			<%} %>	
-			>
+			{%> 
+				rowspan="2" 
+			<%}	%>>
 			<%
-					if (column.getLink()!=null)
+			if (column.getLink()!=null)
+			{%> 
+			<a href="<%=column.getLink()%>" name="<%=column.getName()%>"><%=column.getValue()%></a>
+			<%} else
+			{
+				%> <%=column.getValue()%> <%
+			 } %>
+			 </th>
+		<%}	%>
+	</tr>
+	<%} 
+	int i = 0;
+	for (ArrayList<LegendTableEntry> row: rows)
+	{%>
+		<tr class="row<%=i % 2%>">
+		<td style="background-color: <%=row.get(0).getValue()%>; width: 5px;"></td>
+		<%
+		int j = 0; 
+		for (LegendTableEntry column: row)
+		{
+			if(column != row.get(0))
+			{ %>
+				<td <%if (j>2)
+				{%> 
+					class="numval"
+				<%}
+					if (column.isDoubleColSpan())
+					{%> 
+					colspan="2"
+					<%}
+					if (column.isDoubleRowSpan()) 
+					{%> 
+						rowspan="2" 
+					<%} %>>
+					<%if (column.getLink()!=null)
+					{%> 
+						<a href="<%=column.getLink()%>" name="<%=column.getName() %>"><%=column.getValue()%></a>
+					<% } else
 					{
-			%>	
-			 	<a href="<%=column.getLink()%>" name="<%=column.getName() %>"><%=column.getValue()%></a>
-			<%
-					}
-					else
-					{
-			%>	 
-				<%=column.getValue()%>	
-			<%
-				}
-				%>			
-		</td>		
-<%
+					%> <%=column.getValue()%> <%
+					} %>
+					</td>
+				<%
 				}
 				j++;
 			}
 		%>
-	</tr><%
-		i++;
+		</tr>
+		<%
+			i++;
 		}
 	%>
 </table>
 <%
 if (pageUrl.getParams().getView() == View.REMOTE_PORT) {
 %>
-	<a href="javascript:window.open('port_assignment.html');void(0);">Well known ports list</a>
+<a href="javascript:window.open('port_assignment.html');void(0);">Well
+known ports list</a>
 <%
 }
 %>
 <%
 if (configError != null) {
 %>
-<div class="error_panel">
-		<%=configError%>
-	</div>
+<div class="error_panel"><%=configError%></div>
 <%
 }
 %>

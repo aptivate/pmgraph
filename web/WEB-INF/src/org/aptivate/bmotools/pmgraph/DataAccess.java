@@ -3,7 +3,6 @@ package org.aptivate.bmotools.pmgraph;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,25 +26,7 @@ class DataAccess
 {
 	private Logger m_logger = Logger.getLogger(DataAccess.class.getName());
 
-
-	
-	
-	private List getColumnInResultSet(ResultSet rs) throws SQLException {
-		ArrayList<String> columns = new ArrayList<String>();
-		
-		if (rs != null) {
-		  ResultSetMetaData rsMetaData = rs.getMetaData();
-		  int numberOfColumns = rsMetaData.getColumnCount();
-		  // get the column names; column indexes start from 1
-		  for (int i = 1; i < numberOfColumns + 1; i++) {
-		    columns.add(rsMetaData.getColumnName(i));
-		  }
-		}
-		return columns;
-	}
-
-	
-	List<GraphData> getThroughput(RequestParams requestParams, boolean perMinute)
+	List<DataPoint> getThroughput(RequestParams requestParams, boolean isChart)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException,
 			ConfigurationException
@@ -54,30 +35,48 @@ class DataAccess
 		queryBuilder = new QueryBuilder();
 
 		long initTime = System.currentTimeMillis();
-		ArrayList<GraphData> resultData = new ArrayList<GraphData>();
+		ArrayList<DataPoint> resultData = new ArrayList<DataPoint>();
 
 		PreparedStatement statement = queryBuilder.buildQuery(requestParams,
-				perMinute);
+				isChart);
 
 		m_logger.debug(statement);
 		ResultSet ipResults = statement.executeQuery();
 		long endTime = System.currentTimeMillis() - initTime;
-		m_logger
-				.debug("Execution Time in mysql query: " + endTime + " ms");
+		m_logger.debug("Execution Time in mysql query: " + endTime + " ms");
 		initTime = System.currentTimeMillis();
-		
-		List columns = getColumnInResultSet(ipResults);
+
 		while (ipResults.next())
 		{
-			resultData.add(new GraphData(ipResults, columns));
+			resultData.add(dataPointCreate(requestParams, ipResults, isChart));
 		}
 		ipResults.close();
 		statement.close();
 		queryBuilder.releaseConnection();
 		endTime = System.currentTimeMillis() - initTime;
-		m_logger
-				.debug("Creating array of results for query: " + endTime + " ms");
+		m_logger.debug("Creating array of results for query: " + endTime
+				+ " ms");
 		return resultData;
+	}
+
+	private DataPoint dataPointCreate(RequestParams requestParams,
+			ResultSet rs, boolean isChart) throws SQLException
+	{
+		switch (requestParams.getView())
+		{
+		case LOCAL_PORT:
+			return new PortDataPoint(rs, rs.getInt("port"), rs
+					.getString("ip_proto"), isChart);
+		case REMOTE_PORT:
+			return new PortDataPoint(rs, rs.getInt("remote_port"), 
+					rs.getString("ip_proto"), isChart);
+
+		default:
+		case LOCAL_IP:
+			return new IpDataPoint(rs, rs.getString("local_ip"), isChart);
+		case REMOTE_IP:
+			return new IpDataPoint(rs, rs.getString("remote_ip"), isChart);
+		}
 	}
 
 }

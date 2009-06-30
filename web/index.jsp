@@ -287,7 +287,7 @@
                 <!-- Graph parameter controls not yet functional -->
                 <div id="graph">
                     <img id="graphimage" alt="Bandwidth Graph" 
-                            src="<%=pageUrl.getServetURL()%>"
+                            src="<%=pageUrl.getServletURL()%>"
                             width="760" height="350" />
                 </div>
                 

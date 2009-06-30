@@ -5,10 +5,10 @@ import java.util.Comparator;
 /**
  * 
  * @author Noe A. Rodriguez Glez.
- *
- *  Just a simple comparator to be used when the methods of java Collection
- *  are used. This comparator sorts the results in a List of GraphData by the
- *  byteTotal field.
+ * 
+ * Just a simple comparator to be used when the methods of java Collection are
+ * used. This comparator sorts the results in a List of GraphData by the
+ * byteTotal field.
  */
 
 class BytesTotalComparator implements Comparator
@@ -16,16 +16,15 @@ class BytesTotalComparator implements Comparator
 
 	private boolean m_descending;
 
-	public BytesTotalComparator(boolean descending)
-	{
+	public BytesTotalComparator(boolean descending) {
 
 		m_descending = descending;
 	}
 
 	public int compare(Object o1, Object o2)
 	{
-		GraphData d1 = (GraphData) o1;
-		GraphData d2 = (GraphData) o2;
+		DataPoint d1 = (DataPoint) o1;
+		DataPoint d2 = (DataPoint) o2;
 		if (m_descending)
 			return (0 - d1.getBytesTotal().compareTo(d2.getBytesTotal()));
 		else

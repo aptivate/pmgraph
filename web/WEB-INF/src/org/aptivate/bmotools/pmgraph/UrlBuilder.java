@@ -22,8 +22,7 @@ public class UrlBuilder
 
 	RequestParams m_params;
 
-	public UrlBuilder()
-	{
+	public UrlBuilder() {
 		m_params = new RequestParams();
 	}
 
@@ -96,7 +95,7 @@ public class UrlBuilder
 		return m_legendURL;
 	}
 
-	public String getServetURL()
+	public String getServletURL()
 	{
 		String newURL = m_servletURL + "?start=" + m_params.getStartTime()
 				+ "&amp;end=" + m_params.getEndTime() + "&amp;width=780"
@@ -178,33 +177,74 @@ public class UrlBuilder
 		return newURL;
 	}
 
-	public String getUrlGraph(Object paramValue, String paramName)
+	private String getCurrentParams()
 	{
-		// Round our times to the nearest minute
-		long start = m_params.getStartTime()
-				- (m_params.getStartTime() % 60000);
-		long end = m_params.getEndTime() - (m_params.getEndTime() % 60000);
-		String newURL = "";
-		String extra = "";
+
+		String paramsUrl = "";
 
 		for (String key : m_params.m_params.keySet())
 		{
-			if (key != paramName)
+			Object param = m_params.m_params.get(key);
+			if (param != null)
 			{
-				Object param = m_params.m_params.get(key);
-				if (param != null)
-				{
-					extra += "&amp;" + key + "=" + param;
-				}
+				paramsUrl += "&amp;" + key + "=" + param;
 			}
 		}
-		extra += "&amp;" + paramName + "=" + paramValue;
-		View view = View.getNextView(m_params, paramName);
+		return paramsUrl;
+	}
 
-		newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
-				+ "&amp;resultLimit=" + m_params.getResultLimit() + extra
-				+ "&amp;view=" + view;
-		return newURL;
+	/**
+	 * 
+	 * @param paramValue
+	 * @param paramName
+	 * @return
+	 */
+	public String getUrlGraph(String paramValue)
+	{
+
+		// not all the parameters have been selected
+		if ((m_params.getParams().size() < 3)
+				&& (!"Other".equalsIgnoreCase(paramValue)))
+		{
+
+			// Round our times to the nearest minute
+			long start = m_params.getStartTime()
+					- (m_params.getStartTime() % 60000);
+			long end = m_params.getEndTime() - (m_params.getEndTime() % 60000);
+			String newURL = "";
+			View view;
+
+			// get current selected params
+			String extra = getCurrentParams();
+			// add new selected parameter dependinf of the view
+			switch (m_params.getView())
+			{
+			// select a different view because you have added a selected
+			// parameter and current view doesn't have sense
+			case LOCAL_PORT:
+				extra += "&amp;port=" + paramValue;
+				view = View.getNextView(m_params, "port");
+				break;
+			case REMOTE_PORT:
+				extra += "&amp;remote_port=" + paramValue;
+				view = View.getNextView(m_params, "remote_port");
+				break;
+			default:
+			case LOCAL_IP:
+				extra += "&amp;ip=" + paramValue;
+				view = View.getNextView(m_params, "ip");
+				break;
+			case REMOTE_IP:
+				extra += "&amp;remote_ip=" + paramValue;
+				view = View.getNextView(m_params, "remote_ip");
+				break;
+			}
+			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
+					+ "&amp;resultLimit=" + m_params.getResultLimit() + extra
+					+ "&amp;view=" + view;
+			return newURL;
+		}
+		return (null);
 	}
 
 	public String getZoomInURL()

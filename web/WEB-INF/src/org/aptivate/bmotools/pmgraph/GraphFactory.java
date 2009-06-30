@@ -2,13 +2,11 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -52,119 +50,6 @@ public class GraphFactory
 
 	private Logger m_logger = Logger.getLogger(GraphFactory.class.getName());
 
-	public static final int OTHER_PORT = -1;
-
-	public static final String OTHER_IP = "255.255.255.255";
-
-	/**
-	 * This class contains the info that represents a specific series.
-	 */
-	private class SeriesId
-	{
-
-		private String m_id;
-
-		private Protocol m_protocol;
-
-		public SeriesId(String id, Protocol proto)
-		{
-			m_id = id;
-			m_protocol = proto;
-		}
-
-		public String getId()
-		{
-			return m_id;
-		}
-
-		public void setId(String m_id)
-		{
-			this.m_id = m_id;
-		}
-
-		public Protocol getProtocol()
-		{
-			return m_protocol;
-		}
-
-		public void setProtocol(Protocol m_protocol)
-		{
-			this.m_protocol = m_protocol;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#hashCode()
-		 */
-		@Override
-		public int hashCode()
-		{
-			final int PRIME = 31;
-			int result = 1;
-			result = PRIME * result + ((m_id == null) ? 0 : m_id.hashCode());
-			result = PRIME * result
-					+ ((m_protocol == null) ? 0 : m_protocol.hashCode());
-			return result;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
-		@Override
-		public boolean equals(Object obj)
-		{
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			final SeriesId other = (SeriesId) obj;
-			if (m_id == null)
-			{
-				if (other.m_id != null)
-					return false;
-			} else if (!m_id.equals(other.m_id))
-				return false;
-			if (m_protocol == null)
-			{
-				if (other.m_protocol != null)
-					return false;
-			} else if (!m_protocol.equals(other.m_protocol))
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString()
-		{
-			if (m_protocol != null)
-				return (m_id + m_protocol.toString());
-			return (m_id);
-		}
-
-	}
-
-	private Color getColorFromByteArray(byte[] bytes)
-	{
-		MessageDigest algorithm;
-		try
-		{
-			algorithm = MessageDigest.getInstance("SHA1");
-			algorithm.reset();
-			algorithm.update(bytes);
-			byte sha1[] = algorithm.digest();
-			return (new Color(sha1[0] & 0xFF, sha1[1] & 0xFF, sha1[2] & 0xFF));
-		} catch (NoSuchAlgorithmException e)
-		{
-			m_logger.error(e.getMessage(), e);
-		}
-		return (Color.BLACK);
-	}
-
 	/**
 	 * Initialize a series for a port graph with all the values set to zero and
 	 * add it to the database and to the hashmap containing all the series.
@@ -177,56 +62,26 @@ public class GraphFactory
 	 * @param view
 	 */
 	private void series2DataSet(DefaultTableXYDataset dataset,
-			Map<SeriesId, float[]> series, XYItemRenderer renderer, long start,
-			String name, RequestParams requestParams)
+			Map<DataPoint, float[]> series, XYItemRenderer renderer,
+			long start, String name, RequestParams requestParams)
 	{
-		//int i=0 ;
 		// Put the series into the graph
-		for (SeriesId seriesId : series.keySet())
+		for (DataPoint seriesId : series.keySet())
 		{
-			Color color;
-			String id = seriesId.getId();
-			Protocol protocol = seriesId.getProtocol();
-			switch (requestParams.getView())
-			{
-				case LOCAL_PORT:
-				case REMOTE_PORT:
-					if (id == OTHER_IP)
-						color = getSeriesColor(OTHER_PORT, Protocol.tcp);
-					else
-						color = getSeriesColor(Integer.valueOf(id), protocol);
-					break;
-				default:
-				case LOCAL_IP:
-				case REMOTE_IP:
-					color = getSeriesColor(id);
-					break;
-			}
-			XYSeries xySeries = new XYSeries(seriesId.toString() + name, true,
-					false);
+			XYSeries xySeries = new XYSeries(seriesId.getSeriesId() + name,
+					true, false);
 			float[] values = series.get(seriesId);
 			int j = 0;
-			
-			
-			//System.out.println ("// Values for "+seriesId.toString() );
+
 			for (float val : values)
 			{
-				/*if (Float.valueOf(val) != 0) {
-					int pos = 2*i;
-					if (name == "<up>") {
-						System.out.println ("values["+pos+"]["+j+"] = "+Float.valueOf(val)+"f; // Upload values Time "+j+"");
-					} else {
-						pos = 2*i+1;
-						System.out.println ("values["+pos+"]["+j+"] = "+Float.valueOf(val)+"f; // Download values Time "+j+" ");
-					}
-				}*/
-				
-				xySeries.add(Long.valueOf(start + j * 60000), Float.valueOf(val));
+				xySeries.add(Long.valueOf(start + j * 60000), Float
+						.valueOf(val));
 				j++;
 			}
-			//i++;
 			dataset.addSeries(xySeries);
-			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, color);
+			renderer.setSeriesPaint(dataset.getSeriesCount() - 1, 
+					seriesId.getSeriesColor());
 		}
 	}
 
@@ -260,77 +115,67 @@ public class GraphFactory
 	}
 
 	/**
-	 * 
-	 * @param pageUrl
-	 * @param graphData
-	 * @return
-	 */
-	private String getSeriesId(RequestParams requestParams, GraphData graphData)
-	{
-
-		switch (requestParams.getView())
-		{
-			case LOCAL_PORT:
-				return graphData.getPort().toString();
-			case REMOTE_PORT:
-				return graphData.getRemotePort().toString();
-
-			default:
-			case LOCAL_IP:
-				return graphData.getLocalIp().trim();
-			case REMOTE_IP:
-				return graphData.getRemoteIp().trim();
-		}
-
-	}
-	
-	/**
-	 * Retun a list of the X id with most traffic.
+	 * Return a list of the ports or IPs with most traffic. We need to sum
+	 * totals by port or Ip to order by traffic volume, then sort them and
+	 * select only the top (matching the result limit)
 	 * 
 	 * @param thrptResults
 	 * @param requestParams
 	 * @return
 	 */
-	private List getTopResults(List<GraphData> thrptResults,
+	private List<DataPoint> getTopResults(List<DataPoint> thrptResults,
 			RequestParams requestParams)
 	{
 
-		List<GraphData> topList = new ArrayList<GraphData>();
-		ArrayList<SeriesId> topId = new ArrayList<SeriesId>();
-		Map<SeriesId, GraphData> aux = new HashMap<SeriesId, GraphData>();
+		List<DataPoint> dataSeriesList = new ArrayList<DataPoint>();
+		// seriesTotals is a hashmap used to accumulate totals
+		Map<DataPoint, DataPoint> seriesTotals = new HashMap<DataPoint, DataPoint>();
 
-		// create a list accumulating upload and download per minute
-		for (GraphData thrptResult : thrptResults)
+		// create a list accumulating upload and download for each IP or port
+		// Read through the results from the database (all the datapoints). For
+		// each Ip or port, create an
+		// entry in a data series list in which the total points are summed
+		for (DataPoint thrptResult : thrptResults)
 		{
-			String id = getSeriesId(requestParams, thrptResult);
-			SeriesId seriesId = new SeriesId(id, thrptResult.getProtocol());
-			GraphData data = aux.get(seriesId);
+			DataPoint seriesId = thrptResult.createCopy();
+			seriesId.setTime(null);
+			DataPoint data = seriesTotals.get(seriesId);
+
+			// if the point already exists
 			if (data != null)
 			{
-				data.incrementUploaded(thrptResult.getUploaded());
-				data.incrementDownloaded(thrptResult.getDownloaded());
+				data.addToUploaded(thrptResult.getUploaded());
+				data.addToDownloaded(thrptResult.getDownloaded());
 			} else
+			// create a new item in the list, for Ip or Port
 			{
-				aux.put(seriesId, new GraphData(thrptResult));
-
+				if (thrptResult instanceof PortDataPoint)
+				{
+					data = new PortDataPoint((PortDataPoint) thrptResult);
+				} else
+				{
+					data = new IpDataPoint((IpDataPoint) thrptResult);
+				}
+				// we want generict instances to sum up all the data per a
+				// series then we do not need Ip
+				data.setTime(null);
+				seriesTotals.put(seriesId, data);
 			}
 		}
-		for (GraphData thrptResult : aux.values())
+		for (DataPoint series : seriesTotals.values())
 		{
-			topList.add(thrptResult);
+			dataSeriesList.add(series);
 		}
 		// sort the list using byte total
-		Collections.sort(topList, new BytesTotalComparator(true));
-		if (topList.size() > requestParams.getResultLimit())
+		Collections.sort(dataSeriesList, new BytesTotalComparator(true));
+
+		// truncate the list to the result limit
+		if (dataSeriesList.size() > requestParams.getResultLimit())
 		{
-			topList = topList.subList(0, (int) requestParams.getResultLimit());
+			dataSeriesList = dataSeriesList.subList(0, (int) requestParams
+					.getResultLimit());
 		}
-		for (GraphData thrptResult : topList)
-		{
-			topId.add(new SeriesId(getSeriesId(requestParams, thrptResult),
-					thrptResult.getProtocol()));
-		}
-		return (topId);
+		return dataSeriesList;
 	}
 
 	/**
@@ -349,11 +194,11 @@ public class GraphFactory
 	 * @return A JFreeChart with the data in the List thrptResults creating a
 	 *         new series for each port or Ip
 	 */
-	private JFreeChart fillGraph(List<GraphData> thrptResults,
+	private JFreeChart fillGraph(List<DataPoint> thrptResults,
 			RequestParams requestParams)
 	{
-		LinkedHashMap<SeriesId, float[]> downSeries = new LinkedHashMap<SeriesId, float[]>();
-		LinkedHashMap<SeriesId, float[]> upSeries = new LinkedHashMap<SeriesId, float[]>();
+		LinkedHashMap<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
+		LinkedHashMap<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
 		long start = requestParams.getRoundedStartTime();
 		long end = requestParams.getRoundedEndTime();
 		long theStart = requestParams.getStartTime();
@@ -376,7 +221,7 @@ public class GraphFactory
 
 		m_logger.debug("Start sorting result list.");
 		long initTime = System.currentTimeMillis();
-		List<SeriesId> topIds = getTopResults(thrptResults, requestParams);
+		List<DataPoint> topIds = getTopResults(thrptResults, requestParams);
 
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Time spent in sorting: " + endTime + " millisecond");
@@ -384,35 +229,27 @@ public class GraphFactory
 		m_logger.debug("Start Filling the chart with data.");
 		initTime = System.currentTimeMillis();
 		m_logger.debug("Number of rows in result set = " + thrptResults.size());
-		
-		//System.out.print ("rows = new String[] {");
-		for (SeriesId topId : topIds) // Is in the Top X
-		// results.
+
+		for (DataPoint topId : topIds) // Is in the Top X results.
 		{
-			float upSerie[] = new float[minutes + 1];
-			float downSerie[] = new float[minutes + 1];
-			upSeries.put(topId, upSerie);
-			downSeries.put(topId, downSerie);
-			
-			// init array to zero values			
-			
-			//System.out.print (topId.toString()+", ");			
+			float upSeriesElement[] = new float[minutes + 1];
+			float downSeriesElement[] = new float[minutes + 1];
+			upSeries.put(topId, upSeriesElement);
+			downSeries.put(topId, downSeriesElement);
+
 		}
 
-		//System.out.println ("};");
-		//System.out.println ("values = new float[2 * "+topIds.size()+"][4];");
-		
-		
-		for (GraphData thrptResult : thrptResults)
+		for (DataPoint thrptResult : thrptResults)
 		{
-			String id = getSeriesId(requestParams, thrptResult);
-			SeriesId seriesId = new SeriesId(id, thrptResult.getProtocol());
+			DataPoint seriesId = thrptResult.createCopy();
+			seriesId.setTime(null); // this data point represent a whole series
+
 			Timestamp inserted = thrptResult.getTime();
 			// values in the database are in bytes per interval (normally 1
 			// minute)
 			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
-			float downloaded = (float)((thrptResult.getDownloaded() * 8) / 1024) / 60;
-			float uploaded = (float)((thrptResult.getUploaded() * 8) / 1024) / 60;
+			float downloaded = (float) ((thrptResult.getDownloaded() * 8) / 1024) / 60;
+			float uploaded = (float) ((thrptResult.getUploaded() * 8) / 1024) / 60;
 
 			// check if the ip already has its own series if not we create one
 			// for it
@@ -420,22 +257,24 @@ public class GraphFactory
 			float[] dSeries = downSeries.get(seriesId);
 			float[] uSeries = upSeries.get(seriesId);
 			if (upSeries.containsKey(seriesId))
-			{ // We created a series for this port so it should be in the
+			{ // We created a series for
+				// this port so it should be
+				// in the
 				// limit top
 				// update the values of the series
 				dSeries[((int) (inserted.getTime() - start)) / 60000] = downloaded;
 				uSeries[((int) (inserted.getTime() - start)) / 60000] = 0 - uploaded;
 			} else
-			{ // the port belongs to the group other - just stack values
+			{ // the port belongs to the group other - just stack
+				// values
 
 				otherDown[((int) (inserted.getTime() - start)) / 60000] += downloaded;
 				otherUp[((int) (inserted.getTime() - start)) / 60000] += 0 - uploaded;
 
-				if (!(upSeries
-						.containsKey(new SeriesId(OTHER_IP, Protocol.tcp))))
+				if (!(upSeries.size() == requestParams.getResultLimit() + 1))
 				{
-					upSeries.put(new SeriesId(OTHER_IP, Protocol.tcp), otherUp);
-					downSeries.put(new SeriesId(OTHER_IP, Protocol.tcp),
+					upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP), otherUp);
+					downSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
 							otherDown);
 				}
 			}
@@ -489,17 +328,19 @@ public class GraphFactory
 		if (timePeriod < 7)
 		{
 			xAxis = new DateAxis("Time (hours:minutes:seconds)");
-		} else if ((timePeriod >= 7) && (timePeriod < 3650))
-		{
-			xAxis = new DateAxis("Time (hours:minutes)");
-		} else if ((timePeriod >= 3650) && (timePeriod < 7299))
-		{
-			xAxis = new DateAxis("Time (day-month,hours:minutes)");
 		} else
-		// timePeriod >= 7299
-		{
-			xAxis = new DateAxis("Time (day-month)");
-		}
+			if ((timePeriod >= 7) && (timePeriod < 3650))
+			{
+				xAxis = new DateAxis("Time (hours:minutes)");
+			} else
+				if ((timePeriod >= 3650) && (timePeriod < 7299))
+				{
+					xAxis = new DateAxis("Time (day-month,hours:minutes)");
+				} else
+				// timePeriod >= 7299
+				{
+					xAxis = new DateAxis("Time (day-month)");
+				}
 		xAxis.setMinimumDate(new Date(start - 1));
 		xAxis.setMaximumDate(new Date(end));
 		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
@@ -514,45 +355,6 @@ public class GraphFactory
 		chart.setBackgroundPaint(null);
 		chart.removeLegend();
 		return chart;
-	}
-
-	/**
-	 * Return a color obtained from creating a hash with the bytes of the Ip.
-	 * 
-	 * @param ip
-	 * @return Color for the selected IP.
-	 */
-	public Color getSeriesColor(String ip)
-	{
-		if (ip != null)
-		{
-			byte[] ipBytes = ip.getBytes();
-
-			return getColorFromByteArray(ipBytes);
-		}
-		m_logger
-				.warn("Unable to assign a color to a null IP. (Black color assigned)");
-		return (Color.BLACK);
-	}
-
-	/**
-	 * Return a color obtained from creating a hash with the bytes of the Port.
-	 * 
-	 * @param port
-	 * @return Color for the selected port
-	 */
-	public Color getSeriesColor(int port, Protocol protocol)
-	{
-
-		byte[] portBytes = new byte[] { (byte) (port >>> 24),
-				(byte) (port >>> 16), (byte) (port >>> 8), (byte) port };
-
-		if (protocol != null)
-		{
-			byte protocolByte = (byte) protocol.ordinal();
-			portBytes[0] = (byte) (protocolByte | portBytes[0]);
-		}
-		return getColorFromByteArray(portBytes);
 	}
 
 	/**
@@ -580,7 +382,7 @@ public class GraphFactory
 	{
 
 		DataAccess dataAccess = new DataAccess();
-		List<GraphData> thrptResults = dataAccess.getThroughput(requestParams,
+		List<DataPoint> thrptResults = dataAccess.getThroughput(requestParams,
 				true);
 
 		m_logger.debug("Start creating chart.");
