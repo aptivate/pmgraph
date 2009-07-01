@@ -1,4 +1,4 @@
-<!-- Table which reads database to produce legend corresponding to graph -->
+<!-- Jsp to show the legend corresponding to graph. This reads the database to get the data   -->
 
 <%@ page import="java.awt.Color"%>
 <%@ page import="java.security.MessageDigest"%>
@@ -17,8 +17,8 @@
 <%
 	List<DataPoint> results = new ArrayList<DataPoint>();
 	
-	ArrayList<ArrayList<LegendTableEntry>> headers = new ArrayList<ArrayList<LegendTableEntry>>();
-	ArrayList<ArrayList<LegendTableEntry>> rows = new ArrayList<ArrayList<LegendTableEntry>>();
+	ArrayList<ArrayList<LegendElement>> headers = new ArrayList<ArrayList<LegendElement>>();
+	ArrayList<ArrayList<LegendElement>> rows = new ArrayList<ArrayList<LegendElement>>();
     
     //sortBy = downloaded | uploaded |total_byties
 	String sortBy = request.getParameter("sortBy");
@@ -40,47 +40,30 @@
 	{
 		errorMsg = e.getLocalizedMessage();
 	}	
-	
-	//time in seconds
-	long bitsConversion = 8;
-	long kbitsConversion = 1024;
-	RequestParams param = pageUrl.getParams();
-    long time = (param.getRoundedEndTime()-param.getRoundedStartTime())/1000;
-	
+    //populate the results from the database
 	try {
 		LegendData legendData = new LegendData();
-		results = legendData.getLegendData(sortBy, order,pageUrl.getParams());
+		results = legendData.getLegendData(sortBy, order, pageUrl.getParams());
 	} catch (	ConfigurationException e)
 	{
 		configError = e.getLocalizedMessage();
 		if (e.getCause() != null)
-	configError += "<p>" +e.getCause().getLocalizedMessage() + "</p>";
+			configError += "<p>" +e.getCause().getLocalizedMessage() + "</p>";
 	}	
-	
-	String arrow = "ASC".equals(pageUrl.getParams().getOrder())?" &#8679;":" &#8681;";
-	String col1 = "Down";
-	String col2 = "Up";
-	String col3 = "Totals (MB)";
-	
-	if("downloaded".equals(pageUrl.getParams().getSortBy()))
-		col1 = col1 + arrow;
-	if("uploaded".equals(pageUrl.getParams().getSortBy()))
-		col2 = col2 + arrow;	
-	if ("bytes_total".equals(pageUrl.getParams().getSortBy()))
-		col3 = col3 + arrow;
 %>
 <%@page import="java.util.ArrayList"%>
 <table id="legend_tbl">
 	<%
+	// We pass the results from the database to View to format and populate the table 
 	LegendTable table = View.getLegendTable(pageUrl, results);
 	headers = table.getHeaders(); 
 	rows = table.getRows();
-	for (ArrayList<LegendTableEntry> row: headers)
+	for (ArrayList<LegendElement> row: headers)
 	{
 	%>
 	<tr class="legend_th">
 	<%
-		for (LegendTableEntry column: row)
+		for (LegendElement column: row)
 		{
 		%><th<%			
 			if (column.isDoubleColSpan())
@@ -104,13 +87,13 @@
 	</tr>
 	<%} 
 	int i = 0;
-	for (ArrayList<LegendTableEntry> row: rows)
+	for (ArrayList<LegendElement> row: rows)
 	{%>
 		<tr class="row<%=i % 2%>">
 		<td style="background-color: <%=row.get(0).getValue()%>; width: 5px;"></td>
 		<%
 		int j = 0; 
-		for (LegendTableEntry column: row)
+		for (LegendElement column: row)
 		{
 			if(column != row.get(0))
 			{ %>
@@ -146,6 +129,7 @@
 	%>
 </table>
 <%
+//Only see link to port list if in remote port view
 if (pageUrl.getParams().getView() == View.REMOTE_PORT) {
 %>
 <a href="javascript:window.open('port_assignment.html');void(0);">Well

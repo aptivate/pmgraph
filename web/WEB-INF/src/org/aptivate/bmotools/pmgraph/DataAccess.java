@@ -10,6 +10,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 /**
+ * Form the query, access the database and store the results in a list
+ * 
  * @author Tom Sharp
  * 
  * History:
@@ -35,28 +37,35 @@ class DataAccess
 		queryBuilder = new QueryBuilder();
 
 		long initTime = System.currentTimeMillis();
-		ArrayList<DataPoint> resultData = new ArrayList<DataPoint>();
+		
+		ArrayList<DataPoint> dataPoints = new ArrayList<DataPoint>();
 
 		PreparedStatement statement = queryBuilder.buildQuery(requestParams,
 				isChart);
 
 		m_logger.debug(statement);
-		ResultSet ipResults = statement.executeQuery();
+		
+		//access the database
+		ResultSet dataResults = statement.executeQuery();
+		
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Execution Time in mysql query: " + endTime + " ms");
 		initTime = System.currentTimeMillis();
 
-		while (ipResults.next())
+		//for each element in result set an entry is created in the list of dataPoints
+		while (dataResults.next())
 		{
-			resultData.add(dataPointCreate(requestParams, ipResults, isChart));
+			dataPoints.add(dataPointCreate(requestParams, dataResults, isChart));
 		}
-		ipResults.close();
+		dataResults.close();
 		statement.close();
 		queryBuilder.releaseConnection();
+		
 		endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Creating array of results for query: " + endTime
 				+ " ms");
-		return resultData;
+		
+		return dataPoints;
 	}
 
 	private DataPoint dataPointCreate(RequestParams requestParams,

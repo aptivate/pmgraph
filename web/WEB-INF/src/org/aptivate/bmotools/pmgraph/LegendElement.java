@@ -1,6 +1,6 @@
 package org.aptivate.bmotools.pmgraph;
 
-public class LegendTableEntry
+public class LegendElement
 {
 	//m_value is the string shown in the lelgend, m_link is the link in case is used and m_name is the name associated to the link which is used to sort in some cases
 	private String m_value;
@@ -13,11 +13,11 @@ public class LegendTableEntry
 	
 	private boolean m_doubleColSpan;
 
-	public LegendTableEntry()
+	public LegendElement()
 	{
 	}
 
-	public LegendTableEntry(String value)
+	public LegendElement(String value)
 	{
 		this.m_value = value;
 		this.m_link = null;
@@ -25,7 +25,7 @@ public class LegendTableEntry
 		this.m_doubleRowSpan = false;
 	}
 
-	public LegendTableEntry(String value, String link, String name)
+	public LegendElement(String value, String link, String name)
 	{
 		this.m_value = value;
 		this.m_link = link;
@@ -34,7 +34,7 @@ public class LegendTableEntry
 		this.m_doubleRowSpan = false;
 	}
 	
-	public LegendTableEntry(String value, String link, String name, boolean doubleColSpan, boolean doubleRowSpan)
+	public LegendElement(String value, String link, String name, boolean doubleColSpan, boolean doubleRowSpan)
 	{
 		this.m_value = value;
 		this.m_link = link;

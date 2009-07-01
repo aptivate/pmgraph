@@ -78,53 +78,53 @@ public enum View {
 		// time in seconds
 		RequestParams param = pageUrl.getParams();
 		long time = (param.getRoundedEndTime() - param.getRoundedStartTime()) / 1000;
-		ArrayList<ArrayList<LegendTableEntry>> headers = legend.getHeaders();
-		ArrayList<ArrayList<LegendTableEntry>> rows = legend.getRows();
+		ArrayList<ArrayList<LegendElement>> headers = legend.getHeaders();
+		ArrayList<ArrayList<LegendElement>> rows = legend.getRows();
 
 		//fill the header 
-		ArrayList<LegendTableEntry> firstRowHeader = new ArrayList<LegendTableEntry>();
-		ArrayList<LegendTableEntry> secondRowHeader = new ArrayList<LegendTableEntry>();
+		ArrayList<LegendElement> firstRowHeader = new ArrayList<LegendElement>();
+		ArrayList<LegendElement> secondRowHeader = new ArrayList<LegendElement>();
 
 		// an empty field in the header for the colour column
-		firstRowHeader.add(0, new LegendTableEntry("", null, null, false, true));
+		firstRowHeader.add(0, new LegendElement("", null, null, false, true));
 
 		switch (requestParams.getView())
 		{
 		case LOCAL_PORT:
-			firstRowHeader.add(new LegendTableEntry("Local Port", null, null, false, true));
-			firstRowHeader.add(new LegendTableEntry("Protocol", null, null, false, true));
-			firstRowHeader.add(new LegendTableEntry("Service", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Local Port", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Protocol", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Service", null, null, false, true));
 
 			break;
 		case REMOTE_PORT:
-			firstRowHeader.add(new LegendTableEntry("Remote Port", null, null, false, true));
-			firstRowHeader.add(new LegendTableEntry("Protocol", null, null, false, true));
-			firstRowHeader.add(new LegendTableEntry("Service", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Remote Port", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Protocol", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Service", null, null, false, true));
 
 			break;
 		case REMOTE_IP:
-			firstRowHeader.add(new LegendTableEntry("Remote Port", null, null, false, true));
-			firstRowHeader.add(new LegendTableEntry("Host Name", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Remote Port", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Host Name", null, null, false, true));
 
 			break;
 		default:
 		case LOCAL_IP:
-			firstRowHeader.add(new LegendTableEntry("Local IP", null, null, false, true));
-			firstRowHeader.add(new LegendTableEntry("Host Name", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Local IP", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Host Name", null, null, false, true));
 
 			break;
 		}
 
-		firstRowHeader.add(new LegendTableEntry(col3, pageUrl.getIndexURL("bytes_total"),
+		firstRowHeader.add(new LegendElement(col3, pageUrl.getIndexURL("bytes_total"),
 				"bytes_total", true, false));
-		firstRowHeader.add(new LegendTableEntry("Average (kb/s)", null, null, true, false));
+		firstRowHeader.add(new LegendElement("Average (kb/s)", null, null, true, false));
 
-		secondRowHeader.add(new LegendTableEntry(col1, pageUrl.getIndexURL("downloaded"),
+		secondRowHeader.add(new LegendElement(col1, pageUrl.getIndexURL("downloaded"),
 				"downloaded"));
 		secondRowHeader
-				.add(new LegendTableEntry(col2, pageUrl.getIndexURL("uploaded"), "uploaded"));
-		secondRowHeader.add(new LegendTableEntry("Down"));
-		secondRowHeader.add(new LegendTableEntry("Up"));
+				.add(new LegendElement(col2, pageUrl.getIndexURL("uploaded"), "uploaded"));
+		secondRowHeader.add(new LegendElement("Down"));
+		secondRowHeader.add(new LegendElement("Up"));
 
 		headers.add(firstRowHeader);
 		headers.add(secondRowHeader);
@@ -141,31 +141,31 @@ public enum View {
 			for (DataPoint result : legendData)
 			{
 				PortDataPoint legendPoint = (PortDataPoint) result;
-				ArrayList<LegendTableEntry> entry = new ArrayList<LegendTableEntry>();
+				ArrayList<LegendElement> entry = new ArrayList<LegendElement>();
 				String portName = Port2Services.getInstance().getService(legendPoint.getPort(),
 						legendPoint.getProtocol());
 				//add color to the row
-				entry.add(new LegendTableEntry(legendPoint.getColorAsHexadecimal()));
+				entry.add(new LegendElement(legendPoint.getColorAsHexadecimal()));
 				if (legendPoint.getProtocol() == Protocol.icmp)
 				{
-					entry.add(new LegendTableEntry("n/a"));
+					entry.add(new LegendElement("n/a"));
 				} else
 				{
 					//number of port and link if it is possible 
-					entry.add(new LegendTableEntry(legendPoint.getId(), 
-							pageUrl.getUrlGraph(legendPoint.getId()), null));
+					entry.add(new LegendElement(legendPoint.getId(), 
+							pageUrl.getLinkUrl(legendPoint.getId()), null));
 				}
 				// add protocol
 				if (legendPoint.getProtocol() != null)
-					entry.add(new LegendTableEntry(legendPoint.getProtocol().toString()));
+					entry.add(new LegendElement(legendPoint.getProtocol().toString()));
 				else
-					entry.add(new LegendTableEntry(""));
+					entry.add(new LegendElement(""));
 
-				entry.add(new LegendTableEntry(portName));
-				entry.add(new LegendTableEntry(getTotalThroughput(result.getDownloaded())));
-				entry.add(new LegendTableEntry(getTotalThroughput(result.getUploaded())));
-				entry.add(new LegendTableEntry(getAverage(result.getDownloaded(), time)));
-				entry.add(new LegendTableEntry(getAverage(result.getUploaded(), time)));
+				entry.add(new LegendElement(portName));
+				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded())));
+				entry.add(new LegendElement(getTotalThroughput(result.getUploaded())));
+				entry.add(new LegendElement(getAverage(result.getDownloaded(), time)));
+				entry.add(new LegendElement(getAverage(result.getUploaded(), time)));
 				i++;
 				rows.add(entry);
 			}
@@ -176,21 +176,21 @@ public enum View {
 			for (DataPoint result : legendData)
 			{
 				IpDataPoint legendPoint = (IpDataPoint) result;
-				ArrayList<LegendTableEntry> entry = new ArrayList<LegendTableEntry>();
+				ArrayList<LegendElement> entry = new ArrayList<LegendElement>();
 
-				entry.add(new LegendTableEntry(legendPoint.getColorAsHexadecimal()));
+				entry.add(new LegendElement(legendPoint.getColorAsHexadecimal()));
 
-				entry.add(new LegendTableEntry(legendPoint.getId(),
-						pageUrl.getUrlGraph(legendPoint.getId()), null));
+				entry.add(new LegendElement(legendPoint.getId(),
+						pageUrl.getLinkUrl(legendPoint.getId()), null));
 
 				HostResolver hostResolver = new HostResolver();
 				String hostName = hostResolver.getHostname(legendPoint.getIp());
 
-				entry.add(new LegendTableEntry(hostName));
-				entry.add(new LegendTableEntry(getTotalThroughput(result.getDownloaded())));
-				entry.add(new LegendTableEntry(getTotalThroughput(result.getUploaded())));
-				entry.add(new LegendTableEntry(getAverage(result.getDownloaded(), time)));
-				entry.add(new LegendTableEntry(getAverage(result.getUploaded(), time)));
+				entry.add(new LegendElement(hostName));
+				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded())));
+				entry.add(new LegendElement(getTotalThroughput(result.getUploaded())));
+				entry.add(new LegendElement(getAverage(result.getDownloaded(), time)));
+				entry.add(new LegendElement(getAverage(result.getUploaded(), time)));
 				i++;
 				rows.add(entry);
 			}

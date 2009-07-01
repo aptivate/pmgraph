@@ -51,7 +51,7 @@ public class GraphFactory
 	private Logger m_logger = Logger.getLogger(GraphFactory.class.getName());
 
 	/**
-	 * Initialize a series for a port graph with all the values set to zero and
+	 * Initialize a series for a port or IP graph with all the values set to zero and
 	 * add it to the database and to the hashmap containing all the series.
 	 * 
 	 * @param dataset
@@ -89,7 +89,6 @@ public class GraphFactory
 	 * Create the chart title based on the request type.
 	 * 
 	 * @param requestParams
-	 * @returnNewVolunteerProcess.CoderEmailText
 	 */
 	private String chartTitle(RequestParams requestParams)
 	{
@@ -132,9 +131,9 @@ public class GraphFactory
 		Map<DataPoint, DataPoint> seriesTotals = new HashMap<DataPoint, DataPoint>();
 
 		// create a list accumulating upload and download for each IP or port
-		// Read through the results from the database (all the datapoints). For
-		// each Ip or port, create an
-		// entry in a data series list in which the total points are summed
+		// Read through the results from the database (all the datapoints). 
+		// For each Ip or port, create an entry in a data series list in which 
+		//the total points are summed
 		for (DataPoint thrptResult : thrptResults)
 		{
 			DataPoint seriesId = thrptResult.createCopy();
@@ -156,12 +155,12 @@ public class GraphFactory
 				{
 					data = new IpDataPoint((IpDataPoint) thrptResult);
 				}
-				// we want generict instances to sum up all the data per a
-				// series then we do not need Ip
+				
 				data.setTime(null);
 				seriesTotals.put(seriesId, data);
 			}
 		}
+		
 		for (DataPoint series : seriesTotals.values())
 		{
 			dataSeriesList.add(series);
@@ -203,7 +202,6 @@ public class GraphFactory
 		long end = requestParams.getRoundedEndTime();
 		long theStart = requestParams.getStartTime();
 		long theEnd = requestParams.getEndTime();
-		// boolean other = false;
 
 		String title = chartTitle(requestParams);
 
@@ -256,17 +254,15 @@ public class GraphFactory
 
 			float[] dSeries = downSeries.get(seriesId);
 			float[] uSeries = upSeries.get(seriesId);
+			
+			// We created a series for this port so it should be within the top results
+			// update the values of the series
 			if (upSeries.containsKey(seriesId))
-			{ // We created a series for
-				// this port so it should be
-				// in the
-				// limit top
-				// update the values of the series
+			{ 	
 				dSeries[((int) (inserted.getTime() - start)) / 60000] = downloaded;
 				uSeries[((int) (inserted.getTime() - start)) / 60000] = 0 - uploaded;
 			} else
-			{ // the port belongs to the group other - just stack
-				// values
+			{ // the port belongs to the group other - just stack values
 
 				otherDown[((int) (inserted.getTime() - start)) / 60000] += downloaded;
 				otherUp[((int) (inserted.getTime() - start)) / 60000] += 0 - uploaded;
@@ -330,6 +326,7 @@ public class GraphFactory
 
 		XYPlot plot = chart.getXYPlot();
 
+		//Change the scale of the time axis to match the period
 		DateAxis xAxis;
 		long timePeriod = (theEnd - theStart) / 60000;
 		if (timePeriod < 7)

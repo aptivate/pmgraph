@@ -6,6 +6,8 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * This class creates the different URLs using the parameters on the screen 
+ * 
  * @author sylviaw Create URL and check if the entered URL is valid - History:
  *         Noe A. Rodriguez Glez. 18-03-2009 W3C URL compilance Page Date time
  *         Validation moved to this class. RuchiR. 12-06-2009 Changes made for
@@ -57,11 +59,11 @@ public class UrlBuilder
 			separator = "&";
 
 		//key are the keys for the hashMap
-		for (String key : m_params.m_params.keySet())
+		for (String key : m_params.m_reqParams.keySet())
 		{
-			if (m_params.m_params.get(key) != null)
+			if (m_params.m_reqParams.get(key) != null)
 			{
-				newUrl += separator + key + "=" + m_params.m_params.get(key);
+				newUrl += separator + key + "=" + m_params.m_reqParams.get(key);
 			}
 		}
 
@@ -90,12 +92,13 @@ public class UrlBuilder
 
 	}
 
+	//The legend is displayed by a separate call to the server using legend.jsp in the URL
 	public String getLegendURL()
 	{
-
 		return m_legendURL;
 	}
 
+	//The graph is displayed by a separate call to the server using graphServlet in the URL
 	public String getServletURL()
 	{
 		String newURL = m_servletURL + "?start=" + m_params.getStartTime()
@@ -107,6 +110,7 @@ public class UrlBuilder
 		return newURL;
 	}
 
+	//IndexURL is used for the initial call to the server
 	public String getIndexURL()
 	{
 		String newURL = m_indexURL + "?start=" + m_params.getStartTime()
@@ -178,14 +182,15 @@ public class UrlBuilder
 		return newURL;
 	}
 
+	// Read through the hashMap using the keys to extract the parameters
 	private String getCurrentParams()
 	{
 
 		String paramsUrl = "";
 
-		for (String key : m_params.m_params.keySet())
+		for (String key : m_params.m_reqParams.keySet())
 		{
-			Object param = m_params.m_params.get(key);
+			Object param = m_params.m_reqParams.get(key);
 			if (param != null)
 			{
 				paramsUrl += "&amp;" + key + "=" + param;
@@ -194,13 +199,8 @@ public class UrlBuilder
 		return paramsUrl;
 	}
 
-	/**
-	 * 
-	 * @param paramValue
-	 * @param paramName
-	 * @return
-	 */
-	public String getUrlGraph(String paramValue)
+	//This is the URL that will be followed by clicking on a link
+	public String getLinkUrl(String paramValue)
 	{
 
 		// not all the parameters have been selected
@@ -217,11 +217,11 @@ public class UrlBuilder
 
 			// get current selected params
 			String extra = getCurrentParams();
-			// add new selected parameter dependinf of the view
+			// add new selected parameter depending of the view
 			switch (m_params.getView())
 			{
-			// select a different view because you have added a selected
-			// parameter and current view doesn't have sense
+			// select a different view because you have already selected a
+			// parameter and the level of the current view is no longer appropriate
 			case LOCAL_PORT:
 				extra += "&amp;port=" + paramValue;
 				view = View.getNextView(m_params, "port");
@@ -276,7 +276,7 @@ public class UrlBuilder
 	}
 
 	/**
-	 * Returns true if we can zoom in, or false if we are alreadt at maximum
+	 * Returns true if we can zoom in, or false if we are already at maximum
 	 * zoom
 	 * 
 	 * @param start

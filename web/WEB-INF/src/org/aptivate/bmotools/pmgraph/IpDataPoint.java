@@ -8,7 +8,6 @@ import org.apache.log4j.Logger;
 
 public class IpDataPoint extends DataPoint
 {
-
 	private String m_Ip;
 
 	public static final String OTHER_IP = "255.255.255.255";
@@ -45,11 +44,10 @@ public class IpDataPoint extends DataPoint
 	@Override
 	public String getId()
 	{
-
 		if (m_Ip != OTHER_IP)
 			return m_Ip;
+		
 		return "Others";
-
 	}
 
 	/**
@@ -77,18 +75,11 @@ public class IpDataPoint extends DataPoint
 		return (getId());
 	}
 
+	//This method allows us to work with a generic DataPoint when we don't yet know the specific 
+	//subclass (IP or port)
 	@Override
 	public DataPoint createCopy()
 	{
-
 		return (new IpDataPoint(this));
 	}
-	/*
-	 * @Override public boolean equals(Object obj) {
-	 * 
-	 * System.out.println("as;lkdja;lskjdlkajsd;ljk");
-	 * 
-	 * return super.equals(obj); }
-	 */
-
 }

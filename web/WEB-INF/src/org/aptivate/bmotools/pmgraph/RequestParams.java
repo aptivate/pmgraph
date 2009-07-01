@@ -11,6 +11,8 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 
 /**
+ * This class is used to store and access the parameters entered by the user
+ * 
  * RuchiR. 12-06-2009 Additions made for dynamic update feature.
  */
 
@@ -37,25 +39,30 @@ public class RequestParams
 
 	private String m_order;
 
-	Map<String, Object> m_params;
+	Map<String, Object> m_reqParams;
 
 	public RequestParams()
 	{
-		m_params = new HashMap<String, Object>();
+		m_reqParams = new HashMap<String, Object>();
+	}
+	
+	RequestParams(Map<String, Object> params)
+	{
+		m_reqParams = params;
 	}
 
 	// Currently, this method is used in test code only
 	RequestParams(long start, long end, View view, int resultLimit, Integer port)
 	{
 		this(start, end, view, resultLimit);
-		m_params.put("port", port);
+		m_reqParams.put("port", port);
 	}
 
 	// Currently, this method is used in test code only
 	RequestParams(long start, long end, View view, int resultLimit, String ip)
 	{
 		this(start, end, view, resultLimit);
-		m_params.put("ip", ip);
+		m_reqParams.put("ip", ip);
 	}
 
 	// Currently, this method is used in test code only
@@ -72,19 +79,13 @@ public class RequestParams
 	void setRemoteIp(String remoteIp)
 	{
 
-		m_params.put("remote_ip", remoteIp);
+		m_reqParams.put("remote_ip", remoteIp);
 	}
 
 	// Currently, this method is used in test code only
 	void setPort(Integer port)
 	{
-
-		m_params.put("port", port);
-	}
-
-	RequestParams(Map<String, Object> params)
-	{
-		m_params = params;
+		m_reqParams.put("port", port);
 	}
 
 	void setView(View view)
@@ -135,17 +136,17 @@ public class RequestParams
 
 	public String getIp()
 	{
-		return (String) m_params.get("ip");
+		return (String) m_reqParams.get("ip");
 	}
 
 	public Integer getPort()
 	{
-		return (Integer) m_params.get("port");
+		return (Integer) m_reqParams.get("port");
 	}
 
 	public boolean isIpAndPortSelected()
 	{
-		return ((m_params.get("ip") != null) && (m_params.get("port") != null));
+		return ((m_reqParams.get("ip") != null) && (m_reqParams.get("port") != null));
 	}
 
 	public View getView()
@@ -197,12 +198,12 @@ public class RequestParams
 
 	public String getRemoteIp()
 	{
-		return (String) m_params.get("remote_ip");
+		return (String) m_reqParams.get("remote_ip");
 	}
 
 	public Integer getRemotePort()
 	{
-		return (Integer) m_params.get("remote_port");
+		return (Integer) m_reqParams.get("remote_port");
 	}
 
 	public Date getFromDateAndTime()
@@ -238,10 +239,9 @@ public class RequestParams
 		return m_toDateAndTime.getTime() - (m_toDateAndTime.getTime() % 60000);
 	}
 
-	// Currently this method isn't used
 	public Map<String, Object> getParams()
 	{
-		return m_params;
+		return m_reqParams;
 	}
 
 	private void setDatesFromRequest(HttpServletRequest request)
@@ -267,6 +267,8 @@ public class RequestParams
 			setDatesFromStartEnd(request);
 			throw e;
 		}
+		
+		//It has to be more than a minute in the future
 		if ((m_fromDateAndTime.getTime() >= m_toDateAndTime.getTime())
 				|| ((m_toDateAndTime.getTime() - m_fromDateAndTime.getTime()) < 60000))
 		{
@@ -359,7 +361,7 @@ public class RequestParams
 		{
 			if (isValidIP(request.getParameter("ip")))
 			{
-				m_params.put("ip", request.getParameter("ip"));
+				m_reqParams.put("ip", request.getParameter("ip"));
 			} else
 			{
 				throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
@@ -372,7 +374,7 @@ public class RequestParams
 			try
 			{
 				port = Integer.valueOf(request.getParameter("port"));
-				m_params.put("port", Integer.valueOf(request
+				m_reqParams.put("port", Integer.valueOf(request
 						.getParameter("port")));
 			} catch (NumberFormatException e)
 			{
@@ -431,7 +433,7 @@ public class RequestParams
 		{
 			if (isValidIP(request.getParameter("remote_ip")))
 			{
-				m_params.put("remote_ip", request.getParameter("remote_ip"));
+				m_reqParams.put("remote_ip", request.getParameter("remote_ip"));
 			} else
 			{
 				throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
@@ -445,7 +447,7 @@ public class RequestParams
 			try
 			{
 				port = Integer.valueOf(request.getParameter("remote_port"));
-				m_params.put("remote_port", Integer.valueOf(request
+				m_reqParams.put("remote_port", Integer.valueOf(request
 						.getParameter("remote_port")));
 			} catch (NumberFormatException e)
 			{

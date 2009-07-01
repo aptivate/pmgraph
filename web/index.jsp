@@ -19,7 +19,7 @@
     String colon="", alignPort="align_right", name="";   
     
         
-         //the sort parameters
+    //the sort parameters
     //sortBy: bytes_total | downloaded | uploaded
 	String sortBy = request.getParameter("sortBy");
 	//order: DESC | ASC
@@ -45,6 +45,7 @@
 	long startTime = pageUrl.getParams().getStartTime();
 	long endTime = pageUrl.getParams().getEndTime();
 	
+	//scroll and zoom parameters
     graphSpan =  pageUrl.getParams().getGraphSpan();  
     scrollAmount =  pageUrl.getParams().getScrollAmount();  
     zoomAmount = pageUrl.getParams().getZoomAmount();
@@ -66,8 +67,9 @@
         		document.getElementById("dynamic").checked="true";
 				t=setTimeout('update()',180000);															
 			}			
-						
-			function checkTimeDate(i)
+			
+			//add a zero in front of numbers<10			
+			function zeroPadTimeDate(i)
 			{
 				if (i<10)
 				{
@@ -75,7 +77,8 @@
 				}
 				return i;
 			}						
-						
+			
+			//TODO add description of what this function does		
 			function update()
 			{			    
 			    //date
@@ -83,10 +86,10 @@
 			    var day=today.getDate();
 			    var mon=today.getMonth();
 			    var yr=today.getFullYear();
-			    // add a zero in front of numbers<10
-				day=checkTimeDate(day);
+
+				day=zeroPadTimeDate(day);
 				mon=mon+1;
-				mon=checkTimeDate(mon);
+				mon=zeroPadTimeDate(mon);
 			    
 				var toDate1 = document.getElementById('toDate').value=day+"/"+mon+"/"+yr;
 				var fromDate1 = document.getElementById('fromDate').value=day+"/"+mon+"/"+yr;
@@ -102,20 +105,18 @@
 				   var YesterdayMon = Yesterday.getMonth(); 
 				   var YesterdayYear = Yesterday.getFullYear(); 
 				   var YesterdayDate = Yesterday.getDate(); 
-				   // add a zero in front of numbers<10
-				   YesterdayDate=checkTimeDate(YesterdayDate);
+				   YesterdayDate=zeroPadTimeDate(YesterdayDate);
 				   YesterdayMon=YesterdayMon+1;
-				   YesterdayMon=checkTimeDate(YesterdayMon);
+				   YesterdayMon=zeroPadTimeDate(YesterdayMon);
 				   fromDate1 = document.getElementById('fromDate').value=YesterdayDate+"/"+YesterdayMon+"/"+YesterdayYear;
 				}				
 
 				var m=today.getMinutes();
 				var s=today.getSeconds();
-				// add a zero in front of numbers<10
-				h=checkTimeDate(h);
-				fh=checkTimeDate(fh);
-				m=checkTimeDate(m);
-				s=checkTimeDate(s);	
+				h=zeroPadTimeDate(h);
+				fh=zeroPadTimeDate(fh);
+				m=zeroPadTimeDate(m);
+				s=zeroPadTimeDate(s);	
 				var toTime1 = document.getElementById('toTime').value=h+":"+m+":"+s;
 				var fromTime1 = document.getElementById('fromTime').value=fh+":"+m+":"+s;
 				var url = window.location.href;								
@@ -197,7 +198,10 @@
 						<td class="align_right">
 						<input type="text" id="resultLimit"  name="resultLimit"   value="<%=pageUrl.getParams().getResultLimit()%>" size="3" /></td><td> Results</td>
 					</tr>
-					<% if ((pageUrl.getParams().getIp() != null) || (pageUrl.getParams().getPort() != null)){	%>				
+					<% //If a specific IP or port has been chosen, add a row/s showing the selected IP and/or port.
+					// Local%>
+					<% 
+					if ((pageUrl.getParams().getIp() != null) || (pageUrl.getParams().getPort() != null)){	%>				
 					<tr>  
 					
 					<% if ((pageUrl.getParams().getIp() != null) && (pageUrl.getParams().getPort() != null)){
@@ -226,7 +230,8 @@
 					<%}%>			
 					<% if ((pageUrl.getParams().getRemoteIp() != null) || (pageUrl.getParams().getRemotePort() != null)){%>					
 					<tr>  
-					<% if ((pageUrl.getParams().getRemoteIp() != null) && (pageUrl.getParams().getRemotePort() != null)){
+					<% //Remote 
+					if ((pageUrl.getParams().getRemoteIp() != null) && (pageUrl.getParams().getRemotePort() != null)){
 						colon=":";
 						alignPort = "align_left";
 					%>
@@ -272,7 +277,7 @@
 					<tr>						
 						<td>Dynamic Update: </td> 
 						<td class="align_right">																
-						<input type="checkbox" id="dynamic" name="dynamic" value="false" onclick="if (this.checked) {check();} else {uncheck();}" />						
+						<input type="checkbox" title="Click to enable/disable dynamic update" id="dynamic" name="dynamic" value="false" onclick="if (this.checked) {check();} else {uncheck();}" />						
 						</td>	
 						<td  colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>					
 					</tr>				
@@ -284,7 +289,7 @@
             </div>
             <div style="clear:both;"></div>            
             <div id="main">
-                <!-- Graph parameter controls not yet functional -->
+                <!-- Include the graph (Graph parameter controls not yet functional) -->
                 <div id="graph">
                     <img id="graphimage" alt="Bandwidth Graph" 
                             src="<%=pageUrl.getServletURL()%>"
@@ -319,6 +324,7 @@
                     <%}%>
                 </div>  
                 <div id="legend">
+                <% // include the legend (the error below is a known bug of the WTP plugin. Ignore)  %>
                     <jsp:include page="<%=pageUrl.getLegendURL()%>" />
                 </div>
             </div>

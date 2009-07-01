@@ -63,14 +63,13 @@ public class PortDataPoint extends DataPoint
 	}
 
 	/**
-	 * Return a color obtained from creating a hash with the bytes of the Port.
+	 * Return a color obtained from creating a hash with the bytes of the Port and the protocol.
 	 * 
 	 * @param port
 	 * @return Color for the selected port
 	 */
 	public Color getSeriesColor()
 	{
-
 		byte[] portBytes = new byte[] { (byte) (m_port >>> 24),
 				(byte) (m_port >>> 16), (byte) (m_port >>> 8),
 				(byte) m_port.intValue() };
@@ -89,10 +88,11 @@ public class PortDataPoint extends DataPoint
 		return (getId() + m_protocol);
 	}
 
+	//This method allows us to work with a generic DataPoint when we don't yet know the specific 
+	//subclass (IP or port)
 	@Override
 	public DataPoint createCopy()
 	{
-
 		return (new PortDataPoint(this));
 	}
 

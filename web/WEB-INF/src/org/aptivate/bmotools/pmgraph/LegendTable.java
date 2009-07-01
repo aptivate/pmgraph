@@ -3,18 +3,18 @@ package org.aptivate.bmotools.pmgraph;
 import java.util.ArrayList;
 
 public class LegendTable {
-	private ArrayList<ArrayList<LegendTableEntry>> m_headers;
+	private ArrayList<ArrayList<LegendElement>> m_headers;
 
-	private ArrayList<ArrayList<LegendTableEntry>> m_rows;
+	private ArrayList<ArrayList<LegendElement>> m_rows;
 
 	public LegendTable() {
-		m_headers = new ArrayList<ArrayList<LegendTableEntry>>();
-		m_rows = new ArrayList<ArrayList<LegendTableEntry>>();
+		m_headers = new ArrayList<ArrayList<LegendElement>>();
+		m_rows = new ArrayList<ArrayList<LegendElement>>();
 
 	}
 
-	public LegendTable(ArrayList<ArrayList<LegendTableEntry>> headers,
-			ArrayList<ArrayList<LegendTableEntry>> rows) {
+	public LegendTable(ArrayList<ArrayList<LegendElement>> headers,
+			ArrayList<ArrayList<LegendElement>> rows) {
 		m_headers = headers;
 		m_rows = rows;
 	}
@@ -22,7 +22,7 @@ public class LegendTable {
 	/**
 	 * @return the headers
 	 */
-	public ArrayList<ArrayList<LegendTableEntry>> getHeaders() {
+	public ArrayList<ArrayList<LegendElement>> getHeaders() {
 		return m_headers;
 	}
 
@@ -30,14 +30,14 @@ public class LegendTable {
 	 * @param headers
 	 *            the headers to set
 	 */
-	public void setHeaders(ArrayList<ArrayList<LegendTableEntry>> headers) {
+	public void setHeaders(ArrayList<ArrayList<LegendElement>> headers) {
 		this.m_headers = headers;
 	}
 
 	/**
 	 * @return the rows
 	 */
-	public ArrayList<ArrayList<LegendTableEntry>> getRows() {
+	public ArrayList<ArrayList<LegendElement>> getRows() {
 		return m_rows;
 	}
 
@@ -45,7 +45,7 @@ public class LegendTable {
 	 * @param rows
 	 *            the rows to set
 	 */
-	public void setRows(ArrayList<ArrayList<LegendTableEntry>> rows) {
+	public void setRows(ArrayList<ArrayList<LegendElement>> rows) {
 		this.m_rows = rows;
 	}
 
