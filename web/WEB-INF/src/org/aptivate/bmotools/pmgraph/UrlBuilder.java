@@ -56,6 +56,7 @@ public class UrlBuilder
 		if (jspInclude)
 			separator = "&";
 
+		//key are the keys for the hashMap
 		for (String key : m_params.m_params.keySet())
 		{
 			if (m_params.m_params.get(key) != null)

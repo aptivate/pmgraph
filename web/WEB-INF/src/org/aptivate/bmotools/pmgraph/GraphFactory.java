@@ -273,9 +273,16 @@ public class GraphFactory
 
 				if (!(upSeries.size() == requestParams.getResultLimit() + 1))
 				{
-					upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP), otherUp);
-					downSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
-							otherDown);
+					if (thrptResult instanceof IpDataPoint)
+					{
+						upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP), otherUp);
+						downSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
+								otherDown);		
+					}else
+					{
+						upSeries.put(new PortDataPoint(PortDataPoint.OTHER_PORT), otherUp);
+						downSeries.put(new PortDataPoint(PortDataPoint.OTHER_PORT),otherDown);
+					}
 				}
 			}
 		}

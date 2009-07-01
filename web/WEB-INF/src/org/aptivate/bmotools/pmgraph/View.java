@@ -29,6 +29,7 @@ public enum View {
 		return views;
 	}
 
+	//Choose next View when you click on an Ip or port
 	public static View getNextView(RequestParams requestParams, String paramName)
 	{
 
@@ -80,6 +81,7 @@ public enum View {
 		ArrayList<ArrayList<LegendTableEntry>> headers = legend.getHeaders();
 		ArrayList<ArrayList<LegendTableEntry>> rows = legend.getRows();
 
+		//fill the header 
 		ArrayList<LegendTableEntry> firstRowHeader = new ArrayList<LegendTableEntry>();
 		ArrayList<LegendTableEntry> secondRowHeader = new ArrayList<LegendTableEntry>();
 
@@ -127,6 +129,8 @@ public enum View {
 		headers.add(firstRowHeader);
 		headers.add(secondRowHeader);
 
+		//fill the legend
+		
 		int i = 0;
 
 		switch (requestParams.getView())
@@ -140,16 +144,18 @@ public enum View {
 				ArrayList<LegendTableEntry> entry = new ArrayList<LegendTableEntry>();
 				String portName = Port2Services.getInstance().getService(legendPoint.getPort(),
 						legendPoint.getProtocol());
-
+				//add color to the row
 				entry.add(new LegendTableEntry(legendPoint.getColorAsHexadecimal()));
 				if (legendPoint.getProtocol() == Protocol.icmp)
 				{
 					entry.add(new LegendTableEntry("n/a"));
 				} else
 				{
+					//number of port and link if it is possible 
 					entry.add(new LegendTableEntry(legendPoint.getId(), 
 							pageUrl.getUrlGraph(legendPoint.getId()), null));
 				}
+				// add protocol
 				if (legendPoint.getProtocol() != null)
 					entry.add(new LegendTableEntry(legendPoint.getProtocol().toString()));
 				else
@@ -169,14 +175,13 @@ public enum View {
 		case REMOTE_IP:
 			for (DataPoint result : legendData)
 			{
-
 				IpDataPoint legendPoint = (IpDataPoint) result;
 				ArrayList<LegendTableEntry> entry = new ArrayList<LegendTableEntry>();
 
 				entry.add(new LegendTableEntry(legendPoint.getColorAsHexadecimal()));
 
-				entry.add(new LegendTableEntry(legendPoint.getId(), pageUrl.getUrlGraph(legendPoint
-						.getId()), null));
+				entry.add(new LegendTableEntry(legendPoint.getId(),
+						pageUrl.getUrlGraph(legendPoint.getId()), null));
 
 				HostResolver hostResolver = new HostResolver();
 				String hostName = hostResolver.getHostname(legendPoint.getIp());

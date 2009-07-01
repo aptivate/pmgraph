@@ -2,6 +2,7 @@ package org.aptivate.bmotools.pmgraph;
 
 public class LegendTableEntry
 {
+	//m_value is the string shown in the lelgend, m_link is the link in case is used and m_name is the name associated to the link which is used to sort in some cases
 	private String m_value;
 
 	private String m_link;
