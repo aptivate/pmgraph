@@ -61,7 +61,9 @@
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
         <link rel="Stylesheet" href="styles/main.css" type="text/css" />
         <% if (dynamicFlag) { %>
-        <script type="text/javascript">  
+        <script type="text/javascript">
+        
+        	//called everytime "dynamic update" feature is chosen, and page gets reloaded
         	function onReload()			
         	{	
         		document.getElementById("dynamic").checked="true";
@@ -78,20 +80,23 @@
 				return i;
 			}						
 			
-			//TODO add description of what this function does		
+			//This function performs the functionality of updating date and time every 3 minutes. 
+			//Then new request URL is built, and windows location is updated to new URL.	
 			function update()
 			{			    
-			    //date
+			    //get current date
 			    var today=new Date();			    
 			    var day=today.getDate();
 			    var mon=today.getMonth();
 			    var yr=today.getFullYear();
 
 				day=zeroPadTimeDate(day);
+				// one is added to change the returned index 0-11 to 1-12
 				mon=mon+1;
 				mon=zeroPadTimeDate(mon);
 			    
-				var toDate1 = document.getElementById('toDate').value=day+"/"+mon+"/"+yr;
+			    //update "toDate" and "fromDate"
+			    var toDate1 = document.getElementById('toDate').value=day+"/"+mon+"/"+yr;
 				var fromDate1 = document.getElementById('fromDate').value=day+"/"+mon+"/"+yr;
 				
 				//time
@@ -99,6 +104,7 @@
 				var fh=h-3;
 				
 				// At midnight h = 0 & fh = -3, wrap fh to show correct time. 
+				// also update "fromDate" value to date yesterday
 				if( fh < 0 ) {
 				   fh = 24 + fh;
 				   var Yesterday = new date( today.getTime() - 86400000 ); 
@@ -106,20 +112,27 @@
 				   var YesterdayYear = Yesterday.getFullYear(); 
 				   var YesterdayDate = Yesterday.getDate(); 
 				   YesterdayDate=zeroPadTimeDate(YesterdayDate);
+				   // one is added to change the returned index 0-11 to 1-12
 				   YesterdayMon=YesterdayMon+1;
 				   YesterdayMon=zeroPadTimeDate(YesterdayMon);
 				   fromDate1 = document.getElementById('fromDate').value=YesterdayDate+"/"+YesterdayMon+"/"+YesterdayYear;
 				}				
 
+				//get current time
 				var m=today.getMinutes();
 				var s=today.getSeconds();
 				h=zeroPadTimeDate(h);
 				fh=zeroPadTimeDate(fh);
 				m=zeroPadTimeDate(m);
 				s=zeroPadTimeDate(s);	
+				//update "toTime" and "fromTime"
 				var toTime1 = document.getElementById('toTime').value=h+":"+m+":"+s;
 				var fromTime1 = document.getElementById('fromTime').value=fh+":"+m+":"+s;
-				var url = window.location.href;								
+				
+				//obtain the current url
+				var url = window.location.href;
+				
+				//split the url at various points to update date and time								
 				var componentList = url.split('?');
 				var newUrl = componentList[0];
 				var szDocument = componentList[componentList.length-1];				
@@ -128,6 +141,8 @@
 				documentFilename[1] = "toDate=" + toDate1;			
 				documentFilename[2] = "fromTime=" + fromTime1;
 				documentFilename[3] = "toTime=" + toTime1;	
+				
+				//now build the new url using the latest date and time values
 				newUrl = newUrl + "?" + documentFilename[0];			
 				var i;				
 				for (i=1;i<=(documentFilename.length-1);i++)
@@ -135,6 +150,7 @@
 					newUrl = newUrl + "&" + documentFilename[i];
 				}
 				//console.log(newUrl);
+				//now reload the new url location
 				window.location.replace(newUrl);				
 											
 			}
