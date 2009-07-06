@@ -7,9 +7,10 @@ import java.util.HashMap;
  * 
  * @author noeg
  * 
- * List of maps between ports and services using the command
+ * List of maps between ports and services using the linux command
  * 
- * sed "s/^\([a-z0-9\-]\+\)[ \t]\+\([0-9]\{4,5\}\)\/tcp.*$/m_tcpPort2serviceMap\.put(\2, \"\1\");/gi"
+ * sed "s/^\([a-z0-9\-]\+\)[
+ * \t]\+\([0-9]\{4,5\}\)\/tcp.*$/m_tcpPort2serviceMap\.put(\2, \"\1\");/gi"
  * /etc/services | grep "\.put"
  * 
  * in a linux system
@@ -497,8 +498,7 @@ public class Port2Services
 		m_tcpPort2serviceMap.put(6882, "Bittorrent");
 	}
 
-	private Port2Services()
-	{
+	private Port2Services() {
 
 	}
 
@@ -519,16 +519,16 @@ public class Port2Services
 		{
 			switch (protocol)
 			{
-				case tcp:
-					service = m_tcpPort2serviceMap.get(portNumber);
-					break;
-				case udp:
-					service = m_udpPort2serviceMap.get(portNumber);
-					break;
-				case icmp:
-					// ICMP protocol does not use ports, it is in the IP level and
-					// consequently it hasn't got place for the port.
-					break;
+			case tcp:
+				service = m_tcpPort2serviceMap.get(portNumber);
+				break;
+			case udp:
+				service = m_udpPort2serviceMap.get(portNumber);
+				break;
+			case icmp:
+				// ICMP protocol does not use ports, it is in the IP level and
+				// so ports are not relevant.
+				break;
 			}
 		}
 

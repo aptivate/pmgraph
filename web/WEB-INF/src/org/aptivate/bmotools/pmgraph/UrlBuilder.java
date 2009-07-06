@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * This class creates the different URLs using the parameters on the screen 
+ * This class creates the different URLs using the parameters on the screen
  * 
  * @author sylviaw Create URL and check if the entered URL is valid - History:
  *         Noe A. Rodriguez Glez. 18-03-2009 W3C URL compilance Page Date time
@@ -33,8 +33,7 @@ public class UrlBuilder
 		return m_params;
 	}
 
-	public void setParameters(HttpServletRequest request)
-			throws PageUrlException, IOException
+	public void setParameters(HttpServletRequest request) throws PageUrlException, IOException
 	{
 
 		m_params.setParameters(request);
@@ -58,7 +57,7 @@ public class UrlBuilder
 		if (jspInclude)
 			separator = "&";
 
-		//key are the keys for the hashMap
+		// key are the keys for the hashMap
 		for (String key : m_params.m_reqParams.keySet())
 		{
 			if (m_params.m_reqParams.get(key) != null)
@@ -92,31 +91,43 @@ public class UrlBuilder
 
 	}
 
-	//The legend is displayed by a separate call to the server using legend.jsp in the URL
+	/**
+	 * The legend is displayed by a separate call to the server using legend.jsp
+	 * in the URL
+	 * 
+	 * @return URL to get the legend
+	 */
 	public String getLegendURL()
 	{
 		return m_legendURL;
 	}
 
-	//The graph is displayed by a separate call to the server using graphServlet in the URL
+	/**
+	 * The graph is displayed by a separate call to the server using
+	 * graphServlet in the URL
+	 * 
+	 * @return Servlet URL to get the graph
+	 */
 	public String getServletURL()
 	{
-		String newURL = m_servletURL + "?start=" + m_params.getStartTime()
-				+ "&amp;end=" + m_params.getEndTime() + "&amp;width=780"
-				+ "&amp;height=350" + "&amp;resultLimit="
-				+ m_params.getResultLimit();
+		String newURL = m_servletURL + "?start=" + m_params.getStartTime() + "&amp;end="
+				+ m_params.getEndTime() + "&amp;width=780" + "&amp;height=350"
+				+ "&amp;resultLimit=" + m_params.getResultLimit();
 
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
 	}
 
-	//IndexURL is used for the initial call to the server
+	/**
+	 * IndexURL is used for the initial call to the server
+	 * 
+	 * @return URL to get the main page
+	 */
 	public String getIndexURL()
 	{
-		String newURL = m_indexURL + "?start=" + m_params.getStartTime()
-				+ "&amp;end=" + m_params.getEndTime() + "&amp;resultLimit="
-				+ m_params.getResultLimit() + "&amp;dynamic="
-				+ m_params.getDynamic();
+		String newURL = m_indexURL + "?start=" + m_params.getStartTime() + "&amp;end="
+				+ m_params.getEndTime() + "&amp;resultLimit=" + m_params.getResultLimit()
+				+ "&amp;dynamic=" + m_params.getDynamic();
 		newURL += buildIpPortViewParameters(false);
 		newURL += buildSortParameters(false);
 		return newURL;
@@ -124,9 +135,8 @@ public class UrlBuilder
 
 	public String getIndexURL(long start, long end, boolean dynamicFlag)
 	{
-		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
-				+ "&amp;resultLimit=" + m_params.getResultLimit()
-				+ "&amp;dynamic=" + dynamicFlag;
+		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end + "&amp;resultLimit="
+				+ m_params.getResultLimit() + "&amp;dynamic=" + dynamicFlag;
 		newURL += buildSortParameters(false);
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
@@ -134,27 +144,24 @@ public class UrlBuilder
 
 	public String getIndexURL(long start, long end)
 	{
-		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
-				+ "&amp;resultLimit=" + m_params.getResultLimit()
-				+ "&amp;dynamic=" + m_params.getDynamic();
+		String newURL = m_indexURL + "?start=" + start + "&amp;end=" + end + "&amp;resultLimit="
+				+ m_params.getResultLimit() + "&amp;dynamic=" + m_params.getDynamic();
 		newURL += buildSortParameters(false);
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
 	}
 
-	public String getIndexURL(long start, long end, boolean resetFlag,
-			boolean dynamicFlag)
+	public String getIndexURL(long start, long end, boolean resetFlag, boolean dynamicFlag)
 	{
 		String newURL = "";
 		if (resetFlag)
 		{
-			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
-					+ "&amp;dynamic=" + dynamicFlag;
+			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end + "&amp;dynamic="
+					+ dynamicFlag;
 		} else
 		{
-			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
-					+ "&amp;resultLimit=" + m_params.getResultLimit()
-					+ "&amp;dynamic=" + dynamicFlag;
+			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end + "&amp;resultLimit="
+					+ m_params.getResultLimit() + "&amp;dynamic=" + dynamicFlag;
 			newURL += buildSortParameters(false);
 			newURL += buildIpPortViewParameters(false);
 		}
@@ -173,10 +180,9 @@ public class UrlBuilder
 				order = "ASC";
 		}
 
-		String newURL = m_indexURL + "?start=" + m_params.getStartTime()
-				+ "&amp;end=" + m_params.getEndTime() + "&amp;sortBy=" + sortBy
-				+ "&amp;order=" + order + "&amp;resultLimit="
-				+ m_params.getResultLimit() + "&amp;dynamic="
+		String newURL = m_indexURL + "?start=" + m_params.getStartTime() + "&amp;end="
+				+ m_params.getEndTime() + "&amp;sortBy=" + sortBy + "&amp;order=" + order
+				+ "&amp;resultLimit=" + m_params.getResultLimit() + "&amp;dynamic="
 				+ m_params.getDynamic();
 		newURL += buildIpPortViewParameters(false);
 		return newURL;
@@ -199,18 +205,22 @@ public class UrlBuilder
 		return paramsUrl;
 	}
 
-	//This is the URL that will be followed by clicking on a link
+	/**
+	 * This method builds the URL that will be followed by clicking on a link
+	 * 
+	 * @param paramValue
+	 *            Value of the element the user clicked on
+	 * @return URL followed in the links
+	 */
 	public String getLinkUrl(String paramValue)
 	{
 
 		// not all the parameters have been selected
-		if ((m_params.getParams().size() < 3)
-				&& (!"Other".equalsIgnoreCase(paramValue)))
+		if ((m_params.getParams().size() < 3) && (!"Other".equalsIgnoreCase(paramValue)))
 		{
 
 			// Round our times to the nearest minute
-			long start = m_params.getStartTime()
-					- (m_params.getStartTime() % 60000);
+			long start = m_params.getStartTime() - (m_params.getStartTime() % 60000);
 			long end = m_params.getEndTime() - (m_params.getEndTime() % 60000);
 			String newURL = "";
 			View view;
@@ -221,7 +231,8 @@ public class UrlBuilder
 			switch (m_params.getView())
 			{
 			// select a different view because you have already selected a
-			// parameter and the level of the current view is no longer appropriate
+			// parameter and the level of the current view is no longer
+			// appropriate
 			case LOCAL_PORT:
 				extra += "&amp;port=" + paramValue;
 				view = View.getNextView(m_params, "port");
@@ -240,28 +251,36 @@ public class UrlBuilder
 				view = View.getNextView(m_params, "remote_ip");
 				break;
 			}
-			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end
-					+ "&amp;resultLimit=" + m_params.getResultLimit() + extra
-					+ "&amp;view=" + view;
+			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end + "&amp;resultLimit="
+					+ m_params.getResultLimit() + extra + "&amp;view=" + view;
 			return newURL;
 		}
 		return (null);
 	}
 
+	/**
+	 * This method is used to get a new URL if the user has clicked on the
+	 * zoom-in button
+	 * 
+	 * @return URL to zoom in
+	 */
 	public String getZoomInURL()
 	{
-		long newZoomInStart = m_params.getStartTime()
-				+ m_params.getZoomAmount() / 2;
-		long newZoomInEnd = m_params.getEndTime() - m_params.getZoomAmount()
-				/ 2;
+		long newZoomInStart = m_params.getStartTime() + m_params.getZoomAmount() / 2;
+		long newZoomInEnd = m_params.getEndTime() - m_params.getZoomAmount() / 2;
 
 		return getIndexURL(newZoomInStart, newZoomInEnd);
 	}
 
+	/**
+	 * This method is used to get a new URL if the user has clicked on the
+	 * zoom-out button
+	 * 
+	 * @return URL to zoom in
+	 */
 	public String getZoomOutURL()
 	{
-		long newZoomOutStart = m_params.getStartTime()
-				- m_params.getZoomAmount();
+		long newZoomOutStart = m_params.getStartTime() - m_params.getZoomAmount();
 		long newZoomOutEnd = m_params.getEndTime() + m_params.getZoomAmount();
 		long temp = new Date().getTime();
 
@@ -285,8 +304,7 @@ public class UrlBuilder
 	 */
 	public boolean showZoomIn()
 	{
-		long newZoomInStart = ((m_params.getStartTime() + m_params
-				.getZoomAmount() / 2) / 6000);
+		long newZoomInStart = ((m_params.getStartTime() + m_params.getZoomAmount() / 2) / 6000);
 		long newZoomInEnd = ((m_params.getEndTime() - m_params.getZoomAmount() / 2) / 6000);
 
 		return ((newZoomInEnd - newZoomInStart) > 15);

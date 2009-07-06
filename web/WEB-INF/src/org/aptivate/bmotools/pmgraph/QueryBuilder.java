@@ -16,6 +16,11 @@ import org.apache.log4j.Logger;
 
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
+/**
+ * This class is used to connect to/ disconnect from the database 
+ * and build the sql select query from the request parameters
+ *
+ */
 public class QueryBuilder
 {
 	private Logger m_logger = Logger.getLogger(QueryBuilder.class.getName());
@@ -52,7 +57,7 @@ public class QueryBuilder
 	 * @throws SQLException
 	 * @throws IOException
 	 * @throws ConfigurationException
-	 *             TODO
+	 *
 	 */
 	private Connection getConnection() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException,
@@ -65,12 +70,11 @@ public class QueryBuilder
 					.getDatabaseURL(), Configuration.getDatabaseUser(),
 					Configuration.getDatabasePass());
 			return con;
-			// CommunicationsException
 		}
 		catch (CommunicationsException e)
 		{
 			Throwable cause = e.getCause();
-			// detect if the error is because of
+			// find out what caused the error
 			if ((cause instanceof AccessControlException)
 					|| (cause instanceof SecurityException)
 					|| (cause instanceof SocketException))
@@ -117,11 +121,12 @@ public class QueryBuilder
 		m_listData = new ArrayList<Object>();
 	}
 
-	private String buildSelect(RequestParams requestParams, boolean perMinute)
+	private String buildSelect(RequestParams requestParams, boolean isChart)
 	{
 		StringBuffer sql = new StringBuffer();
 
-		if (perMinute)
+		//time stamp is not needed in legend
+		if (isChart)
 			sql.append(" " + TIME_STAMP + ", ");
 
 		sql.append("SUM(CASE WHEN ip_dst LIKE ? " +
@@ -239,22 +244,22 @@ public class QueryBuilder
 		return "";
 	}
 	/**
-	 * TODO
+	 * Build the sql query from its component parts
 	 * @param requestParams
-	 * @param perMinute
+	 * @param isChart
 	 * @return
 	 * @throws SQLException
 	 * @throws IOException 
 	 */
-	PreparedStatement buildQuery(RequestParams requestParams, boolean perMinute)
+	PreparedStatement buildQuery(RequestParams requestParams, boolean isChart)
 			throws SQLException, IOException
 	{
 
 		StringBuffer sql = new StringBuffer("SELECT ");
-		sql.append(buildSelect(requestParams, perMinute));
+		sql.append(buildSelect(requestParams, isChart));
 		sql.append("FROM "+Configuration.getResultDatabaseTable()+" ");
 		sql.append(buildWhere(requestParams));
-		sql.append(buildGroupBy(requestParams, perMinute));
+		sql.append(buildGroupBy(requestParams, isChart));
 
 		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
 				ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -264,15 +269,17 @@ public class QueryBuilder
 		return (ipStatement);
 	}
 
+	//The list data is used to store parameters for the SQL statement. They are substituted for the "?" within the 
+	//pre-compiled SQL statement.  Search for "statement.setObject" for more info.
 	private void setQueryParams(PreparedStatement statement)
 			throws SQLException
 	{
 
-		int i = 1;
-		for (Object d1 : m_listData)
+		int parameter_index = 1;
+		for (Object parameter_value : m_listData)
 		{
-			statement.setObject(i, d1);
-			i++;
+			statement.setObject(parameter_index, parameter_value);
+			parameter_index++;
 		}
 		m_listData.clear();
 	}

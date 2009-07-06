@@ -26,7 +26,7 @@ class BytesTotalComparator implements Comparator
 		DataPoint d1 = (DataPoint) o1;
 		DataPoint d2 = (DataPoint) o2;
 		if (m_descending)
-			return (0 - d1.getBytesTotal().compareTo(d2.getBytesTotal()));
+			return (-d1.getBytesTotal().compareTo(d2.getBytesTotal()));
 		else
 			return (d1.getBytesTotal().compareTo(d2.getBytesTotal()));
 	}

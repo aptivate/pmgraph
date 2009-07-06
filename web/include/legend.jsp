@@ -128,6 +128,7 @@
 		}
 	%>
 </table>
+
 <%
 //Only see link to port list if in remote port view
 if (pageUrl.getParams().getView() == View.REMOTE_PORT) {

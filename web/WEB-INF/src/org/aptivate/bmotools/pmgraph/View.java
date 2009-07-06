@@ -4,17 +4,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Used to determine which view should be used for the display. The title and column details
+ * are populated accordingly
+ * 
+ * @author noeg
+ *
+ */
 public enum View {
 	// Show Ips or show ports in graph
 	LOCAL_IP, LOCAL_PORT, REMOTE_IP, REMOTE_PORT;
 
+	/**
+	 * Used to return a list of available views
+	 * 
+	 * @param requestParams Parameters from the request
+	 * @return List of the available views
+	 */
 	public static List<View> getAvailableViews(RequestParams requestParams)
 	{
 		List<View> views = new ArrayList<View>();
 
 		for (View view : View.values())
 		{ // for each view
-			// if the ip is selected, local ip view doesn't make sense
+			// if the ip is selected, local ip view is not relevant
 			if ((view == LOCAL_IP) && (requestParams.getIp() != null))
 				continue;
 			if ((view == LOCAL_PORT) && (requestParams.getPort() != null))
@@ -28,8 +41,14 @@ public enum View {
 		}
 		return views;
 	}
-
-	//Choose next View when you click on an Ip or port
+	
+	/**
+	 * Used to create the URL to follow if you click one of the ports or IPs shown in the legend
+	 * 
+	 * @param requestParams Parameters from the request
+	 * @param paramName port or ip/ remote or local
+	 * @return Next selected view
+	 */
 	public static View getNextView(RequestParams requestParams, String paramName)
 	{
 
@@ -54,7 +73,14 @@ public enum View {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * Used to fill the legend.
+	 * 
+	 * @param pageUrl The requested URL
+	 * @param legendData The data set to be displayed within the legend
+	 * @return legend table ready for display
+	 */
 	public static LegendTable getLegendTable(UrlBuilder pageUrl, List<DataPoint> legendData)
 			throws IOException
 	{
