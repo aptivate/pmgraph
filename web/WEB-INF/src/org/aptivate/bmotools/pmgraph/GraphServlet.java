@@ -29,9 +29,6 @@ import org.jfree.chart.JFreeChart;
  */
 public class GraphServlet extends HttpServlet
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private static Logger m_logger = Logger.getLogger(GraphServlet.class

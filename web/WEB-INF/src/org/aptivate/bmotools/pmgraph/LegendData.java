@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
  * @author Noe A. Rodriguez Glez.
  * 
  * Create the List of data needed to generate a Legend. Sort the Legend data
- * according to the user selection Limit the results in the legend creating the
+ * according to the user selection. Limit the results in the legend creating the
  * Others group.
  * 
  */
@@ -121,16 +121,15 @@ public class LegendData
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Limit the list and sort it according to the user request
 	 * 
 	 * @param dataList
 	 * @param sortBy
 	 * @param order
-	 * @param pageUrl
-	 * @param isPort
-	 * @return A List<GraphData> limited to the number of results requested by
+	 * @param requestParams
+	 * @return A List<DataPoint> limited to the number of results requested by
 	 *         the user and sorted properly.
 	 * @throws SQLException
 	 */
@@ -190,9 +189,8 @@ public class LegendData
 	}
 
 	/**
+	 * Get a list of the Legend data sorted by total bytes order
 	 * 
-	 * @param start
-	 * @param end
 	 * @param sortBy
 	 * @param order
 	 * @param requestParams
@@ -203,7 +201,7 @@ public class LegendData
 	 * @throws InstantiationException
 	 * @throws IOException
 	 * @throws SQLException
-	 * @throws PageUrlException
+	 * @throws ConfigurationException
 	 */
 	public List<DataPoint> getLegendData(String sortBy, String order,
 			RequestParams requestParams) throws ClassNotFoundException,
@@ -213,7 +211,7 @@ public class LegendData
 
 		List<DataPoint> ipResults = dataAccess.getThroughput(requestParams,
 				false);
-		// always sort using Bytes total to keep the same order as in the graph
+		// always sort using Bytes total to maintain the same order as in the graph
 		Collections.sort(ipResults, new BytesTotalComparator(true));
 
 		return limitList(ipResults, sortBy, order, requestParams);

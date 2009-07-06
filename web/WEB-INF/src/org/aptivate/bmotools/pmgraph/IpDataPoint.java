@@ -6,6 +6,11 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Subclass of DataPoint used for IP view
+ * @author noeg
+ *
+ */
 public class IpDataPoint extends DataPoint
 {
 	private String m_Ip;
@@ -41,6 +46,9 @@ public class IpDataPoint extends DataPoint
 		m_Ip = ip;
 	}
 
+	/**
+	 * @return Particular Ip if one of top ips, if not "Others"
+	 */
 	@Override
 	public String getId()
 	{
@@ -52,8 +60,7 @@ public class IpDataPoint extends DataPoint
 
 	/**
 	 * Return a color obtained from creating a hash with the bytes of the Ip.
-	 * 
-	 * @param ip
+	 *
 	 * @return Color for the selected IP.
 	 */
 	public Color getSeriesColor()
@@ -74,9 +81,11 @@ public class IpDataPoint extends DataPoint
 	{
 		return (getId());
 	}
-
-	//This method allows us to work with a generic DataPoint when we don't yet know the specific 
-	//subclass (IP or port)
+	
+	/**
+	 * This method allows us to work with a generic DataPoint when we don't yet know the specific 
+	 * subclass (IP or port)
+	 */
 	@Override
 	public DataPoint createCopy()
 	{

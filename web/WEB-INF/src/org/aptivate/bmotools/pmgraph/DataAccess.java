@@ -28,6 +28,19 @@ class DataAccess
 {
 	private Logger m_logger = Logger.getLogger(DataAccess.class.getName());
 
+	/**
+	 * Form and execute the database query
+	 * 
+	 * @param requestParams
+	 * @param isChart
+	 * @return a list of the data points
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws IOException
+	 * @throws ConfigurationException
+	 */
 	List<DataPoint> getThroughput(RequestParams requestParams, boolean isChart)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException,

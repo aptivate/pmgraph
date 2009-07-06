@@ -59,7 +59,7 @@ public class GraphFactory
 	 * @param renderer
 	 * @param start
 	 * @param name
-	 * @param view
+	 * @param requestParams
 	 */
 	private void series2DataSet(DefaultTableXYDataset dataset,
 			Map<DataPoint, float[]> series, XYItemRenderer renderer,
@@ -194,8 +194,7 @@ public class GraphFactory
 	 *         new series for each port or Ip
 	 */
 	private JFreeChart fillGraph(List<DataPoint> thrptResults,
-			RequestParams requestParams)
-	{
+			RequestParams requestParams) {
 		LinkedHashMap<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
 		LinkedHashMap<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
 		long start = requestParams.getRoundedStartTime();
@@ -237,8 +236,7 @@ public class GraphFactory
 
 		}
 
-		for (DataPoint thrptResult : thrptResults)
-		{
+		for (DataPoint thrptResult : thrptResults) {
 			DataPoint seriesId = thrptResult.createCopy();
 			seriesId.setTime(null); // this data point represent a whole series
 
@@ -254,30 +252,31 @@ public class GraphFactory
 
 			float[] dSeries = downSeries.get(seriesId);
 			float[] uSeries = upSeries.get(seriesId);
-			
-			// We created a series for this port so it should be within the top results
+
+			// We created a series for this port so it should be within the top
+			// results
 			// update the values of the series
-			if (upSeries.containsKey(seriesId))
-			{ 	
+			if (upSeries.containsKey(seriesId)) {
 				dSeries[((int) (inserted.getTime() - start)) / 60000] = downloaded;
 				uSeries[((int) (inserted.getTime() - start)) / 60000] = 0 - uploaded;
-			} else
-			{ // the port belongs to the group other - just stack values
+			} else { // the port belongs to the group other - just stack
+						// values
 
 				otherDown[((int) (inserted.getTime() - start)) / 60000] += downloaded;
 				otherUp[((int) (inserted.getTime() - start)) / 60000] += 0 - uploaded;
 
-				if (!(upSeries.size() == requestParams.getResultLimit() + 1))
-				{
-					if (thrptResult instanceof IpDataPoint)
-					{
-						upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP), otherUp);
+				if (!(upSeries.size() == requestParams.getResultLimit() + 1)) {
+					if (thrptResult instanceof IpDataPoint) {
+						upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
+								otherUp);
 						downSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
-								otherDown);		
-					}else
-					{
-						upSeries.put(new PortDataPoint(PortDataPoint.OTHER_PORT), otherUp);
-						downSeries.put(new PortDataPoint(PortDataPoint.OTHER_PORT),otherDown);
+								otherDown);
+					} else {
+						upSeries.put(
+								new PortDataPoint(PortDataPoint.OTHER_PORT),
+								otherUp);
+						downSeries.put(new PortDataPoint(
+								PortDataPoint.OTHER_PORT), otherDown);
 					}
 				}
 			}
@@ -366,12 +365,9 @@ public class GraphFactory
 	 * each IP as a cumulative stacked graph for the time period between start
 	 * and end.
 	 * 
-	 * @param start
+	 * @param requestParams The parameters entered in the request
 	 *            Time in seconds since epoch, in which the chart will start
-	 * @param end
-	 *            Time in seconds since epoch, in which the chart will end
 	 * @return JFreeChart Object containing the info of the stackedThroughput
-	 * 
 	 * @throws ClassNotFoundException
 	 * @throws IllegalAccessException
 	 * @throws InstantiationException

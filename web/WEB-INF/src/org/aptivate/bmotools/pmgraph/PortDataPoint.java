@@ -53,6 +53,9 @@ public class PortDataPoint extends DataPoint
 		this.m_protocol = protocol;
 	}
 
+	/**
+	 * @return Particular port if one of top ports, if not "Others"
+	 */
 	@Override
 	public String getId()
 	{
@@ -82,14 +85,21 @@ public class PortDataPoint extends DataPoint
 		return getColorFromByteArray(portBytes);
 	}
 
+	/**
+	 * Add protocol to the Id
+	 * 
+	 * @return Id + protocol
+	 */
 	@Override
 	public String getSeriesId()
 	{
 		return (getId() + m_protocol);
 	}
 
-	//This method allows us to work with a generic DataPoint when we don't yet know the specific 
-	//subclass (IP or port)
+	/**
+	 * This method allows us to work with a generic DataPoint when we don't yet know the specific 
+	 * subclass (IP or port)
+	 */
 	@Override
 	public DataPoint createCopy()
 	{
