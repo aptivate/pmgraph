@@ -57,13 +57,13 @@ public class GraphFactory
 	 * @param dataset
 	 * @param series
 	 * @param renderer
-	 * @param start
+	 * @param roundedStart
 	 * @param name
 	 * @param requestParams
 	 */
 	private void series2DataSet(DefaultTableXYDataset dataset,
 			Map<DataPoint, float[]> series, XYItemRenderer renderer,
-			long start, String name, RequestParams requestParams)
+			long roundedStart, String name, RequestParams requestParams)
 	{
 		// Put the series into the graph
 		for (DataPoint seriesId : series.keySet())
@@ -75,7 +75,7 @@ public class GraphFactory
 
 			for (float val : values)
 			{
-				xySeries.add(Long.valueOf(start + j * 60000), Float
+				xySeries.add(Long.valueOf(roundedStart + j * 60000), Float
 						.valueOf(val));
 				j++;
 			}
@@ -118,8 +118,8 @@ public class GraphFactory
 	 * totals by port or Ip to order by traffic volume, then sort them and
 	 * select only the top (matching the result limit)
 	 * 
-	 * @param thrptResults
-	 * @param requestParams
+	 * @param thrptResults  results from the database
+	 * @param requestParams parameters from the request
 	 * @return
 	 */
 	private List<DataPoint> getTopResults(List<DataPoint> thrptResults,
@@ -181,15 +181,9 @@ public class GraphFactory
 	 * Create a JFreeChart with the data in the List thrptResults creating a new
 	 * series per each port, or Ip
 	 * 
-	 * @param start
-	 * @param end
-	 * @param theStart
-	 * @param theEnd
-	 * @param thrptResults
-	 * @param limitResult
-	 * @param title
-	 * @param portGraph
-	 *            The series are Ip's or Ports
+	 * @param thrptResults   List of data to chart
+	 * @param requestParams  Parameters from the request
+	 
 	 * @return A JFreeChart with the data in the List thrptResults creating a
 	 *         new series for each port or Ip
 	 */
@@ -197,19 +191,19 @@ public class GraphFactory
 			RequestParams requestParams) {
 		LinkedHashMap<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
 		LinkedHashMap<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
-		long start = requestParams.getRoundedStartTime();
-		long end = requestParams.getRoundedEndTime();
-		long theStart = requestParams.getStartTime();
+		long roundedStart = requestParams.getRoundedStartTime();   //Rounded to minutes
+		long roundedEnd = requestParams.getRoundedEndTime();
+		long theStart = requestParams.getStartTime();			   //in milliseconds
 		long theEnd = requestParams.getEndTime();
 
 		String title = chartTitle(requestParams);
 
-		int minutes = (int) (end - start) / 60000;
+		int minutes = (int) (roundedEnd - roundedStart) / 60000;
 		float[] otherUp = new float[minutes + 1];
 		float[] otherDown = new float[minutes + 1];
 
 		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
-		JFreeChart chart = createStackedXYGraph(title, dataset, start, end,
+		JFreeChart chart = createStackedXYGraph(title, dataset, roundedStart, roundedEnd,
 				theStart, theEnd);
 		XYPlot plot = chart.getXYPlot();
 		XYItemRenderer renderer = plot.getRenderer();
@@ -257,13 +251,13 @@ public class GraphFactory
 			// results
 			// update the values of the series
 			if (upSeries.containsKey(seriesId)) {
-				dSeries[((int) (inserted.getTime() - start)) / 60000] = downloaded;
-				uSeries[((int) (inserted.getTime() - start)) / 60000] = 0 - uploaded;
+				dSeries[((int) (inserted.getTime() - roundedStart)) / 60000] = downloaded;
+				uSeries[((int) (inserted.getTime() - roundedStart)) / 60000] = 0 - uploaded;
 			} else { // the port belongs to the group other - just stack
 						// values
 
-				otherDown[((int) (inserted.getTime() - start)) / 60000] += downloaded;
-				otherUp[((int) (inserted.getTime() - start)) / 60000] += 0 - uploaded;
+				otherDown[((int) (inserted.getTime() - roundedStart)) / 60000] += downloaded;
+				otherUp[((int) (inserted.getTime() - roundedStart)) / 60000] += 0 - uploaded;
 
 				if (!(upSeries.size() == requestParams.getResultLimit() + 1)) {
 					if (thrptResult instanceof IpDataPoint) {
@@ -284,30 +278,31 @@ public class GraphFactory
 		// Once the data that should be in the graph is created lets go to
 		// introduce it in the dataset of the chart.
 
-		series2DataSet(dataset, downSeries, renderer, start, "<down>",
+		series2DataSet(dataset, downSeries, renderer, roundedStart, "<down>",
 				requestParams);
-		series2DataSet(dataset, upSeries, renderer, start, "<up>",
+		series2DataSet(dataset, upSeries, renderer, roundedStart, "<up>",
 				requestParams);
 
 		endTime = System.currentTimeMillis() - initTime;
-		m_logger.debug("Data iserted in chart Time : " + endTime + " miliseg");
+		m_logger.debug("Data inserted in chart Time : " + endTime + " millisec");
 
 		return chart;
 	}
-
+	
 	/**
 	 * A method which creates the chart with the default options for the stacked
 	 * charts
 	 * 
+	 * @param title   Title
 	 * @param dataset
-	 * @param start
-	 * @param end
-	 * @param theStart
+	 * @param roundedStart	  Start time rounded to minutes
+	 * @param roundedEnd     
+	 * @param theStart		  Start time in milliseconds
 	 * @param theEnd
 	 * @return A chart with the default options, and without data.
 	 */
 	private JFreeChart createStackedXYGraph(String title,
-			DefaultTableXYDataset dataset, long start, long end, long theStart,
+			DefaultTableXYDataset dataset, long roundedStart, long roundedEnd, long theStart,
 			long theEnd)
 	{
 
@@ -344,8 +339,8 @@ public class GraphFactory
 				{
 					xAxis = new DateAxis("Time (day-month)");
 				}
-		xAxis.setMinimumDate(new Date(start - 1));
-		xAxis.setMaximumDate(new Date(end));
+		xAxis.setMinimumDate(new Date(roundedStart - 1));
+		xAxis.setMaximumDate(new Date(roundedEnd));
 		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
 		plot.setRangeAxis(yAxis);
 		plot.setDomainAxis(xAxis);
@@ -354,16 +349,17 @@ public class GraphFactory
 		plot.setRangeGridlinesVisible(true);
 		plot.setRangeGridlinePaint(Color.GRAY);
 		plot.setDomainGridlinePaint(Color.GRAY);
-		chart.addSubtitle(new TextTitle(new Date(end).toString()));
+		chart.addSubtitle(new TextTitle(new Date(roundedEnd).toString()));
 		chart.setBackgroundPaint(null);
 		chart.removeLegend();
+		
 		return chart;
 	}
 
 	/**
 	 * Produces a JFreeChart showing total upload and download throughput for
-	 * each IP as a cumulative stacked graph for the time period between start
-	 * and end.
+	 * each IP as a cumulative stacked graph for the time period between roundedStart
+	 * and roundedEnd.
 	 * 
 	 * @param requestParams The parameters entered in the request
 	 *            Time in seconds since epoch, in which the chart will start

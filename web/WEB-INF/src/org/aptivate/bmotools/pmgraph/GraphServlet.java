@@ -38,6 +38,8 @@ public class GraphServlet extends HttpServlet
 	 * Creates a GraphBuilder object which queries the database and returns
 	 * graphs (using the JFreeChart library) showing logged traffic to the
 	 * browser.
+	 * 
+	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse res)
 			throws ServletException, IOException

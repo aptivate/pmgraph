@@ -31,8 +31,8 @@ class DataAccess
 	/**
 	 * Form and execute the database query
 	 * 
-	 * @param requestParams
-	 * @param isChart
+	 * @param requestParams  Parameters from the request
+	 * @param isChart        Set if this request is for the chart (not the legend)
 	 * @return a list of the data points
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
