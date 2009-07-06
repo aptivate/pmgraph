@@ -43,8 +43,7 @@ public class UrlBuilder
 	 * Just create a String with the parameters for the URL using the parameters
 	 * for ip, port and view.
 	 * 
-	 * @param jspInclude
-	 *            is this a URL for a JSP include? if false '&amp;' is used to
+	 * @param jspInclude is this a URL for a JSP include? if false '&amp;' is used to
 	 *            separate parameters
 	 * @return String to add to a URL in order to include View parameter
 	 *         depending to the the IP, port or view parameters.
@@ -208,8 +207,7 @@ public class UrlBuilder
 	/**
 	 * This method builds the URL that will be followed by clicking on a link
 	 * 
-	 * @param paramValue
-	 *            Value of the element the user clicked on
+	 * @param paramValue Value of the element the user clicked on
 	 * @return URL followed in the links
 	 */
 	public String getLinkUrl(String paramValue)
@@ -298,8 +296,6 @@ public class UrlBuilder
 	 * Returns true if we can zoom in, or false if we are already at maximum
 	 * zoom
 	 * 
-	 * @param start
-	 * @param end
 	 * @return boolean
 	 */
 	public boolean showZoomIn()
@@ -314,8 +310,6 @@ public class UrlBuilder
 	 * Test if scrolling forward would take us past the current time. If that is
 	 * the case we will show a "Current" button instead of the "Next" button
 	 * 
-	 * @param start
-	 * @param end
 	 * @return boolean
 	 */
 	public boolean isShowCurrent()

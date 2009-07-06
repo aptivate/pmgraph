@@ -3,17 +3,14 @@ package org.aptivate.bmotools.pmgraph;
 import java.util.HashMap;
 
 /**
- * 
- * 
  * @author noeg
  * 
- * List of maps between ports and services using the linux command
+ * List of maps between ports and services obtained by using the linux command
  * 
  * sed "s/^\([a-z0-9\-]\+\)[
  * \t]\+\([0-9]\{4,5\}\)\/tcp.*$/m_tcpPort2serviceMap\.put(\2, \"\1\");/gi"
  * /etc/services | grep "\.put"
  * 
- * in a linux system
  */
 
 public class Port2Services
@@ -379,7 +376,6 @@ public class Port2Services
 		m_tcpPort2serviceMap.put(901, "swat");
 		m_tcpPort2serviceMap.put(953, "rndc");
 		m_tcpPort2serviceMap.put(902, "vmware-authd");
-
 		m_tcpPort2serviceMap.put(1080, "socks");
 		m_tcpPort2serviceMap.put(1236, "bvcontrol");
 		m_tcpPort2serviceMap.put(1300, "h323hostcallsc");
@@ -511,6 +507,13 @@ public class Port2Services
 		return m_instance;
 	}
 
+	/**
+	 * get the service from the port number and the protocol
+	 * 
+	 * @param portNumber
+	 * @param protocol tcp/udp/icmp
+	 * @return service
+	 */
 	public String getService(Integer portNumber, Protocol protocol)
 	{
 		String service = null;

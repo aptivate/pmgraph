@@ -41,33 +41,28 @@ public class RequestParams
 
 	Map<String, Object> m_reqParams;
 
-	public RequestParams()
-	{
+	public RequestParams() {
 		m_reqParams = new HashMap<String, Object>();
 	}
-	
-	RequestParams(Map<String, Object> params)
-	{
+
+	RequestParams(Map<String, Object> params) {
 		m_reqParams = params;
 	}
 
 	// Currently, this method is used in test code only
-	RequestParams(long start, long end, View view, int resultLimit, Integer port)
-	{
+	RequestParams(long start, long end, View view, int resultLimit, Integer port) {
 		this(start, end, view, resultLimit);
 		m_reqParams.put("port", port);
 	}
 
 	// Currently, this method is used in test code only
-	RequestParams(long start, long end, View view, int resultLimit, String ip)
-	{
+	RequestParams(long start, long end, View view, int resultLimit, String ip) {
 		this(start, end, view, resultLimit);
 		m_reqParams.put("ip", ip);
 	}
 
 	// Currently, this method is used in test code only
-	RequestParams(long start, long end, View view, int resultLimit)
-	{
+	RequestParams(long start, long end, View view, int resultLimit) {
 		this();
 		m_fromDateAndTime = new Date(start);
 		m_toDateAndTime = new Date(end);
@@ -226,14 +221,17 @@ public class RequestParams
 		return m_toDateAndTime.getTime();
 	}
 
-	// Round our times to the nearest minute
+	/**
+	 * @return Start time rounded to the nearest minute
+	 */
 	public long getRoundedStartTime()
 	{
-		return m_fromDateAndTime.getTime()
-				- (m_fromDateAndTime.getTime() % 60000);
+		return m_fromDateAndTime.getTime() - (m_fromDateAndTime.getTime() % 60000);
 	}
 
-	// Round our times to the nearest minute
+	/**
+	 * @return End time rounded to the nearest minute
+	 */
 	public long getRoundedEndTime()
 	{
 		return m_toDateAndTime.getTime() - (m_toDateAndTime.getTime() % 60000);
@@ -244,8 +242,7 @@ public class RequestParams
 		return m_reqParams;
 	}
 
-	private void setDatesFromRequest(HttpServletRequest request)
-			throws PageUrlException
+	private void setDatesFromRequest(HttpServletRequest request) throws PageUrlException
 	{
 		// set to default to have a value even if any Exception occurs
 		setDatesDefault();
@@ -267,8 +264,8 @@ public class RequestParams
 			setDatesFromStartEnd(request);
 			throw e;
 		}
-		
-		//It has to be more than a minute in the future
+
+		// It has to be more than a minute in the future
 		if ((m_fromDateAndTime.getTime() >= m_toDateAndTime.getTime())
 				|| ((m_toDateAndTime.getTime() - m_fromDateAndTime.getTime()) < 60000))
 		{
@@ -290,12 +287,11 @@ public class RequestParams
 	 * value established in config file if user have not set a value.
 	 * 
 	 * @param request
-	 * @throws NumberFormatException
 	 * @throws IOException
 	 * @throws PageUrlException
 	 */
-	private void setResultLimitFromRequest(HttpServletRequest request)
-			throws IOException, PageUrlException
+	private void setResultLimitFromRequest(HttpServletRequest request) throws IOException,
+			PageUrlException
 	{
 		if ((request.getParameter("resultLimit") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("resultLimit"))))
@@ -303,20 +299,17 @@ public class RequestParams
 			try
 			{
 
-				m_resultLimit = Integer.parseInt(request
-						.getParameter("resultLimit"));
+				m_resultLimit = Integer.parseInt(request.getParameter("resultLimit"));
 			} catch (NumberFormatException e)
 			{
 				m_resultLimit = Configuration.getResultLimit();
-				throw new PageUrlException(
-						ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
+				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
 
 			if (m_resultLimit < 0)
 			{
 				m_resultLimit = Configuration.getResultLimit();
-				throw new PageUrlException(
-						ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
+				throw new PageUrlException(ErrorMessages.RESULT_LIMIT_FORMAT_ERROR);
 			}
 		} else
 		{ // if user has not defined resultLimit get it from default
@@ -328,12 +321,9 @@ public class RequestParams
 	 * If a Dynamic parameter is set in the request the checkbox value is set.
 	 * 
 	 * @param request
-	 * @throws NumberFormatException
 	 * @throws PageUrlException
-	 * @throws IOException
 	 */
-	private void setDynamicFromRequest(HttpServletRequest request)
-			throws PageUrlException
+	private void setDynamicFromRequest(HttpServletRequest request) throws PageUrlException
 	{
 
 		if (request.getParameter("dynamic") != null)
@@ -344,15 +334,14 @@ public class RequestParams
 	}
 
 	/**
-	 * If a Ip parameter is set in the request the ip value is set.
+	 * Set the IP value to match the request.
 	 * 
 	 * @param request
 	 * @throws NumberFormatException
 	 * @throws PageUrlException
-	 * @throws IOException
 	 */
-	private void setIpPortFromRequest(HttpServletRequest request)
-			throws PageUrlException, NumberFormatException
+	private void setIpPortFromRequest(HttpServletRequest request) throws PageUrlException,
+			NumberFormatException
 	{
 		Integer port;
 
@@ -374,8 +363,7 @@ public class RequestParams
 			try
 			{
 				port = Integer.valueOf(request.getParameter("port"));
-				m_reqParams.put("port", Integer.valueOf(request
-						.getParameter("port")));
+				m_reqParams.put("port", Integer.valueOf(request.getParameter("port")));
 			} catch (NumberFormatException e)
 			{
 				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
@@ -423,8 +411,8 @@ public class RequestParams
 		return true;
 	}
 
-	private void setRemoteIpPortFromRequest(HttpServletRequest request)
-			throws PageUrlException, NumberFormatException
+	private void setRemoteIpPortFromRequest(HttpServletRequest request) throws PageUrlException,
+			NumberFormatException
 	{
 		Integer port;
 
@@ -447,8 +435,8 @@ public class RequestParams
 			try
 			{
 				port = Integer.valueOf(request.getParameter("remote_port"));
-				m_reqParams.put("remote_port", Integer.valueOf(request
-						.getParameter("remote_port")));
+				m_reqParams
+						.put("remote_port", Integer.valueOf(request.getParameter("remote_port")));
 			} catch (NumberFormatException e)
 			{
 				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
@@ -466,15 +454,14 @@ public class RequestParams
 	}
 
 	/**
-	 * Set the view selected by the user, to a Port view or to a Ip port, Port
+	 * Set the view selected by the user, to a Port view or to a Ip port. Port
 	 * view shows in the graph the throughput per port. Ip view shows throughput
 	 * per IP. The views are omitted when a specific Ip or Port is selected.
 	 * 
 	 * @param request
 	 * @throws PageUrlException
 	 */
-	private void setViewFromRequest(HttpServletRequest request)
-			throws PageUrlException
+	private void setViewFromRequest(HttpServletRequest request) throws PageUrlException
 	{
 		if ((request.getParameter("view") != null)
 				&& (!"".equalsIgnoreCase(request.getParameter("view"))))
@@ -501,47 +488,42 @@ public class RequestParams
 	 *            prefix to be add to get infromation from request (from or to)
 	 * @return A Date time obtained from request totime todate and fromTime
 	 *         fromDate
-	 * @throws java.text.ParseException
 	 * @throws PageUrlException
-	 * @throws Exception
 	 */
 	private Date setDateTimeFromFromData(HttpServletRequest request, String name)
 			throws PageUrlException
 	{
-		SimpleDateFormat dateTimeFormat = new SimpleDateFormat(
-				"dd/MM/yyyy-HH:mm:ss");
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss");
 		Date date;
-		
+
 		String requestTime = request.getParameter(name + "Time");
-		
-		//shortcut time automatically add the rest
-		if (requestTime.length()==2)
+
+		// shortcut time automatically add the rest
+		if (requestTime.length() == 2)
 		{
 			requestTime = requestTime + ":00:00";
 		}
 
-		if (requestTime.length()==5)
+		if (requestTime.length() == 5)
 		{
 			requestTime = requestTime + ":00";
 		}
 
-		if ((request.getParameter(name + "Time") != null)
-				&& (requestTime.length() == 8)
+		if ((request.getParameter(name + "Time") != null) && (requestTime.length() == 8)
 				&& (request.getParameter(name + "Date") != null)
 				&& (request.getParameter(name + "Date").length() == 10))
 		{
 			try
 			{
-				date = dateTimeFormat.parse(request.getParameter(name + "Date")
-						+ "-" + requestTime);
+				date = dateTimeFormat
+						.parse(request.getParameter(name + "Date") + "-" + requestTime);
 			} catch (ParseException e)
 			{
 				throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
 			}
 			if ((date == null)
 					|| (dateTimeFormat.format(date).equals(
-							request.getParameter(name + "Date") + "-"
-									+ requestTime )== false))
+							request.getParameter(name + "Date") + "-" + requestTime) == false))
 			{
 				throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
 			}
@@ -560,18 +542,14 @@ public class RequestParams
 	 * @param request
 	 * @throws Exception
 	 */
-	private void setDatesFromStartEnd(HttpServletRequest request)
-			throws PageUrlException
+	private void setDatesFromStartEnd(HttpServletRequest request) throws PageUrlException
 	{
-		if ((request.getParameter("start") != null)
-				&& (request.getParameter("end") != null))
+		if ((request.getParameter("start") != null) && (request.getParameter("end") != null))
 		{
 			try
 			{
-				m_fromDateAndTime = new Date(Long.valueOf(request
-						.getParameter("start")));
-				m_toDateAndTime = new Date(Long.valueOf(request
-						.getParameter("end")));
+				m_fromDateAndTime = new Date(Long.valueOf(request.getParameter("start")));
+				m_toDateAndTime = new Date(Long.valueOf(request.getParameter("end")));
 			} catch (NumberFormatException e)
 			{
 				throw new PageUrlException(ErrorMessages.START_END_FORMAT_ERROR);
@@ -582,8 +560,7 @@ public class RequestParams
 		}
 	}
 
-	private void setSortByFromStartEnd(HttpServletRequest request)
-			throws NumberFormatException
+	private void setSortByFromStartEnd(HttpServletRequest request) throws NumberFormatException
 	{
 		if ((request.getParameter("sortBy") != null))
 		{
@@ -605,12 +582,11 @@ public class RequestParams
 	/**
 	 * Set all the parameters of the request necessary to build new URLs
 	 * 
-	 * @param request
+	 * @param request Request object
 	 * @throws PageUrlException
 	 * @throws IOException
 	 */
-	public void setParameters(HttpServletRequest request)
-			throws PageUrlException, IOException
+	public void setParameters(HttpServletRequest request) throws PageUrlException, IOException
 	{
 		PageUrlException exception = null;
 		setSortByFromStartEnd(request);
@@ -623,8 +599,7 @@ public class RequestParams
 			if (exception == null)
 				exception = e;
 			else
-				exception = new PageUrlException(exception.getMessage() + " "
-						+ e.getMessage());
+				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
 		}
 		try
 		{
@@ -634,8 +609,7 @@ public class RequestParams
 			if (exception == null)
 				exception = e;
 			else
-				exception = new PageUrlException(exception.getMessage() + " "
-						+ e.getMessage());
+				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
 		}
 
 		try
@@ -646,8 +620,7 @@ public class RequestParams
 			if (exception == null)
 				exception = e;
 			else
-				exception = new PageUrlException(exception.getMessage() + " "
-						+ e.getMessage());
+				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
 		}
 
 		try
@@ -658,8 +631,7 @@ public class RequestParams
 			if (exception == null)
 				exception = e;
 			else
-				exception = new PageUrlException(exception.getMessage() + " "
-						+ e.getMessage());
+				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
 		}
 
 		try
@@ -670,8 +642,7 @@ public class RequestParams
 			if (exception == null)
 				exception = e;
 			else
-				exception = new PageUrlException(exception.getMessage() + " "
-						+ e.getMessage());
+				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
 		}
 		try
 		{
@@ -681,8 +652,7 @@ public class RequestParams
 			if (exception == null)
 				exception = e;
 			else
-				exception = new PageUrlException(exception.getMessage() + " "
-						+ e.getMessage());
+				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
 		}
 
 		if (exception != null)

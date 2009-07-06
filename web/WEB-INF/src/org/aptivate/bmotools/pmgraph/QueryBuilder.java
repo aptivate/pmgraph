@@ -17,9 +17,11 @@ import org.apache.log4j.Logger;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 /**
- * This class is used to connect to/ disconnect from the database 
- * and build the sql select query from the request parameters
- *
+ * This class is used to connect to / disconnect from the database and build the
+ * sql select query from the request parameters
+ * 
+ * @author noeg
+ * 
  */
 public class QueryBuilder
 {
@@ -57,64 +59,53 @@ public class QueryBuilder
 	 * @throws SQLException
 	 * @throws IOException
 	 * @throws ConfigurationException
-	 *
+	 * 
 	 */
-	private Connection getConnection() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException,
-			IOException, ConfigurationException
+	private Connection getConnection() throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException, IOException, ConfigurationException
 	{
 		try
 		{
 			Class.forName(Configuration.getJdbcDriver()).newInstance();
-			Connection con = DriverManager.getConnection(Configuration
-					.getDatabaseURL(), Configuration.getDatabaseUser(),
-					Configuration.getDatabasePass());
+			Connection con = DriverManager.getConnection(Configuration.getDatabaseURL(),
+					Configuration.getDatabaseUser(), Configuration.getDatabasePass());
 			return con;
-		}
-		catch (CommunicationsException e)
+		} catch (CommunicationsException e)
 		{
 			Throwable cause = e.getCause();
 			// find out what caused the error
-			if ((cause instanceof AccessControlException)
-					|| (cause instanceof SecurityException)
+			if ((cause instanceof AccessControlException) || (cause instanceof SecurityException)
 					|| (cause instanceof SocketException))
 			{
 				m_logger
 						.fatal("Unable to get a mysql connection due to a Java security Exception: ");
-				m_logger.fatal("Java Security Exception: "
-						+ cause.getLocalizedMessage());
+				m_logger.fatal("Java Security Exception: " + cause.getLocalizedMessage());
 				m_logger
 						.fatal("If you have java security enabled please add a exception in the policy "
 								+ "file to allow this web application to connect to the mysql port. ");
 				throw (new ConfigurationException(
 						ErrorMessages.MYSQL_CONNECTION_ERROR_JAVA_SECURITY, cause));
-			}
-			else
+			} else
 			{
-				m_logger.fatal("Unable to get a mysql connection, " +
-						"please check your database.properties file: "
-						+ e.getLocalizedMessage());
-				
+				m_logger.fatal("Unable to get a mysql connection, "
+						+ "please check your database.properties file: " + e.getLocalizedMessage());
+
 				throw (new ConfigurationException(
-						"Unable to get a mysql connection, please check your database.properties file:", e));
+						"Unable to get a mysql connection, please check your database.properties file:",
+						e));
 			}
-		}
-		catch (SQLException e)
+		} catch (SQLException e)
 		{
-			m_logger.fatal("Unable to get a mysql connection," +
-				" please check your database.properties file: "
-				+ e.getLocalizedMessage());
-			
-			throw (new ConfigurationException(
-					ErrorMessages.MYSQL_CONNECTION_ERROR, e));
+			m_logger.fatal("Unable to get a mysql connection,"
+					+ " please check your database.properties file: " + e.getLocalizedMessage());
+
+			throw (new ConfigurationException(ErrorMessages.MYSQL_CONNECTION_ERROR, e));
 		}
 
 	}
 
-	public QueryBuilder() throws IOException, InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException,
-			ConfigurationException
-	{
+	public QueryBuilder() throws IOException, InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException, ConfigurationException {
 
 		this.m_localSubnet = Configuration.getLocalSubnet();
 		m_conn = getConnection();
@@ -125,38 +116,36 @@ public class QueryBuilder
 	{
 		StringBuffer sql = new StringBuffer();
 
-		//time stamp is not needed in legend
+		// time stamp is not needed in legend
 		if (isChart)
 			sql.append(" " + TIME_STAMP + ", ");
 
-		sql.append("SUM(CASE WHEN ip_dst LIKE ? " +
-			"THEN bytes ELSE 0 END) as downloaded, ");
-		
+		sql.append("SUM(CASE WHEN ip_dst LIKE ? " + "THEN bytes ELSE 0 END) as downloaded, ");
+
 		m_listData.add(m_localSubnet + "%");
-		sql.append("SUM(CASE WHEN ip_src LIKE ? " +
-			"THEN bytes ELSE 0 END) as uploaded, ");
+		sql.append("SUM(CASE WHEN ip_src LIKE ? " + "THEN bytes ELSE 0 END) as uploaded, ");
 		m_listData.add(m_localSubnet + "%");
-		
+
 		switch (requestParams.getView())
 		{
-			case LOCAL_PORT:
-				sql.append("ip_proto, ");				// id of the used protocol udp/tcp/icmp
-				sql.append("(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port ");
-				m_listData.add(m_localSubnet + "%");
-				break;
-			case LOCAL_IP:
-				sql.append("(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip ");
-				m_listData.add(m_localSubnet + "%");
-				break;
-			case REMOTE_PORT:
-				sql.append("ip_proto, ");				// id of the used protocol udp/tcp/icmp
-				sql.append("(CASE WHEN ip_src LIKE ? THEN dst_port ELSE src_port END) AS remote_port ");
-				m_listData.add(m_localSubnet + "%");
-				break;
-			case REMOTE_IP: // Show Remote IP
-				sql.append("(CASE WHEN ip_src LIKE ? THEN ip_dst ELSE ip_src END) AS remote_ip ");
-				m_listData.add(m_localSubnet + "%");
-				break;
+		case LOCAL_PORT:
+			sql.append("ip_proto, "); // id of the used protocol udp/tcp/icmp
+			sql.append("(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port ");
+			m_listData.add(m_localSubnet + "%");
+			break;
+		case LOCAL_IP:
+			sql.append("(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip ");
+			m_listData.add(m_localSubnet + "%");
+			break;
+		case REMOTE_PORT:
+			sql.append("ip_proto, "); // id of the used protocol udp/tcp/icmp
+			sql.append("(CASE WHEN ip_src LIKE ? THEN dst_port ELSE src_port END) AS remote_port ");
+			m_listData.add(m_localSubnet + "%");
+			break;
+		case REMOTE_IP: // Show Remote IP
+			sql.append("(CASE WHEN ip_src LIKE ? THEN ip_dst ELSE ip_src END) AS remote_ip ");
+			m_listData.add(m_localSubnet + "%");
+			break;
 
 		}
 		return (sql.toString());
@@ -175,8 +164,7 @@ public class QueryBuilder
 		{ // for a specific local IP
 			comparator = " = ";
 			ip = requestParams.getIp();
-			where
-					.append("AND (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) = ? ");
+			where.append("AND (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) = ? ");
 			m_listData.add(m_localSubnet + "%");
 			m_listData.add(requestParams.getIp());
 		}
@@ -201,8 +189,7 @@ public class QueryBuilder
 			m_listData.add(requestParams.getRemotePort());
 		}
 		where.append("AND ((NOT (ip_src LIKE ?) AND ip_dst " + comparator
-				+ " ?) OR (NOT (ip_dst LIKE ?) AND ip_src " + comparator
-				+ " ?)) ");
+				+ " ?) OR (NOT (ip_dst LIKE ?) AND ip_src " + comparator + " ?)) ");
 		m_listData.add(m_localSubnet + "%");
 		m_listData.add(ip);
 		m_listData.add(m_localSubnet + "%");
@@ -221,20 +208,20 @@ public class QueryBuilder
 
 		switch (requestParams.getView())
 		{
-			case LOCAL_PORT:
-				groupBy.append(" port, ip_proto");
-				break;
-			case LOCAL_IP:
-				groupBy.append(" local_ip");
-				break;
-			case REMOTE_PORT:
-				groupBy.append(" remote_port, ip_proto");
-				break;
-			case REMOTE_IP:
-				groupBy.append(" remote_ip");
-				break;
+		case LOCAL_PORT:
+			groupBy.append(" port, ip_proto");
+			break;
+		case LOCAL_IP:
+			groupBy.append(" local_ip");
+			break;
+		case REMOTE_PORT:
+			groupBy.append(" remote_port, ip_proto");
+			break;
+		case REMOTE_IP:
+			groupBy.append(" remote_ip");
+			break;
 
-			default:
+		default:
 		}
 
 		if (groupBy.length() > 0)
@@ -243,21 +230,24 @@ public class QueryBuilder
 		}
 		return "";
 	}
+
 	/**
 	 * Build the sql query from its component parts
+	 * 
 	 * @param requestParams
 	 * @param isChart
-	 * @return
+	 * @return PreparedStatement: an object that represents a precompiled SQL
+	 *         statement.
 	 * @throws SQLException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	PreparedStatement buildQuery(RequestParams requestParams, boolean isChart)
-			throws SQLException, IOException
+	PreparedStatement buildQuery(RequestParams requestParams, boolean isChart) throws SQLException,
+			IOException
 	{
 
 		StringBuffer sql = new StringBuffer("SELECT ");
 		sql.append(buildSelect(requestParams, isChart));
-		sql.append("FROM "+Configuration.getResultDatabaseTable()+" ");
+		sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
 		sql.append(buildWhere(requestParams));
 		sql.append(buildGroupBy(requestParams, isChart));
 
@@ -269,10 +259,10 @@ public class QueryBuilder
 		return (ipStatement);
 	}
 
-	//The list data is used to store parameters for the SQL statement. They are substituted for the "?" within the 
-	//pre-compiled SQL statement.  Search for "statement.setObject" for more info.
-	private void setQueryParams(PreparedStatement statement)
-			throws SQLException
+	// The list data is used to store parameters for the SQL statement. They are
+	// substituted for the "?" within the pre-compiled SQL statement. Search for
+	// "statement.setObject" for more info.
+	private void setQueryParams(PreparedStatement statement) throws SQLException
 	{
 
 		int parameter_index = 1;
@@ -289,8 +279,7 @@ public class QueryBuilder
 		try
 		{
 			m_conn.close();
-		}
-		catch (SQLException e)
+		} catch (SQLException e)
 		{
 			m_logger.error("Error freeing connection in finalize method", e);
 		}
