@@ -10,19 +10,17 @@ import org.apache.log4j.Logger;
 import org.jfree.chart.JFreeChart;
 
 /**
+ * This test is used to check the graphs for one specific IP or port
  * 
  * @author Noe Andres Rodriguez Gonzalez.
  * 
  */
 public class SpecificGraphsTest extends GraphTestBase
 {
-	private static Logger m_logger = Logger.getLogger(SpecificGraphsTest.class
-			.getName());
+	private static Logger m_logger = Logger.getLogger(SpecificGraphsTest.class.getName());
 
-	public SpecificGraphsTest() throws InstantiationException,
-			IllegalAccessException, ClassNotFoundException, SQLException,
-			IOException
-	{
+	public SpecificGraphsTest() throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException, IOException {
 		super();
 	}
 
@@ -33,19 +31,19 @@ public class SpecificGraphsTest extends GraphTestBase
 	}
 
 	/**
-	 * Check if the graph created for an espxific Ip or port match What is
-	 * indicated in the parameters Just to be used with especific port or Ip
+	 * Check if the graph created for a specific Ip or port matches what is
+	 * indicated in the parameters. Just to be used with especific port or Ip
 	 * graphs
 	 * 
 	 * @param ipOrPort
 	 * @param values
 	 * @param rows
 	 * @param view
-	 *            Is a port grap or a Ip graph default is Ip graph
+	 *            Is a port graph or an Ip graph (by default is an Ip graph)
 	 * @throws Exception
 	 */
-	private void checkOneIpPort(String ipOrPort, float values[][],
-			String[] rows, View view) throws Exception
+	private void checkOneIpPort(String ipOrPort, float values[][], String[] rows, View view)
+			throws Exception
 	{
 		JFreeChart chart;
 		GraphFactory graphFactory = new GraphFactory();
@@ -56,27 +54,27 @@ public class SpecificGraphsTest extends GraphTestBase
 		default:
 			m_logger.warn(" View Unknown assumed default view IP");
 		case LOCAL_IP:
-			request = new RequestParams(m_testUtils.t1
-					.getTime(), m_testUtils.t4.getTime(),View.LOCAL_PORT, 15, ipOrPort);
-			chart = graphFactory.stackedThroughputGraph(request);
-			
-			assertEquals("Network Throughput For Local Ip = " + ipOrPort, chart
-					.getTitle().getText());
-			break;
-		case LOCAL_PORT:			
-			request = new RequestParams(m_testUtils.t1
-					.getTime(), m_testUtils.t4.getTime(),View.LOCAL_IP, 15, Integer.valueOf(ipOrPort));
+			request = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
+					View.LOCAL_PORT, 15, ipOrPort);
 			chart = graphFactory.stackedThroughputGraph(request);
 
-			assertEquals("Network Throughput For Local Port = " + ipOrPort, chart
-					.getTitle().getText());
+			assertEquals("Network Throughput For Local Ip = " + ipOrPort, chart.getTitle()
+					.getText());
+			break;
+		case LOCAL_PORT:
+			request = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
+					View.LOCAL_IP, 15, Integer.valueOf(ipOrPort));
+			chart = graphFactory.stackedThroughputGraph(request);
+
+			assertEquals("Network Throughput For Local Port = " + ipOrPort, chart.getTitle()
+					.getText());
 			break;
 		}
 		checkChartData(values, rows, chart);
 	}
 
 	/**
-	 * Check if the graph contains the values for each series that it should
+	 * Check if the IP graph contains the values for each series that it should
 	 * contain acordingly to the test data.
 	 * 
 	 * @throws Exception
@@ -92,7 +90,7 @@ public class SpecificGraphsTest extends GraphTestBase
 				{ 0, 0, 0, 0 }, // 443 up
 				{ 0, 0, 100, 0 }, // 443 down
 		};
-		
+
 		checkOneIpPort("10.0.156.110", values, ports, View.LOCAL_IP);
 
 		ports = new String[] { "110tcp", "80tcp", "443tcp", "443udp" };
@@ -102,12 +100,12 @@ public class SpecificGraphsTest extends GraphTestBase
 				{ 125, 0, 0, 0 }, // 80 down
 				{ 0, 0, -150, 0 }, // 443 up
 				{ 0, 0, 0, 0 }, // 443 down
-				{ 0, 0, 0, 0}, // 443 udp up
+				{ 0, 0, 0, 0 }, // 443 udp up
 				{ 0, 0, 75, 0 }, // 443 udp down
 		};
 		checkOneIpPort("10.0.156.130", values, ports, View.LOCAL_IP);
 
-		ports = new String[] { "443tcp"};
+		ports = new String[] { "443tcp" };
 		values = new float[][] { { -50, -100, -600, 0 }, // 443 up
 				{ 100, 50, 300, 0 }, // 443 down
 		};
@@ -115,6 +113,12 @@ public class SpecificGraphsTest extends GraphTestBase
 
 	}
 
+	/**
+	 * Check if the port graph contains the values for each series that it
+	 * should contain acordingly to the test data.
+	 * 
+	 * @throws Exception
+	 */
 	public void testOnePortGraph() throws Exception
 	{
 

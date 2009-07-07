@@ -22,7 +22,7 @@ import org.jfree.data.xy.XYSeries;
  * Abstract Class which contains the method which checks if the values of a
  * JFreechart correspond with the rows and values array passed. It can be used
  * whenever we try to check the values of a graph then it is used for the port
- * graph and for the Ip graphs.
+ * graph and for the Ip graph.
  * 
  * @author Noe A. Rodriguez Gonzalez.
  * 
@@ -41,12 +41,12 @@ abstract class GraphTestBase extends TestCase
 
 	/**
 	 *  Check that the chart contains the expected data points.
-	 *     First it checks the graph has an upload and download 
-	 *    series for each of the values of the array "rows".
+	 *  First it checks if the graph has an upload and download 
+	 *  series for each of the values of the array "rows".
 	 *    
-	 *    Secondly checks if each has the expected number of time points.
+	 *  Secondly checks if each one has the expected number of time points.
 	 *    
-	 *     Finally checks the data points.
+	 *  Finally checks the data points.
 	 *  
 	 * @param values values of each series.
 	 * @param rows 
@@ -55,7 +55,6 @@ abstract class GraphTestBase extends TestCase
 	protected void checkChartData(float values[][], String[] rows,
 			JFreeChart chart)
 	{
-
 		XYPlot plot = (XYPlot) chart.getPlot();
 		assertEquals(PlotOrientation.VERTICAL, plot.getOrientation());
 		Collection markers = plot.getRangeMarkers(Layer.FOREGROUND);

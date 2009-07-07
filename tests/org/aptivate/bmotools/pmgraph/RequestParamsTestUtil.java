@@ -1,42 +1,45 @@
 package org.aptivate.bmotools.pmgraph;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
-//
-public class RequestParamsTestUtil {
+/**
+ * Class used for RequestParamsTest to fill the hashmap containing the
+ * parameters
+ * 
+ */
+public class RequestParamsTestUtil
+{
 
-		private Date m_fromDateAndTime;
+	private Date m_fromDateAndTime;
 
-		private Date m_toDateAndTime;
+	private Date m_toDateAndTime;
 
-		private Integer m_resultLimit;
+	private Integer m_resultLimit;
 
-		private View m_view;
+	private View m_view;
 
-		private String m_sortBy;
+	private String m_sortBy;
 
-		private String m_order;
-		
-		private String m_ip;
-		
-		private Integer m_port;		
-		
-		private String m_remoteIp;
-		
-		private Integer m_remotePort;	
+	private String m_order;
 
-		HashMap<String, Object> hashmap = new HashMap<String, Object>();
-		
-		private RequestParamsTestUtil() {
-		
-		}
-		
-		public RequestParamsTestUtil(HashMap<String, String> hashMap) throws Exception {
-			this();
+	private String m_ip;
+
+	private Integer m_port;
+
+	private String m_remoteIp;
+
+	private Integer m_remotePort;
+
+	HashMap<String, Object> hashmap = new HashMap<String, Object>();
+
+	private RequestParamsTestUtil() {
+
+	}
+
+	public RequestParamsTestUtil(HashMap<String, String> hashMap) throws Exception {
+
+		this();
 
 		if (hashMap.get("start") != null)
 			m_fromDateAndTime = new Date(Long.valueOf(hashMap.get("start")));
@@ -68,13 +71,14 @@ public class RequestParamsTestUtil {
 		hashmap.put("port", m_port);
 		hashmap.put("remote_ip", m_remoteIp);
 		hashmap.put("remote_port", m_remotePort);
-			
-		}
 
-	public Object getParams(String paramsName) {
+	}
+
+	public Object getParams(String paramsName)
+	{
 		Object obj = null;
 		obj = hashmap.get(paramsName);
 		return obj;
-		}
+	}
 
 }

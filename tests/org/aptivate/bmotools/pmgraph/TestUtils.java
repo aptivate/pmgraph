@@ -9,6 +9,12 @@ import java.sql.Timestamp;
 
 import org.apache.log4j.Logger;
 
+/**
+ * This class defines some general method (insert new rows in the database, stablish the connection...) that are used in different tests
+ * 
+ * @author noeg
+ *
+ */
 class TestUtils
 {
 
@@ -54,8 +60,8 @@ class TestUtils
 	private static final String DELETE_TABLE = "DROP TABLE " + TABLE_NAME + ";";
 
 	/**
-	 * Just get a conection to the database using the Configuration Class to
-	 * obtain the values of the conection string.
+	 * Just get a connection to the database using the Configuration Class to
+	 * obtain the values of the connection string.
 	 * 
 	 * @return java.sql.Connection to database
 	 * @throws InstantiationException
@@ -64,6 +70,7 @@ class TestUtils
 	 * @throws SQLException
 	 * @throws IOException
 	 */
+	
 	private Connection getConnection() throws InstantiationException,
 			IllegalAccessException, ClassNotFoundException, SQLException,
 			IOException
@@ -84,7 +91,7 @@ class TestUtils
 		m_urlPmgraph = "http://localhost:" + TestConfiguration.getPort()
 				+ "/pmgraph/";
 	}
-
+	//	TODO comment wih Anne 
 	void CreateTable() throws SQLException
 	{
 		// Allow the program to be run more than once,
@@ -101,11 +108,13 @@ class TestUtils
 			/* don't care if it fails, table may not exist */
 			m_logger.error(e.getMessage(), e);
 		}
+//		TODO comment wih Anne 
 		PreparedStatement pstmt = m_conn.prepareStatement(CREATE_TABLE);
 		m_logger.debug(pstmt);
 		pstmt.executeUpdate();
 	}
 
+	//	TODO comment wih Anne 
 	void insertNewRow(long bytes, Timestamp theTime, String ip_src,
 			String ip_dst) throws SQLException
 	{
@@ -123,6 +132,7 @@ class TestUtils
 	private void insertRow(String ip_src, String ip_dst, int src_port,
 			int dst_port, long bytes, Timestamp t, String proto) throws SQLException
 	{
+//		TODO comment wih Anne 
 		PreparedStatement stmt = m_conn.prepareStatement("INSERT INTO "
 				+ TABLE_NAME + " (ip_src, ip_dst, src_port, dst_port, "
 				+ "bytes, stamp_inserted, ip_proto) VALUES (?,?,?,?,?,?,?)");
