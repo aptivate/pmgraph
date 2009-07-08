@@ -42,8 +42,7 @@ abstract class LegendTestBase extends TestCase
 			long uploaded[], String rows[], View view) throws IOException, SAXException
 	{
 		// Check the table data
-		// The data start in the second row because the first one is for the
-		// colours
+		// The data starts in the second row because the first one is for the colours
 		for (int i = 2; i < table.getRowCount(); i++)
 		{
 			assertEquals("Check the IP Or Port Address", rows[i - 2], table.getCellAsText(i, 1));

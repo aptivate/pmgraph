@@ -82,7 +82,7 @@ public class LegendTest extends LegendTestBase
 	}
 
 	/**
-	 * This test tests that there is not crash in legend.jsp when working with
+	 * This test tests that there is not a crash in legend.jsp when working with
 	 * large numbers
 	 * 
 	 * @throws Exception
@@ -98,10 +98,9 @@ public class LegendTest extends LegendTestBase
 			for (int i = 0; i < 2; i++)
 			{
 				// Set the values
-				// 1 << 30 means that the int 1 is being diplaced 30 bit to the
-				// left (it is a fast way to get huge numbers, for example 1<<10
-				// =
-				// 1024)
+				// 1 << 30 means that the int 1 is being displaced 30 bit to the
+				// left (it is a fast way to get huge numbers, 
+				// for example 1<<10 = 1024)
 				testUtils.insertNewRow(1 << 30, new Timestamp((timeInMinutes - 5) * 60000),
 						"224.0.0.251", "10.0.156.1");
 				testUtils.insertNewRow(1 << 30, new Timestamp((timeInMinutes - 5) * 60000),
@@ -123,7 +122,7 @@ public class LegendTest extends LegendTestBase
 			assertEquals("image/png", response.getContentType());
 		} catch (HttpInternalErrorException e)
 		{
-			m_logger.error("Problem with legend.jsp. There is value too big for integer.");
+			m_logger.error("Problem with legend.jsp. There is a value too big for integer.");
 			throw (e);
 		}
 	}
@@ -188,7 +187,7 @@ public class LegendTest extends LegendTestBase
 	}
 
 	/**
-	 * This test test the "sort by" option
+	 * This test tests the "sort by" option
 	 * 
 	 * @throws Exception
 	 */
@@ -310,7 +309,7 @@ public class LegendTest extends LegendTestBase
 			// Name,Downloaded,Uploaded, average downloaded, average uploaded
 			// (the last two are checked in other test)
 			// Get data from the last row and check if it contains the
-			// information for the resta of Ip's
+			// information for the rest of Ip's
 			String hostIP = table.getCellAsText(Configuration.getResultLimit() + 2, 1);
 			String downloaded = table.getCellAsText(Configuration.getResultLimit() + 2, 3);
 			String uploaded = table.getCellAsText(Configuration.getResultLimit() + 2, 4);

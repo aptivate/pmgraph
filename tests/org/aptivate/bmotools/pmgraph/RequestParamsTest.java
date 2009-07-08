@@ -17,9 +17,11 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 /**
- * Test the class RequestParams. Read request information from XML and create
- * mock HttpServletRequest get RequestParams object get mock object wich contain
- * the expected value compare RequestParams object and the expected value
+ * Test the class RequestParams. 
+ * Read request information from XML and create a mock HttpServletRequest
+ * Get RequestParams object 
+ * Get mock object which contains the expected value
+ * Compare RequestParams object and the expected value
  * 
  * @author sylviaw
  * 
@@ -33,7 +35,7 @@ public class RequestParamsTest extends TestCase
 	private Document m_doc = null;
 
 	/**
-	 * a mock object of HttpServletRequest will be created (In object-oriented
+	 * A mock object of HttpServletRequest will be created (In object-oriented
 	 * programming, mock objects are simulated objects that mimic the behavior
 	 * of real objects in controlled ways)
 	 * 
@@ -69,7 +71,7 @@ public class RequestParamsTest extends TestCase
 	}
 
 	/**
-	 * get expect mock object
+	 * get expected mock object
 	 * 
 	 * @param hashMap
 	 * @return RequestParamsTestUtil
@@ -135,26 +137,16 @@ public class RequestParamsTest extends TestCase
 			int listIndex) throws Exception
 	{
 
-		assertEquals("test No." + listIndex + " request. test startTime", expectObj
-				.getParams("start"), requestParams.getFromDateAndTime());
-		assertEquals("test No." + listIndex + " request. test endTime", expectObj.getParams("end"),
-				requestParams.getToDateAndTime());
-		assertEquals("test No." + listIndex + " request. test resultLimit", expectObj
-				.getParams("resultLimit"), requestParams.getResultLimit());
-		assertEquals("test No." + listIndex + " request. test view", expectObj.getParams("view"),
-				requestParams.getView());
-		assertEquals("test No." + listIndex + " request. test sortBy", expectObj
-				.getParams("sortBy"), requestParams.getSortBy());
-		assertEquals("test No." + listIndex + " request. test order", expectObj.getParams("order"),
-				requestParams.getOrder());
-		assertEquals("test No." + listIndex + " request. test ip", expectObj.getParams("ip"),
-				requestParams.getParams().get("ip"));
-		assertEquals("test No." + listIndex + " request. test port", expectObj.getParams("port"),
-				requestParams.getParams().get("port"));
-		assertEquals("test No." + listIndex + " request. test remoteIp", expectObj
-				.getParams("remote_ip"), requestParams.getParams().get("remote_ip"));
-		assertEquals("test No." + listIndex + " request. test remotePort", expectObj
-				.getParams("remote_port"), requestParams.getParams().get("remote_port"));
+		assertEquals("test No." + listIndex + " request. test startTime", expectObj.getParams("start"), requestParams.getFromDateAndTime());
+		assertEquals("test No." + listIndex + " request. test endTime", expectObj.getParams("end"), requestParams.getToDateAndTime());
+		assertEquals("test No." + listIndex + " request. test resultLimit", expectObj.getParams("resultLimit"), requestParams.getResultLimit());
+		assertEquals("test No." + listIndex + " request. test view", expectObj.getParams("view"), requestParams.getView());
+		assertEquals("test No." + listIndex + " request. test sortBy", expectObj.getParams("sortBy"), requestParams.getSortBy());
+		assertEquals("test No." + listIndex + " request. test order", expectObj.getParams("order"), requestParams.getOrder());
+		assertEquals("test No." + listIndex + " request. test ip", expectObj.getParams("ip"), requestParams.getParams().get("ip"));
+		assertEquals("test No." + listIndex + " request. test port", expectObj.getParams("port"), requestParams.getParams().get("port"));
+		assertEquals("test No." + listIndex + " request. test remoteIp", expectObj.getParams("remote_ip"), requestParams.getParams().get("remote_ip"));
+		assertEquals("test No." + listIndex + " request. test remotePort", expectObj.getParams("remote_port"), requestParams.getParams().get("remote_port"));
 	}
 
 	public static Test suite()

@@ -43,20 +43,26 @@ public class RequestParamsTestUtil
 
 		if (hashMap.get("start") != null)
 			m_fromDateAndTime = new Date(Long.valueOf(hashMap.get("start")));
+		
 		if (hashMap.get("end") != null)
 			m_toDateAndTime = new Date(Long.valueOf(hashMap.get("end")));
+		
 		if (hashMap.get("resultLimit") != null)
 			m_resultLimit = Integer.valueOf(hashMap.get("resultLimit"));
+		
 		else
 			m_resultLimit = Configuration.getResultLimit();
+		
 		if (hashMap.get("view") != null)
 			m_view = View.valueOf(hashMap.get("view"));
+		
 		m_sortBy = hashMap.get("sortBy");
 		m_order = hashMap.get("order");
-
 		m_ip = hashMap.get("ip");
+		
 		if (hashMap.get("port") != null)
 			m_port = Integer.valueOf(hashMap.get("port"));
+		
 		m_remoteIp = hashMap.get("remote_ip");
 		if (hashMap.get("remote_port") != null)
 			m_remotePort = Integer.valueOf(hashMap.get("remote_port"));

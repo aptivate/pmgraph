@@ -14,9 +14,8 @@ import junit.framework.TestSuite;
 public class PortsToServiceTest extends TestCase
 {
 	/**
-	 * Check if the association services to the port number for udp and tcp is
-	 * correctly done
-	 * 
+	 * Check that the correct association is made between the port number and service
+	 *
 	 * @throws Exception
 	 */
 	public void testPortsToService() throws Exception
@@ -30,10 +29,10 @@ public class PortsToServiceTest extends TestCase
 		Port2Services portService = Port2Services.getInstance();
 		for (int i = 0; i < ports.length; i++)
 		{
-			assertEquals("Port to Services match alert.", servicesUDP[i], portService.getService(
-					ports[i], Protocol.udp));
-			assertEquals("Port to Services match alert.", servicesTCP[i], portService.getService(
-					ports[i], Protocol.tcp));
+			assertEquals("Port to Services match alert.", servicesUDP[i],
+					portService.getService(ports[i], Protocol.udp));
+			assertEquals("Port to Services match alert.", servicesTCP[i],
+					portService.getService(ports[i], Protocol.tcp));
 		}
 
 	}

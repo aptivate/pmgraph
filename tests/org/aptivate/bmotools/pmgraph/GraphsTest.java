@@ -35,7 +35,7 @@ public class GraphsTest extends GraphTestBase
 	private void checkGraph(RequestParams requestParams) throws Exception
 	{
 		JFreeChart chart;
-		// values will keep the different throughput for each Ip/port for upload
+		// values will store the different throughput for each Ip/port for upload
 		// (even) and download (odd) for four different times
 		float values[][];
 		String rows[];
@@ -47,21 +47,21 @@ public class GraphsTest extends GraphTestBase
 		{
 		default:
 			m_logger.warn(" View Unknown assumed default view IP");
-
-		case LOCAL_IP: // is selected a local IP
-
+		
+		case LOCAL_IP:		// a local IP is selected
+			
 			assertEquals("Network Throughput", chart.getTitle().getText());
-			// check values per each serie.
+			// check values for each series.
 			rows = new String[] { "10.0.156.120", "10.0.156.110", "10.0.156.131", "10.0.156.132",
 					"10.0.156.133", "10.0.156.134", "10.0.156.135", "10.0.156.136", "10.0.156.137",
 					"10.0.156.138", "10.0.156.139", "10.0.156.140" };
 			// init array to zero values
 			values = new float[2 * rows.length][4];
 
-			// IP 10.0.156.120 just values differents of zero
-			values[0][1] = -500 * 11; // upload at time 1
+			// IP 10.0.156.120 just non-zero values
+			values[0][1] = -500 * 11; 	// upload at time 1
 			values[1][1] = 5550;
-			values[1][3] = 75; // download at time 3
+			values[1][3] = 75; 			// download at time 3
 
 			// IP 10.0.156.110
 			values[2][0] = -2000;
@@ -183,8 +183,8 @@ public class GraphsTest extends GraphTestBase
 		switch (requestParams.getView())
 		{
 		default:
-		case LOCAL_PORT: // is selected a local port
-			// check values per each serie.
+		case LOCAL_PORT: // a local port is selected
+			// check values for each series.
 			rows = new String[] { "90tcp", "10000tcp", "23500tcp", "23400tcp" };
 			// init array to zero values
 			values = new float[2 * rows.length][4];
@@ -262,8 +262,8 @@ public class GraphsTest extends GraphTestBase
 		switch (requestParams.getView())
 		{
 		default:
-		case LOCAL_PORT: // is selected a local port
-			// check values per each serie.
+		case LOCAL_PORT: // A local port is selected
+			// check values for each series.
 			rows = new String[] { "10000tcp", "90tcp" };
 			// init array to zero values
 			values = new float[2 * rows.length][4];

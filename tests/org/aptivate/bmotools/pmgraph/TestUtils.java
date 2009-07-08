@@ -10,7 +10,7 @@ import java.sql.Timestamp;
 import org.apache.log4j.Logger;
 
 /**
- * This class defines some general method (insert new rows in the database, stablish the connection...) that are used in different tests
+ * This class defines some general methods (insert new rows in the database, stablish the connection...) that are used in different tests
  * 
  * @author noeg
  *
@@ -77,10 +77,10 @@ class TestUtils
 	{
 
 		Class.forName(TestConfiguration.getJdbcDriver()).newInstance();
-		Connection con = DriverManager.getConnection(TestConfiguration
+		Connection connection = DriverManager.getConnection(TestConfiguration
 				.getDatabaseURL(), TestConfiguration.getDatabaseUser(),
 				TestConfiguration.getDatabasePass());
-		return con;
+		return connection;
 	}
 
 	TestUtils() throws InstantiationException, IllegalAccessException,
@@ -91,30 +91,30 @@ class TestUtils
 		m_urlPmgraph = "http://localhost:" + TestConfiguration.getPort()
 				+ "/pmgraph/";
 	}
-	//	TODO comment wih Anne 
+
 	void CreateTable() throws SQLException
 	{
 		// Allow the program to be run more than once,
 		// attempt to remove the table from the database
+		PreparedStatement sqlStatement;
 		try
 		{
 			// Delete the table
-			PreparedStatement pstmt = m_conn.prepareStatement(DELETE_TABLE);
-			m_logger.debug(pstmt);
-			pstmt.executeUpdate();
+			sqlStatement = m_conn.prepareStatement(DELETE_TABLE);
+			m_logger.debug(sqlStatement);
+			sqlStatement.executeUpdate();
 		}
 		catch (SQLException e)
 		{
 			/* don't care if it fails, table may not exist */
 			m_logger.error(e.getMessage(), e);
 		}
-//		TODO comment wih Anne 
-		PreparedStatement pstmt = m_conn.prepareStatement(CREATE_TABLE);
-		m_logger.debug(pstmt);
-		pstmt.executeUpdate();
+ 
+		sqlStatement = m_conn.prepareStatement(CREATE_TABLE);
+		m_logger.debug(sqlStatement);
+		sqlStatement.executeUpdate();
 	}
 
-	//	TODO comment wih Anne 
 	void insertNewRow(long bytes, Timestamp theTime, String ip_src,
 			String ip_dst) throws SQLException
 	{
@@ -132,21 +132,21 @@ class TestUtils
 	private void insertRow(String ip_src, String ip_dst, int src_port,
 			int dst_port, long bytes, Timestamp t, String proto) throws SQLException
 	{
-//		TODO comment wih Anne 
-		PreparedStatement stmt = m_conn.prepareStatement("INSERT INTO "
+
+		PreparedStatement sqlStatement = m_conn.prepareStatement("INSERT INTO "
 				+ TABLE_NAME + " (ip_src, ip_dst, src_port, dst_port, "
 				+ "bytes, stamp_inserted, ip_proto) VALUES (?,?,?,?,?,?,?)");
-		stmt.setString(1, ip_src);
-		stmt.setString(2, ip_dst);
-		stmt.setInt(3, src_port);
-		stmt.setInt(4, dst_port);
-		stmt.setLong(5, bytes);
-		stmt.setTimestamp(6, t);
-		stmt.setString(7, proto);
+		sqlStatement.setString(1, ip_src);
+		sqlStatement.setString(2, ip_dst);
+		sqlStatement.setInt(3, src_port);
+		sqlStatement.setInt(4, dst_port);
+		sqlStatement.setLong(5, bytes);
+		sqlStatement.setTimestamp(6, t);
+		sqlStatement.setString(7, proto);
 
 		// Insert the row
-		m_logger.debug(stmt);
-		stmt.executeUpdate();
+		m_logger.debug(sqlStatement);
+		sqlStatement.executeUpdate();
 	}
 
 	

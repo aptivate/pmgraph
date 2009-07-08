@@ -9,8 +9,8 @@ import org.aptivate.bmotools.pmgraph.DataAccess;
 /**
  * @author Noe Andres Rodriguez Gonzalez.
  * 
- * That is the configuration class for the Test classes of the application. It is a
- * way to make all the access to configuration data in a single place reducing the
+ * This is the configuration class for the Test classes of the application. It is a
+ * way to keep all the access to configuration data in a single place reducing the
  * problems of changing where the configuration data is stored
  * 
  */

@@ -32,14 +32,14 @@ public class SpecificGraphsTest extends GraphTestBase
 
 	/**
 	 * Check if the graph created for a specific Ip or port matches what is
-	 * indicated in the parameters. Just to be used with especific port or Ip
+	 * indicated in the parameters. Just to be used with specific port or Ip
 	 * graphs
 	 * 
 	 * @param ipOrPort
 	 * @param values
 	 * @param rows
-	 * @param view
-	 *            Is a port graph or an Ip graph (by default is an Ip graph)
+	 * @param view  A port graph or an Ip graph (by default is an Ip graph)
+
 	 * @throws Exception
 	 */
 	private void checkOneIpPort(String ipOrPort, float values[][], String[] rows, View view)
@@ -75,13 +75,13 @@ public class SpecificGraphsTest extends GraphTestBase
 
 	/**
 	 * Check if the IP graph contains the values for each series that it should
-	 * contain acordingly to the test data.
+	 * contain according to the test data.
 	 * 
 	 * @throws Exception
 	 */
 	public void testOneIpGraph() throws Exception
 	{
-		// check values per each serie.
+		// check values for each series.
 		String ports[] = new String[] { "110tcp", "80tcp", "443tcp" };
 		float values[][] = { { 0, -800, 0, 0 }, // 110 up
 				{ 0, 700, 0, 0 }, // 110 down
@@ -115,7 +115,7 @@ public class SpecificGraphsTest extends GraphTestBase
 
 	/**
 	 * Check if the port graph contains the values for each series that it
-	 * should contain acordingly to the test data.
+	 * should contain according to the test data.
 	 * 
 	 * @throws Exception
 	 */
