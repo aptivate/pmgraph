@@ -11,13 +11,13 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 /**
+ * Tests the validation for the Results Limit
  * 
  * @author  Anne and Ida
  * 
  */
 public class ResultEntryTest extends TestCase
 {
-
 	private TestUtils m_testUtil;
 
 	public ResultEntryTest() throws Exception

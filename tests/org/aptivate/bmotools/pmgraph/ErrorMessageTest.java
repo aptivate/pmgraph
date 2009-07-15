@@ -19,10 +19,11 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 /**
- * Tests the error messages are shown correctly
+ * Tests that the error messages are shown correctly
  * @author sylviaw 
  *
  */
+
 public class ErrorMessageTest extends TestCase {
 
 	private TestUtils m_testUtils;
@@ -51,7 +52,7 @@ public class ErrorMessageTest extends TestCase {
 	}
 
 	/**
-	 * input time/date in wrong format, and see if we can get the error alert
+	 * Check we get an error alert if the input date/time is in the wrong format
 	 */
 	public void testTimeFormatErrorMessage() throws IOException, SAXException {
 	
@@ -86,7 +87,7 @@ public class ErrorMessageTest extends TestCase {
 	}
 
 	/**
-	 * to test if we can get the error alert when the span of to and from time is less than 1 minute 
+	 * test we get the error alert when the span of to and from time is less than 1 minute 
 	 * @throws Exception
 	 */
 	public void testShortSpanErrorMessage() throws Exception {
@@ -100,7 +101,7 @@ public class ErrorMessageTest extends TestCase {
 	}
 	
 	/**
-	 * test error message for wrong input of start and end
+	 * test error message for invalid value in start
 	 * @throws Exception
 	 */
 	public void testStartEndErrorMessage() throws Exception {
@@ -112,9 +113,8 @@ public class ErrorMessageTest extends TestCase {
 		assertEquals("Test Start and End", ErrorMessages.START_END_FORMAT_ERROR , m_wc.popNextAlert());
 	}
 	
-
 	/**
-	 * test error message for wrong input of limit number
+	 * test error message for invalid limit number
 	 * @throws Exception
 	 */
 	public void testLimitNumberErrorMessage() throws Exception {
@@ -130,7 +130,7 @@ public class ErrorMessageTest extends TestCase {
 
 	/**
 	 * 
-	 * test error message for wrong input of port number
+	 * test error message for invalid port number
 	 * @throws Exception
 	 */
 	public void testPortNumberErrorMessage() throws Exception{
@@ -151,7 +151,7 @@ public class ErrorMessageTest extends TestCase {
 	
 	/**
 	 * 
-	 * test error message for wrong input of IP address
+	 * test error message for invalid IP address
 	 * @throws Exception
 	 */
 	public void testIPErrorMessage() throws Exception{
@@ -163,7 +163,7 @@ public class ErrorMessageTest extends TestCase {
 	}
 
 	/**
-	 * test error message for wrong input of View
+	 * test error message for invalid View
 	 * @throws Exception
 	 */
 	public void testViewErrorMessage() throws Exception{

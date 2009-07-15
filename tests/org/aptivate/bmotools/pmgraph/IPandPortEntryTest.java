@@ -11,6 +11,7 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 /**
+ * Test the selected IP/port, remote or local
  * 
  * @author  Anne and Ida
  * 

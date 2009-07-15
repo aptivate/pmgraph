@@ -18,6 +18,7 @@ import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
 /**
+ * Tests the validation for the Date and Time
  * 
  * @author noeg
  * 
@@ -246,6 +247,7 @@ public class TimeFormEntryTest extends TestCase
 		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on web site
+		//Check the shortcut when the user only enters the hour
 		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?fromDate=01%2F01%2F1970&toDate=01%2F01%2F1970&fromTime=14&toTime=19");
 		WebResponse response = wc.getResponse(request);
@@ -255,7 +257,7 @@ public class TimeFormEntryTest extends TestCase
 				
 		assertEquals("Check the toTime initial value.", "19:00:00", response
 				.getElementWithID("toTime").getAttribute("value"));
-		
+		//Check the shortcut when the user enters the hour and minutes in the form
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?fromDate=01%2F01%2F1970&toDate=01%2F01%2F1970&fromTime=14%3A30&toTime=19%3A30");
 		response = wc.getResponse(request);
@@ -265,6 +267,26 @@ public class TimeFormEntryTest extends TestCase
 				
 		assertEquals("Check the toTime initial value.", "19:30:00", response
 				.getElementWithID("toTime").getAttribute("value"));
+		//when the hour in the form has only one digit
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?fromDate=01%2F01%2F1970&toDate=01%2F01%2F1970&fromTime=1&toTime=3%3A30%3A00");
+		response = wc.getResponse(request);
+
+		assertEquals("Check the fromTime initial value.", "01:00:00", response
+				.getElementWithID("fromTime").getAttribute("value"));
+				
+		assertEquals("Check the toTime initial value.", "03:30:00", response
+				.getElementWithID("toTime").getAttribute("value"));
+		//when the day part of the date in the form has only one digit
+		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
+				+ "?fromDate=1%2F01%2F1970&toDate=2%2F01%2F1970&fromTime=14%3A30%3A00&toTime=19%3A30%3A00");
+		response = wc.getResponse(request);
+
+		assertEquals("Check the fromDate initial value.", "01/01/1970", response
+				.getElementWithID("fromDate").getAttribute("value"));
+				
+		assertEquals("Check the toDate initial value.", "02/01/1970", response
+				.getElementWithID("toDate").getAttribute("value"));
 
 	}
 	

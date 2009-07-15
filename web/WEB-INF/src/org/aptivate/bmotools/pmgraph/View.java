@@ -88,11 +88,28 @@ public enum View {
 		RequestParams requestParams = pageUrl.getParams();
 
 		LegendTable legend = new LegendTable();
-
+		// time in seconds
+		long time = (requestParams.getRoundedEndTime() - requestParams.getRoundedStartTime()) / 1000;
+		
 		String arrow = "ASC".equals(pageUrl.getParams().getOrder()) ? " &#8679;" : " &#8681;";
 		String col1 = "Down";
 		String col2 = "Up";
-		String col3 = "Totals (MB)";
+		
+		//The units in the Totals header are displayed according to the time period:
+		//  <10mins 			KB
+		//  >= 10 mins <= 5days MB
+		//  > 5days (7200 mins)	GB
+		String col3;
+		if (time / 60 < 10)
+		{
+			col3 = "Totals (KB)";
+		} else
+		{
+			if (time / 60 >= 10 && time / 60 < 7200)
+				col3 = "Totals (MB)";
+			else
+				col3 = "Totals (GB)";
+		}
 
 		if ("downloaded".equals(pageUrl.getParams().getSortBy()))
 			col1 = col1 + arrow;
@@ -101,9 +118,6 @@ public enum View {
 		if ("bytes_total".equals(pageUrl.getParams().getSortBy()))
 			col3 = col3 + arrow;
 
-		// time in seconds
-		RequestParams param = pageUrl.getParams();
-		long time = (param.getRoundedEndTime() - param.getRoundedStartTime()) / 1000;
 		ArrayList<ArrayList<LegendElement>> headers = legend.getHeaders();
 		ArrayList<ArrayList<LegendElement>> rows = legend.getRows();
 
@@ -188,8 +202,8 @@ public enum View {
 					entry.add(new LegendElement(""));
 
 				entry.add(new LegendElement(portName));
-				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded())));
-				entry.add(new LegendElement(getTotalThroughput(result.getUploaded())));
+				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded(), time)));
+				entry.add(new LegendElement(getTotalThroughput(result.getUploaded(), time)));
 				entry.add(new LegendElement(getAverage(result.getDownloaded(), time)));
 				entry.add(new LegendElement(getAverage(result.getUploaded(), time)));
 				i++;
@@ -213,8 +227,8 @@ public enum View {
 				String hostName = hostResolver.getHostname(legendPoint.getIp());
 
 				entry.add(new LegendElement(hostName));
-				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded())));
-				entry.add(new LegendElement(getTotalThroughput(result.getUploaded())));
+				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded(), time)));
+				entry.add(new LegendElement(getTotalThroughput(result.getUploaded(), time)));
 				entry.add(new LegendElement(getAverage(result.getDownloaded(), time)));
 				entry.add(new LegendElement(getAverage(result.getUploaded(), time)));
 				i++;
@@ -229,12 +243,28 @@ public enum View {
 	{
 		long bitsConversion = 8;
 		long kbitsConversion = 1024;
+		//&lt;1 is <1
 		return ((traffic * bitsConversion / kbitsConversion / time) != 0) ? (String.valueOf(traffic
 				* bitsConversion / kbitsConversion / time)) : "&lt;1";
 	}
 
-	private static String getTotalThroughput(long traffic)
+	private static String getTotalThroughput(long traffic, long time)
 	{
-		return ((traffic / 1048576) != 0) ? (String.valueOf(traffic / 1048576)) : "&lt;1";
+		//	The totals values are converted to match the units for the time period:
+		//  <10mins 			KB
+		//  >= 10 mins <= 5days MB
+		//  > 5days (7200 mins)	GB
+		String totalThroughput = null;
+		if (time / 60 < 10)
+		{
+			totalThroughput = ((traffic / 1024) != 0) ? (String.valueOf(traffic / 1024)) : "&lt;1";
+		} else
+		{
+			if ((time / 60 >= 10) && (time / 60 < 7200))
+				totalThroughput = ((traffic / (1024*1024)) != 0) ? (String.valueOf(traffic / (1024*1024))) : "&lt;1";
+			else
+				totalThroughput = ((traffic / (1024*1024*1024)) != 0) ? (String.valueOf(traffic / (1024*1024*1024))) : "&lt;1";
+		}
+		return totalThroughput;
 	}
 }

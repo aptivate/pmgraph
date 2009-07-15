@@ -75,9 +75,10 @@
 				rowspan="2" 
 			<%}	%>>
 			<%
+			//The only elements with links in the legend are the ones you can click to sort by desc/asc order 
 			if (column.getLink()!=null)
 			{%> 
-			<a href="<%=column.getLink()%>" name="<%=column.getName()%>"><%=column.getValue()%></a>
+			<a href="<%=column.getLink()%>" title="Click to sort by descending/ascending order" name="<%=column.getName()%>"><%=column.getValue()%></a>
 			<%} else
 			{
 				%> <%=column.getValue()%> <%

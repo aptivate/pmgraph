@@ -212,7 +212,7 @@
 					<tr>  
 						<td>Show Top </td>   
 						<td class="align_right">
-						<input type="text" id="resultLimit"  name="resultLimit"   value="<%=pageUrl.getParams().getResultLimit()%>" size="3" /></td><td> Results</td>
+						<input type="text" id="resultLimit"  name="resultLimit" title="Limits the number of results that will be shown"  value="<%=pageUrl.getParams().getResultLimit()%>" size="3" /></td><td> Results</td>
 					</tr>
 					<% //If a specific IP or port has been chosen, add a row/s showing the selected IP and/or port.
 					// Local%>
@@ -345,8 +345,8 @@
                 </div>
             </div>
  			<div class="center">
- 				<a class="left" href="javascript:history.back(1);">Back</a> 	 				 				
- 			    <a class="align_right" href="<%=pageUrl.getIndexURL(startTime, endTime, true, false)%>">Reset</a>			
+ 				<a class="left" title="Click here to go to the previous view" href="javascript:history.back(1);">Back</a> 	 				 				
+ 			    <a class="align_right" title="Click here to go to the default view keeping the time selected" href="<%=pageUrl.getIndexURL(startTime, endTime, true, false)%>">Reset</a>			
  			</div> 			
             <!-- <div id="footer"></div> -->
         </div>

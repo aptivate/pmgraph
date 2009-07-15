@@ -17,6 +17,7 @@ import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
 
 /**
+ * Test for the legend table when a port view has been chosen
  * 
  * @author Noe Andres Rodriguez Gonzalez
  * 
@@ -112,21 +113,22 @@ public class LegendTestPortView extends TestCase
 	}
 
 	/* This test tests the legend table in the pmGraph page */
-	public void testLegentPortView() throws Exception
+	public void testLegendPortView() throws Exception
 	{
 		// port graph
 		WebConversation wc = new WebConversation();
 		WebRequest request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
-						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15&view=LOCAL_PORT");
+						+ "index.jsp?report=totals&start=0&end=300000&resultLimit=15&view=LOCAL_PORT");
 		WebResponse response = wc.getResponse(request);
 
 		// Get the table data from the page
 		WebTable table = (WebTable) response
 				.getElementWithID(TestUtils.LEGEND_TBL);
 		
-		long[] downloaded = { 9, 1, 4, 0};
-		long[] uploaded = { 5, 9, 6, 0};
+		long[] downloaded = { 9750, 1687, 4125, 562};
+		long[] uploaded = { 6000, 9375, 6750, 0};
+
 		
 		/* The values for upload and download shown on the screen and tested for above have 
 		 been truncated so using these values to calculate the average does not work
@@ -155,7 +157,7 @@ public class LegendTestPortView extends TestCase
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
-						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=15&dynamic=false&view=LOCAL_PORT");
+						+ "index.jsp?report=totals&start=0&end=300000&resultLimit=15&dynamic=false&view=LOCAL_PORT");
 		WebResponse response = wc.getResponse(request);
 		WebLink link = response.getLinkWithName("downloaded");
 		// the default is 'sort by download DESC', the sortLink is opposite to
@@ -172,8 +174,8 @@ public class LegendTestPortView extends TestCase
 		WebTable table = (WebTable) response
 				.getElementWithID(TestUtils.LEGEND_TBL);
 
-		long uploaded[] = { 0, 9, 6, 5 };
-		long downloaded[] = { 0, 1, 4, 9 };
+		long uploaded[] = { 0, 9375, 6750, 6000 };
+		long downloaded[] = { 562, 1687, 4125, 9750 };
 		String ports[] =  { "443", "80", "443", "110" };
 		String portName[] = {"https","http", "https", "pop3" };
 		String services[] = {"udp", "tcp", "tcp", "tcp"};
@@ -200,8 +202,8 @@ public class LegendTestPortView extends TestCase
 
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
-		uploaded = new long[] {9, 6, 5, 0};
-		downloaded = new long[] { 1, 4, 9, 0 };
+		uploaded = new long[] {9375, 6750, 6000, 0};
+		downloaded = new long[] { 1687, 4125, 9750, 562 };
 		
 		ports = new String[] { "80", "443", "110", "443" };
 		portName = new String[] {"http","https", "pop3", "https" };
@@ -232,13 +234,13 @@ public class LegendTestPortView extends TestCase
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
-						+ "index.jsp?report=totals&graph=cumul&start=0&end=300000&resultLimit=1&view=LOCAL_PORT");
+						+ "index.jsp?report=totals&start=0&end=300000&resultLimit=1&view=LOCAL_PORT");
 		WebResponse response = wc.getResponse(request);
 
 		WebTable table = (WebTable) response
 				.getElementWithID(TestUtils.LEGEND_TBL);
-		long uploaded[] = { 5, 15 };
-		long downloaded[] = { 9, 6 };
+		long uploaded[] = { 6000, 16125 };
+		long downloaded[] = { 9750, 6375 };
 		String ports[] = { "110", "Others" };
 		String portName[] = {"pop3", "" };
 		String services[] = {"tcp", ""};

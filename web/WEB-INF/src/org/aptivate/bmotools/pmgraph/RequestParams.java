@@ -497,8 +497,19 @@ public class RequestParams
 		Date date;
 
 		String requestTime = request.getParameter(name + "Time");
+		String requestDate = request.getParameter(name + "Date");
 
 		// shortcut time automatically add the rest
+
+		// add one zero at the beginning if the hour has only one digit
+		if (requestTime.length() == 1)
+		{
+			requestTime = "0" + requestTime;
+		} else
+		{
+			if (requestTime.charAt(1) == ':')
+				requestTime = "0" + requestTime;
+		}
 		if (requestTime.length() == 2)
 		{
 			requestTime = requestTime + ":00:00";
@@ -509,21 +520,24 @@ public class RequestParams
 			requestTime = requestTime + ":00";
 		}
 
-		if ((request.getParameter(name + "Time") != null) && (requestTime.length() == 8)
-				&& (request.getParameter(name + "Date") != null)
-				&& (request.getParameter(name + "Date").length() == 10))
+		// zero padding if the date has only one digit in the day
+		if ((requestDate.length() == 9) && (requestDate.charAt(1) == '/'))
+		{
+			requestDate = "0" + requestDate;
+		}
+
+		if ((requestTime != null) && (requestTime.length() == 8) && (requestDate != null)
+				&& (requestDate.length() == 10))
 		{
 			try
 			{
-				date = dateTimeFormat
-						.parse(request.getParameter(name + "Date") + "-" + requestTime);
+				date = dateTimeFormat.parse(requestDate + "-" + requestTime);
 			} catch (ParseException e)
 			{
 				throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
 			}
 			if ((date == null)
-					|| (dateTimeFormat.format(date).equals(
-							request.getParameter(name + "Date") + "-" + requestTime) == false))
+					|| (dateTimeFormat.format(date).equals(requestDate + "-" + requestTime) == false))
 			{
 				throw new PageUrlException(ErrorMessages.DATE_TIME_FORMAT_ERROR);
 			}
@@ -582,7 +596,8 @@ public class RequestParams
 	/**
 	 * Set all the parameters of the request necessary to build new URLs
 	 * 
-	 * @param request Request object
+	 * @param request
+	 *            Request object
 	 * @throws PageUrlException
 	 * @throws IOException
 	 */
