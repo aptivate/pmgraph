@@ -1,4 +1,4 @@
-Source: pmGraph
+Source: pmgraph
 Section: net
 Priority: optional
 Maintainer: Aptivate <pmgraph-team@aptivate.org>
@@ -8,7 +8,7 @@ Standards-Version: 3.7.3
 Homepage: http://pmgraph.sourceforge.net
 
 Pre-Depends: debconf
-Package: pmGraph
+Package: pmgraph
 Architecture: all
 Depends: tomcat5.5 (>= 5.5), pmacct (>= 0.11), mysql-server (>= 5.0), sun-java6-jdk
 Description: pmGraph is a software application for network monitoring to work with pmacct

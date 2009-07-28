@@ -68,7 +68,6 @@ public class PortDataPoint extends DataPoint
 	/**
 	 * Return a color obtained from creating a hash with the bytes of the Port and the protocol.
 	 * 
-	 * @param port
 	 * @return Color for the selected port
 	 */
 	public Color getSeriesColor()

@@ -120,7 +120,7 @@ public class GraphFactory
 	 * 
 	 * @param thrptResults  results from the database
 	 * @param requestParams parameters from the request
-	 * @return
+	 * @return List of DataPoint with the top results set by the user or by default
 	 */
 	private List<DataPoint> getTopResults(List<DataPoint> thrptResults,
 			RequestParams requestParams)
