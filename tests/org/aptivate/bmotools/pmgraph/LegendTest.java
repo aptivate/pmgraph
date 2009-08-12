@@ -375,7 +375,7 @@ public class LegendTest extends LegendTestBase
 			IllegalAccessException, ClassNotFoundException, SQLException, ConfigurationException
 	{
 		// Time periods to check, in minutes.
-		long timePeriod[] = { 8, 250, 8500 };
+		long timePeriod[] = { 8, 250, 15500 };
 
 		for (int i = 0; i < timePeriod.length; i++)
 		{
@@ -398,7 +398,7 @@ public class LegendTest extends LegendTestBase
 			if (timePeriod[i] < 10)
 				expectedLabel = "Totals (KB)";
 			else{
-				if ((timePeriod[i] >= 10) && (timePeriod[i] < 7200))
+				if ((timePeriod[i] >= 10) && (timePeriod[i] < 14400))
 					expectedLabel ="Totals (MB)";
 				else
 					expectedLabel = "Totals (GB)";
@@ -416,7 +416,7 @@ public class LegendTest extends LegendTestBase
 					bitsToDivideBy = 1024;
 				else{
 					// MB
-					if ((timePeriod[i] >= 10) && (timePeriod[i] < 7200))
+					if ((timePeriod[i] >= 10) && (timePeriod[i] < 14400))
 						bitsToDivideBy = 1024*1024;
 					// GB
 					else

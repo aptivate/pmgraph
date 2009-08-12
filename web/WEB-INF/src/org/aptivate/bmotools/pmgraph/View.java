@@ -96,16 +96,16 @@ public enum View {
 		String col2 = "Up";
 		
 		//The units in the Totals header are displayed according to the time period:
-		//  <10mins 			KB
-		//  >= 10 mins <= 5days MB
-		//  > 5days (7200 mins)	GB
+		//  <10mins 			    KB
+		//  >= 10 mins <= 5days     MB
+		//  > 10days (14400 mins)	GB
 		String col3;
 		if (time / 60 < 10)
 		{
 			col3 = "Totals (KB)";
 		} else
 		{
-			if (time / 60 >= 10 && time / 60 < 7200)
+			if (time / 60 >= 10 && time / 60 < 14400)
 				col3 = "Totals (MB)";
 			else
 				col3 = "Totals (GB)";
@@ -251,16 +251,16 @@ public enum View {
 	private static String getTotalThroughput(long traffic, long time)
 	{
 		//	The totals values are converted to match the units for the time period:
-		//  <10mins 			KB
-		//  >= 10 mins <= 5days MB
-		//  > 5days (7200 mins)	GB
+		//  <10mins 			    KB
+		//  >= 10 mins <= 5days     MB
+		//  > 10days (14400 mins)	GB
 		String totalThroughput = null;
 		if (time / 60 < 10)
 		{
 			totalThroughput = ((traffic / 1024) != 0) ? (String.valueOf(traffic / 1024)) : "&lt;1";
 		} else
 		{
-			if ((time / 60 >= 10) && (time / 60 < 7200))
+			if ((time / 60 >= 10) && (time / 60 < 14400))
 				totalThroughput = ((traffic / (1024*1024)) != 0) ? (String.valueOf(traffic / (1024*1024))) : "&lt;1";
 			else
 				totalThroughput = ((traffic / (1024*1024*1024)) != 0) ? (String.valueOf(traffic / (1024*1024*1024))) : "&lt;1";
