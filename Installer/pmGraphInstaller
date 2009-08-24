@@ -88,7 +88,7 @@ echo "Granting database permissions. The MySQL root password is required for thi
 
 until [ $done -ne 1 ]
 do
-	echo "GRANT ALL PERMISSIONS ON pmacct.* TO 'pmacct'@'localhost' identified by '$aPassword';" | mysql -u root -p 
+	echo "GRANT SELECT,INSERT, LOCK TABLES ON pmacct.* TO 'pmacct'@'localhost' identified by '$aPassword';" | mysql -u root -p 
 	done=$?
 done
 
