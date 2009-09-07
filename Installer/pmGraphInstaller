@@ -94,6 +94,7 @@ done
 
 perl -w -i -p -e "s/^DatabasePass = \w*/DatabasePass = $aPassword/" /usr/share/tomcat5.5/webapps/pmgraph/WEB-INF/classes/database.properties
 
+perl -w -i -p -e "s/^sql_passwd: \w*/sql_passwd: $aPassword/" /etc/pmacct/pmacctd.conf 
 # Restart server and pmacct
 /etc/init.d/tomcat5.5 restart
 
