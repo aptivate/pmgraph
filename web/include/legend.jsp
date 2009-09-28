@@ -12,6 +12,7 @@
 <%@ page import="java.net.UnknownHostException"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.View"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.ConfigurationException"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.Utilities"%>
 <%@ page pageEncoding="utf-8" language="java"
 	contentType="text/html; charset=utf-8"%>
 <%
@@ -24,6 +25,9 @@
 	String sortBy = request.getParameter("sortBy");
 	//order: DESC | ASC
 	String order = request.getParameter("order");
+	long now = new java.util.Date().getTime();
+	long start = now - 180 * 60000;
+	long end = now;
     
 	 //methods to get new URL
     UrlBuilder pageUrl = new UrlBuilder();
@@ -35,6 +39,8 @@
 	try
 	{ 
 		pageUrl.setParameters(request);
+		start = pageUrl.getParams().getStartTime();
+		end = pageUrl.getParams().getEndTime();
 	}	
 	catch (PageUrlException e)
 	{
@@ -43,7 +49,7 @@
     //populate the results from the database
 	try {
 		LegendData legendData = new LegendData();
-		results = legendData.getLegendData(sortBy, order, pageUrl.getParams());
+		results = legendData.getLegendData(sortBy, order, pageUrl.getParams(), Utilities.needsLongGraph(start, end));
 	} catch (	ConfigurationException e)
 	{
 		configError = e.getLocalizedMessage();

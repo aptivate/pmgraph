@@ -63,7 +63,7 @@ public class GraphFactory
 	 */
 	private void series2DataSet(DefaultTableXYDataset dataset,
 			Map<DataPoint, float[]> series, XYItemRenderer renderer,
-			long roundedStart, String name, RequestParams requestParams)
+			long roundedStart, String name, RequestParams requestParams, int resolution)
 	{
 		// Put the series into the graph
 		for (DataPoint seriesId : series.keySet())
@@ -71,11 +71,11 @@ public class GraphFactory
 			XYSeries xySeries = new XYSeries(seriesId.getSeriesId() + name,
 					true, false);
 			float[] values = series.get(seriesId);
-			int j = 0;
+			long j = 0;
 
 			for (float val : values)
 			{
-				xySeries.add(Long.valueOf(roundedStart + j * 60000), Float
+				xySeries.add(Long.valueOf(roundedStart + j * resolution), Float
 						.valueOf(val));
 				j++;
 			}
@@ -188,17 +188,21 @@ public class GraphFactory
 	 *         new series for each port or Ip
 	 */
 	private JFreeChart fillGraph(List<DataPoint> thrptResults,
-			RequestParams requestParams) {
-		LinkedHashMap<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
-		LinkedHashMap<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
-		long roundedStart = requestParams.getRoundedStartTime();   //Rounded to minutes
-		long roundedEnd = requestParams.getRoundedEndTime();
+			RequestParams requestParams, boolean isLong) {
+		Map<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
+		Map<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
+		long roundedStart;    //Rounded to minutes
+		long roundedEnd;
 		long theStart = requestParams.getStartTime();			   //in milliseconds
 		long theEnd = requestParams.getEndTime();
 
 		String title = chartTitle(requestParams);
 
-		int minutes = (int) (roundedEnd - roundedStart) / 60000;
+		int resolution = Utilities.getResolution(isLong, theEnd - theStart);
+		roundedStart = requestParams.getRoundedStartTime(resolution);
+		roundedEnd = requestParams.getRoundedEndTime(resolution);
+		
+		int minutes = (int) ((roundedEnd - roundedStart) / resolution);
 		float[] otherUp = new float[minutes + 1];
 		float[] otherDown = new float[minutes + 1];
 
@@ -238,26 +242,32 @@ public class GraphFactory
 			// values in the database are in bytes per interval (normally 1
 			// minute)
 			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
-			float downloaded = (float) ((thrptResult.getDownloaded() * 8) / 1024) / 60;
-			float uploaded = (float) ((thrptResult.getUploaded() * 8) / 1024) / 60;
+			int offset = 1;
+			if(isLong)
+			{
+				offset = 60;
+			}
+			float downloaded = (float) ((thrptResult.getDownloaded() * 8) / 1024) / (60 * offset);
+			float uploaded = (float) ((thrptResult.getUploaded() * 8) / 1024) / (60 * offset);
 
 			// check if the ip already has its own series if not we create one
 			// for it
 
-			float[] dSeries = downSeries.get(seriesId);
-			float[] uSeries = upSeries.get(seriesId);
+			
 
 			// We created a series for this port so it should be within the top
 			// results
 			// update the values of the series
 			if (upSeries.containsKey(seriesId)) {
-				dSeries[((int) (inserted.getTime() - roundedStart)) / 60000] = downloaded;
-				uSeries[((int) (inserted.getTime() - roundedStart)) / 60000] = 0 - uploaded;
+				float[] dSeries = downSeries.get(seriesId);
+				float[] uSeries = upSeries.get(seriesId);
+				dSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = downloaded;
+				uSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = 0 - uploaded;
 			} else { // the port belongs to the group other - just stack
 						// values
 
-				otherDown[((int) (inserted.getTime() - roundedStart)) / 60000] += downloaded;
-				otherUp[((int) (inserted.getTime() - roundedStart)) / 60000] += 0 - uploaded;
+				otherDown[((int) ((inserted.getTime() - roundedStart) / resolution))] += downloaded;
+				otherUp[((int) ((inserted.getTime() - roundedStart) / resolution))] += 0 - uploaded;
 
 				if (!(upSeries.size() == requestParams.getResultLimit() + 1)) {
 					if (thrptResult instanceof IpDataPoint) {
@@ -279,9 +289,9 @@ public class GraphFactory
 		// introduce it in the dataset of the chart.
 
 		series2DataSet(dataset, downSeries, renderer, roundedStart, "<down>",
-				requestParams);
+				requestParams, resolution);
 		series2DataSet(dataset, upSeries, renderer, roundedStart, "<up>",
-				requestParams);
+				requestParams, resolution);
 
 		endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Data inserted in chart Time : " + endTime + " millisec");
@@ -376,22 +386,23 @@ public class GraphFactory
 			InstantiationException, IOException, SQLException,
 			NoSuchAlgorithmException, ConfigurationException
 	{
+		boolean isLong = Utilities.longGraphIsAllowed() &&  Utilities.needsLongGraph(requestParams.getFromDateAndTime().getTime(), requestParams.getToDateAndTime().getTime());
 
 		DataAccess dataAccess = new DataAccess();
-		List<DataPoint> thrptResults = dataAccess.getThroughput(requestParams,
-				true);
-
+		List<DataPoint> thrptResults;
+	
+		thrptResults = dataAccess.getThroughput(requestParams, true, isLong);
 		m_logger.debug("Start creating chart.");
 		long initTime = System.currentTimeMillis();
 		Collections.sort(thrptResults, new BytesTotalComparator(true));
 
-		JFreeChart chart = fillGraph(thrptResults, requestParams);
+		JFreeChart chart = fillGraph(thrptResults, requestParams, isLong);
 
 		if (m_logger.isDebugEnabled())
 		{
 			long endTime = System.currentTimeMillis() - initTime;
 			m_logger.debug("Execution Time creating chart : " + endTime
-					+ " miliseg");
+					+ " milisec");
 		}
 		thrptResults = null;
 		return chart;

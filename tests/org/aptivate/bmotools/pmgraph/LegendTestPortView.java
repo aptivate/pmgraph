@@ -41,6 +41,7 @@ public class LegendTestPortView extends TestCase
 	{
 		m_testUtils.CreateTable();
 		m_testUtils.InsertPortsSampleData();
+		m_testUtils.InsertLongPortsSampleData();
 	}
 
 	/**

@@ -204,13 +204,13 @@ public class LegendData
 	 * @throws ConfigurationException
 	 */
 	public List<DataPoint> getLegendData(String sortBy, String order,
-			RequestParams requestParams) throws ClassNotFoundException,
+			RequestParams requestParams, boolean isLong) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, ConfigurationException
 	{
 
 		List<DataPoint> ipResults = dataAccess.getThroughput(requestParams,
-				false);
+				false, isLong);
 		// always sort using Bytes total to maintain the same order as in the graph
 		Collections.sort(ipResults, new BytesTotalComparator(true));
 

@@ -89,7 +89,9 @@ public enum View {
 
 		LegendTable legend = new LegendTable();
 		// time in seconds
-		long time = (requestParams.getRoundedEndTime() - requestParams.getRoundedStartTime()) / 1000;
+		boolean isLong = Utilities.longGraphIsAllowed() && Utilities.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
+		int resolution = Utilities.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
+		long time = (requestParams.getRoundedEndTime(resolution) - requestParams.getRoundedStartTime(resolution)) / 1000;
 		
 		String arrow = "ASC".equals(pageUrl.getParams().getOrder()) ? " &#8679;" : " &#8681;";
 		String col1 = "Down";

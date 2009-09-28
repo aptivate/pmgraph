@@ -20,13 +20,22 @@ public class DataBaseTest extends TestCase
 		TestUtils testUtils = new TestUtils();
 		testUtils.CreateTable();
 		testUtils.InsertSampleData();
+		testUtils.InsertLongSampleData();
 		DataAccess dataAccess = new DataAccess();
 
 		RequestParams requestParams = new RequestParams(0, 300000, View.LOCAL_IP, 10);
-		List<DataPoint> resultPerIP = dataAccess.getThroughput(requestParams, true);
-		List<DataPoint> resultPerIPPerMinute = dataAccess.getThroughput(requestParams, false);
+		List<DataPoint> resultPerIP = dataAccess.getThroughput(requestParams, true, false);
+		List<DataPoint> resultPerIPPerMinute = dataAccess.getThroughput(requestParams, false, false);
 		assertTrue("get result per IP", !resultPerIP.isEmpty());
 		assertTrue("get result per IP", !resultPerIPPerMinute.isEmpty());
+		
+		requestParams = new RequestParams(0, 345600000, View.LOCAL_IP, 10);
+		resultPerIP = dataAccess.getThroughput(requestParams, true, true);
+		resultPerIPPerMinute = dataAccess.getThroughput(requestParams, false, true);
+		assertTrue("get result per IP", !resultPerIP.isEmpty());
+		assertTrue("get result per IP", !resultPerIPPerMinute.isEmpty());
+		
+		
 	}
 
 	public static Test suite()

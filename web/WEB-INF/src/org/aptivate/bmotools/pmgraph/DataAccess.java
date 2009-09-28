@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.GregorianCalendar;
 
 import org.apache.log4j.Logger;
 
@@ -33,6 +34,7 @@ class DataAccess
 	 * 
 	 * @param requestParams  Parameters from the request
 	 * @param isChart        Set if this request is for the chart (not the legend)
+	 * @param isLong		 Set if this request needs data ampled over a long time period
 	 * @return a list of the data points
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
@@ -41,20 +43,18 @@ class DataAccess
 	 * @throws IOException
 	 * @throws ConfigurationException
 	 */
-	List<DataPoint> getThroughput(RequestParams requestParams, boolean isChart)
+	List<DataPoint> getThroughput(RequestParams requestParams, boolean isChart, boolean isLong)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException,
 			ConfigurationException
 	{
 		QueryBuilder queryBuilder;
 		queryBuilder = new QueryBuilder();
-
+		PreparedStatement statement;
 		long initTime = System.currentTimeMillis();
 		
-		ArrayList<DataPoint> dataPoints = new ArrayList<DataPoint>();
-
-		PreparedStatement statement = queryBuilder.buildQuery(requestParams,
-				isChart);
+		List<DataPoint> dataPoints = new ArrayList<DataPoint>();
+		statement = queryBuilder.buildQuery(requestParams, isChart, isLong);
 
 		m_logger.debug(statement);
 		

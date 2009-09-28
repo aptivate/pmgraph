@@ -28,6 +28,7 @@ public class SpecificGraphsTest extends GraphTestBase
 	{
 		m_testUtils.CreateTable();
 		m_testUtils.InsertPortsSampleData();
+		m_testUtils.InsertLongPortsSampleData();
 	}
 
 	/**
@@ -60,6 +61,13 @@ public class SpecificGraphsTest extends GraphTestBase
 
 			assertEquals("Network Throughput For Local Ip = " + ipOrPort, chart.getTitle()
 					.getText());
+
+		/*	longRequest = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4.getTime(),
+					View.LOCAL_PORT, 15, ipOrPort);
+			longChart = graphFactory.stackedThroughputGraph(longRequest);
+
+			assertEquals("Network Throughput For Local Ip = " + ipOrPort, chart.getTitle()
+					.getText());*/
 			break;
 		case LOCAL_PORT:
 			request = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
@@ -68,9 +76,17 @@ public class SpecificGraphsTest extends GraphTestBase
 
 			assertEquals("Network Throughput For Local Port = " + ipOrPort, chart.getTitle()
 					.getText());
+			
+			/*longRequest = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4.getTime(),
+					View.LOCAL_IP, 15, Integer.valueOf(ipOrPort));
+			longChart = graphFactory.stackedThroughputGraph(longRequest);
+
+			assertEquals("Network Throughput For Local Port = " + ipOrPort, chart.getTitle()
+					.getText());*/
 			break;
 		}
-		checkChartData(values, rows, chart);
+		checkChartData(values, rows, chart, false);
+		//checkChartData(values, rows, longChart, true);
 	}
 
 	/**

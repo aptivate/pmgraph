@@ -48,19 +48,19 @@ public class LegendTest extends LegendTestBase
 		{
 			// Set the values
 			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
-					"224.0.0.255", "10.0.156.10");
+					"224.0.0.255", "10.0.156.10", false);
 			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
-					"10.0.156.10", "224.0.0.255");
+					"10.0.156.10", "224.0.0.255", false);
 
 			testUtils.insertNewRow(100000, new Timestamp((timeInMinutes - 5) * 60000),
-					"224.0.0.251", "10.0.156.1");
+					"224.0.0.251", "10.0.156.1", false);
 			testUtils.insertNewRow(100000, new Timestamp((timeInMinutes - 5) * 60000),
-					"10.0.156.1", "224.0.0.251");
+					"10.0.156.1", "224.0.0.251", false);
 
 			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
-					"10.0.156.110", "10.0.156.120");
+					"10.0.156.110", "10.0.156.120", false);
 			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
-					"10.0.156.120", "10.0.156.110");
+					"10.0.156.120", "10.0.156.110", false);
 		}
 
 		// Open a graph page
@@ -102,9 +102,9 @@ public class LegendTest extends LegendTestBase
 				// left (it is a fast way to get huge numbers,
 				// for example 1<<10 = 1024)
 				testUtils.insertNewRow(1 << 30, new Timestamp((timeInMinutes - 5) * 60000),
-						"224.0.0.251", "10.0.156.1");
+						"224.0.0.251", "10.0.156.1", false);
 				testUtils.insertNewRow(1 << 30, new Timestamp((timeInMinutes - 5) * 60000),
-						"10.0.156.1", "224.0.0.251");
+						"10.0.156.1", "224.0.0.251", false);
 			}
 
 			// Open a graph page
@@ -147,14 +147,14 @@ public class LegendTest extends LegendTestBase
 		for (int i = 0; i < 100; i++)
 		{
 			// Set the values
-			testUtils.insertNewRow(500000, testUtils.t1, "224.0.0.255", "10.0.156.10");
-			testUtils.insertNewRow(300000, testUtils.t1, "10.0.156.10", "224.0.0.254");
+			testUtils.insertNewRow(500000, testUtils.t1, "224.0.0.255", "10.0.156.10", false);
+			testUtils.insertNewRow(300000, testUtils.t1, "10.0.156.10", "224.0.0.254", false);
 
-			testUtils.insertNewRow(100000, testUtils.t1, "224.0.0.251", "10.0.156.22");
-			testUtils.insertNewRow(150000, testUtils.t2, "10.0.156.22", "224.0.0.251");
+			testUtils.insertNewRow(100000, testUtils.t1, "224.0.0.251", "10.0.156.22", false);
+			testUtils.insertNewRow(150000, testUtils.t2, "10.0.156.22", "224.0.0.251", false);
 
-			testUtils.insertNewRow(400000, testUtils.t2, "224.0.0.255", "10.0.156.33");
-			testUtils.insertNewRow(1140000, testUtils.t2, "10.0.156.33", "224.0.0.255");
+			testUtils.insertNewRow(400000, testUtils.t2, "224.0.0.255", "10.0.156.33", false);
+			testUtils.insertNewRow(1140000, testUtils.t2, "10.0.156.33", "224.0.0.255", false);
 		}
 
 		String hostname1 = "fen-ndiyo3.fen.aptivate.org.";
@@ -201,14 +201,14 @@ public class LegendTest extends LegendTestBase
 		for (int i = 0; i < 100; i++)
 		{
 			// Set the values
-			testUtils.insertNewRow(500000, testUtils.t1, "224.0.0.255", "10.0.156.10");
-			testUtils.insertNewRow(300000, testUtils.t1, "10.0.156.10", "224.0.0.254");
+			testUtils.insertNewRow(500000, testUtils.t1, "224.0.0.255", "10.0.156.10", false);
+			testUtils.insertNewRow(300000, testUtils.t1, "10.0.156.10", "224.0.0.254", false);
 
-			testUtils.insertNewRow(100000, testUtils.t1, "224.0.0.251", "10.0.156.1");
-			testUtils.insertNewRow(150000, testUtils.t2, "10.0.156.1", "224.0.0.251");
+			testUtils.insertNewRow(100000, testUtils.t1, "224.0.0.251", "10.0.156.1", false);
+			testUtils.insertNewRow(150000, testUtils.t2, "10.0.156.1", "224.0.0.251", false);
 
-			testUtils.insertNewRow(400000, testUtils.t2, "224.0.0.255", "10.0.156.120");
-			testUtils.insertNewRow(1140000, testUtils.t2, "10.0.156.120", "224.0.0.255");
+			testUtils.insertNewRow(400000, testUtils.t2, "224.0.0.255", "10.0.156.120", false);
+			testUtils.insertNewRow(1140000, testUtils.t2, "10.0.156.120", "224.0.0.255", false);
 		}
 
 		// Open a graph page
@@ -286,6 +286,7 @@ public class LegendTest extends LegendTestBase
 		TestUtils testUtils = new TestUtils();
 		testUtils.CreateTable();
 		testUtils.InsertSampleData();
+		testUtils.InsertLongSampleData();
 
 		// check the default limit of result
 
@@ -300,6 +301,38 @@ public class LegendTest extends LegendTestBase
 		// get the table
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
+		testTableWithDefaultLimits(table, false);
+
+		// Obtain the upload page on web site
+		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
+				+ "index.jsp?report=totals&start=0&end=345600000");
+		response = wc.getResponse(request);
+
+		// get the table
+		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
+
+		testTableWithDefaultLimits(table, true);
+
+		// Check a result limit defined by the user
+		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
+				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=8");
+		response = wc.getResponse(request);
+		// get the table
+		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
+
+		testTableWithCustomLimits(table, false);
+		
+		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
+				+ "index.jsp?report=totals&start=0&end=345600000&resultLimit=8");
+		response = wc.getResponse(request);
+		// get the table
+		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
+
+		testTableWithCustomLimits(table, true);
+	}
+
+	public void testTableWithDefaultLimits(WebTable table, boolean isLong) throws IOException
+	{
 		if (table != null)
 		{
 			assertEquals("Check the number of rows is limited to default value.", Configuration
@@ -315,16 +348,19 @@ public class LegendTest extends LegendTestBase
 			String uploaded = table.getCellAsText(Configuration.getResultLimit() + 2, 4);
 			assertEquals("Check the IP Address", "Others", hostIP);
 			assertEquals("Check the Downloaded Value", "<1", downloaded);
-			assertEquals("Check the Upload Value", "23625", uploaded);
+			if(isLong)
+			{
+				assertEquals("Check the Upload Value", "23", uploaded);
+			}
+			else
+			{
+				assertEquals("Check the Upload Value", "23625", uploaded);
+			}
 		}
-
-		// Check a result limit defined by the user
-		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
-				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=8");
-		response = wc.getResponse(request);
-		// get the table
-		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
-
+	}
+	
+	public void testTableWithCustomLimits(WebTable table, boolean isLong)
+	{
 		if (table != null)
 		{
 			assertEquals("Check the number of rows is limited to default value.", (Integer) 8,
@@ -339,11 +375,18 @@ public class LegendTest extends LegendTestBase
 			String uploaded = table.getCellAsText(8 + 2, 4);
 			assertEquals("Check the IP Address", "Others", hostIP);
 			assertEquals("Check the Downloaded Value", "<1", downloaded);
-			assertEquals("Check the Upload Value", "9000", uploaded);
+			
+			if(isLong)
+			{
+				assertEquals("Check the Upload Value", "8", uploaded);
+			}
+			else
+			{
+				assertEquals("Check the Upload Value", "9000", uploaded);
+			}
 		}
-
 	}
-
+	
 	/**
 	 * test the case where you have limit=1 when you are looking into a specific
 	 * port
@@ -383,7 +426,7 @@ public class LegendTest extends LegendTestBase
 			RequestParams requestParams = new RequestParams(0, timePeriod[i] * 60000,
 					View.LOCAL_IP, 5);
 			List<DataPoint> throughput = data.getLegendData(requestParams.getSortBy(),
-					requestParams.getOrder(), requestParams);
+					requestParams.getOrder(), requestParams, false);
 			String addUrl = "?start=0&end=" + (timePeriod[i] * 60000);
 			WebConversation wc = new WebConversation();
 			// Obtain the upload page on web site

@@ -30,6 +30,23 @@ public class GraphsTest extends GraphTestBase
 	{
 		m_testUtils.CreateTable();
 		m_testUtils.InsertSampleData();
+		m_testUtils.InsertLongSampleData();
+		m_testUtils.InsertVeryLongSampleData();
+	}
+	
+	public void setData(RequestParams requestParams) throws Exception
+	{
+		if(Utilities.longGraphIsAllowed() && Utilities.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime()))
+		{
+			if(requestParams.getStartTime() >= m_testUtils.vlt1.getTime())
+			{
+				m_testUtils.InsertVeryLongSampleData();
+			}
+			else
+			{
+				m_testUtils.InsertLongSampleData();
+			}
+		}		
 	}
 
 	private void checkGraph(RequestParams requestParams) throws Exception
@@ -39,8 +56,17 @@ public class GraphsTest extends GraphTestBase
 		// (even) and download (odd) for four different times
 		float values[][];
 		String rows[];
+		int offset, length; // This is a multiplier to adjust data series for long time periods
+		boolean isLong;
+		float bytesRateAdjustment; // This is a divisor to adjust data rates covering long time periods
 		GraphFactory graphFactory = new GraphFactory();
-
+		
+		// Set the values for the variables based on the range of data being displayed
+		Object[] graphParameters = setValues(requestParams);
+		isLong = ((Boolean)graphParameters[0]).booleanValue();
+		offset = ((Integer)graphParameters[1]).intValue();
+		length = ((Integer)graphParameters[2]).intValue();
+		bytesRateAdjustment = ((Float)graphParameters[3]).floatValue();
 		chart = graphFactory.stackedThroughputGraph(requestParams);
 
 		switch (requestParams.getView())
@@ -56,24 +82,24 @@ public class GraphsTest extends GraphTestBase
 					"10.0.156.133", "10.0.156.134", "10.0.156.135", "10.0.156.136", "10.0.156.137",
 					"10.0.156.138", "10.0.156.139", "10.0.156.140" };
 			// init array to zero values
-			values = new float[2 * rows.length][4];
+			values = new float[2 * rows.length][length];
 
 			// IP 10.0.156.120 just non-zero values
-			values[0][1] = -500 * 11; 	// upload at time 1
-			values[1][1] = 5550;
-			values[1][3] = 75; 			// download at time 3
+			values[0][1 * offset] = (-500 * 11)/bytesRateAdjustment; 	// upload at time 1
+			values[1][1 * offset] = 5550/bytesRateAdjustment;
+			values[1][3 * offset] = 75/bytesRateAdjustment; 			// download at time 3
 
 			// IP 10.0.156.110
-			values[2][0] = -2000;
-			values[3][0] = 90;
-			values[3][1] = 80;
-			values[3][3] = 70;
+			values[2][0 * offset] = -2000/bytesRateAdjustment;
+			values[3][0 * offset] = 90/bytesRateAdjustment;
+			values[3][1 * offset] = 80/bytesRateAdjustment;
+			values[3][3 * offset] = 70/bytesRateAdjustment;
 
 			// IPs 10.0.156.131 10.0.156.140
 			for (int n = 2; n < rows.length; n++)
 			{
 				assertEquals("10.0.156." + (130 + n - 1), rows[n]);
-				values[n * 2][3] = Float.valueOf(-100 * (12 - n) - 50);
+				values[n * 2][3 * offset] = Float.valueOf((-100 * (12 - n) - 50)/bytesRateAdjustment);
 			}
 
 			break;
@@ -83,22 +109,22 @@ public class GraphsTest extends GraphTestBase
 			// check values per each serie.
 			rows = new String[] { "90tcp", "10000tcp", "12300tcp", "23500tcp", "23400tcp" };
 			// init array to zero values
-			values = new float[2 * rows.length][4];
+			values = new float[2 * rows.length][length];
 			// port 90
-			values[0][1] = -5500; // upload (is negative in the graph)
-			values[0][3] = -6000; // upload
+			values[0][1 * offset] = -5500/bytesRateAdjustment; // upload (is negative in the graph)
+			values[0][3 * offset] = -6000/bytesRateAdjustment; // upload
 			// port 10000
-			values[3][1] = 5500;
+			values[3][1 * offset] = 5500/bytesRateAdjustment;
 
 			// port 12300
-			values[4][0] = -2000;
-			values[5][0] = 90;
-			values[5][1] = 80;
-			values[5][3] = 70;
+			values[4][0 * offset] = -2000/bytesRateAdjustment;
+			values[5][0 * offset] = 90/bytesRateAdjustment;
+			values[5][1 * offset] = 80/bytesRateAdjustment;
+			values[5][3 * offset] = 70/bytesRateAdjustment;
 			// port 23500
-			values[7][3] = 75;
+			values[7][3 * offset] = 75/bytesRateAdjustment;
 			// port 23400
-			values[9][1] = 50;
+			values[9][1 * offset] = 50/bytesRateAdjustment;
 			break;
 
 		case REMOTE_IP: // Remote ip view
@@ -107,38 +133,38 @@ public class GraphsTest extends GraphTestBase
 			rows = new String[] { "4.2.2.2", "4.2.2.3", "4.2.2.4", "4.2.2.5", "4.2.2.6", "4.2.2.7",
 					"4.2.2.8", "4.2.2.9", "4.2.2.10", "4.2.2.11", "4.2.2.12" };
 			// init array to zero values
-			values = new float[2 * rows.length][4];
+			values = new float[2 * rows.length][length];
 
-			values[0][3] = -6000;
-			values[1][3] = 145;
-			values[0][0] = -2000;
-			values[1][0] = 90;
-			values[0][1] = -500;
-			values[1][1] = 130;
+			values[0][3 * offset] = -6000/bytesRateAdjustment;
+			values[1][3 * offset] = 145/bytesRateAdjustment;
+			values[0][0 * offset] = -2000/bytesRateAdjustment;
+			values[1][0 * offset] = 90/bytesRateAdjustment;
+			values[0][1 * offset] = -500/bytesRateAdjustment;
+			values[1][1 * offset] = 130/bytesRateAdjustment;
 
-			values[2][1] = -500;
-			values[3][1] = 1000;
+			values[2][1 * offset] = -500/bytesRateAdjustment;
+			values[3][1 * offset] = 1000/bytesRateAdjustment;
 
-			values[4][1] = -500;
-			values[5][1] = 900;
+			values[4][1 * offset] = -500/bytesRateAdjustment;
+			values[5][1 * offset] = 900/bytesRateAdjustment;
 
-			values[6][1] = -500;
-			values[7][1] = 800;
-			values[8][1] = -500;
-			values[9][1] = 700;
-			values[10][1] = -500;
-			values[11][1] = 600;
-			values[12][1] = -500;
-			values[13][1] = 500;
-			values[14][1] = -500;
-			values[15][1] = 400;
-			values[16][1] = -500;
-			values[17][1] = 300;
-			values[18][1] = -500;
-			values[19][1] = 200;
+			values[6][1 * offset] = -500/bytesRateAdjustment;
+			values[7][1 * offset] = 800/bytesRateAdjustment;
+			values[8][1 * offset] = -500/bytesRateAdjustment;
+			values[9][1 * offset] = 700/bytesRateAdjustment;
+			values[10][1 * offset] = -500/bytesRateAdjustment;
+			values[11][1 * offset] = 600/bytesRateAdjustment;
+			values[12][1 * offset] = -500/bytesRateAdjustment;
+			values[13][1 * offset] = 500/bytesRateAdjustment;
+			values[14][1 * offset] = -500/bytesRateAdjustment;
+			values[15][1 * offset] = 400/bytesRateAdjustment;
+			values[16][1 * offset] = -500/bytesRateAdjustment;
+			values[17][1 * offset] = 300/bytesRateAdjustment;
+			values[18][1 * offset] = -500/bytesRateAdjustment;
+			values[19][1 * offset] = 200/bytesRateAdjustment;
 
-			values[20][1] = -500;
-			values[21][1] = 100;
+			values[20][1 * offset] = -500/bytesRateAdjustment;
+			values[21][1 * offset] = 100/bytesRateAdjustment;
 			break;
 
 		case REMOTE_PORT: // Remote port view
@@ -148,23 +174,23 @@ public class GraphsTest extends GraphTestBase
 			rows = new String[] { "10000tcp", "90tcp", "80tcp" };
 
 			// init array to zero values
-			values = new float[2 * rows.length][4];
+			values = new float[2 * rows.length][length];
 
 			// port 10000
-			values[0][1] = -5500;
-			values[0][3] = -6000;
+			values[0][1 * offset] = -5500/bytesRateAdjustment;
+			values[0][3 * offset] = -6000/bytesRateAdjustment;
 			// port 90
-			values[3][1] = 5500;
+			values[3][1 * offset] = 5500/bytesRateAdjustment;
 			// port 80 uploadvalues
-			values[4][0] = -2000;
+			values[4][0 * offset] = -2000/bytesRateAdjustment;
 			// download
-			values[5][0] = 90;
-			values[5][3] = 145;
-			values[5][1] = 130;
+			values[5][0 * offset] = 90/bytesRateAdjustment;
+			values[5][3 * offset] = 145/bytesRateAdjustment;
+			values[5][1 * offset] = 130/bytesRateAdjustment;
 
 			break;
 		}
-		checkChartData(values, rows, chart);
+		checkChartData(values, rows, chart, isLong);
 	}
 
 	// With local Ip already selected
@@ -174,6 +200,15 @@ public class GraphsTest extends GraphTestBase
 		float values[][];
 		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
+		boolean isLong;
+		int offset, length;
+		float bytesRateAdjustment;
+		
+		Object[] graphParameters = setValues(requestParams);
+		isLong = ((Boolean)graphParameters[0]).booleanValue();
+		offset = ((Integer)graphParameters[1]).intValue();
+		length = ((Integer)graphParameters[2]).intValue();
+		bytesRateAdjustment = ((Float)graphParameters[3]).floatValue();
 
 		chart = graphFactory.stackedThroughputGraph(requestParams);
 
@@ -187,12 +222,12 @@ public class GraphsTest extends GraphTestBase
 			// check values for each series.
 			rows = new String[] { "90tcp", "10000tcp", "23500tcp", "23400tcp" };
 			// init array to zero values
-			values = new float[2 * rows.length][4];
+			values = new float[2 * rows.length][length];
 
-			values[0][1] = -5500;
-			values[3][1] = 5500;
-			values[5][3] = 75;
-			values[7][1] = 50;
+			values[0][1 * offset] = -5500/bytesRateAdjustment;
+			values[3][1 * offset] = 5500/bytesRateAdjustment;
+			values[5][3 * offset] = 75/bytesRateAdjustment;
+			values[7][1 * offset] = 50/bytesRateAdjustment;
 
 			break;
 
@@ -201,31 +236,31 @@ public class GraphsTest extends GraphTestBase
 
 			rows = new String[] { "4.2.2.3", "4.2.2.4", "4.2.2.5", "4.2.2.6", "4.2.2.7", "4.2.2.8",
 					"4.2.2.9", "4.2.2.10", "4.2.2.11", "4.2.2.2", "4.2.2.12", };
-			values = new float[2 * 11][4];
-			values[1][1] = 1000.0f;
-			values[3][1] = 900.0f;
-			values[5][1] = 800.0f;
-			values[7][1] = 700.0f;
-			values[9][1] = 600.0f;
-			values[11][1] = 500.0f;
-			values[13][1] = 400.0f;
-			values[15][1] = 300.0f;
-			values[17][1] = 200.0f;
-			values[19][1] = 50.0f;
-			values[19][3] = 75.0f; // Download values Time 3
-			values[21][1] = 100.0f;
+			values = new float[2 * 11][length];
+			values[1][1 * offset] = 1000.0f/bytesRateAdjustment;
+			values[3][1 * offset] = 900.0f/bytesRateAdjustment;
+			values[5][1 * offset] = 800.0f/bytesRateAdjustment;
+			values[7][1 * offset] = 700.0f/bytesRateAdjustment;
+			values[9][1 * offset] = 600.0f/bytesRateAdjustment;
+			values[11][1 * offset] = 500.0f/bytesRateAdjustment;
+			values[13][1 * offset] = 400.0f/bytesRateAdjustment;
+			values[15][1 * offset] = 300.0f/bytesRateAdjustment;
+			values[17][1 * offset] = 200.0f/bytesRateAdjustment;
+			values[19][1 * offset] = 50.0f/bytesRateAdjustment;
+			values[19][3 * offset] = 75.0f/bytesRateAdjustment; // Download values Time 3
+			values[21][1 * offset] = 100.0f/bytesRateAdjustment;
 			// upload series
-			values[0][1] = -500.0f; // Upload values Time 1
-			values[2][1] = -500.0f;
-			values[4][1] = -500.0f;
-			values[6][1] = -500.0f;
-			values[8][1] = -500.0f;
-			values[10][1] = -500.0f;
-			values[12][1] = -500.0f;
-			values[14][1] = -500.0f;
-			values[16][1] = -500.0f;
-			values[18][1] = -500.0f;
-			values[20][1] = -500.0f;
+			values[0][1 * offset] = -500.0f/bytesRateAdjustment; // Upload values Time 1
+			values[2][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[4][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[6][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[8][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[10][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[12][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[14][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[16][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[18][1 * offset] = -500.0f/bytesRateAdjustment;
+			values[20][1 * offset] = -500.0f/bytesRateAdjustment;
 			break;
 
 		case REMOTE_PORT: // Remote port view
@@ -234,16 +269,16 @@ public class GraphsTest extends GraphTestBase
 			rows = new String[] { "10000tcp", "90tcp", "80tcp" };
 
 			// init array to zero values
-			values = new float[2 * rows.length][4];
+			values = new float[2 * rows.length][length];
 
-			values[0][1] = -5500;
-			values[3][1] = 5500;
-			values[5][3] = 75;
-			values[5][1] = 50;
+			values[0][1 * offset] = -5500/bytesRateAdjustment;
+			values[3][1 * offset] = 5500/bytesRateAdjustment;
+			values[5][3 * offset] = 75/bytesRateAdjustment;
+			values[5][1 * offset] = 50/bytesRateAdjustment;
 
 			break;
 		}
-		checkChartData(values, rows, chart);
+		checkChartData(values, rows, chart, isLong);
 	}
 
 	// Local IP and Remote Ip already selected
@@ -253,6 +288,15 @@ public class GraphsTest extends GraphTestBase
 		float values[][];
 		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
+		int offset, length;
+		boolean isLong;
+		float bytesRateAdjustment;
+		
+		Object[] graphParameters = setValues(requestParams);
+		isLong = ((Boolean)graphParameters[0]).booleanValue();
+		offset = ((Integer)graphParameters[1]).intValue();
+		length = ((Integer)graphParameters[2]).intValue();
+		bytesRateAdjustment = ((Float)graphParameters[3]).floatValue();
 
 		chart = graphFactory.stackedThroughputGraph(requestParams);
 
@@ -266,9 +310,9 @@ public class GraphsTest extends GraphTestBase
 			// check values for each series.
 			rows = new String[] { "10000tcp", "90tcp" };
 			// init array to zero values
-			values = new float[2 * rows.length][4];
-			values[1][1] = 1000;
-			values[2][1] = -500;
+			values = new float[2 * rows.length][length];
+			values[1][1 * offset] = 1000/bytesRateAdjustment;
+			values[2][1 * offset] = -500/bytesRateAdjustment;
 			break;
 
 		case REMOTE_PORT: // Remote port view
@@ -276,12 +320,12 @@ public class GraphsTest extends GraphTestBase
 			// check values for each series.
 			rows = new String[] { "90tcp", "10000tcp" };
 			// init array to zero values
-			values = new float[2 * rows.length][4];
-			values[1][1] = 1000;
-			values[2][1] = -500;
+			values = new float[2 * rows.length][length];
+			values[1][1 * offset] = 1000/bytesRateAdjustment;
+			values[2][1 * offset] = -500/bytesRateAdjustment;
 			break;
 		}
-		checkChartData(values, rows, chart);
+		checkChartData(values, rows, chart, isLong);
 	}
 
 	// Local IP, local Port and Remote IP already selected
@@ -291,6 +335,15 @@ public class GraphsTest extends GraphTestBase
 		float values[][];
 		String rows[];
 		GraphFactory graphFactory = new GraphFactory();
+		int offset, length;
+		boolean isLong;
+		float bytesRateAdjustment;
+		
+		Object[] graphParameters = setValues(requestParams);
+		isLong = ((Boolean)graphParameters[0]).booleanValue();
+		offset = ((Integer)graphParameters[1]).intValue();
+		length = ((Integer)graphParameters[2]).intValue();
+		bytesRateAdjustment = ((Float)graphParameters[3]).floatValue();
 
 		chart = graphFactory.stackedThroughputGraph(requestParams);
 
@@ -306,12 +359,12 @@ public class GraphsTest extends GraphTestBase
 			// check values for each series.
 			rows = new String[] { "90tcp" };
 			// init array to zero values
-			values = new float[2 * rows.length][4];
+			values = new float[2 * rows.length][length];
 
-			values[1][1] = 1000;
+			values[1][1 * offset] = 1000/bytesRateAdjustment;
 			break;
 		}
-		checkChartData(values, rows, chart);
+		checkChartData(values, rows, chart, isLong);
 	}
 
 	/**
@@ -323,19 +376,66 @@ public class GraphsTest extends GraphTestBase
 	{
 		RequestParams requestParams = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4
 				.getTime(), View.LOCAL_IP, 15);
-
 		checkGraph(requestParams);
-
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4
+				.getTime(), View.LOCAL_IP, 15);
+		m_testUtils.ClearTable();
+		setData(requestParams);
+		checkGraph(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.vlt1.getTime(), m_testUtils.vlt4.getTime(),
+				View.LOCAL_IP, 15);
+		m_testUtils.ClearTable();
+		setData(requestParams);
+		checkGraph(requestParams);
+		
 		requestParams = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
 				View.LOCAL_PORT, 15);
 		checkGraph(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4.getTime(),
+				View.LOCAL_PORT, 15);
+		m_testUtils.ClearTable();
+		setData(requestParams);
+		checkGraph(requestParams);
 
+		requestParams = new RequestParams(m_testUtils.vlt1.getTime(), m_testUtils.vlt4.getTime(),
+				View.LOCAL_PORT, 15);
+		m_testUtils.ClearTable();
+		setData(requestParams);
+		checkGraph(requestParams);
+		
 		requestParams = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
 				View.REMOTE_IP, 15);
 		checkGraph(requestParams);
-
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4.getTime(),
+				View.REMOTE_IP, 15);
+		m_testUtils.ClearTable();
+		setData(requestParams);
+		checkGraph(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.vlt1.getTime(), m_testUtils.vlt4.getTime(),
+				View.REMOTE_IP, 15);
+		m_testUtils.ClearTable();
+		setData(requestParams);
+		checkGraph(requestParams);
+		
 		requestParams = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
 				View.REMOTE_PORT, 15);
+		checkGraph(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4.getTime(),
+				View.REMOTE_PORT, 15);
+		m_testUtils.ClearTable();
+		setData(requestParams);
+		checkGraph(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.vlt1.getTime(), m_testUtils.vlt4.getTime(),
+				View.REMOTE_IP, 15);
+		m_testUtils.ClearTable();
+		setData(requestParams);
 		checkGraph(requestParams);
 	}
 
@@ -344,15 +444,26 @@ public class GraphsTest extends GraphTestBase
 		RequestParams requestParams = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4
 				.getTime(), View.LOCAL_PORT, 15, "10.0.156.120");
 		checkGraphOneParameter(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4
+				.getTime(), View.LOCAL_PORT, 15, "10.0.156.120");
+		checkGraphOneParameter(requestParams);
 
 		requestParams = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
+				View.REMOTE_IP, 15, "10.0.156.120");
+		checkGraphOneParameter(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4.getTime(),
 				View.REMOTE_IP, 15, "10.0.156.120");
 		checkGraphOneParameter(requestParams);
 
 		requestParams = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
 				View.REMOTE_PORT, 15, "10.0.156.120");
 		checkGraphOneParameter(requestParams);
-
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4.getTime(),
+				View.REMOTE_PORT, 15, "10.0.156.120");
+		checkGraphOneParameter(requestParams);
 	}
 
 	public void testCumulativeGraphTwoParameter() throws Exception
@@ -361,8 +472,18 @@ public class GraphsTest extends GraphTestBase
 				.getTime(), View.LOCAL_PORT, 15, "10.0.156.120");
 		requestParams.setRemoteIp("4.2.2.3");
 		checkGraphTwoParameter(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4
+				.getTime(), View.LOCAL_PORT, 15, "10.0.156.120");
+		requestParams.setRemoteIp("4.2.2.3");
+		checkGraphTwoParameter(requestParams);
 
 		requestParams = new RequestParams(m_testUtils.t1.getTime(), m_testUtils.t4.getTime(),
+				View.REMOTE_PORT, 15, "10.0.156.120");
+		requestParams.setRemoteIp("4.2.2.3");
+		checkGraphTwoParameter(requestParams);
+		
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4.getTime(),
 				View.REMOTE_PORT, 15, "10.0.156.120");
 		requestParams.setRemoteIp("4.2.2.3");
 		checkGraphTwoParameter(requestParams);
@@ -377,6 +498,44 @@ public class GraphsTest extends GraphTestBase
 		requestParams.setRemoteIp("4.2.2.3");
 		checkGraphThreeParameter(requestParams);
 
+		requestParams = new RequestParams(m_testUtils.lt1.getTime(), m_testUtils.lt4
+				.getTime(), View.REMOTE_PORT, 15, "10.0.156.120");
+		requestParams.setPort(10000);
+		requestParams.setRemoteIp("4.2.2.3");
+		checkGraphThreeParameter(requestParams);
+	}
+	
+	private Object[] setValues(RequestParams requestParams)
+	{
+		// This method assigns the correct values to a set of values and retruns the as an object array
+		Object[] values = new Object[4];
+		
+		// The first value determines whether or not a long value should be used, the second one used for adjusting x-axis values, the third one is for determining the length of the x-axis and the fourth determines y-axis values 
+		
+		boolean isLong = Utilities.longGraphIsAllowed() && Utilities.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
+		values[0] = new Boolean(isLong);
+		if(isLong)
+		{
+			if(requestParams.getStartTime() < m_testUtils.vlt1.getTime())
+			{
+				values[1] = new Integer(24);
+				values[2] = new Integer(73);
+				values[3] = new Float(60.0f);
+			}
+			else
+			{
+				values[1] = new Integer(3360);
+				values[2] = new Integer(10081);
+				values[3] = new Float(60.0f);
+			}
+		}
+		else
+		{
+			values[1] = new Integer(1);
+			values[2] = new Integer(4);
+			values[3] = new Float(1.0f);
+		}
+		return values;
 	}
 
 	public static Test suite()

@@ -57,7 +57,19 @@ public class Configuration
 		Properties properties = readConfiguration();
 		return properties.getProperty("DatabaseUser");
 	}
-
+	
+	public static String getResultDatabaseLongTable() throws IOException
+	{
+		Properties properties = readConfiguration();
+		return properties.getProperty("DatabaseLongTable");
+	}
+	
+	public static String getResultDatabaseVeryLongTable() throws IOException
+	{
+		Properties properties = readConfiguration();
+		return properties.getProperty("DatabaseVeryLongTable");
+	}
+	
 	public static String getResultDatabaseTable() throws IOException
 	{
 
@@ -107,9 +119,15 @@ public class Configuration
 		Properties properties = readConfiguration();
 		return Integer.valueOf(properties.getProperty("DHCPPort"));
 	}
+	
+	public static String getTimespansForLongGraph() throws IOException
+	{
+		Properties properties = readConfiguration();
+		return properties.getProperty("TimespansForLongGraph");
+	}
+	
 	public static Integer getResultLimit() throws IOException
 	{
-
 		Properties properties = readConfiguration();
 		return Integer.valueOf(properties.getProperty("ResultLimit"));
 	}

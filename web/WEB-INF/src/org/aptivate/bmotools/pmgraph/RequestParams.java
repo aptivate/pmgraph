@@ -224,17 +224,17 @@ public class RequestParams
 	/**
 	 * @return Start time rounded to the nearest minute
 	 */
-	public long getRoundedStartTime()
+	public long getRoundedStartTime(long resolution)
 	{
-		return m_fromDateAndTime.getTime() - (m_fromDateAndTime.getTime() % 60000);
+		return m_fromDateAndTime.getTime() - (m_fromDateAndTime.getTime() % resolution);
 	}
 
 	/**
 	 * @return End time rounded to the nearest minute
 	 */
-	public long getRoundedEndTime()
+	public long getRoundedEndTime(long resolution)
 	{
-		return m_toDateAndTime.getTime() - (m_toDateAndTime.getTime() % 60000);
+		return m_toDateAndTime.getTime() - (m_toDateAndTime.getTime() % resolution);
 	}
 
 	public Map<String, Object> getParams()

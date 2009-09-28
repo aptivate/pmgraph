@@ -151,15 +151,16 @@ public class QueryBuilder
 		return (sql.toString());
 	}
 
-	private String buildWhere(RequestParams requestParams)
+	private String buildWhere(RequestParams requestParams, boolean isLong)
 	{
 		StringBuffer where = new StringBuffer();
 		String comparator = " LIKE ";
 		String ip = m_localSubnet + "%";
 
 		where.append("WHERE stamp_inserted >= ? " + "AND stamp_inserted <= ? ");
-		m_listData.add(new Timestamp(requestParams.getRoundedStartTime()));
-		m_listData.add(new Timestamp(requestParams.getRoundedEndTime()));
+		long resolution = Utilities.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
+		m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
+		m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));
 		if (requestParams.getIp() != null)
 		{ // for a specific local IP
 			comparator = " = ";
@@ -236,19 +237,27 @@ public class QueryBuilder
 	 * 
 	 * @param requestParams
 	 * @param isChart
+	 * @param isLong
 	 * @return PreparedStatement: an object that represents a precompiled SQL
 	 *         statement.
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	PreparedStatement buildQuery(RequestParams requestParams, boolean isChart) throws SQLException,
+	PreparedStatement buildQuery(RequestParams requestParams, boolean isChart, boolean isLong) throws SQLException,
 			IOException
 	{
 
 		StringBuffer sql = new StringBuffer("SELECT ");
 		sql.append(buildSelect(requestParams, isChart));
-		sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
-		sql.append(buildWhere(requestParams));
+		if(isLong)
+		{
+			sql.append("FROM " + Utilities.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
+		}
+		else
+		{
+			sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
+		}
+		sql.append(buildWhere(requestParams, isLong));
 		sql.append(buildGroupBy(requestParams, isChart));
 
 		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),

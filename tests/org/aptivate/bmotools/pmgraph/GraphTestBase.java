@@ -53,8 +53,9 @@ abstract class GraphTestBase extends TestCase
 	 * @param chart
 	 */
 	protected void checkChartData(float values[][], String[] rows,
-			JFreeChart chart)
+			JFreeChart chart, boolean isLong)
 	{
+		
 		XYPlot plot = (XYPlot) chart.getPlot();
 		assertEquals(PlotOrientation.VERTICAL, plot.getOrientation());
 		Collection markers = plot.getRangeMarkers(Layer.FOREGROUND);
@@ -66,7 +67,7 @@ abstract class GraphTestBase extends TestCase
 		assertEquals("Throughput (kb/s)", yAxis.getLabel());
 		DefaultTableXYDataset dataset = (DefaultTableXYDataset) plot
 				.getDataset();
-
+		
 		// Check if there are a series for each port for upload and another for
 		// download data.
 		for (int n = 0; n < rows.length; n++)
@@ -85,12 +86,37 @@ abstract class GraphTestBase extends TestCase
 		for (int n = 0; n < dataset.getSeriesCount(); n++)
 		{
 			XYSeries s = dataset.getSeries(n);
-			assertEquals(4, s.getItemCount());
-			assertEquals(m_testUtils.t1.getTime(), s.getX(0));
-			assertEquals(m_testUtils.t2.getTime(), s.getX(1));
-			assertEquals(m_testUtils.t3.getTime(), s.getX(2));
-			assertEquals(m_testUtils.t4.getTime(), s.getX(3));
-			series.put(s.getKey().toString(), s);
+			//assertEquals(GraphFactory.needsLongGraph(s.getX(dataset.getSeriesCount() - 1).longValue(), s.getX(0).longValue()), isLong);
+			if(isLong)
+			{
+				if(s.getX(0).longValue() < m_testUtils.vlt1.getTime())
+				{
+					assertEquals(73, s.getItemCount());
+					assertEquals(m_testUtils.lt1.getTime(), s.getX(0));
+					assertEquals(m_testUtils.lt2.getTime(), s.getX(24));
+					assertEquals(m_testUtils.lt3.getTime(), s.getX(48));
+					assertEquals(m_testUtils.lt4.getTime(), s.getX(72));
+					series.put(s.getKey().toString(), s);
+				}
+				else
+				{
+					assertEquals(10081, s.getItemCount());
+					assertEquals(m_testUtils.vlt1.getTime(), s.getX(0));
+					assertEquals(m_testUtils.vlt2.getTime(), s.getX(3360));
+					assertEquals(m_testUtils.vlt3.getTime(), s.getX(6720));
+					assertEquals(m_testUtils.vlt4.getTime(), s.getX(10080));
+					series.put(s.getKey().toString(), s);
+				}
+			}
+			else
+			{
+				assertEquals(4, s.getItemCount());
+				assertEquals(m_testUtils.t1.getTime(), s.getX(0));
+				assertEquals(m_testUtils.t2.getTime(), s.getX(1));
+				assertEquals(m_testUtils.t3.getTime(), s.getX(2));
+				assertEquals(m_testUtils.t4.getTime(), s.getX(3));
+				series.put(s.getKey().toString(), s);
+			}
 		}
 
 		// check that each series has the correct values for each time.
