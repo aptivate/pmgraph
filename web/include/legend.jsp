@@ -12,7 +12,7 @@
 <%@ page import="java.net.UnknownHostException"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.View"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.ConfigurationException"%>
-<%@ page import="org.aptivate.bmotools.pmgraph.Utilities"%>
+<%@ page import="org.aptivate.bmotools.pmgraph.TimeSpanUtils"%>
 <%@ page pageEncoding="utf-8" language="java"
 	contentType="text/html; charset=utf-8"%>
 <%
@@ -49,7 +49,7 @@
     //populate the results from the database
 	try {
 		LegendData legendData = new LegendData();
-		results = legendData.getLegendData(sortBy, order, pageUrl.getParams(), Utilities.needsLongGraph(start, end));
+		results = legendData.getLegendData(sortBy, order, pageUrl.getParams(), TimeSpanUtils.needsLongGraph(start, end));
 	} catch (	ConfigurationException e)
 	{
 		configError = e.getLocalizedMessage();

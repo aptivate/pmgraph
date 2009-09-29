@@ -7,7 +7,7 @@ import java.util.*;
  * Generic methods, currently all for displaying graphs with a lower sample rate
  * @author daniell*/
 
-public class Utilities 
+public class TimeSpanUtils 
 {
 	private static final long DAY = 86400000; 
 	
@@ -18,16 +18,15 @@ public class Utilities
 	 */
 	public static int getResolution(boolean isLong, long timeSpan)
 	{
-		TimePeriod requiredTimePeriod = TimePeriod.MINUTE;
+		int requiredTimePeriod = TimePeriod.MINUTE.getTimePeriod();
 		if(isLong)
 		{
-			
-			TimePeriod[] timePeriods = TimePeriod.getValues();
+			int[] timePeriods = TimePeriod.getTimePeriodLengths();
 			boolean found = false;
 			long[] times = getTimeSpanLengths();
 			if(times.length != 0)
 			{
-				for(TimePeriod period : timePeriods)
+				for(int period : timePeriods)
 				{
 					// Ensure that the time period divided by the timespan is less than the number of minutes in a day
 					// If it isn't then there's no real point in using it.
@@ -35,7 +34,7 @@ public class Utilities
 					{
 						if(timeSpan >= time)
 						{
-							if(timeSpan/period.getTimePeriod() < (60 * 24))
+							if(timeSpan/(long)period < (60 * 24))
 							{
 								requiredTimePeriod = period;
 								found = true;
@@ -54,7 +53,7 @@ public class Utilities
 				}
 			}
 		}
-		return requiredTimePeriod.getTimePeriod();
+		return requiredTimePeriod;
 	}
 	
 	/**

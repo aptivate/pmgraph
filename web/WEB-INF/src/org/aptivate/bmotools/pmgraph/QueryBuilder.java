@@ -158,7 +158,7 @@ public class QueryBuilder
 		String ip = m_localSubnet + "%";
 
 		where.append("WHERE stamp_inserted >= ? " + "AND stamp_inserted <= ? ");
-		long resolution = Utilities.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
+		long resolution = TimeSpanUtils.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
 		m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
 		m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));
 		if (requestParams.getIp() != null)
@@ -251,7 +251,7 @@ public class QueryBuilder
 		sql.append(buildSelect(requestParams, isChart));
 		if(isLong)
 		{
-			sql.append("FROM " + Utilities.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
+			sql.append("FROM " + TimeSpanUtils.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
 		}
 		else
 		{

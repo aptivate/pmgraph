@@ -33,22 +33,22 @@ class TestUtils
 	final Timestamp t4 = new Timestamp(240000);
 	
 	// Long time stamps are one day apart
-	final Timestamp lt1 = new Timestamp(86400000);
+	final Timestamp lt1 = new Timestamp(1 * 24 * 60 * 60 * 1000);
 	
-	final Timestamp lt2 = new Timestamp(172800000);
+	final Timestamp lt2 = new Timestamp(2 * 24 * 60 * 60 * 1000);
 	
-	final Timestamp lt3 = new Timestamp(259200000);
+	final Timestamp lt3 = new Timestamp(3 * 24 * 60 * 60 * 1000);
 	
-	final Timestamp lt4 = new Timestamp(345600000);
+	final Timestamp lt4 = new Timestamp(4 * 24 * 60 * 60 * 1000);
 	
 	// Very long time stamps are one week apart
-	final Timestamp vlt1 = new Timestamp(12096000000L);
+	final Timestamp vlt1 = new Timestamp(1 * 7 * 24 * 60 * 60 * 1000);
 	
-	final Timestamp vlt2 = new Timestamp(24192000000L);
+	final Timestamp vlt2 = new Timestamp(2 * 7 * 24 * 60 * 60 * 1000);
 	
-	final Timestamp vlt3 = new Timestamp(36288000000L);
+	final Timestamp vlt3 = new Timestamp(3 * 7 * 24 * 60 * 60 * 1000);
 	
-	final Timestamp vlt4 = new Timestamp(48384000000L);
+	final Timestamp vlt4 = new Timestamp(4L * 7L * 24L * 60L * 60L * 1000L);
 
 	private static final String TABLE_NAME = "acct_v6";
 	
@@ -186,14 +186,7 @@ class TestUtils
 		String theTableName;
 		if(isLong)
 		{
-			/*if(t.getTime() >= vlt1.getTime())
-			{
-				theTableName = VERY_LONG_TABLE_NAME;
-			}
-			else
-			{*/
 				theTableName = LONG_TABLE_NAME;
-			//}
 		}
 		else
 		{

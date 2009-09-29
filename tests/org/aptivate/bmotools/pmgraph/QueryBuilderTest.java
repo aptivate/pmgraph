@@ -35,12 +35,9 @@ public class QueryBuilderTest extends TestCase
 	
 	private HashMap<String, Map<String, String>> longLegendQueries;
 	
-	//Assume legend remains unchanged over the long term
-	//private HashMap<String, Map<String, String>> longLegendQueries;
 
 	public QueryBuilderTest() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException, ConfigurationException {
-		//m_testUtils = new TestUtils();
 		m_params = new ArrayList<String>();
 		m_paramsValues = new HashMap<String, Object>();
 		m_params.add("ip");
@@ -507,7 +504,7 @@ public class QueryBuilderTest extends TestCase
 		
 		RequestParams longRequestParams = new RequestParams(params);
 		longRequestParams.setStart(0);
-		longRequestParams.setEnd(432000000);
+		longRequestParams.setEnd(5 * 24 * 60 * 60 * 1000);
 		
 		// check without parameters.
 		checkQuery(requestParams, false);

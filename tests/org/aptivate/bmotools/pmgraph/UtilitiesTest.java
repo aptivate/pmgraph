@@ -12,38 +12,33 @@ import junit.framework.TestSuite;
  */
 
 public class UtilitiesTest extends TestCase {
+	final long HOUR = 60 * 60 * 1000;
+	final long DAY = 24 * HOUR;
 	public void testTimeSpanResults()
 	{
-		long[] TimePeriods = {86400000, 5180400000L}; //, 5184000000L, 124416000000L
-		int[] results = {3600000, 3600000}; //, 86400000, 86400000 
+		long[] TimePeriods = {DAY, 30 * DAY - HOUR};
+		long[] results = {HOUR, HOUR};
 		int resolution;
 		for(int i = 0; i < TimePeriods.length; i++)
 		{
 			long time = TimePeriods[i];
-			resolution = Utilities.getResolution(true, time);
+			resolution = TimeSpanUtils.getResolution(true, time);
 			assertEquals(results[i], resolution);
-			resolution = Utilities.getResolution(false, time);
+			resolution = TimeSpanUtils.getResolution(false, time);
 			assertEquals(60000, resolution);
 		}
 	}
 	
-	public void testFindTable()
+	public void testFindTable() throws IOException
 	{
-		long[] TimePeriods = {86300000, 86400000, 5180400000L}; //, 5184000000L, 124416000000L
+		long[] timePeriods = {DAY - HOUR, DAY, 30L * DAY - HOUR};
 		String[] tables = {"acct_v6", "acct_v6_long", "acct_v6_long"};
 		String table;
-		for(int i = 0; i < TimePeriods.length; i++)
+		for(int i = 0; i < timePeriods.length; i++)
 		{
-			try
-			{
-				long time = TimePeriods[i];
-				table = Utilities.findTable(time);
-				assertEquals(tables[i], table);
-			}
-			catch(IOException e)
-			{
-				
-			}
+			long time = timePeriods[i];
+			table = TimeSpanUtils.findTable(time);
+			assertEquals(tables[i], table);
 		}
 	}
 

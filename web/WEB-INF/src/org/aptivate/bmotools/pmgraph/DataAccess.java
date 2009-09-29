@@ -34,7 +34,7 @@ class DataAccess
 	 * 
 	 * @param requestParams  Parameters from the request
 	 * @param isChart        Set if this request is for the chart (not the legend)
-	 * @param isLong		 Set if this request needs data ampled over a long time period
+	 * @param isLong		 Set if this request needs data sampled over a long time period
 	 * @return a list of the data points
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException

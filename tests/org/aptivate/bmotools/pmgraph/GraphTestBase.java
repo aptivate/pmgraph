@@ -86,7 +86,6 @@ abstract class GraphTestBase extends TestCase
 		for (int n = 0; n < dataset.getSeriesCount(); n++)
 		{
 			XYSeries s = dataset.getSeries(n);
-			//assertEquals(GraphFactory.needsLongGraph(s.getX(dataset.getSeriesCount() - 1).longValue(), s.getX(0).longValue()), isLong);
 			if(isLong)
 			{
 				if(s.getX(0).longValue() < m_testUtils.vlt1.getTime())
@@ -100,11 +99,11 @@ abstract class GraphTestBase extends TestCase
 				}
 				else
 				{
-					assertEquals(10081, s.getItemCount());
+					assertEquals(505, s.getItemCount());
 					assertEquals(m_testUtils.vlt1.getTime(), s.getX(0));
-					assertEquals(m_testUtils.vlt2.getTime(), s.getX(3360));
-					assertEquals(m_testUtils.vlt3.getTime(), s.getX(6720));
-					assertEquals(m_testUtils.vlt4.getTime(), s.getX(10080));
+					assertEquals(m_testUtils.vlt2.getTime(), s.getX(168));
+					assertEquals(m_testUtils.vlt3.getTime(), s.getX(336));
+					assertEquals(m_testUtils.vlt4.getTime(), s.getX(504));
 					series.put(s.getKey().toString(), s);
 				}
 			}

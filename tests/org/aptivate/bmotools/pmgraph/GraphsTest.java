@@ -36,7 +36,7 @@ public class GraphsTest extends GraphTestBase
 	
 	public void setData(RequestParams requestParams) throws Exception
 	{
-		if(Utilities.longGraphIsAllowed() && Utilities.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime()))
+		if(TimeSpanUtils.longGraphIsAllowed() && TimeSpanUtils.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime()))
 		{
 			if(requestParams.getStartTime() >= m_testUtils.vlt1.getTime())
 			{
@@ -512,7 +512,7 @@ public class GraphsTest extends GraphTestBase
 		
 		// The first value determines whether or not a long value should be used, the second one used for adjusting x-axis values, the third one is for determining the length of the x-axis and the fourth determines y-axis values 
 		
-		boolean isLong = Utilities.longGraphIsAllowed() && Utilities.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
+		boolean isLong = TimeSpanUtils.longGraphIsAllowed() && TimeSpanUtils.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
 		values[0] = new Boolean(isLong);
 		if(isLong)
 		{
@@ -524,8 +524,8 @@ public class GraphsTest extends GraphTestBase
 			}
 			else
 			{
-				values[1] = new Integer(3360);
-				values[2] = new Integer(10081);
+				values[1] = new Integer(168);
+				values[2] = new Integer(505);
 				values[3] = new Float(60.0f);
 			}
 		}
