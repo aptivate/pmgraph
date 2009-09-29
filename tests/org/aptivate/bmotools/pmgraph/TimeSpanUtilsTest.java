@@ -11,7 +11,7 @@ import junit.framework.TestSuite;
  *
  */
 
-public class UtilitiesTest extends TestCase {
+public class TimeSpanUtilsTest extends TestCase {
 	final long HOUR = 60 * 60 * 1000;
 	final long DAY = 24 * HOUR;
 	public void testTimeSpanResults()
@@ -44,6 +44,6 @@ public class UtilitiesTest extends TestCase {
 
 	public static Test suite()
 	{
-		return new TestSuite(UtilitiesTest.class);
+		return new TestSuite(TimeSpanUtilsTest.class);
 	}
 }
