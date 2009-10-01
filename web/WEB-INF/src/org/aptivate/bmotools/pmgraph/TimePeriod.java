@@ -8,7 +8,6 @@ import java.util.*;
  */
 public enum TimePeriod
 {
-	// Time periods should be declared in ascending order of length
 	HOUR (3600000),
 	MINUTE (60000);
 
