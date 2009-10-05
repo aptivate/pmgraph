@@ -27,7 +27,7 @@ public enum TimePeriod
 	}
 	
 	/**
-	 * This returns the lengths of the timeperiods in ascending order. Useful for finding an appropriet value in the array.
+	 * This returns the lengths of the timeperiods in ascending order. Useful for finding an appropriate value in the array.
 	 * @return An array of time periods sorted in ascending order.
 	 */
 	static int[] getTimePeriodLengths()
