@@ -41,8 +41,9 @@ td {
 
 #header {
 	width: 780px;
-	height: 150px;
+	height: 180px;
 	background-image: url('../images/header-background.png');
+	background-repeat: repeat-x;
 }
 
 #logo {
