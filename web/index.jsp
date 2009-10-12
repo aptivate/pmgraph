@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page pageEncoding="utf-8" language="java" contentType="text/html; charset=utf-8"%>
 <%@ page import="java.util.Date"%>
 <%@ page import="java.util.List"%>
@@ -178,7 +178,7 @@
     <% } %>
         <div id="container">
             <div id="header">
-                <img id="logo" alt="Logo Banner" src="images/logo.png" />
+                <img id="logo" alt="Logo Banner" src="images/logo.png" />                
             <div id="date_form">
             	<form id="SetDateAndTime"  action="">
             	<script type="text/javascript">  
@@ -301,7 +301,11 @@
 
 				</table>   
 				</form>
-	            </div>         
+	            </div>   
+	            <div id="more_options">				
+					<a class="change" title="Conf" href="<%= response.encodeURL(request.getContextPath() +"/configure.jsp") %>">Configure</a>
+					<a class="change" title="Help" href="http://www.aptivate.org/Projects.BMOTools.pmGraph.html" target="_blank">Help</a>
+				</div>      
             </div>
             <div style="clear:both;"></div>            
             <div id="main">
