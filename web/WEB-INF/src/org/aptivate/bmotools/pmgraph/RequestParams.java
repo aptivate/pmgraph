@@ -38,6 +38,8 @@ public class RequestParams
 	private String m_sortBy;
 
 	private String m_order;
+	
+	private String m_localSubnet;
 
 	Map<String, Object> m_reqParams;
 
@@ -101,6 +103,11 @@ public class RequestParams
 	void setDynamic(boolean dynamic)
 	{
 		m_dynamic = dynamic;
+	}
+	
+	void setSubnet(String localSubnet)
+	{
+		m_localSubnet = localSubnet;
 	}
 
 	public String getFromDateAsString()
@@ -235,6 +242,11 @@ public class RequestParams
 	public long getRoundedEndTime(long resolution)
 	{
 		return m_toDateAndTime.getTime() - (m_toDateAndTime.getTime() % resolution);
+	}
+	
+	public String getLocalSubnet()
+	{
+		return m_localSubnet;
 	}
 
 	public Map<String, Object> getParams()
@@ -377,6 +389,23 @@ public class RequestParams
 				throw new PageUrlException(ErrorMessages.PORT_NUMBER_TOO_BIG);
 			}
 		}
+	}
+	
+	
+	/**
+	 * The value of local subnet textbox is set as per request.
+	 * 
+	 * @param request
+	 * @throws PageUrlException
+	 */
+	private void setSubnetFromRequest(HttpServletRequest request) throws PageUrlException
+	{
+
+		if (request.getParameter("localSubnet") != null)
+		{
+			m_localSubnet = request.getParameter("localSubnet");
+		} else
+			m_localSubnet = "10.0.156.";
 	}
 
 	private boolean isValidIP(String ip) throws NumberFormatException
@@ -637,6 +666,17 @@ public class RequestParams
 			else
 				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
 		}
+		
+		try
+		{
+			setSubnetFromRequest(request);
+		} catch (PageUrlException e)
+		{
+			if (exception == null)
+				exception = e;
+			else
+				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
+		}	
 
 		try
 		{
