@@ -46,9 +46,37 @@ td {
 	background-repeat: repeat-x;
 }
 
+#conf_header {
+	width: 780px;
+	height: 780px;
+	background-image: url('../images/header-background.png');
+	background-repeat: repeat-x;
+}
+
 #logo {
 	width: 243px;
 	float: left;
+}
+
+#more_options {
+	float: left;
+	clear: left;
+	margin-top: 65px;	
+	margin-left: 20px;	
+}
+
+#options {
+	float: left;
+	clear: left;
+	margin-top: 40px;	
+	margin-left: 20px;	
+}
+
+#result {
+	float: left;
+	clear: left;
+	margin-top: 20px;
+	margin-left: 10px;
 }
 
 #date_form {
@@ -58,6 +86,14 @@ td {
 }
 
 #container {
+	width: 780px;
+	margin: 0 auto;
+	background-color: #99bb99;
+	border: solid 1px #666666;
+	border-top: 0px;
+}
+
+#conf_container {
 	width: 780px;
 	margin: 0 auto;
 	background-color: #99bb99;
@@ -122,6 +158,33 @@ td {
 	padding-right: 10px;
 }
 
+#conf_table {
+	margin-top: 50px;
+ 	float: left; 
+}
+
+#save_conf {
+	margin-top: 100px;
+	float: left;
+ 	margin-left: 0px; 
+}
+
+#configuration{
+	height: 200px;
+	width: 780px;
+	
+	}
+
+#conf_form {
+	float: left;
+	clear: left;
+	margin-top: 50px;
+}
+
+.change {
+	font-size: 10pt;
+}
+
 .legend_th {
 	font-weight: bold;
 }
@@ -166,3 +229,4 @@ input {
 	text-align: left;
 	
 }
+
