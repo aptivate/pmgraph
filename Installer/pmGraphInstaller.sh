@@ -77,8 +77,13 @@ then
 	exit 1
 fi
 
+CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat6 | grep Default | sed -e 's/.*: //'`
+. /etc/default/tomcat6
+
+CATALINA_BASE=${CATALINA_BASE:-$CATALINA_DEFAULT_BASE}
+
 # Configure server and pmacct 
-perl -w -i -p -e "s/10.0.156./$SUBNET/g" /usr/share/tomcat5.5/webapps/pmgraph/WEB-INF/classes/database.properties
+perl -w -i -p -e "s/10.0.156./$SUBNET/g" $CATALINA_BASE/webapps/pmgraph/WEB-INF/classes/database.properties
 
 perl -w -i -p -e "s/10.0.156./$SUBNET/g" /etc/pmacct/pmacctd.conf
 
@@ -92,10 +97,11 @@ do
 	done=$?
 done
 
-perl -w -i -p -e "s/^DatabasePass = \w*/DatabasePass = $aPassword/" /usr/share/tomcat5.5/webapps/pmgraph/WEB-INF/classes/database.properties
+perl -w -i -p -e "s/^<entry key=\"DatabasePass\">\w*<\/entry>/<entry key=\"DatabasePass\">$aPassword<\/entry>/" $CATALINA_BASE/webapps/pmgraph/WEB-INF/classes/database.properties
 
 perl -w -i -p -e "s/^sql_passwd: \w*/sql_passwd: $aPassword/" /etc/pmacct/pmacctd.conf 
+
 # Restart server and pmacct
-/etc/init.d/tomcat5.5 restart
+/etc/init.d/tomcat6 restart
 
 /etc/init.d/pmacct restart
