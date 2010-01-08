@@ -9,8 +9,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+
 
 import org.apache.log4j.Logger;
 
@@ -47,6 +49,8 @@ public class QueryBuilder
 	static final String REMOTE_IP = "remote_ip";
 
 	private List<Object> m_listData;
+	
+	private StringBuffer m_query;
 
 	/**
 	 * Just get a connection to the database using the Configuration Class to
@@ -66,6 +70,7 @@ public class QueryBuilder
 	{
 		try
 		{
+			System.setProperty("sqlite.purejava", "true");
 			Class.forName(Configuration.getJdbcDriver()).newInstance();
 			Connection con = DriverManager.getConnection(Configuration.getDatabaseURL(),
 					Configuration.getDatabaseUser(), Configuration.getDatabasePass());
@@ -151,13 +156,20 @@ public class QueryBuilder
 		return (sql.toString());
 	}
 
-	private String buildWhere(RequestParams requestParams, boolean isLong)
+	private String buildWhere(RequestParams requestParams, boolean isLong) throws IOException
 	{
 		StringBuffer where = new StringBuffer();
 		String comparator = " LIKE ";
 		String ip = m_localSubnet + "%";
 
-		where.append("WHERE stamp_inserted >= ? " + "AND stamp_inserted <= ? ");
+		if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			where.append("WHERE datetime(stamp_inserted) >= ? " + "AND datetime(stamp_inserted) <= ? ");
+		}
+		else
+		{
+			where.append("WHERE stamp_inserted >= ? " + "AND stamp_inserted <= ? ");
+		}
 		long resolution = TimeSpanUtils.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
 		m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
 		m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));
@@ -259,24 +271,59 @@ public class QueryBuilder
 		}
 		sql.append(buildWhere(requestParams, isLong));
 		sql.append(buildGroupBy(requestParams, isChart));
-
+		
+		m_query = new StringBuffer(sql.toString());
+		//PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
+			//	ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
-				ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-
+				ResultSet.TYPE_FORWARD_ONLY,
+                ResultSet.CONCUR_READ_ONLY,
+                ResultSet.CLOSE_CURSORS_AT_COMMIT);
 		// set the query parameters depending on the query type
 		setQueryParams(ipStatement);
 		return (ipStatement);
 	}
 
+	public String getQuery()
+	{
+		return m_query.toString();
+	}
+	
 	// The list data is used to store parameters for the SQL statement. They are
 	// substituted for the "?" within the pre-compiled SQL statement. Search for
 	// "statement.setObject" for more info.
-	private void setQueryParams(PreparedStatement statement) throws SQLException
+	private void setQueryParams(PreparedStatement statement) throws SQLException, IOException
 	{
-
+		String value;
 		int parameter_index = 1;
 		for (Object parameter_value : m_listData)
 		{
+			if(parameter_value.getClass() == Timestamp.class)
+			{
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				if(!Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
+				{
+					value = format.format((Timestamp)parameter_value).toString();
+				}
+				else
+				{
+					parameter_value = format.format((Timestamp)parameter_value).toString();
+					value = parameter_value.toString();
+					//value = format.format(parameter_value).toString();
+				}
+			}
+			else
+			{
+				value = parameter_value.toString();
+			}
+			if(parameter_value.getClass() == Integer.class)
+			{
+				m_query.replace(m_query.indexOf("?"), m_query.indexOf("?") + 1, value);
+			}
+			else
+			{
+				m_query.replace(m_query.indexOf("?"), m_query.indexOf("?") + 1, "\'" + value + "\'");
+			}
 			statement.setObject(parameter_index, parameter_value);
 			parameter_index++;
 		}
@@ -293,5 +340,4 @@ public class QueryBuilder
 			m_logger.error("Error freeing connection in finalize method", e);
 		}
 	}
-
 }

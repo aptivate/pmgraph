@@ -1,6 +1,7 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -14,7 +15,7 @@ public class PortDataPoint extends DataPoint
 	public static final int OTHER_PORT = -1;
 
 	public PortDataPoint(ResultSet rs, Integer port, String protocol,
-			boolean isChart) throws SQLException {
+			boolean isChart) throws SQLException, IOException {
 		super(rs, isChart);
 		m_port = port;
 		m_protocol = Protocol.valueOf(protocol);

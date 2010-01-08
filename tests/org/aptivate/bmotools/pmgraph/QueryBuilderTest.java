@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.text.ParseException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -34,7 +34,6 @@ public class QueryBuilderTest extends TestCase
 	private HashMap<String, Map<String, String>> longQueries;
 	
 	private HashMap<String, Map<String, String>> longLegendQueries;
-	
 
 	public QueryBuilderTest() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException, ConfigurationException {
@@ -440,7 +439,14 @@ public class QueryBuilderTest extends TestCase
 
 	}
 
-	private void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException
+	private String alterQuery(String query)
+	{
+		query = query.replace("stamp_inserted >= ", "datetime(stamp_inserted) >= ");
+		query = query.replace("stamp_inserted <= ", "datetime(stamp_inserted) <= ");
+		return query;
+	}
+	
+	private void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException, ParseException
 	{
 		List<View> views = View.getAvailableViews(requestParams);
 		HashMap<String, Map<String, String>> theQueries;
@@ -462,28 +468,29 @@ public class QueryBuilderTest extends TestCase
 		{
 			String sql;
 			requestParams.setView(view);
-			if(isLong)
+			m_queryBuilder.buildQuery(requestParams, true, isLong);//.toString().replaceAll( ".*: ", "");
+			sql = m_queryBuilder.getQuery().replaceAll( ".*: ", "");
+			//assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
+			if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
 			{
-				sql = m_queryBuilder.buildQuery(requestParams, true, true)
-					.toString().replaceAll( ".*: ", "");
+				String modifiedQuery = alterQuery(theQueries.get(stringParams).get(view.toString()));
+				assertEquals(modifiedQuery, sql);
 			}
 			else
 			{
-				sql = m_queryBuilder.buildQuery(requestParams, true, false)
-				.toString().replaceAll( ".*: ", "");
+				assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
 			}
-			assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
-			if(isLong)
+			m_queryBuilder.buildQuery(requestParams, false, isLong);//.toString().replaceAll( ".*: ", "");
+			sql = m_queryBuilder.getQuery();
+			if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
 			{
-				sql = m_queryBuilder.buildQuery(requestParams, false, true).toString()
-					.replaceAll( ".*: ", "");
+				String modifiedQuery = alterQuery(theLegendQueries.get(stringParams).get(view.toString()));
+				assertEquals(modifiedQuery, sql);
 			}
 			else
 			{
-				sql = m_queryBuilder.buildQuery(requestParams, false, false).toString()
-				.replaceAll( ".*: ", "");
+				assertEquals(theLegendQueries.get(stringParams).get(view.toString()), sql);
 			}
-			assertEquals(theLegendQueries.get(stringParams).get(view.toString()), sql);
 		}
 	}
 
@@ -493,7 +500,7 @@ public class QueryBuilderTest extends TestCase
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	public void testQueryBuilder() throws SQLException, IOException
+	public void testQueryBuilder() throws SQLException, IOException, ParseException
 	{
 		Map<String, Object> params = new HashMap<String, Object>();
 

@@ -365,7 +365,10 @@ public class RequestParams
 				m_reqParams.put("ip", request.getParameter("ip"));
 			} else
 			{
-				throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+				if(!request.getParameter("ip").equals("Others"))
+				{
+					throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+				}
 			}
 		}
 
@@ -376,17 +379,20 @@ public class RequestParams
 			{
 				port = Integer.valueOf(request.getParameter("port"));
 				m_reqParams.put("port", Integer.valueOf(request.getParameter("port")));
+				if (port < 0)
+				{
+					throw new PageUrlException(ErrorMessages.NEGATIVE_PORT_NUMBER);
+				}
+				if (port > 65535)
+				{
+					throw new PageUrlException(ErrorMessages.PORT_NUMBER_TOO_BIG);
+				}
 			} catch (NumberFormatException e)
 			{
-				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
-			}
-			if (port < 0)
-			{
-				throw new PageUrlException(ErrorMessages.NEGATIVE_PORT_NUMBER);
-			}
-			if (port > 65535)
-			{
-				throw new PageUrlException(ErrorMessages.PORT_NUMBER_TOO_BIG);
+				if(!request.getParameter("port").equals("Others"))
+				{
+					throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
+				}
 			}
 		}
 	}
@@ -453,7 +459,10 @@ public class RequestParams
 				m_reqParams.put("remote_ip", request.getParameter("remote_ip"));
 			} else
 			{
-				throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+				if(!request.getParameter("remote_ip").equals("Others"))
+				{
+					throw new PageUrlException(ErrorMessages.IP_FORMAT_ERROR);
+				}
 			}
 		}
 
@@ -466,19 +475,21 @@ public class RequestParams
 				port = Integer.valueOf(request.getParameter("remote_port"));
 				m_reqParams
 						.put("remote_port", Integer.valueOf(request.getParameter("remote_port")));
+				if (port < 0)
+				{
+					throw new PageUrlException(ErrorMessages.NEGATIVE_PORT_NUMBER);
+				}
+				if (port > 65535)
+				{
+					throw new PageUrlException(ErrorMessages.PORT_NUMBER_TOO_BIG);
+				}
 			} catch (NumberFormatException e)
 			{
-				throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
+				if(!request.getParameter("remote_port").equals("Others"))
+				{
+					throw new PageUrlException(ErrorMessages.PORT_FORMAT_ERROR);
+				}
 			}
-			if (port < 0)
-			{
-				throw new PageUrlException(ErrorMessages.NEGATIVE_PORT_NUMBER);
-			}
-			if (port > 65535)
-			{
-				throw new PageUrlException(ErrorMessages.PORT_NUMBER_TOO_BIG);
-			}
-
 		}
 	}
 

@@ -146,7 +146,10 @@ public class ErrorMessageTest extends TestCase {
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?port=99999");
 		m_response = m_wc.getResponse(m_request);
 		assertEquals("test wrong port Number", ErrorMessages.PORT_NUMBER_TOO_BIG, m_wc.popNextAlert());
-				
+		
+		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?port=Others");
+		m_response = m_wc.getResponse(m_request);
+		assertEquals("test wrong port Number", "", m_wc.popNextAlert());
 	}
 	
 	/**
@@ -159,7 +162,9 @@ public class ErrorMessageTest extends TestCase {
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?ip=3.3.y.9");
 		m_response = m_wc.getResponse(m_request);
 		assertEquals("test wrong port Number", ErrorMessages.IP_FORMAT_ERROR, m_wc.popNextAlert());
-				
+		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?ip=Others");
+		m_response = m_wc.getResponse(m_request);
+		assertEquals("test wrong port Number", "", m_wc.popNextAlert());		
 	}
 
 	/**

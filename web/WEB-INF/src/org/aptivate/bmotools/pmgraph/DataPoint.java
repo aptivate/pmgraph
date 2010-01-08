@@ -1,6 +1,7 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
@@ -36,9 +37,18 @@ public abstract class DataPoint
 
 	private Logger m_logger = Logger.getLogger(DataPoint.class.getName());
 
-	public DataPoint(ResultSet rs, boolean isChart) throws SQLException {
+	public DataPoint(ResultSet rs, boolean isChart) throws SQLException, IOException {
 		if (isChart)
-			setTime(rs.getTimestamp("stamp_inserted"));
+		{
+			if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
+			{
+				setTime(Timestamp.valueOf(rs.getString("stamp_inserted")));
+			}
+			else
+			{
+				setTime(rs.getTimestamp("stamp_inserted"));
+			}
+		}
 		setDownloaded(rs.getLong("downloaded"));
 		setUploaded(rs.getLong("uploaded"));
 	}

@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.GregorianCalendar;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -56,7 +54,7 @@ class DataAccess
 		List<DataPoint> dataPoints = new ArrayList<DataPoint>();
 		statement = queryBuilder.buildQuery(requestParams, isChart, isLong);
 
-		m_logger.debug(statement);
+		m_logger.debug(queryBuilder.getQuery());
 		
 		//access the database
 		ResultSet dataResults = statement.executeQuery();
@@ -82,7 +80,7 @@ class DataAccess
 	}
 
 	private DataPoint dataPointCreate(RequestParams requestParams,
-			ResultSet rs, boolean isChart) throws SQLException
+			ResultSet rs, boolean isChart) throws SQLException, IOException
 	{
 		switch (requestParams.getView())
 		{

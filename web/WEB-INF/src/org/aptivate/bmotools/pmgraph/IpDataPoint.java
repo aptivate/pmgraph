@@ -1,6 +1,7 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -20,7 +21,7 @@ public class IpDataPoint extends DataPoint
 	private Logger m_logger = Logger.getLogger(IpDataPoint.class.getName());
 
 	public IpDataPoint(ResultSet rs, String ip, boolean isChart)
-			throws SQLException {
+			throws SQLException, IOException {
 		super(rs, isChart);
 		m_Ip = ip;
 	}
