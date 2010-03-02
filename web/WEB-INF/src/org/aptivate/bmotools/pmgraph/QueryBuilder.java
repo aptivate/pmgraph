@@ -109,6 +109,17 @@ public class QueryBuilder
 
 	}
 
+	/**
+	 * Constructor - sets the Subnet, connection and query parameter list for
+	 * this object.
+	 * 
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws Configuration Exception
+	 */
 	public QueryBuilder() throws IOException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, ConfigurationException {
 
@@ -125,10 +136,10 @@ public class QueryBuilder
 		if (isChart)
 			sql.append(" " + TIME_STAMP + ", ");
 
-		sql.append("SUM(CASE WHEN ip_dst LIKE ? " + "THEN bytes ELSE 0 END) as downloaded, ");
+		sql.append("SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, ");
 
 		m_listData.add(m_localSubnet + "%");
-		sql.append("SUM(CASE WHEN ip_src LIKE ? " + "THEN bytes ELSE 0 END) as uploaded, ");
+		sql.append("SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded, ");
 		m_listData.add(m_localSubnet + "%");
 
 		switch (requestParams.getView())
@@ -164,13 +175,13 @@ public class QueryBuilder
 
 		if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
 		{
-			where.append("WHERE datetime(stamp_inserted) >= ? " + "AND datetime(stamp_inserted) <= ? ");
+			where.append("WHERE datetime(stamp_inserted) >= ? AND datetime(stamp_inserted) <= ? ");
 		}
 		else
 		{
-			where.append("WHERE stamp_inserted >= ? " + "AND stamp_inserted <= ? ");
+			where.append("WHERE stamp_inserted >= ? AND stamp_inserted <= ? ");
 		}
-		long resolution = TimeSpanUtils.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
+		long resolution = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
 		m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
 		m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));
 		if (requestParams.getIp() != null)
@@ -263,7 +274,7 @@ public class QueryBuilder
 		sql.append(buildSelect(requestParams, isChart));
 		if(isLong)
 		{
-			sql.append("FROM " + TimeSpanUtils.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
+			sql.append("FROM " + Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
 		}
 		else
 		{
@@ -284,6 +295,11 @@ public class QueryBuilder
 		return (ipStatement);
 	}
 
+	/**
+	 * Get the contents of a query (for testing and debugging purposes).
+	 * 
+	 * @return String: a string representing the query
+	 */
 	public String getQuery()
 	{
 		return m_query.toString();
@@ -330,6 +346,9 @@ public class QueryBuilder
 		m_listData.clear();
 	}
 
+	/**
+	 * Release the connection from a query
+	 */
 	void releaseConnection()
 	{
 		try

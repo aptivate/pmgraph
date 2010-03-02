@@ -16,7 +16,7 @@
 	
 	//Input Validation
 	String errorMsg = null;
-	String result = null;
+	Boolean result = false;
 
 	//Validate Parameters
 	try
@@ -54,7 +54,7 @@
 	 
      
 	<div id="result">		
-		<% if(result == "true"){%>
+		<% if(result == true){%>
 		
 		<p> Update Done </p>
 	
@@ -62,7 +62,7 @@
 		<% } 
 		else {%>	
 		
-		<form id=max_band" action="configure.jsp">
+		<form id="max_band" action="configure.jsp">
 			<fieldset>								
 			<p> Update Failed </p>
 			<input type="submit" value="Retry" id="Done" name="Done" />

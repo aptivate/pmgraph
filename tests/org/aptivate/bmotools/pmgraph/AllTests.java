@@ -31,7 +31,7 @@ public class AllTests extends TestCase
 		suite.addTest(RequestParamsTest.suite());
 		suite.addTest(PortsToServiceTest.suite());
 		suite.addTest(ColourTest.suite());
-		suite.addTest(TimeSpanUtilsTest.suite());
+		suite.addTest(ConfigurationTest.suite());
 		return suite;
 	}
 }

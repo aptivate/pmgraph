@@ -198,7 +198,7 @@ public class GraphFactory
 
 		String title = chartTitle(requestParams);
 
-		int resolution = TimeSpanUtils.getResolution(isLong, theEnd - theStart);
+		int resolution = Configuration.getResolution(isLong, theEnd - theStart);
 		roundedStart = requestParams.getRoundedStartTime(resolution);
 		roundedEnd = requestParams.getRoundedEndTime(resolution);
 		
@@ -386,7 +386,7 @@ public class GraphFactory
 			InstantiationException, IOException, SQLException,
 			NoSuchAlgorithmException, ConfigurationException
 	{
-		boolean isLong = TimeSpanUtils.longGraphIsAllowed() &&  TimeSpanUtils.needsLongGraph(requestParams.getFromDateAndTime().getTime(), requestParams.getToDateAndTime().getTime());
+		boolean isLong = Configuration.longGraphIsAllowed() &&  Configuration.needsLongGraph(requestParams.getFromDateAndTime().getTime(), requestParams.getToDateAndTime().getTime());
 
 		DataAccess dataAccess = new DataAccess();
 		List<DataPoint> thrptResults;
