@@ -26,6 +26,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/postgresql-8.3-604.jdbc4.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="/home/daniell/Desktop/sqlitejdbc-v056.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/sqlitejdbc-v056.jar"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>
