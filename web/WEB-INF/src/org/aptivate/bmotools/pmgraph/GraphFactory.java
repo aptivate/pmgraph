@@ -202,9 +202,9 @@ public class GraphFactory
 		roundedStart = requestParams.getRoundedStartTime(resolution);
 		roundedEnd = requestParams.getRoundedEndTime(resolution);
 		
-		int minutes = (int) ((roundedEnd - roundedStart) / resolution);
-		float[] otherUp = new float[minutes + 1];
-		float[] otherDown = new float[minutes + 1];
+		int timeUnits = (int) ((roundedEnd - roundedStart) / resolution);
+		float[] otherUp = new float[timeUnits + 1];
+		float[] otherDown = new float[timeUnits + 1];
 
 		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
 		JFreeChart chart = createStackedXYGraph(title, dataset, roundedStart, roundedEnd,
@@ -227,8 +227,8 @@ public class GraphFactory
 
 		for (DataPoint topId : topIds) // Is in the Top X results.
 		{
-			float upSeriesElement[] = new float[minutes + 1];
-			float downSeriesElement[] = new float[minutes + 1];
+			float upSeriesElement[] = new float[timeUnits + 1];
+			float downSeriesElement[] = new float[timeUnits + 1];
 			upSeries.put(topId, upSeriesElement);
 			downSeries.put(topId, downSeriesElement);
 
@@ -242,6 +242,7 @@ public class GraphFactory
 			// values in the database are in bytes per interval (normally 1
 			// minute)
 			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
+			// When isLong is true, the data is for every hour so divide by (60 * 60) = 3600 seconds = 1 hour
 			int offset = 1;
 			if(isLong)
 			{

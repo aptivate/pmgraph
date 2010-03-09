@@ -169,7 +169,7 @@ public abstract class DataPoint
 		//Check time matches
 		if (m_time == null)
 		{
-			if (m_time != null)
+			if (other.getTime() != null)
 				return false;
 		} else
 			if (!m_time.equals(other.getTime()))
@@ -180,7 +180,7 @@ public abstract class DataPoint
 			if (other.getSeriesId() != null)
 				return false;
 		} else
-			if (!other.getSeriesId().equals(other.getSeriesId()))
+			if (!getSeriesId().equals(other.getSeriesId()))
 				return false;
 		return true;
 	}
@@ -201,7 +201,8 @@ public abstract class DataPoint
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result
-				+ ((getSeriesId() == null) ? 0 : getSeriesId().hashCode());
+				+ ((getSeriesId() == null) ? 0 : getSeriesId().hashCode()) + 
+				((m_time == null) ? 0 : m_time.hashCode());
 		return result;
 	}
 

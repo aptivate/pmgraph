@@ -1,18 +1,17 @@
 package org.aptivate.bmotools.pmgraph;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import java.io.FileOutputStream;
 import java.util.Scanner;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
-import java.io.Writer;
-
 
 /**
  * @author Noe Andres Rodriguez Gonzalez.
@@ -31,6 +30,7 @@ public class Configuration
 	
 	static final String CONFIGURATION_FILE = "/database.properties";
 	private static final long DAY = 86400000;
+	private static Properties s_properties = null;
 
 	/**
 	 * Read the content of the properties file and return it in a Properties
@@ -38,128 +38,147 @@ public class Configuration
 	 * 
 	 * @return java.utils.Properties - object created after reading the properties
 	 *         file.
-	 * @throws IOException
+	 * @throws IOException 
 	 */		
-	static Properties readConfiguration() throws IOException
+	private static void readConfiguration() throws IOException
 	{
-		Properties properties = new Properties();
-		InputStream stream = DataAccess.class.getResourceAsStream(CONFIGURATION_FILE);		
-		properties.loadFromXML(stream);
-		stream.close();
-		return properties;
+		if(s_properties == null)
+		{
+			s_properties = new Properties();
+			InputStream stream = DataAccess.class.getResourceAsStream(CONFIGURATION_FILE);		
+			s_properties.loadFromXML(stream);
+			stream.close();
+		}
+	}
+	
+	/**
+	 * Force a reload of the configuration (testing purposes only).
+	 * @throws IOException 
+	 * 
+	 */
+	public static void forceConfigReload() throws IOException
+	{
+		s_properties = null;
+		readConfiguration();
 	}
 
 	public static String getLocalSubnet() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("LocalSubnet");
+		readConfiguration();
+		return s_properties.getProperty("LocalSubnet");
 	}
 	
 	
 	public static String getBandwidth() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("TotalBandwidth");
+		readConfiguration();
+		return s_properties.getProperty("TotalBandwidth");
 	}
 
 	public static String getDatabaseURL() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("DatabaseURL");
+		readConfiguration();
+		return s_properties.getProperty("DatabaseURL");
 	}
 
 	public static String getDatabaseUser() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("DatabaseUser");
+		readConfiguration();
+		return s_properties.getProperty("DatabaseUser");
 	}
 
 	public static String getResultDatabaseTable() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("DatabaseTable");
+		readConfiguration();
+		return s_properties.getProperty("DatabaseTable");
 	}
 	
 	public static String getDatabasePass() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("DatabasePass");
+		readConfiguration();
+		return s_properties.getProperty("DatabasePass");
 	}
 	
 
 	public static String getDHCPAddress() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("DHCPAddress");
+		readConfiguration();
+		return s_properties.getProperty("DHCPAddress");
 	}
 
 	public static String getDHCPName() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("DHCPName");
+		readConfiguration();
+		return s_properties.getProperty("DHCPName");
 	}
 
 	public static String getDHCPPass() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("DHCPPass");
+		readConfiguration();
+		return s_properties.getProperty("DHCPPass");
 	}
 	
 	public static String getResultDatabaseLongTable() throws IOException
 	{
-		Properties properties = readConfiguration();
-		return properties.getProperty("DatabaseLongTable");
+		readConfiguration();
+		return s_properties.getProperty("DatabaseLongTable");
 	}
 	
 	public static String getResultDatabaseVeryLongTable() throws IOException
 	{
-		Properties properties = readConfiguration();
-		return properties.getProperty("DatabaseVeryLongTable");
+		readConfiguration();
+		return s_properties.getProperty("DatabaseVeryLongTable");
 	}
 	
 	public static String getTimespansForLongGraph() throws IOException
 	{
-		Properties properties = readConfiguration();
-		return properties.getProperty("TimespansForLongGraph");
+		readConfiguration();
+		return s_properties.getProperty("TimespansForLongGraph");
 	}
 
 	public static String getJdbcDriver() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return properties.getProperty("JdbcDriver");
+		readConfiguration();
+		return s_properties.getProperty("JdbcDriver");
 	}
 
 	public static Integer getDHCPPort() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return Integer.valueOf(properties.getProperty("DHCPPort"));
+		readConfiguration();
+		return Integer.valueOf(s_properties.getProperty("DHCPPort"));
 	}
 	public static Integer getResultLimit() throws IOException
 	{
 
-		Properties properties = readConfiguration();
-		return Integer.valueOf(properties.getProperty("ResultLimit"));
+		readConfiguration();
+		return Integer.valueOf(s_properties.getProperty("ResultLimit"));
 	}
 	
 	
 	private static void setConfiguration(String localSubnet) throws IOException
 	{
-		Properties properties = readConfiguration();
+		// Ensure that s_properties != null
+		readConfiguration();
+		// Copy to a temporary properties object to prevent error where the configuration file ends up
+		// empty.
+		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
-		properties.setProperty("LocalSubnet", localSubnet);
-		properties.storeToXML(out, "");				
-		out.close();	
+		tempProps.setProperty("LocalSubnet", localSubnet);
+		tempProps.storeToXML(out, "");
+		out.close();
+		// Force s_properties to be read from file on next reload.
+		s_properties = null;
 	 }	    
 	
 	
@@ -168,8 +187,8 @@ public class Configuration
 	{	
 		boolean result = false;
 		String oldSubnet = getLocalSubnet();	
-		setConfiguration(localSubnet);
 		processLineByLine(localSubnet, oldSubnet);
+		setConfiguration(localSubnet);
 		result = true;			
 		return result;
 	}

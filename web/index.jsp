@@ -62,7 +62,6 @@
         <link rel="Stylesheet" href="styles/main.css" type="text/css" />
         <% if (dynamicFlag) { %>
         <script type="text/javascript">
-        
         	//called everytime "dynamic update" feature is chosen, and page gets reloaded
         	function onReload()			
         	{	
@@ -154,6 +153,7 @@
 				window.location.replace(newUrl);				
 											
 			}
+			
         </script>
         <% } %>
         <% if (errorMsg != null) { %>
@@ -181,17 +181,55 @@
                 <img id="logo" alt="Logo Banner" src="images/logo.png" />                
             <div id="date_form">
             	<form id="SetDateAndTime"  action="">
-            	<script type="text/javascript">  
-				        function check()
-						{							
-							alert("Click 'Draw Graph' button to enable Dynamic Update.");	
-							document.getElementById( 'dynamic' ).value = "true";														
+            	<script type="text/javascript"> 
+            	// <![CDATA[ 
+				        function check(isChecked)
+						{
+							var message = "";
+							var propertyName = "dynamic";
+							var startIndex = window.location.href.indexOf(propertyName);
+							var dynamicParam;
+							if(startIndex != -1)
+							{
+								dynamicParam = window.location.href.substr(startIndex + propertyName.length + 1);
+								dynamicParam = dynamicParam.substr(0, dynamicParam.indexOf("&"));
+								if(dynamicParam == "true")
+								{
+									if(!isChecked)
+									{
+										message = "Click 'Draw Graph' button to disable Dynamic Update.";
+										document.getElementById( 'dynamic' ).value = "false"
+									}
+								}
+								else
+								{
+									if(isChecked)
+									{
+										message = "Click 'Draw Graph' button to enable Dynamic Update.";
+										document.getElementById( 'dynamic' ).value = "true";
+									}
+								}
+							}
+							else
+							{
+								if(isChecked)
+								{
+									message = "Click 'Draw Graph' button to enable Dynamic Update.";
+									document.getElementById( 'dynamic' ).value = "true";
+								}
+							}
+							if(message != "")
+							{	
+								alert(message);
+							}
 						}   
+						
 						function uncheck()
 						{							
-							alert("Click 'Draw Graph' button to disable Dynamic Update.");	
+							alert();	
 							document.getElementById( 'dynamic' ).value = "false";														
 						}   
+						//]]>
 					</script>
             	<table class="layout_table" id="date_table">
 					<tr>
@@ -293,7 +331,7 @@
 					<tr>						
 						<td>Dynamic Update: </td> 
 						<td class="align_right">																
-						<input type="checkbox" title="Click to enable/disable dynamic update" id="dynamic" name="dynamic" value="false" onclick="if (this.checked) {check();} else {uncheck();}" />						
+						<input type="checkbox" title="Click to enable/disable dynamic update" id="dynamic" name="dynamic" value="false" onclick="check(this.checked);" />						
 						</td>	
 						<td  colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>					
 					</tr>				
