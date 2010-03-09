@@ -403,7 +403,7 @@ public class GraphFactory
 		{
 			long endTime = System.currentTimeMillis() - initTime;
 			m_logger.debug("Execution Time creating chart : " + endTime
-					+ " milisec");
+					+ " millisec");
 		}
 		thrptResults = null;
 		return chart;
