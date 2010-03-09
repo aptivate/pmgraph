@@ -1,0 +1,40 @@
+create database if not exists pmacct;
+
+GRANT SELECT,INSERT, LOCK TABLES ON pmacct.* TO 'pmacct'@'localhost' identified by 'secret';
+
+use pmacct;
+
+create table if not exists acct_v6 (
+	ip_src CHAR(15) NOT NULL,
+	ip_dst CHAR(15) NOT NULL,
+	src_port INT(2) UNSIGNED NOT NULL,
+	dst_port INT(2) UNSIGNED NOT NULL,
+	ip_proto CHAR(6) NOT NULL, 
+    packets INT UNSIGNED NOT NULL,
+	bytes BIGINT UNSIGNED NOT NULL,
+	flows INT UNSIGNED NOT NULL,
+	stamp_inserted DATETIME NOT NULL,
+	stamp_updated DATETIME,
+	PRIMARY KEY (ip_src, ip_dst, src_port, dst_port, ip_proto, stamp_inserted)
+);
+
+create table if not exists acct_v6_long (
+	ip_src CHAR(15) NOT NULL,
+	ip_dst CHAR(15) NOT NULL,
+	src_port INT(2) UNSIGNED NOT NULL,
+	dst_port INT(2) UNSIGNED NOT NULL,
+	ip_proto CHAR(6) NOT NULL, 
+    packets INT UNSIGNED NOT NULL,
+	bytes BIGINT UNSIGNED NOT NULL,
+	flows INT UNSIGNED NOT NULL,
+	stamp_inserted DATETIME NOT NULL,
+	stamp_updated DATETIME,
+	PRIMARY KEY (ip_src, ip_dst, src_port, dst_port, ip_proto, stamp_inserted)
+);
+
+
+alter table acct_v6 add index (stamp_inserted,ip_src,ip_dst,bytes);
+alter table acct_v6_long add index (stamp_inserted,ip_src,ip_dst,bytes);
+
+optimize table acct_v6;
+optimize table acct_v6_long;

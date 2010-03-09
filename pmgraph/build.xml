@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/****************************************************
+**  Edit For Each Project
+**
+**  You should expect to have to edit the following
+**  section for each project.
+****************************************************/
+-->
+
+<!--Project. Configuration that affects the project as a whole, project name etc.-->
+
+<project basedir="." default="jar" name="org.aptivate.bmotools.pmgraph">
+
+<!--Compile. Location of source files, destination of compiled files, files to include in compilation etc.-->
+    <property name="build.directory" value="tmp"/>
+    <property name="source.directory" value="web/WEB-INF/src/"/>
+    <property name="test.source.directory" value="test"/>
+    <property name="properties.directory" value="web/WEB-INF/src/"/>
+    <property name="nowar.lib.directory" value="lib/"/>
+    <property name="war.lib.directory" value="web/WEB-INF/lib/"/>
+    <property name="build.compiler" value="modern"/>
+    <property name="conf.directory" value="config"/>
+<!--Allow shell environment variables to be called with the "env." prefix -->	
+	<property environment="env"/>
+	
+    <path id="classpath">
+        <fileset dir="${war.lib.directory}">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${nowar.lib.directory}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+	<!--Resources. The location of other resources other than source code-->
+    <property name="jsp.directory" value="web"/>    
+
+	<!--Distribution. Where the distributable results of the build are placed.-->
+    <property name="distribution.directory" value="dist"/>
+
+	<!--Jar. Name of the jar file produced by the build process -->
+    <!--name and location of the jar file to build-->
+    <property name="jar.directory" value="${distribution.directory}"/>
+    <property name="jar.name" value="org.aptivate.bmotools.pmgraph.jar"/>
+    <property name="test.jar.name" value="org.aptivate.bmotools.pmgraph.test.jar"/>
+    <property name="jar.basedirectory" value="${build.directory}"/>
+	
+	<!--WAR file name and location, and path to embedded web.xml-->
+    <property name="war.webxml" value="${jsp.directory}/WEB-INF/web.xml"/>
+    <property name="war.directory" value="${distribution.directory}"/>
+    <property name="war.filename" value="pmgraph.war"/>
+
+
+    <!--exclude all unit test files from the jar file-->
+    <!-- <property name="jar.excludes" value="**/test/**"/> -->
+
+	<!--These are to put in the released Jar's manifest. -->
+    <property name="release.version" value="${RELEASE_VERSION}"/>
+
+<!--
+/****************************************************
+**  Restricted Edit
+**
+**  You shouldn't have to edit anything below. 
+****************************************************/ -->
+
+
+
+<!--
+/*****************************************************
+**  Initialise
+******************************************************/-->
+    <target name="init">
+        <tstamp/>
+    </target>
+	
+<!--
+/*****************************************************
+**  Compile: Delete the build directory, recreate it and compile all the source code
+******************************************************/-->
+    <target name="compile" depends="init" unless="build.compiled">
+        <delete dir="${build.directory}"/>
+        <mkdir dir="${build.directory}"/>
+		<javac classpathref="classpath" 
+			srcdir="${source.directory}" 
+			destdir="${build.directory}"
+			source="1.5" target="1.5" debug="yes" />
+        <copy todir="${build.directory}">
+            <fileset dir="${source.directory}">
+                <include name="**/*.xsl"/>
+                <include name="**/*.html"/>
+            	<include name="**/*.js"/>
+            </fileset>
+        </copy>
+		<property name="build.compiled" value="true"/>
+    </target>
+	
+	<target name="javac">
+		<javac debug="on" optimize="off"
+        	destdir="${build.directory}"
+			includes="**/*.java">
+        	<src path="${source.directory}" />
+			<classpath refid="classpath"/>
+        </javac>
+	</target>
+	
+<!--
+/*****************************************************
+**  Compile Tests: Compile all the source code in test dir
+******************************************************/-->
+    <target name="compile-tests" depends="compile">
+        <javac deprecation="on" optimize="off"
+			source="1.5" target="1.5" debug="yes"
+			destdir="${build.directory}"
+			srcdir="${test.source.directory}">
+            <classpath refid="classpath"/>
+        </javac>
+        <copy todir="${build.directory}">
+            <fileset dir="${test.source.directory}">
+                <include name="*.properties"/>
+                <include name="**/*.properties"/>
+                <include name="org/aptivate/haobackend/test/fixtures/*"/>
+            </fileset>
+        </copy>
+    </target>
+
+<!--
+/*****************************************************
+**  Compile Tests: Compile all the source code in test dir
+**    Assume that compile has already happened, to save us
+**    compiling the main stuff twice.  But have check aswell
+******************************************************/-->
+    <target name="compile-tests-after-war">
+		<!-- <fail message="Compile has not happened" unless="build.compiled"/> -->
+        <javac deprecation="on" debug="on" optimize="off" destdir="${build.directory}" srcdir="${test.source.directory}">
+            <classpath refid="classpath"/>
+        </javac>
+        <copy todir="${build.directory}">
+            <fileset dir="${test.source.directory}">
+                <include name="*.properties"/>
+                <include name="**/*.properties"/>
+            </fileset>
+        </copy>
+    </target>
+
+<!--
+/*****************************************************
+**  Build Jar file
+******************************************************/
+-->
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.directory}"/>
+        <jar jarfile="${jar.directory}/${jar.name}" basedir="${jar.basedirectory}">
+		  <manifest>
+		    <section name="org/aptivate">
+		      <attribute name="Implementation-Title" value="org.aptivate.haobackend"/>
+		      <attribute name="Implementation-Version" value="${release.version}, ${TODAY}"/> 
+		      <attribute name="Implementation-Vendor" value="org.aptivate"/>
+		    </section>
+		  </manifest>
+        </jar>
+		<delete dir="${build.directory}"/>
+    </target>
+
+    <target name="testjar" depends="compile-tests">
+        <mkdir dir="${jar.directory}"/>
+        <jar jarfile="${jar.directory}/${test.jar.name}" basedir="${jar.basedirectory}">
+		  <manifest>
+		    <section name="org/aptivate">
+		      <attribute name="Implementation-Title" value="org.aptivate.haobackend"/>
+		      <attribute name="Implementation-Version" value="${release.version}, ${TODAY}"/> 
+		      <attribute name="Implementation-Vendor" value="org.aptivate"/>
+		    </section>
+		  </manifest>
+        </jar>
+		<delete dir="${build.directory}"/>
+    </target>
+
+<!--
+/*****************************************************
+**  Build .War file
+******************************************************/
+-->
+    <target name="war" depends="jar">
+        <mkdir dir="${war.directory}"/>
+    	 <copy todir="${build.directory}" >
+    	    <fileset dir="${properties.directory}">
+    	    <include name="*.dist.properties"/>
+    	    </fileset>
+    	    <mapper type="glob" from="*.dist.properties" to="*.properties"/>
+    	  </copy>
+	   	 <copy todir="${war.directory}" >
+	   	    <fileset dir="${conf.directory}">
+		   	    <include name="*"/>
+	   	    </fileset>
+	   	  </copy>
+        <war warfile="${war.directory}/${war.filename}"
+			webxml="${war.webxml}"
+			duplicate="fail"
+			includes=""
+			>
+			<!-- duplicate? should already be in jar
+            <classes dir="${build.directory}">
+                <include name="*.*"/>
+                <exclude name="web.xml"/>
+            </classes>
+	      -->
+            <classes dir="${build.directory}">
+                <include name="*.properties"/>
+            </classes>
+
+        	<lib dir="${war.lib.directory}">
+                <include name="*.jar"/>
+                <include name="*.zip"/>
+            </lib>
+            <lib dir="${jar.directory}">
+                <include name="*.jar"/>
+            </lib>
+            <fileset dir="${jsp.directory}">
+            	<exclude name="WEB-INF/**"/>
+        	</fileset>
+        </war>
+    </target>
+</project>

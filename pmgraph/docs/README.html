@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en-GB"><head>
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="description" content="Aptivate aims to enable access to information and communications for all. Our two priority areas: Universal Access to ICTs and Bandwidth Management.">
+<style type="text/css">
+/*<![CDATA[*/
+                @import url(README_files/styles.css);
+                <!--[if gte IE 5]>
+                #container {
+                        /* For Internet Explorer: */
+                        width: expression(Math.min(parseInt(this.offsetWidth), 58 ) + "em");
+                        width: expression( document.body.clientWidth > (500/12) * parseInt(document.body.currentStyle.fontSize)? "58em":"auto" ); 
+                }
+                <![endif]-->
+/*]]>*/
+</style><title>Aptivate - Projects.BMOTools - International I.T. Development</title></head><body>
+<div id="container">
+<div id="header">
+<h1><a href="http://www.aptivate.org/Home.html" title="Home"></a><img src="README_files/logo.png" alt="Aptivate - International IT Development" height="70" width="219"></h1>
+
+<ul id="navigation">
+<li><a href="http://www.aptivate.org/ContactUs.html">Contact Us</a></li>
+<li><a href="http://www.aptivate.org/Team.html">Team</a></li>
+<li><a href="http://www.aptivate.org/ClientsAndPartners.html">Clients &amp;
+Partners</a></li>
+<li><a class="here" href="http://www.aptivate.org/Projects.html">Projects</a></li>
+<li><a href="http://www.aptivate.org/AboutUs.html">About Us</a></li>
+<li><a href="http://www.aptivate.org/Home.html">Home</a></li>
+</ul>
+</div>
+<div id="content">
+<div style="">
+<div class="navigation">
+<h2 id="section-ProjectsNavigation-Projects"><a class="wikipage" href="http://www.aptivate.org/Projects.html">Projects</a></h2>
+<ul>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.WebDesignGuidelines.html">Web Design Guidelines</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.CamFedPDAStudy.html">CamFed
+PDA Study</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.Enclusion.html">Enclusion</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.BGDDAcademicNetwork.html">BGDD Academic Network</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.Loband.html">Loband</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.BMOBook.html">BMO
+Book</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.BMOPositionPaper.html">BMO
+Position Paper</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.BMOTools.html">BMO
+Tools</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.BMOTools.pmGraph.html">pmGraph</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.RemoteEmailFiltering.html">Remote Email
+Filtering</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.UNResearchAccess.html">UN
+Research Access</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.PDFUsageGuidelines.html">PDF
+Usage Guidelines</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.NIDAWebsiteDevelopment.html">NIDA Website
+Development</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/Projects.SciDevWebsiteConsultancy.html">SciDev Website
+Consultancy</a></li>
+</ul>
+</div>
+</div>
+<div class="mainColumn">
+<h2 id="section-Projects.BMOTools.pmGraph-PmGraph">pmGraph</h2>
+<p>Bandwidth management is essential for any institutional network. In
+the global North, budgets for managing Internet connections are often
+far greater than the cost of the connection itself. In the global
+South, however, many institutions lack the resources for such
+management budgets and consequently may experience very poor network
+performance.
+</p>
+<p><img class="inline" src="README_files/screenshotthumb.png" alt="screenshotthumb.png" />
+</p>
+<p>pmGraph is an application which serves graphical representations of
+network traffic to a web interface to assist in good management of
+network resources. It is intended that the program will be developed
+into a comprehensive and intuitive tool for monitoring networks in
+educational institutions.
+</p>
+<h4 id="section-Projects.BMOTools.pmGraph-CurrentStatus">Current Status</h4>
+<p>As the result of (by no means concluded) experimentation on how best
+to graphically represent network traffic, pmGraph is in the early
+stages of development. When installed on an appropriately placed
+machine, pmGraph is currently capable of displaying network throughput
+over time for each IP on a specified subnet, using stacked area chart
+and a colour coded legend. An early version is available to download
+and install for demonstration to developers and administrators.
+</p>
+<p>Work is in progress to make pmGraph a more flexible and powerful
+tool. The source code is also freely available and collaborators on the
+project are both welcome and important for the development of the
+project.
+</p>
+<h3 id="section-Projects.BMOTools.pmGraph-TechnicalDetails">Technical Details</h3>
+<p>The pmGraph project consists of three parts: pmacct (Promiscuous
+Mode IP Accounting Package), a MySQL database and a Java driven web
+front end. pmacct observes traffic passing through a Linux system
+configured as a network bridge and records traffic data in a database.
+The front end - a combination of Java Server Pages, Java Servlets and
+the JFreeChart libraries - serves graphical representations of this
+data to a web interface.
+</p>
+<h4 id="section-Projects.BMOTools.pmGraph-Prerequisites">Prerequisites</h4>
+<p>pmGraph requires certain prerequisites:
+</p>
+<ul>
+<li>A machine running a Linux operating system with network bridging capabilities
+</li>
+<li>A MySQL database
+</li>
+<li><a class="external" href="http://www.pmacct.net/">pmacct</a>
+</li>
+<li>A Tomcat server
+</li>
+</ul>
+<p>With the exception of pmacct (which only needs to be downloaded,
+compiled and run), a working knowledge of each of these components is
+necessary to continue installing and developing pmGraph. For ease of
+configuration, it is suggested that all of the components are installed
+on a single machine.
+</p>
+<h4 id="section-Projects.BMOTools.pmGraph-InstallationInstructions">Installation Instructions</h4>
+<p>pmGraph can be downloaded <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=238574">here</a>. Unpack the archive, cd into it and copy <tt>pmgraph.war</tt> into your Tomcat web apps directory.
+</p>
+<p>Edit the file at<tt> {tomcatroot}/webapps/pmgraph/WEB-INF/src/database.properties</tt> so that the <tt>LocalSubnet</tt> variable is set to the subnet you will be monitoring. You may also set the address for your MySQL database here if it is not installed locally.
+</p>
+<p>Configure MySQL to receive data from pmacct by runing the script in the config folder with the command<br> <tt>$ mysql pmacct -u root -p &lt; config/pmacct-create-db_v6.mysql </tt>
+</p>
+<p>Run pmacct with<br> <tt>$ sudo pmacctd &lt; config/pmaccd.conf</tt>
+</p>
+<p>The pmGraph page should now be available at<br> <tt>http://{yourbridgemachine}:{yourtomcatport}/pmgraph</tt>
+</p>
+</div>
+
+
+	<div style="clear: both; visibility: hidden;"></div>
+		
+
+
+
+
+
+
+				
+
+
+
+
+
+
+
+				
+				</div>
+
+<div id="footer">
+<ul>
+<li class="nobullet"><a class="wikipage" href="http://www.aptivate.org/TermsAndConditions.html">Terms of Use</a></li>
+<li><a class="wikipage" href="http://www.aptivate.org/ContactUs.html">Contact Us</a></li>
+<li>Copyright © 2008</li>
+</ul>
+</div>
+		
+		</div>
+
+	
+</body></html>

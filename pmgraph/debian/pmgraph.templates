@@ -1,0 +1,12 @@
+Template: pmgraph/mysql
+Type: password
+Default: secret
+Description: Enter Mysql server root password.
+  Mysql root password to create the pmacct database and the pmacct user.
+
+Template: pmgraph/java_security
+Type: boolean
+Default: true
+Description: Disable Java security?
+  To avoid putting a lot of exceptions in java security properties file it is better to disable java security
+

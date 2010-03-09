@@ -1,0 +1,16 @@
+#!/bin/sh -e
+CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat5.5 | grep Default | sed -e 's/.*: //'`
+. /etc/default/tomcat5.5
+
+CATALINA_BASE=${CATALINA_BASE:-$CATALINA_DEFAULT_BASE}
+test -L $CATALINA_BASE/webapps/pmgraph.war && rm $CATALINA_BASE/webapps/pmgraph.war
+true
+
+
+if [ "$1" = "purge" -a -e /usr/share/debconf/confmodule ]; then
+    # Source debconf library.
+    . /usr/share/debconf/confmodule
+    # Remove my changes to the db.
+    db_purge
+fi
+
