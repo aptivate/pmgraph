@@ -63,7 +63,7 @@ public class ConfigurationTest extends TestCase
 		assertTrue(Configuration.getLocalSubnet().equals(newSubnet));
 		try {
 			//This is necessary to ensure that the value in pmacctd.conf is reset correctly
-			Thread.sleep(5000);
+			Thread.sleep(11000);
 		} catch (InterruptedException e) {
 		}
 		// Ensure there are no problems caused by tomcat reloading.
