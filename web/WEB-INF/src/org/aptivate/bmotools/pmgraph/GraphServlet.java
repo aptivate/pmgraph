@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.AccessControlException;
 
 import javax.servlet.ServletException;
+import javax.servlet.SingleThreadModel;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,13 +28,13 @@ import org.jfree.chart.JFreeChart;
  * Added log4java logging
  * 
  */
-public class GraphServlet extends HttpServlet
+public class GraphServlet extends HttpServlet //implements SingleThreadModel
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger m_logger = Logger.getLogger(GraphServlet.class
 			.getName());
-
+	//private int serviceCounter = 0;
 	/**
 	 * Creates a GraphBuilder object which queries the database and returns
 	 * graphs (using the JFreeChart library) showing logged traffic to the

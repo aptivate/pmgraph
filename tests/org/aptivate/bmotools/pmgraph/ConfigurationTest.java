@@ -1,12 +1,6 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
-import java.sql.SQLException;
-
-import org.xml.sax.SAXException;
-
-import com.meterware.httpunit.*;
-
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -48,43 +42,6 @@ public class ConfigurationTest extends TestCase
 			table = Configuration.findTable(time);
 			assertEquals(tables[i], table);
 		}
-	}
-
-	public void testUpdateConfiguration() throws InstantiationException, IllegalAccessException, 
-			ClassNotFoundException, SQLException, IOException, SAXException
-	{
-		TestUtils theTestUtils = new TestUtils();
-		WebConversation wc = new WebConversation();
-		WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp");
-		String oldSubnet = Configuration.getLocalSubnet();
-		String newSubnet = "0.123.255.";
-		WebResponse response = wc.getResponse(request);
-		replaceSubnet(response, newSubnet);
-		assertTrue(Configuration.getLocalSubnet().equals(newSubnet));
-		try {
-			//This is necessary to ensure that the value in pmacctd.conf is reset correctly
-			Thread.sleep(11000);
-		} catch (InterruptedException e) {
-		}
-		// Ensure there are no problems caused by tomcat reloading.
-		wc = new WebConversation();
-		response = wc.getResource(request);
-		replaceSubnet(response, oldSubnet);
-		assertTrue(Configuration.getLocalSubnet().equals(oldSubnet));
-	}
-	
-	private void replaceSubnet(WebResponse response, String newSubnet) throws IOException, SAXException
-	{
-		WebForm configurationForm = response.getFormWithID("config");
-		String currentSubnet = configurationForm.getParameterValue("localSubnet");
-		assertTrue(currentSubnet.equals(Configuration.getLocalSubnet()));
-		configurationForm.setParameter("localSubnet", newSubnet);
-		WebResponse formResult = configurationForm.submit();
-		HTMLElement result = formResult.getElementWithID("result");
-		String resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
-		assertTrue(resultString.equals(" Update Done "));
-		// Update the client side configuration.
-		Configuration.forceConfigReload();
 	}
 	
 	public static Test suite()

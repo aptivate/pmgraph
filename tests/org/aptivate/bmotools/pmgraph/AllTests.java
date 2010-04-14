@@ -1,5 +1,7 @@
 package org.aptivate.bmotools.pmgraph;
 
+import java.io.IOException;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -11,11 +13,10 @@ public class AllTests extends TestCase
 		super(s);
 	}
 
-	public static Test suite()
+	public static Test suite() throws IOException
 	{
 		TestSuite suite = new TestSuite("pmGraph Unit Tests");
-
-		suite.addTest(DataBaseTest.suite());
+       	suite.addTest(DataBaseTest.suite());
 		suite.addTest(ButtonsTest.suite());
 		suite.addTest(GraphsTest.suite());
 		suite.addTest(LegendTest.suite());
@@ -32,6 +33,8 @@ public class AllTests extends TestCase
 		suite.addTest(PortsToServiceTest.suite());
 		suite.addTest(ColourTest.suite());
 		suite.addTest(ConfigurationTest.suite());
+		suite.addTest(TestMultiSubnets.suite());
+		suite.addTest(TestMultiSubnetsLegend.suite());
 		return suite;
 	}
 }

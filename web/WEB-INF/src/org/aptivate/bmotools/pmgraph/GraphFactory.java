@@ -8,7 +8,9 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,59 +124,80 @@ public class GraphFactory
 	 * @param requestParams parameters from the request
 	 * @return List of DataPoint with the top results set by the user or by default
 	 */
-	private List<DataPoint> getTopResults(List<DataPoint> thrptResults,
+	
+	private Hashtable<Integer, List<DataPoint>> getTopResults(Hashtable<Integer,List<DataPoint>> thrptResults,
 			RequestParams requestParams)
 	{
-
-		List<DataPoint> dataSeriesList = new ArrayList<DataPoint>();
-		// seriesTotals is a hashmap used to accumulate totals
-		Map<DataPoint, DataPoint> seriesTotals = new HashMap<DataPoint, DataPoint>();
-
+		
+		Hashtable<Integer,Map<DataPoint, DataPoint>> mulSubnetTotal = new Hashtable<Integer, Map<DataPoint, DataPoint>>();
+		Hashtable<Integer, List<DataPoint>> dataSeriesHash = new Hashtable<Integer, List<DataPoint>>();
 		// create a list accumulating upload and download for each IP or port
 		// Read through the results from the database (all the datapoints). 
 		// For each Ip or port, create an entry in a data series list in which 
 		//the total points are summed
-		for (DataPoint thrptResult : thrptResults)
+		
+		int cont = 1;
+		for (Enumeration enumListResult = thrptResults.keys (); enumListResult.hasMoreElements ();) 
 		{
-			DataPoint seriesId = thrptResult.createCopy();
-			seriesId.setTime(null);
-			DataPoint data = seriesTotals.get(seriesId);
-
-			// if the point already exists
-			if (data != null)
-			{
-				data.addToUploaded(thrptResult.getUploaded());
-				data.addToDownloaded(thrptResult.getDownloaded());
-			} else
-			// create a new item in the list, for Ip or Port
-			{
-				if (thrptResult instanceof PortDataPoint)
-				{
-					data = new PortDataPoint((PortDataPoint) thrptResult);
-				} else
-				{
-					data = new IpDataPoint((IpDataPoint) thrptResult);
-				}
+			int key = (Integer) enumListResult.nextElement();
+			List<DataPoint> listResults = thrptResults.get(key);
+			// seriesTotals is a hashmap used to accumulate totals
+			Map<DataPoint, DataPoint> seriesTotals = new HashMap<DataPoint, DataPoint>();
+			for (DataPoint listResult : listResults) {
 				
-				data.setTime(null);
-				seriesTotals.put(seriesId, data);
+				DataPoint seriesId = listResult.createCopy();
+				seriesId.setTime(null);
+				DataPoint data = seriesTotals.get(seriesId);
+
+				// if the point already exists
+				if (data != null)
+				{
+					data.addToUploaded(listResult.getUploaded());
+					data.addToDownloaded(listResult.getDownloaded());
+				} else
+					// create a new item in the list, for Ip or Port
+				{
+					if (listResult instanceof PortDataPoint)
+					{
+						data = new PortDataPoint((PortDataPoint) listResult);
+					} else
+					{
+						data = new IpDataPoint((IpDataPoint) listResult);
+					}
+				
+					data.setTime(null);
+					seriesTotals.put(seriesId, data);
+				}
+			}
+			mulSubnetTotal.put(cont, seriesTotals);
+			cont++;
+		}
+		cont = 1;
+		for (Enumeration enumListResult = mulSubnetTotal.keys (); enumListResult.hasMoreElements ();)
+		{
+			int key = (Integer) enumListResult.nextElement();
+			Map<DataPoint, DataPoint> seriesTotals = mulSubnetTotal.get(key);
+			List<DataPoint> dataSeriesList = new ArrayList<DataPoint>();
+			
+			for (DataPoint series : seriesTotals.values())
+			{
+				dataSeriesList.add(series);
+			}
+			// sort the list using byte total
+			Collections.sort(dataSeriesList, new BytesTotalComparator(true));
+
+			// truncate the list to the result limit
+			if (dataSeriesList.size() > requestParams.getResultLimit())
+			{
+				dataSeriesList = dataSeriesList.subList(0, (int) requestParams
+						.getResultLimit());
+			}
+			if (!dataSeriesList.isEmpty()) {
+				dataSeriesHash.put(cont,dataSeriesList);
+				cont++;
 			}
 		}
-		
-		for (DataPoint series : seriesTotals.values())
-		{
-			dataSeriesList.add(series);
-		}
-		// sort the list using byte total
-		Collections.sort(dataSeriesList, new BytesTotalComparator(true));
-
-		// truncate the list to the result limit
-		if (dataSeriesList.size() > requestParams.getResultLimit())
-		{
-			dataSeriesList = dataSeriesList.subList(0, (int) requestParams
-					.getResultLimit());
-		}
-		return dataSeriesList;
+		return dataSeriesHash;
 	}
 
 	/**
@@ -187,13 +210,15 @@ public class GraphFactory
 	 * @return A JFreeChart with the data in the List thrptResults creating a
 	 *         new series for each port or Ip
 	 */
-	private JFreeChart fillGraph(List<DataPoint> thrptResults,
+	@SuppressWarnings("unchecked")
+	private JFreeChart fillGraph(Hashtable<Integer,List<DataPoint>> thrptResults,
 			RequestParams requestParams, boolean isLong) {
-		Map<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
-		Map<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
+		
+		Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> upDownSeriesHash = new Hashtable<Map<DataPoint, float[]>, Map<DataPoint, float[]>>();
+			
 		long roundedStart;    //Rounded to minutes
 		long roundedEnd;
-		long theStart = requestParams.getStartTime();			   //in milliseconds
+		long theStart = requestParams.getStartTime();	//in milliseconds
 		long theEnd = requestParams.getEndTime();
 
 		String title = chartTitle(requestParams);
@@ -216,7 +241,8 @@ public class GraphFactory
 
 		m_logger.debug("Start sorting result list.");
 		long initTime = System.currentTimeMillis();
-		List<DataPoint> topIds = getTopResults(thrptResults, requestParams);
+		
+		Hashtable<Integer, List<DataPoint>> topIdsHash = getTopResults(thrptResults, requestParams);
 
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Time spent in sorting: " + endTime + " millisecond");
@@ -225,78 +251,105 @@ public class GraphFactory
 		initTime = System.currentTimeMillis();
 		m_logger.debug("Number of rows in result set = " + thrptResults.size());
 
-		for (DataPoint topId : topIds) // Is in the Top X results.
-		{
-			float upSeriesElement[] = new float[timeUnits + 1];
-			float downSeriesElement[] = new float[timeUnits + 1];
-			upSeries.put(topId, upSeriesElement);
-			downSeries.put(topId, downSeriesElement);
+		for (Enumeration e = topIdsHash.keys (); e.hasMoreElements ();) 
+		{			
+			int key = 1;
+			List<DataPoint> topIds = topIdsHash.get(key);
+			e.nextElement();
+			key++;
+			Map<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
+			Map<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
+			
+			for (DataPoint topId : topIds) // Is in the Top X results.
+			{
+				float upSeriesElement[] = new float[timeUnits + 1];
+				float downSeriesElement[] = new float[timeUnits + 1];
+				upSeries.put(topId, upSeriesElement);
+				downSeries.put(topId, downSeriesElement);
 
+			}
+			upDownSeriesHash.put(upSeries, downSeries);
 		}
 
-		for (DataPoint thrptResult : thrptResults) {
-			DataPoint seriesId = thrptResult.createCopy();
-			seriesId.setTime(null); // this data point represent a whole series
-
-			Timestamp inserted = thrptResult.getTime();
-			// values in the database are in bytes per interval (normally 1
-			// minute)
-			// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
-			// When isLong is true, the data is for every hour so divide by (60 * 60) = 3600 seconds = 1 hour
-			int offset = 1;
-			if(isLong)
-			{
-				offset = 60;
-			}
-			float downloaded = (float) ((thrptResult.getDownloaded() * 8) / 1024) / (60 * offset);
-			float uploaded = (float) ((thrptResult.getUploaded() * 8) / 1024) / (60 * offset);
-
-			// check if the ip already has its own series if not we create one
-			// for it
-
+		for (Enumeration enumListResult = thrptResults.keys (); enumListResult.hasMoreElements ();) 
+		{
+			int key = (Integer) enumListResult.nextElement();
+			List<DataPoint> listResults = thrptResults.get(key);
 			
+			for (DataPoint thrptResult : listResults) 
+			{
+				DataPoint seriesId = thrptResult.createCopy();
+				seriesId.setTime(null); // this data point represent a whole series
 
-			// We created a series for this port so it should be within the top
-			// results
-			// update the values of the series
-			if (upSeries.containsKey(seriesId)) {
-				float[] dSeries = downSeries.get(seriesId);
-				float[] uSeries = upSeries.get(seriesId);
-				dSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = downloaded;
-				uSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = 0 - uploaded;
-			} else { // the port belongs to the group other - just stack
+				Timestamp inserted = thrptResult.getTime();
+				// values in the database are in bytes per interval (normally 1
+				// minute)
+				// bytes * 8 = bits bits / 1024 = kilobits kilobits / 60 = kb/s
+				// When isLong is true, the data is for every hour so divide by (60 * 60) = 3600 seconds = 1 hour
+				int offset = 1;
+				if(isLong)
+				{
+					offset = 60;
+				}
+				float downloaded = (float) ((thrptResult.getDownloaded() * 8) / 1024) / (60 * offset);
+				float uploaded = (float) ((thrptResult.getUploaded() * 8) / 1024) / (60 * offset);
+
+				// check if the ip already has its own series if not we create one
+				// for it
+
+				for (Enumeration e = upDownSeriesHash.keys (); e.hasMoreElements ();) 
+				{
+					Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>) e.nextElement();
+					Map<DataPoint, float[]> downSeries = upDownSeriesHash.get(upSeries);
+
+					// We created a series for this port so it should be within the top
+					// results
+					// update the values of the series
+					if (upSeries.containsKey(seriesId)) {
+						float[] dSeries = downSeries.get(seriesId);
+						float[] uSeries = upSeries.get(seriesId);
+						dSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = downloaded;
+						uSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = 0 - uploaded;
+					} else { // the port belongs to the group other - just stack
 						// values
 
-				otherDown[((int) ((inserted.getTime() - roundedStart) / resolution))] += downloaded;
-				otherUp[((int) ((inserted.getTime() - roundedStart) / resolution))] += 0 - uploaded;
+						otherDown[((int) ((inserted.getTime() - roundedStart) / resolution))] += downloaded;
+						otherUp[((int) ((inserted.getTime() - roundedStart) / resolution))] += 0 - uploaded;
 
-				if (!(upSeries.size() == requestParams.getResultLimit() + 1)) {
-					if (thrptResult instanceof IpDataPoint) {
-						upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
-								otherUp);
-						downSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
-								otherDown);
-					} else {
-						upSeries.put(
-								new PortDataPoint(PortDataPoint.OTHER_PORT),
-								otherUp);
-						downSeries.put(new PortDataPoint(
-								PortDataPoint.OTHER_PORT), otherDown);
+						if (!(upSeries.size() == requestParams.getResultLimit() + 1)) {
+							if (thrptResult instanceof IpDataPoint) {
+								upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
+										otherUp);
+								downSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
+										otherDown);
+							} else {
+								upSeries.put(
+										new PortDataPoint(PortDataPoint.OTHER_PORT),
+										otherUp);
+								downSeries.put(new PortDataPoint(
+										PortDataPoint.OTHER_PORT), otherDown);
+							}
+						}
 					}
+					upDownSeriesHash.put(upSeries, downSeries);
 				}
 			}
+				
 		}
 		// Once the data that should be in the graph is created lets go to
 		// introduce it in the dataset of the chart.
+		for (Enumeration e = upDownSeriesHash.keys (); e.hasMoreElements ();) 
+		{
+			Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>) e.nextElement();
+			Map<DataPoint, float[]> downSeries = upDownSeriesHash.get(upSeries);
+			series2DataSet(dataset, downSeries, renderer, roundedStart, "<down>",
+					requestParams, resolution);
+			series2DataSet(dataset, upSeries, renderer, roundedStart, "<up>",
+					requestParams, resolution);
 
-		series2DataSet(dataset, downSeries, renderer, roundedStart, "<down>",
-				requestParams, resolution);
-		series2DataSet(dataset, upSeries, renderer, roundedStart, "<up>",
-				requestParams, resolution);
-
-		endTime = System.currentTimeMillis() - initTime;
-		m_logger.debug("Data inserted in chart Time : " + endTime + " millisec");
-
+			endTime = System.currentTimeMillis() - initTime;
+			m_logger.debug("Data inserted in chart Time : " + endTime + " millisec");
+		}
 		return chart;
 	}
 	
@@ -389,13 +442,19 @@ public class GraphFactory
 	{
 		boolean isLong = Configuration.longGraphIsAllowed() &&  Configuration.needsLongGraph(requestParams.getFromDateAndTime().getTime(), requestParams.getToDateAndTime().getTime());
 
-		DataAccess dataAccess = new DataAccess();
-		List<DataPoint> thrptResults;
-	
-		thrptResults = dataAccess.getThroughput(requestParams, true, isLong);
+		DataAccess dataAccess = new DataAccess();		
+		
+		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, isLong);
 		m_logger.debug("Start creating chart.");
 		long initTime = System.currentTimeMillis();
-		Collections.sort(thrptResults, new BytesTotalComparator(true));
+		
+		for (Enumeration enumListResult = thrptResults.keys (); enumListResult.hasMoreElements ();) 
+		{
+			int key = (Integer) enumListResult.nextElement();
+			List<DataPoint> listResults = thrptResults.get(key);
+			Collections.sort(listResults, new BytesTotalComparator(true));
+			thrptResults.put(key, listResults);
+		}
 
 		JFreeChart chart = fillGraph(thrptResults, requestParams, isLong);
 

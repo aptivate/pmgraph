@@ -98,9 +98,9 @@ public class ColourTest extends TestCase
 		XYItemRenderer renderer = plot.getRenderer();
 		
 		// we use half of the series because we only need to check either the uploaded or downloaded part
-		String colour[] = new String[plot.getSeriesCount() / 2];
+		String colour[] = new String[plot.getSeriesCount() / 4];
 		boolean repeated = false;
-		for (int i = 0; i < (plot.getSeriesCount() / 2); i++)
+		for (int i = 0; i < (plot.getSeriesCount() / 4); i++)
 		{
 			Color singleColour = (Color) renderer.getSeriesPaint(i);
 			String singleHexColour = Integer.toHexString(singleColour.getRGB() & 0x00ffffff);

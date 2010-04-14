@@ -52,7 +52,8 @@
     
     //dynamic parameter
     boolean dynamicFlag=pageUrl.getParams().getDynamic(); 
-      
+    
+   
 %>
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -227,7 +228,8 @@
 						function uncheck()
 						{							
 							alert();	
-							document.getElementById( 'dynamic' ).value = "false";														
+							document.getElementById( 'dynamic' ).value = "false";		
+																		
 						}   
 						//]]>
 					</script>
@@ -325,18 +327,46 @@
 							<% } %>
 						</select>
 						</td>					
-						
 					</tr>
-					
 					<tr>						
 						<td>Dynamic Update: </td> 
 						<td class="align_right">																
 						<input type="checkbox" title="Click to enable/disable dynamic update" id="dynamic" name="dynamic" value="false" onclick="check(this.checked);" />						
 						</td>	
 						<td  colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>					
-					</tr>				
-																	
-
+					</tr>		
+					
+					<tr>
+						<td>SelectSubnet </td>   
+						<td class="align_right">
+						<select id="selectSubnetIndex"  name="selectSubnetIndex" >
+						<% 
+							String mlSubnets = Configuration.getLocalSubnet();
+							String [] vectSubnets = mlSubnets.split(" ");
+							String selectSubnet = pageUrl.getParams().getSelectSubnetIndex();
+							if ((selectSubnet != null) && (selectSubnet.equals("all"))) {
+							%>
+								<option selected="selected" value="all">all</option>
+							<% } else %>
+								<option value="all">all</option>
+							<% 
+							if ((selectSubnet != null) && (selectSubnet.equals("--"))) {
+							%>
+								<option selected="selected" value="--">--</option>
+							<% } else %>
+								<option value="--">--</option>
+							<%
+							for (int i = 0; i < vectSubnets.length; i++) {  
+								String subnet = vectSubnets[i]; 
+								if ((selectSubnet != null) && (selectSubnet.equals(vectSubnets[i]))) {
+								 %>
+									<option selected="selected" value="<%=subnet%>"><%=subnet%></option>		
+								<% } else %>
+									<option value="<%=subnet%>"><%=subnet%></option>	
+				 	 	<%} %>
+						</select>
+						</td>	
+					</tr>
 				</table>   
 				</form>
 	            </div>   

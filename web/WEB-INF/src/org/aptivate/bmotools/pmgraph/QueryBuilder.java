@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 
 import org.apache.log4j.Logger;
@@ -30,6 +31,8 @@ public class QueryBuilder
 	private Logger m_logger = Logger.getLogger(QueryBuilder.class.getName());
 
 	private String m_localSubnet; // used in the list of the DB data
+	
+	private Vector<String> m_selectSubnet = new Vector<String>();
 
 	private Connection m_conn;
 
@@ -122,8 +125,6 @@ public class QueryBuilder
 	 */
 	public QueryBuilder() throws IOException, InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, ConfigurationException {
-
-		this.m_localSubnet = Configuration.getLocalSubnet();
 		m_conn = getConnection();
 		m_listData = new ArrayList<Object>();
 	}
@@ -266,33 +267,53 @@ public class QueryBuilder
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	PreparedStatement buildQuery(RequestParams requestParams, boolean isChart, boolean isLong) throws SQLException,
+	List<PreparedStatement> buildQuery(RequestParams requestParams, boolean isChart, boolean isLong) throws SQLException,
 			IOException
 	{
-
-		StringBuffer sql = new StringBuffer("SELECT ");
-		sql.append(buildSelect(requestParams, isChart));
-		if(isLong)
-		{
-			sql.append("FROM " + Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
-		}
-		else
-		{
-			sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
-		}
-		sql.append(buildWhere(requestParams, isLong));
-		sql.append(buildGroupBy(requestParams, isChart));
 		
-		m_query = new StringBuffer(sql.toString());
-		//PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
-			//	ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
-				ResultSet.TYPE_FORWARD_ONLY,
-                ResultSet.CONCUR_READ_ONLY,
-                ResultSet.CLOSE_CURSORS_AT_COMMIT);
-		// set the query parameters depending on the query type
-		setQueryParams(ipStatement);
-		return (ipStatement);
+		List<PreparedStatement> listStatement = new ArrayList<PreparedStatement>();
+		String SelectSubnet = RequestParams.getSelectSubnetIndex();
+		if (SelectSubnet != null)
+			if (SelectSubnet.equals("all")) {
+				String[] localSubnets = Configuration.getLocalSubnet().split(" ");
+				for (int i = 0; i < localSubnets.length; i++)
+					this.m_selectSubnet.add(localSubnets[i]);
+			}
+			else
+				this.m_selectSubnet.add(SelectSubnet);
+		else { // All is the default option
+			RequestParams.setSelectSubnetIndex("all");
+			String[] localSubnets = Configuration.getLocalSubnet().split(" ");
+			for (int i = 0; i < localSubnets.length; i++)
+				this.m_selectSubnet.add(localSubnets[i]);			
+		}
+		
+		for (int i = 0; i < this.m_selectSubnet.size(); i++) {
+			
+			this.m_localSubnet = this.m_selectSubnet.get(i);
+			StringBuffer sql = new StringBuffer("SELECT ");
+			sql.append(buildSelect(requestParams, isChart));
+			if(isLong)
+			{
+				sql.append("FROM " + Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
+			}
+			else
+			{
+				sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
+			}
+			sql.append(buildWhere(requestParams, isLong));
+			sql.append(buildGroupBy(requestParams, isChart));
+		
+			m_query = new StringBuffer(sql.toString());
+			PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
+					ResultSet.TYPE_FORWARD_ONLY,
+					ResultSet.CONCUR_READ_ONLY,
+					ResultSet.CLOSE_CURSORS_AT_COMMIT);
+			// set the query parameters depending on the query type
+			setQueryParams(ipStatement);
+			listStatement.add(ipStatement);
+		}	
+		return (listStatement);
 	}
 
 	/**
@@ -325,7 +346,6 @@ public class QueryBuilder
 				{
 					parameter_value = format.format((Timestamp)parameter_value).toString();
 					value = parameter_value.toString();
-					//value = format.format(parameter_value).toString();
 				}
 			}
 			else

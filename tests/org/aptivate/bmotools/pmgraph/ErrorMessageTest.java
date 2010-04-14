@@ -43,6 +43,11 @@ public class ErrorMessageTest extends TestCase {
 		m_testUtils.CreateTable();
 		m_testUtils.InsertSampleData();
 		m_wc = new WebConversation();
+		try {
+			//This is necessary to ensure that the value in pmacctd.conf is reset correctly
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+		}
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph()
 				+ "?start=0&end=300000");
 		m_response = m_wc.getResponse(m_request);

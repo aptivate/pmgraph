@@ -3,6 +3,7 @@ package org.aptivate.bmotools.pmgraph;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Hashtable;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -12,7 +13,9 @@ import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
+import com.meterware.httpunit.HTMLElement;
 import com.meterware.httpunit.WebConversation;
+import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.nutrun.xhtml.validator.XhtmlValidator;
@@ -87,7 +90,7 @@ public class W3cValidationTest extends TestCase
 	 */
 	public void testW3c() throws IOException, SAXException,
 			InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SQLException
+			ClassNotFoundException, SQLException			 		
 	{
 
 		TestUtils testUtils = new TestUtils();
@@ -127,7 +130,25 @@ public class W3cValidationTest extends TestCase
 						+ "index.jsp?report=totals&start=0&end=300000&limitResult=2&view=LOCAL_IP");
 		response = wc.getResponse(request);
 		w3cValidator(response);
-
+		
+		// Configuration page.
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "configure.jsp");
+		response = wc.getResponse(request);
+		w3cValidator(response);
+												
+		// Configuration page after adding a new subnet
+		request = new GetMethodWebRequest(testUtils.getUrlPmgraph() + "configure.jsp");
+		response = wc.getResponse(request);
+		WebForm configurationForm = response.getFormWithID("config");		
+		int i = Integer.parseInt(configurationForm.getParameterValue("numSubnets"));
+		
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "configure.jsp?newSubnet=10.1A.123.&selectSubnet=10.0.156.&numSubnets="+i+"&Go=Save+configuration");
+		response = wc.getResponse(request);
+		w3cValidator(response);		
 	}
 
 	public static Test suite()

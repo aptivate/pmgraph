@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 
 import junit.framework.Test;
@@ -425,8 +427,10 @@ public class LegendTest extends LegendTestBase
 			LegendData data = new LegendData();
 			RequestParams requestParams = new RequestParams(0, timePeriod[i] * 60000,
 					View.LOCAL_IP, 5);
-			List<DataPoint> throughput = data.getLegendData(requestParams.getSortBy(),
-					requestParams.getOrder(), requestParams, false);
+			//List<DataPoint> throughput = data.getLegendData(requestParams.getSortBy(),
+			//		requestParams.getOrder(), requestParams, false);
+			Hashtable<Integer,List<DataPoint>> resultsHash = data.getLegendData(requestParams.getSortBy(),
+							requestParams.getOrder(), requestParams, false);
 			String addUrl = "?start=0&end=" + (timePeriod[i] * 60000);
 			WebConversation wc = new WebConversation();
 			// Obtain the upload page on web site
@@ -465,20 +469,25 @@ public class LegendTest extends LegendTestBase
 					else
 						bitsToDivideBy = 1024*1024*1024;
 				}
-
-				String databaseValueDown = String.valueOf(throughput.get(j-2).getDownloaded()/bitsToDivideBy);
-				//if the result is zero change it for "<1" as in the legend
-				if (databaseValueDown.equals("0"))
-					databaseValueDown = "<1";
-				String databaseValueUp = String.valueOf(throughput.get(j-2).getUploaded()/bitsToDivideBy);
-				if (databaseValueUp.equals("0"))
-					databaseValueUp = "<1";
-				assertEquals(
+				for (Enumeration e = resultsHash.keys (); e.hasMoreElements ();) 
+				{
+					int key = (Integer) e.nextElement();
+					List<DataPoint> throughput = resultsHash.get(key);
+					
+					String databaseValueDown = String.valueOf(throughput.get(j-2).getDownloaded()/bitsToDivideBy);
+					//if the result is zero change it for "<1" as in the legend
+					if (databaseValueDown.equals("0"))
+						databaseValueDown = "<1";
+					String databaseValueUp = String.valueOf(throughput.get(j-2).getUploaded()/bitsToDivideBy);
+					if (databaseValueUp.equals("0"))
+						databaseValueUp = "<1";
+					assertEquals(
 						"Check if the downloaded throughput in the legend matches the units we are using",
-						legend.getCellAsText(j, 3), databaseValueDown);
-				assertEquals(
+							legend.getCellAsText(j, 3), databaseValueDown);
+					assertEquals(
 						"Check if the uploaded throughput in the legend matches the units we are using",
-						legend.getCellAsText(j, 4), databaseValueUp );
+							legend.getCellAsText(j, 4), databaseValueUp );
+				}
 			}
 		}
 	}

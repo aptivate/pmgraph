@@ -2,11 +2,12 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.text.ParseException;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -19,7 +20,7 @@ import junit.framework.TestSuite;
  * 
  */
 public class QueryBuilderTest extends TestCase
-{
+{	
 	
 	private List<String> m_params;
 
@@ -33,10 +34,15 @@ public class QueryBuilderTest extends TestCase
 	
 	private HashMap<String, Map<String, String>> longQueries;
 	
-	private HashMap<String, Map<String, String>> longLegendQueries;
+	private HashMap<String, Map<String, String>> longLegendQueries;	
 
 	public QueryBuilderTest() throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SQLException, IOException, ConfigurationException {
+			ClassNotFoundException, SQLException, IOException {
+		super();
+	}		
+	
+	public void testQueryBuilder() throws Exception
+	{
 		m_params = new ArrayList<String>();
 		m_paramsValues = new HashMap<String, Object>();
 		m_params.add("ip");
@@ -47,13 +53,13 @@ public class QueryBuilderTest extends TestCase
 		m_paramsValues.put("remote_ip", "4.2.2.2");
 		m_params.add("remote_port");
 		m_paramsValues.put("remote_port", 10000);
-
+		
 		m_queryBuilder = new QueryBuilder();
-		setQueries(false);
 		setQueries(true);
+		setQueries(false);
 	}
 	
-	private void setQueries(boolean isLong) throws IOException
+	public void setQueries(boolean isLong) throws IOException
 	{
 		String shortDate = "1970-01-01 01:05:00";
 		String longDate = "1970-01-06 01:00:00";
@@ -446,7 +452,7 @@ public class QueryBuilderTest extends TestCase
 		return query;
 	}
 	
-	private void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException, ParseException
+	public void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException, ParseException
 	{
 		List<View> views = View.getAvailableViews(requestParams);
 		HashMap<String, Map<String, String>> theQueries;
@@ -493,64 +499,10 @@ public class QueryBuilderTest extends TestCase
 			}
 		}
 	}
-
-	/**
-	 * method that tests the QueryBuilder in different cases
-	 * 
-	 * @throws SQLException
-	 * @throws IOException
-	 */
-	public void testQueryBuilder() throws SQLException, IOException, ParseException
-	{
-		Map<String, Object> params = new HashMap<String, Object>();
-
-		int i = 0;
-		RequestParams requestParams = new RequestParams(params);
-		requestParams.setStart(0);
-		requestParams.setEnd(300000);
-		
-		RequestParams longRequestParams = new RequestParams(params);
-		longRequestParams.setStart(0);
-		longRequestParams.setEnd(5 * 24 * 60 * 60 * 1000);
-		
-		// check without parameters.
-		checkQuery(requestParams, false);
-		checkQuery(longRequestParams, true);
-		for (String param : m_params)
-		{
-			params.clear();
-			params.put(param, m_paramsValues.get(param));
-			// just set the parameter to a value that is not null
-			checkQuery(requestParams,false);
-			checkQuery(longRequestParams, true);
-			int limit = m_params.size() - i;
-			// check all possible groups.
-			for (int j = 1; j < limit; j++)
-			{ // number of elements in the group
-
-				for (int k = i + 1; k < m_params.size() - (j - 1); k++)
-				{ // possible starts to make group of size j
-
-					for (int l = 0; l < j; l++)
-					{ // create the group, adding the parameter value to it
-						params.put(m_params.get(k + l), m_paramsValues.get(m_params.get(k + l)));
-						
-					}
-					checkQuery(requestParams, false);
-					checkQuery(longRequestParams, true);
-
-					// restart the parameters
-					params.clear();
-					params.put(param, m_paramsValues.get(param));
-				}
-			}
-			i++;
-		}
-
-	}
-
+	
 	public static Test suite()
 	{
 		return new TestSuite(QueryBuilderTest.class);
 	}
+
 }

@@ -5,6 +5,8 @@
 <%@ page import="java.text.SimpleDateFormat"%>
 <%@ page import="java.text.DateFormat"%>
 <%@ page import="java.text.ParseException"%>
+<%@ page import="java.util.regex.Matcher"%>
+<%@ page import="java.util.regex.Pattern"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.UrlBuilder"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.Configuration"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.PageUrlException"%>
@@ -27,10 +29,16 @@
 	{
 		errorMsg = e.getMessage();
 	}	
-	
+    String newSubnets = pageUrl.getParams().getAddSubnet();
+    boolean goodSubnet = true;
+	if (!newSubnets.equals("")) {
+		Pattern p = Pattern.compile("(([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\\.){3}$");
+	    Matcher m = p.matcher(newSubnets);
+	    goodSubnet = m.find();
+	}
 	//	update configuration files
-	result = Configuration.updateConf(pageUrl.getParams().getLocalSubnet());
-	
+	if (goodSubnet)
+		result = Configuration.updateConf(pageUrl.getParams().getSelectSubnet(), pageUrl.getParams().getAddSubnet(), pageUrl.getParams().getDelSubnets());
         
 %>
     
@@ -54,22 +62,18 @@
 	 
      
 	<div id="result">		
-		<% if(result == true){%>
-		
+		<% if(result == true) { %>
 		<p> Update Done </p>
-	
-		
 		<% } 
-		else {%>	
-		
-		<form id="max_band" action="configure.jsp">
-			<fieldset>								
+		else {%>		
 			<p> Update Failed </p>
-			<input type="submit" value="Retry" id="Done" name="Done" />
-			</fieldset>
-		</form>	
-		
-		
+			
+			<% if(goodSubnet == false) { %>
+				<script language="JavaScript">
+      				alert("Incorrect format of new Subnet ");
+    			</script>
+			<% } %>
+			
 		<% } %>			
 					
 	</div>

@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -40,6 +41,14 @@ public class RequestParams
 	private String m_order;
 	
 	private String m_localSubnet;
+	
+	private static String m_selectSubnetIndex;
+	
+	private String m_addSubnet;
+	
+	private int m_numSubnets;
+	
+	private Hashtable<String,Integer> m_delSubnets;
 
 	Map<String, Object> m_reqParams;
 
@@ -108,8 +117,28 @@ public class RequestParams
 	void setSubnet(String localSubnet)
 	{
 		m_localSubnet = localSubnet;
+	}	
+	
+	static void setSelectSubnetIndex(String subnet)
+	{
+		m_selectSubnetIndex = subnet;
 	}
+	
+	void setNumSubnet(int subnet)
+	{
+		m_numSubnets = subnet;
+	}
+	void setDelSubnet(Hashtable<String,Integer> delSubnets)
+	{
+		m_delSubnets = delSubnets;
+	}
+	
 
+	void setAddSubnet(String addSubnet)
+	{
+		m_addSubnet = addSubnet;
+	}
+	
 	public String getFromDateAsString()
 	{
 
@@ -248,7 +277,27 @@ public class RequestParams
 	{
 		return m_localSubnet;
 	}
+	
+	public static String getSelectSubnetIndex()
+	{
+		return m_selectSubnetIndex;
+	}
 
+	public Hashtable<String,Integer> getDelSubnets()
+	{
+		return m_delSubnets;
+	}
+	
+	public int getNumSubnets()
+	{
+		return m_numSubnets;
+	}
+	
+	public String getAddSubnet()
+	{
+		return m_addSubnet;
+	}
+	
 	public Map<String, Object> getParams()
 	{
 		return m_reqParams;
@@ -403,15 +452,32 @@ public class RequestParams
 	 * 
 	 * @param request
 	 * @throws PageUrlException
+	 * @throws IOException 
 	 */
-	private void setSubnetFromRequest(HttpServletRequest request) throws PageUrlException
+	private void setSubnetFromRequest(HttpServletRequest request) throws PageUrlException, IOException
 	{
+		String subnetIndex = request.getParameter("selectSubnetIndex");
+		if (subnetIndex != null)
+			m_selectSubnetIndex = subnetIndex;
+		
 
-		if (request.getParameter("localSubnet") != null)
+		if (request.getParameter("newSubnet") != null)
 		{
-			m_localSubnet = request.getParameter("localSubnet");
+			m_addSubnet = request.getParameter("newSubnet");
 		} else
-			m_localSubnet = "10.0.156.";
+			m_addSubnet = "";
+		
+		if (request.getParameter("numSubnets") != null) {
+			m_numSubnets = Integer.parseInt(request.getParameter("numSubnets"));
+			Hashtable<String,Integer> hashDelSubnets=new Hashtable<String,Integer>(); //inicializa hashtable
+	        for (int i = 1; i <= m_numSubnets; i++)
+	        {
+	    	   String currentCheckbox = request.getParameter("delSubnet"+i);
+	           if (currentCheckbox != null)
+	        	   hashDelSubnets.put("LocalSubnet"+i,i);
+	        }
+	        m_delSubnets = hashDelSubnets;
+		}
 	}
 
 	private boolean isValidIP(String ip) throws NumberFormatException

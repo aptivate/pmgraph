@@ -9,13 +9,16 @@
 <%@ page import="org.aptivate.bmotools.pmgraph.*"%>
 <%@ page import="java.util.List"%>
 <%@ page import="java.net.InetAddress"%>
+<%@ page import="java.util.Hashtable"%>
+<%@ page import="java.util.Enumeration"%>
 <%@ page import="java.net.UnknownHostException"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.View"%>
 <%@ page import="org.aptivate.bmotools.pmgraph.ConfigurationException"%>
 <%@ page pageEncoding="utf-8" language="java"
 	contentType="text/html; charset=utf-8"%>
 <%
-	List<DataPoint> results = new ArrayList<DataPoint>();
+	//List<DataPoint> results = new ArrayList<DataPoint>();
+	Hashtable<Integer,List<DataPoint>> resultsHash = new Hashtable<Integer,List<DataPoint>>();
 	
 	ArrayList<ArrayList<LegendElement>> headers = new ArrayList<ArrayList<LegendElement>>();
 	ArrayList<ArrayList<LegendElement>> rows = new ArrayList<ArrayList<LegendElement>>();
@@ -48,7 +51,9 @@
     //populate the results from the database
 	try {
 		LegendData legendData = new LegendData();
-		results = legendData.getLegendData(sortBy, order, pageUrl.getParams(), Configuration.needsLongGraph(start, end));
+		resultsHash = legendData.getLegendData(sortBy, order, pageUrl.getParams(), Configuration.needsLongGraph(start, end));
+		//Hashtable<Integer,List<DataPoint>> resultsHash2 = legendData.getLegendData(sortBy, order, pageUrl.getParams(), Configuration.needsLongGraph(start, end));
+		
 	} catch (	ConfigurationException e)
 	{
 		configError = e.getLocalizedMessage();
@@ -60,56 +65,70 @@
 <table id="legend_tbl">
 	<%
 	// We pass the results from the database to View to format and populate the table 
-	LegendTable table = View.getLegendTable(pageUrl, results);
-	headers = table.getHeaders(); 
-	rows = table.getRows();
-	for (ArrayList<LegendElement> row: headers)
+	//LegendTable table = View.getLegendTable(pageUrl, results);
+	boolean buildHeaders = true;
+	for (Enumeration e = resultsHash.keys (); e.hasMoreElements ();) 
 	{
-	%>
-	<tr class="legend_th">
-	<%
-		for (LegendElement column: row)
+		int key = (Integer) e.nextElement();
+		List<DataPoint> results = resultsHash.get(key);
+		LegendTable table = View.getLegendTable(pageUrl, results, buildHeaders);
+		headers = table.getHeaders(); 
+		rows = table.getRows();
+		if (buildHeaders)
 		{
-		%><th<%			
-			if (column.isDoubleColSpan())
-			{%> 
-				colspan="2"
-			<%}
-			if (column.isDoubleRowSpan()) 
-			{%> 
-				rowspan="2" 
-			<%}	%>>
-			<%
-			//The only elements with links in the legend are the ones you can click to sort by desc/asc order 
-			if (column.getLink()!=null)
-			{%> 
-			<a href="<%=column.getLink()%>" title="Click to sort by descending/ascending order" name="<%=column.getName()%>"><%=column.getValue()%></a>
-			<%} else
+			for (ArrayList<LegendElement> row: headers)
 			{
-				%> <%=column.getValue()%> <%
-			 } %>
-			 </th>
-		<%}	%>
-	</tr>
-	<%} 
-	int i = 0;
-	for (ArrayList<LegendElement> row: rows)
-	{%>
-		<tr class="row<%=i % 2%>">
-		<td style="background-color: <%=row.get(0).getValue()%>; width: 5px;"></td>
-		<%
-		int j = 0; 
-		for (LegendElement column: row)
-		{
-			if(column != row.get(0))
-			{ %>
-				<td <%if (j>2)
-				{%> 
-					class="numval"
-				<%}
+			%> 
+				<tr class="legend_th">
+				<%
+				for (LegendElement column: row)
+				{
+					%><th<%			
 					if (column.isDoubleColSpan())
 					{%> 
-					colspan="2"
+						colspan="2"
+					<%}
+					if (column.isDoubleRowSpan()) 
+					{%> 
+						rowspan="2" 
+					<%}	%>>
+					<%
+					//The only elements with links in the legend are the ones you can click to sort by desc/asc order 
+					if (column.getLink()!=null)
+					{%> 	
+						<a href="<%=column.getLink()%>" title="Click to sort by descending/ascending order" name="<%=column.getName()%>"><%=column.getValue()%></a>
+					<%} else
+					{
+						%> <%=column.getValue()%> <%
+		 			} %>	
+		 		</th>
+				<%}	%>
+			</tr>
+			<%}
+		} else {%>
+		   <tr> 
+		   <th colspan="7" rowspan="1"> <p style="margin-top : 1em;"> </p></th>
+		   </tr>
+		<% }
+		buildHeaders = false;
+		int i = 0;
+		for (ArrayList<LegendElement> row: rows)
+		{%>
+			<tr class="row<%=i % 2%>">
+			<td style="background-color: <%=row.get(0).getValue()%>; width: 5px;"></td>
+			<%
+			int j = 0; 
+			for (LegendElement column: row)
+			{
+				if(column != row.get(0))
+				{ %>
+					<td <%if (j>2)
+					{%> 
+						class="numval"
+					<%}
+					if (column.isDoubleColSpan())
+					{%> 
+						colspan="2"
 					<%}
 					if (column.isDoubleRowSpan()) 
 					{%> 
@@ -127,11 +146,12 @@
 				}
 				j++;
 			}
-		%>
-		</tr>
-		<%
+			%>
+			</tr>
+			<%
 			i++;
 		}
+	}
 	%>
 </table>
 

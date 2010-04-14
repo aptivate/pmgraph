@@ -93,7 +93,7 @@ public class ButtonsTest extends TestCase
 		// Find the Zoom- link
 		link = response.getLinkWithName("zoomOut");
 		assertEquals("Compare the zoom- link.", zoomURL, link.getURLString());
-//		 Check thar there isn't the Zoom+ link in the page
+		// Check thar there isn't the Zoom+ link in the page
 		link = response.getLinkWithName("zoomIn");
 		assertEquals("Compare the zoom- link.", zoomInURL, link.getURLString());
 

@@ -81,13 +81,14 @@ public enum View {
 	 * @param legendData The data set to be displayed within the legend
 	 * @return legend table ready for display
 	 */
-	public static LegendTable getLegendTable(UrlBuilder pageUrl, List<DataPoint> legendData)
+	public static LegendTable getLegendTable(UrlBuilder pageUrl, List<DataPoint> legendData, boolean buildHeaders)
 			throws IOException
 	{
 
 		RequestParams requestParams = pageUrl.getParams();
 
 		LegendTable legend = new LegendTable();
+
 		// time in seconds
 		boolean isLong = Configuration.longGraphIsAllowed() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
 		int resolution = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
@@ -122,11 +123,12 @@ public enum View {
 
 		ArrayList<ArrayList<LegendElement>> headers = legend.getHeaders();
 		ArrayList<ArrayList<LegendElement>> rows = legend.getRows();
-
+		
+		if (buildHeaders) {
 		//fill the header 
 		ArrayList<LegendElement> firstRowHeader = new ArrayList<LegendElement>();
 		ArrayList<LegendElement> secondRowHeader = new ArrayList<LegendElement>();
-
+		
 		// an empty field in the header for the colour column
 		firstRowHeader.add(0, new LegendElement("", null, null, false, true));
 
@@ -156,7 +158,9 @@ public enum View {
 
 			break;
 		}
-
+		
+		
+		
 		firstRowHeader.add(new LegendElement(col3, pageUrl.getIndexURL("bytes_total"),
 				"bytes_total", true, false));
 		firstRowHeader.add(new LegendElement("Average (kb/s)", null, null, true, false));
@@ -167,10 +171,12 @@ public enum View {
 				.add(new LegendElement(col2, pageUrl.getIndexURL("uploaded"), "uploaded"));
 		secondRowHeader.add(new LegendElement("Down"));
 		secondRowHeader.add(new LegendElement("Up"));
-
+		
 		headers.add(firstRowHeader);
 		headers.add(secondRowHeader);
 
+		}
+		
 		//fill the legend
 		
 		int i = 0;

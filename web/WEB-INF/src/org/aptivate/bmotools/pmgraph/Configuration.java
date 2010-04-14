@@ -9,9 +9,13 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Noe Andres Rodriguez Gonzalez.
@@ -30,7 +34,8 @@ public class Configuration
 	
 	static final String CONFIGURATION_FILE = "/database.properties";
 	private static final long DAY = 86400000;
-	private static Properties s_properties = null;
+	private static Properties s_properties;
+
 
 	/**
 	 * Read the content of the properties file and return it in a Properties
@@ -55,7 +60,7 @@ public class Configuration
 	 * Force a reload of the configuration (testing purposes only).
 	 * @throws IOException 
 	 * 
-	 */
+	*/ 
 	public static void forceConfigReload() throws IOException
 	{
 		s_properties = null;
@@ -66,9 +71,17 @@ public class Configuration
 	{
 
 		readConfiguration();
-		return s_properties.getProperty("LocalSubnet");
+		int i = 2;
+		String AllSubnets = s_properties.getProperty("LocalSubnet1");
+		String subnet = s_properties.getProperty("LocalSubnet" + i);
+		while (subnet != null)
+		{
+             AllSubnets += " " + subnet; 
+             i++;
+             subnet = s_properties.getProperty("LocalSubnet" + i);
+		}		
+		return (AllSubnets);
 	}
-	
 	
 	public static String getBandwidth() throws IOException
 	{
@@ -76,7 +89,11 @@ public class Configuration
 		readConfiguration();
 		return s_properties.getProperty("TotalBandwidth");
 	}
-
+	
+	public static Properties getProperties() throws IOException
+	{
+		return s_properties;
+	}
 	public static String getDatabaseURL() throws IOException
 	{
 
@@ -147,55 +164,130 @@ public class Configuration
 
 	public static String getJdbcDriver() throws IOException
 	{
-
 		readConfiguration();
 		return s_properties.getProperty("JdbcDriver");
 	}
 
 	public static Integer getDHCPPort() throws IOException
 	{
-
 		readConfiguration();
 		return Integer.valueOf(s_properties.getProperty("DHCPPort"));
 	}
+	
 	public static Integer getResultLimit() throws IOException
 	{
-
 		readConfiguration();
 		return Integer.valueOf(s_properties.getProperty("ResultLimit"));
 	}
 	
-	
-	private static void setConfiguration(String localSubnet) throws IOException
-	{
-		// Ensure that s_properties != null
+	public static boolean updateConf(String newSubnet, Hashtable<String,Integer> hashDelSubnets) throws IOException
+	{	
 		readConfiguration();
+		boolean result = true;        
+		Properties tempProps = (Properties)s_properties.clone();
+		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());
+		if (!hashDelSubnets.isEmpty())
+			delSubnetConf(hashDelSubnets, tempProps);
+		if ((newSubnet != null) && (newSubnet != "")) 
+			result = addSubnetConf(newSubnet, tempProps);	
+		s_properties = tempProps;
+		tempProps.storeToXML(out, "");
+		out.close();
+		return result;
+	}
+	
+	public static boolean addSubnetConf(String newSubnet, Properties tempProps) throws IOException
+	{	
+		int i=1;
+		boolean insert = false;
+		while ((tempProps.getProperty("LocalSubnet"+i) != null) && (!insert))
+		{
+			if (tempProps.getProperty("LocalSubnet"+i).equals(newSubnet))
+				insert = true;
+			else
+				i++;
+		}		
+		if (!insert) 
+			tempProps.put("LocalSubnet"+i, newSubnet);	
+		
+		return(!insert);
+	}
+	
+	public static boolean addSubnetConf(String newSubnet) throws IOException
+	{	
+		boolean result = false;
 		// Copy to a temporary properties object to prevent error where the configuration file ends up
 		// empty.
 		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
-		tempProps.setProperty("LocalSubnet", localSubnet);
+		int i=1;
+		boolean insert = false;
+		while ((tempProps.getProperty("LocalSubnet"+i) != null) && (!insert))
+		{
+			if (tempProps.getProperty("LocalSubnet"+i).equals(newSubnet))
+				insert = true;
+			else
+				i++;
+		}		
+		if (!insert) 
+		{
+			tempProps.put("LocalSubnet"+i, newSubnet);
+			result = true;	
+		}
+		s_properties = tempProps;
 		tempProps.storeToXML(out, "");
 		out.close();
-		// Force s_properties to be read from file on next reload.
-		s_properties = null;
-	 }	    
+		return result;
+	}
 	
+	public static boolean delSubnetConf(Hashtable<String,Integer> hashDelSubnets, Properties tempProps) throws IOException
+	{	
+		boolean delSubnet = false;
+		for (Enumeration e = hashDelSubnets.keys (); e.hasMoreElements ();) 
+		{
+			delSubnet = false;
+			String clave = (String) e.nextElement ();
+		    int valor = hashDelSubnets.get (clave);
+		    tempProps.remove(clave);
+		    int i = valor + 1;
+		    while (tempProps.getProperty("LocalSubnet"+i) != null) {
+		    	tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
+		    	i++;
+		    }
+		    tempProps.remove("LocalSubnet"+(i-1));
+		}
+		return delSubnet;
+	}
 	
-	
-	public static boolean updateConf(String localSubnet) throws IOException
+	public static boolean delSubnetConf(Hashtable<String,Integer> hashDelSubnets) throws IOException
 	{	
 		boolean result = false;
-		String oldSubnet = getLocalSubnet();	
-		processLineByLine(localSubnet, oldSubnet);
-		setConfiguration(localSubnet);
+		Properties tempProps = (Properties)s_properties.clone();
+		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
+		
+		for (Enumeration e = hashDelSubnets.keys (); e.hasMoreElements ();) 
+		{
+			String clave = (String) e.nextElement ();
+		    int valor = hashDelSubnets.get (clave);
+		    tempProps.remove(clave);
+		    int i = valor + 1;
+		    while (tempProps.getProperty("LocalSubnet"+i) != null) {
+		    	tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
+		    	i++;
+		    }
+		    tempProps.remove("LocalSubnet"+(i-1));
+		}
+		s_properties = tempProps;
+		tempProps.storeToXML(out, "");
+		out.close();
 		result = true;			
 		return result;
 	}
 	
+	
 	public static void processLine(String aLine, String localSubnet, String oldSubnet, StringBuilder contents) throws IOException
 	{
-	    //use a second Scanner to parse the content of each line 
+	    // use a second Scanner to parse the content of each line 
 	    Scanner scanner = new Scanner(aLine);
 	    scanner.useDelimiter("\n");
 	    if ( scanner.hasNext() ){
@@ -235,7 +327,7 @@ public class Configuration
 		      scanner.close();
 		    }
 		    
-//		  use buffering
+		    // use buffering
 		    Writer output = new BufferedWriter(new FileWriter(pmacctPath));
 		    try {
 		      //FileWriter always assumes default encoding is OK!
@@ -244,7 +336,7 @@ public class Configuration
 		    finally {
 		      output.close();
 		    }		    
-		  }	 
+	}	 
 	 
 	 	/**
 		 * Gets the time period for each step on th x-axis of the graph
