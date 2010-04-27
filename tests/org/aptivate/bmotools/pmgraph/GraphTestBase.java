@@ -54,8 +54,7 @@ abstract class GraphTestBase extends TestCase
 	 */
 	protected void checkChartData(float values[][], String[] rows,
 			JFreeChart chart, boolean isLong)
-	{
-		
+	{	
 		XYPlot plot = (XYPlot) chart.getPlot();
 		assertEquals(PlotOrientation.VERTICAL, plot.getOrientation());
 		Collection markers = plot.getRangeMarkers(Layer.FOREGROUND);
@@ -81,7 +80,7 @@ abstract class GraphTestBase extends TestCase
 			assertEquals(rows[n] + "<up>", dataset.getSeries(((rows.length) + n + inc))
 					.getKey());
 		}
-
+		
 		Map<String, XYSeries> series = new HashMap<String, XYSeries>();
 
 		// check the number of elements of each series.

@@ -16,7 +16,6 @@ import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HttpInternalErrorException;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -66,12 +65,10 @@ public class LegendTest extends LegendTestBase
 		}
 
 		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on the website
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph());
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		// Get the table data from the page
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
@@ -109,18 +106,16 @@ public class LegendTest extends LegendTestBase
 						"10.0.156.1", "224.0.0.251", false);
 			}
 
-			// Open a graph page
-			// Create a conversation
-			WebConversation wc = new WebConversation();
+			// Open a graph page			
 
 			// Obtain the upload page on web site
 			WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph());
-			WebResponse response = wc.getResponse(request);
+			WebResponse response = m_conversation.getResponse(request);
 			String path = response.getImageWithAltText("Bandwidth Graph").getSource();
 			URL urlObj = new URL(testUtils.getUrlPmgraph());
 			urlObj = new URL(urlObj, path);
 			request = new GetMethodWebRequest(urlObj.toString());
-			response = wc.getResponse(request);
+			response = m_conversation.getResponse(request);
 			assertEquals("image/png", response.getContentType());
 		} catch (HttpInternalErrorException e)
 		{
@@ -163,13 +158,11 @@ public class LegendTest extends LegendTestBase
 		String hostname2 = "ap.int.aidworld.org.";
 		String hostname3 = "Unknown Host";
 		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=15");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		// get the table
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
@@ -214,13 +207,11 @@ public class LegendTest extends LegendTestBase
 		}
 
 		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=15");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		WebLink link = response.getLinkWithName("downloaded");
 
@@ -232,7 +223,7 @@ public class LegendTest extends LegendTestBase
 
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		link = response.getLinkWithName("downloaded");
 		sortLink = "index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&dynamic=false&view=LOCAL_IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
@@ -251,7 +242,7 @@ public class LegendTest extends LegendTestBase
 
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		link = response.getLinkWithName("uploaded");
 		sortLink = "index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&dynamic=false&view=LOCAL_IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
@@ -291,14 +282,11 @@ public class LegendTest extends LegendTestBase
 		testUtils.InsertLongSampleData();
 
 		// check the default limit of result
-
-		// Create a conversation
-		WebConversation wc = new WebConversation();
-
+		
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		// get the table
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
@@ -308,7 +296,7 @@ public class LegendTest extends LegendTestBase
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=345600000");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		// get the table
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
@@ -318,7 +306,7 @@ public class LegendTest extends LegendTestBase
 		// Check a result limit defined by the user
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=8");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		// get the table
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
@@ -326,7 +314,7 @@ public class LegendTest extends LegendTestBase
 		
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=345600000&resultLimit=8");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		// get the table
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
@@ -402,12 +390,11 @@ public class LegendTest extends LegendTestBase
 	 */
 	public void testLimitResultsSpecificPort() throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException, SQLException, SAXException
-	{
-		WebConversation wc = new WebConversation();
+	{		
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=1&port=110");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 		long uploaded[] = { 4, 0 };
@@ -427,15 +414,12 @@ public class LegendTest extends LegendTestBase
 			LegendData data = new LegendData();
 			RequestParams requestParams = new RequestParams(0, timePeriod[i] * 60000,
 					View.LOCAL_IP, 5);
-			//List<DataPoint> throughput = data.getLegendData(requestParams.getSortBy(),
-			//		requestParams.getOrder(), requestParams, false);
 			Hashtable<Integer,List<DataPoint>> resultsHash = data.getLegendData(requestParams.getSortBy(),
 							requestParams.getOrder(), requestParams, false);
-			String addUrl = "?start=0&end=" + (timePeriod[i] * 60000);
-			WebConversation wc = new WebConversation();
+			String addUrl = "?start=0&end=" + (timePeriod[i] * 60000);			
 			// Obtain the upload page on web site
 			WebRequest request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + addUrl);
-			WebResponse response = wc.getResponse(request);
+			WebResponse response = m_conversation.getResponse(request);
 
 			WebTable legend = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 			

@@ -20,9 +20,9 @@
 	String errorMsg = null;
 	String indexURL = "configure.jsp";	
 	String wrongSubnet = "";
-	Boolean result = false;
-	Boolean goodSubnet = true;
-	Boolean update = false;
+	boolean result = false;
+	boolean goodSubnet = true;
+	boolean update = false;
 	
 	//Validate Parameters
 	try
@@ -34,14 +34,14 @@
 		errorMsg = e.getMessage();
 	}	
 	
-    if (pageUrl.getParams().getAddSubnet() != "")
+    if (pageUrl.getParams().getAddSubnet() != null)
     	update = true;
     
     if (pageUrl.getParams().getDelSubnets() != null)
     	if (!pageUrl.getParams().getDelSubnets().isEmpty())
     		update = true;
    
-    if (update == true) {
+    if (update) {
     	String newSubnets = pageUrl.getParams().getAddSubnet();
 		goodSubnet = true;
 		if (!newSubnets.equals("")) {
@@ -73,22 +73,18 @@
 	     	<a class="change" title="Home" href="<%= response.encodeURL(request.getContextPath() +"/index.jsp") %>">Home</a>      
 	     	<a class="change" title="Help" href="http://www.aptivate.org/Projects.BMOTools.pmGraph.html">Help</a>
 	    </div>	 
-	    <%if (update == true) { 
-    		if (result == true) {%>
+	    <%if (update) { 
+    		if (result) {%>
     	  		<div id="successResult">
-    	  		<fieldset id="success">
 	    			<p>Update Done</p>
-	    		</fieldset>
     			</div>
 	    	<%} else { %>
-	    		<div id="unsuccessResult">
-	    		<fieldset id="unsuccess">	
-    				<%if (goodSubnet == false) { %>
+	    		<div id="unsuccessResult">	    		
+    				<%if (!goodSubnet) { %>
     					<p>Incorrect new subnet format. Please try again as follows: 0-255.0-255.0-255.</p>
     				<%}else {%>
 	    				<p>The new subnet is already in the configure file</p>
     				<%}%>
-    			</fieldset>
     			</div>
     	    <%}
     			update = false;
@@ -98,7 +94,7 @@
 				<fieldset id="configuration">		
 				<legend>Configuration Parameters</legend>	
 				<div id="scrolltable">
-             		<table id="TableLocalSubnets" class="layout_table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
+             		<table id="TableLocalSubnets" class="scroll_table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
                  		<thead>
                		     	<tr>
                		          	<th>Local Subnets</th>
@@ -107,21 +103,21 @@
             	    	</thead>
          		       	<tbody>
          		       		<%
-            	            	String [] MSubnets = Configuration.getLocalSubnet().split(" ");
+            	            	String [] subnets = Configuration.getLocalSubnet();
                  
-                            	for (int i = 0; i < MSubnets.length; i++)
+                            	for (int i = 0; i < subnets.length; i++)
                           	{
                         	%>   
                         		<tr> 
-                            		<td class="center" id="localSubnet<%=(i+1)%>"> <p><%=MSubnets[i]%></p></td>
-                               		<td class="center"> <input type="checkbox" id="delSubnet<%=(i+1)%>" name="delSubnet<%=(i+1)%>" value="delSubnet<%=(i+1)%>"/></td>
+                            		<td id="localSubnet<%=(i+1)%>"> <p><%=subnets[i]%></p></td>
+                               		<td> <input type="checkbox" id="delSubnet<%=(i+1)%>" name="delSubnet<%=(i+1)%>" value="delSubnet<%=(i+1)%>"/></td>
                             	</tr>   
                         	<%
                           	}   
                         	%>                        	
                 		</tbody>                		
             		</table>
-            		<input type="hidden" id="numSubnets"  name="numSubnets" title="numSubnets"  value="<%=MSubnets.length%>" size="8" />   
+            		<input type="hidden" id="numSubnets"  name="numSubnets" title="numSubnets"  value="<%=subnets.length%>" size="8" />   
            		</div>
            		<div id="uoptions">
            			<p>

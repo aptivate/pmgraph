@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -44,7 +46,7 @@ public class RequestParams
 	
 	private static String m_selectSubnetIndex;
 	
-	private String m_addSubnet;
+	private static String m_addSubnet;
 	
 	private int m_numSubnets;
 	
@@ -134,9 +136,41 @@ public class RequestParams
 	}
 	
 
-	void setAddSubnet(String addSubnet)
+	static String setAddSubnet(String newSubnet)
 	{
-		m_addSubnet = addSubnet;
+		Pattern p = Pattern.compile("0[0-9][0-9]?");    	        			
+		String [] aux = newSubnet.split("\\.");
+		String finalSubnet = "";
+		for (int i = 0; i < aux.length; i++)
+		{
+			Matcher m = p.matcher(aux[i]);
+			if (m.find())
+			{
+				String [] aux2 = aux[i].split("");
+				boolean insert = false;
+				for (int j = 0; (j < aux2.length) && (!insert); j++)
+				{
+					if (aux2[j].equals("0"))  							 
+					{
+						if (j == (aux2.length-1))
+						{
+							finalSubnet += "0.";
+						}
+						else if (!aux2[j+1].equals("0"))
+						{
+							for (int k = j+1; k < aux2.length; k++)
+								finalSubnet += aux2[k];
+							finalSubnet += ".";
+							insert = true;
+						}													
+					}				
+				}
+			}
+			else
+				finalSubnet += aux[i] + ".";
+		}			
+		m_addSubnet = finalSubnet;
+		return finalSubnet;
 	}
 	
 	public String getFromDateAsString()
@@ -459,17 +493,12 @@ public class RequestParams
 		String subnetIndex = request.getParameter("selectSubnetIndex");
 		if (subnetIndex != null)
 			m_selectSubnetIndex = subnetIndex;
-		
-
-		if (request.getParameter("newSubnet") != null)
-		{
-			m_addSubnet = request.getParameter("newSubnet");
-		} else
-			m_addSubnet = "";
-		
+									
+		m_addSubnet = request.getParameter("newSubnet");				
+					
 		if (request.getParameter("numSubnets") != null) {
 			m_numSubnets = Integer.parseInt(request.getParameter("numSubnets"));
-			Hashtable<String,Integer> hashDelSubnets=new Hashtable<String,Integer>(); //inicializa hashtable
+			Hashtable<String,Integer> hashDelSubnets=new Hashtable<String,Integer>();
 	        for (int i = 1; i <= m_numSubnets; i++)
 	        {
 	    	   String currentCheckbox = request.getParameter("delSubnet"+i);

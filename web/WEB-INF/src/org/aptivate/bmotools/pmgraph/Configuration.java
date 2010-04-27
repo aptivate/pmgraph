@@ -14,8 +14,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Noe Andres Rodriguez Gonzalez.
@@ -67,12 +65,12 @@ public class Configuration
 		readConfiguration();
 	}
 
-	public static String getLocalSubnet() throws IOException
+	public static String [] getLocalSubnet() throws IOException
 	{
 
 		readConfiguration();
 		int i = 2;
-		String AllSubnets = s_properties.getProperty("LocalSubnet1");
+		String AllSubnets = s_properties.getProperty("LocalSubnet");
 		String subnet = s_properties.getProperty("LocalSubnet" + i);
 		while (subnet != null)
 		{
@@ -80,7 +78,7 @@ public class Configuration
              i++;
              subnet = s_properties.getProperty("LocalSubnet" + i);
 		}		
-		return (AllSubnets);
+		return (AllSubnets.split(" "));
 	}
 	
 	public static String getBandwidth() throws IOException
@@ -189,7 +187,10 @@ public class Configuration
 		if (!hashDelSubnets.isEmpty())
 			delSubnetConf(hashDelSubnets, tempProps);
 		if ((newSubnet != null) && (newSubnet != "")) 
-			result = addSubnetConf(newSubnet, tempProps);	
+		{ 
+			newSubnet = RequestParams.setAddSubnet(newSubnet);
+			result = addSubnetConf(newSubnet, tempProps);
+		}
 		s_properties = tempProps;
 		tempProps.storeToXML(out, "");
 		out.close();
@@ -198,8 +199,11 @@ public class Configuration
 	
 	public static boolean addSubnetConf(String newSubnet, Properties tempProps) throws IOException
 	{	
-		int i=1;
+		int i=2;
 		boolean insert = false;
+		if (tempProps.getProperty("LocalSubnet") != null)
+			if (tempProps.getProperty("LocalSubnet").equals(newSubnet))
+				insert = true;
 		while ((tempProps.getProperty("LocalSubnet"+i) != null) && (!insert))
 		{
 			if (tempProps.getProperty("LocalSubnet"+i).equals(newSubnet))
@@ -215,13 +219,17 @@ public class Configuration
 	
 	public static boolean addSubnetConf(String newSubnet) throws IOException
 	{	
+		readConfiguration();
 		boolean result = false;
 		// Copy to a temporary properties object to prevent error where the configuration file ends up
 		// empty.
 		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
-		int i=1;
+		int i=2;
 		boolean insert = false;
+		if (tempProps.getProperty("LocalSubnet") != null)
+			if (tempProps.getProperty("LocalSubnet").equals(newSubnet))
+				insert = true;
 		while ((tempProps.getProperty("LocalSubnet"+i) != null) && (!insert))
 		{
 			if (tempProps.getProperty("LocalSubnet"+i).equals(newSubnet))
@@ -246,12 +254,15 @@ public class Configuration
 		for (Enumeration e = hashDelSubnets.keys (); e.hasMoreElements ();) 
 		{
 			delSubnet = false;
-			String clave = (String) e.nextElement ();
-		    int valor = hashDelSubnets.get (clave);
-		    tempProps.remove(clave);
-		    int i = valor + 1;
+			String key = (String) e.nextElement ();
+		    int value = hashDelSubnets.get (key);
+		    tempProps.remove(key);
+		    int i = value + 1;
 		    while (tempProps.getProperty("LocalSubnet"+i) != null) {
-		    	tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
+		    	if ((i-1) == 1)
+		    		tempProps.setProperty("LocalSubnet", tempProps.getProperty("LocalSubnet"+i));
+		    	else
+		    		tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
 		    	i++;
 		    }
 		    tempProps.remove("LocalSubnet"+(i-1));
@@ -261,18 +272,22 @@ public class Configuration
 	
 	public static boolean delSubnetConf(Hashtable<String,Integer> hashDelSubnets) throws IOException
 	{	
+		readConfiguration();
 		boolean result = false;
 		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
 		
 		for (Enumeration e = hashDelSubnets.keys (); e.hasMoreElements ();) 
 		{
-			String clave = (String) e.nextElement ();
-		    int valor = hashDelSubnets.get (clave);
-		    tempProps.remove(clave);
-		    int i = valor + 1;
+			String key = (String) e.nextElement ();
+		    int value = hashDelSubnets.get (key);
+		    tempProps.remove(key);
+		    int i = value + 1;
 		    while (tempProps.getProperty("LocalSubnet"+i) != null) {
-		    	tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
+		    	if ((i-1) == 1)
+		    		tempProps.setProperty("LocalSubnet", tempProps.getProperty("LocalSubnet"+i));
+		    	else
+		    		tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
 		    	i++;
 		    }
 		    tempProps.remove("LocalSubnet"+(i-1));

@@ -223,14 +223,7 @@
 							{	
 								alert(message);
 							}
-						}   
-						
-						function uncheck()
-						{							
-							alert();	
-							document.getElementById( 'dynamic' ).value = "false";		
-																		
-						}   
+						}   												
 						//]]>
 					</script>
             	<table class="layout_table" id="date_table">
@@ -337,12 +330,11 @@
 					</tr>		
 					
 					<tr>
-						<td>SelectSubnet </td>   
+						<td>Select Subnet </td>   
 						<td class="align_right">
 						<select id="selectSubnetIndex"  name="selectSubnetIndex" >
 						<% 
-							String mlSubnets = Configuration.getLocalSubnet();
-							String [] vectSubnets = mlSubnets.split(" ");
+							String [] vectSubnets = Configuration.getLocalSubnet();
 							String selectSubnet = pageUrl.getParams().getSelectSubnetIndex();
 							if ((selectSubnet != null) && (selectSubnet.equals("all"))) {
 							%>

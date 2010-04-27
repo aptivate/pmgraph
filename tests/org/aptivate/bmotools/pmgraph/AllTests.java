@@ -1,17 +1,18 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class AllTests extends TestCase
-{
-	public AllTests(String s)
-	{
-		super(s);
-	}
+public class AllTests extends PmGraphTestBase
+{		
+	
+	public AllTests() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException
+	{		
+		super();		
+	}		
 
 	public static Test suite() throws IOException
 	{
@@ -33,8 +34,14 @@ public class AllTests extends TestCase
 		suite.addTest(PortsToServiceTest.suite());
 		suite.addTest(ColourTest.suite());
 		suite.addTest(ConfigurationTest.suite());
-		suite.addTest(TestMultiSubnets.suite());
-		suite.addTest(TestMultiSubnetsLegend.suite());
+		suite.addTest(TestMultiSubnetsLgend.suite());
+		suite.addTest(TestMultiSubnets.suite());		
 		return suite;
 	}
+	
+	public void TearDown()
+	{
+		TearDown();
+	}
+	
 }

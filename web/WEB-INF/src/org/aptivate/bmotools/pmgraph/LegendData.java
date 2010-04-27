@@ -27,7 +27,7 @@ public class LegendData
 
 	private Logger m_logger = Logger.getLogger(LegendData.class);
 
-	private class UploadComparator implements Comparator
+	private class UploadComparator implements Comparator<Object>
 	{
 
 		private boolean m_descending;
@@ -54,7 +54,7 @@ public class LegendData
 		}
 	}
 
-	private class DownloadComparator implements Comparator
+	private class DownloadComparator implements Comparator<Object>
 	{
 
 		private boolean m_descending;
@@ -88,7 +88,7 @@ public class LegendData
 	 * @param order
 	 * @return A comparator to be used to sort the results list
 	 */
-	private Comparator getComparator(String sortby, String order)
+	private Comparator<Object> getComparator(String sortby, String order)
 	{
 
 		if (!"".equalsIgnoreCase(sortby))
@@ -99,7 +99,8 @@ public class LegendData
 					return (new UploadComparator(true));
 				else
 					return (new UploadComparator(false));
-			} else
+			} 
+			else
 			{
 				if (QueryBuilder.BYTES.equalsIgnoreCase(sortby))
 				{
@@ -107,7 +108,8 @@ public class LegendData
 						return (new BytesTotalComparator(true));
 					else
 						return (new BytesTotalComparator(false));
-				} else
+				} 
+				else
 				{
 					if (QueryBuilder.DOWNLOADED.equalsIgnoreCase(sortby))
 					{
@@ -141,7 +143,7 @@ public class LegendData
 		DataPoint others = null;
 		Hashtable<Integer,List<DataPoint>> legendDataHash = new Hashtable<Integer,List<DataPoint>>();
 		int cont = 1;
-		for (Enumeration e = dataHash.keys (); e.hasMoreElements ();) 
+		for (Enumeration e = dataHash.keys(); e.hasMoreElements();) 
 		{
 			int key = (Integer) e.nextElement();
 			List<DataPoint> dataList = dataHash.get(key);
@@ -153,7 +155,8 @@ public class LegendData
 				if (i < requestParams.getResultLimit())
 				{
 					legendData.add(portResult);
-				} else
+				} 
+				else
 				{
 					if (i == requestParams.getResultLimit())
 					{
@@ -189,13 +192,14 @@ public class LegendData
 		}
 		// once the results that are going to be shown are selected, sort them
 		// according to what the user has requested.
-		Comparator c = getComparator(sortBy, order);
+		Comparator<Object> c = getComparator(sortBy, order);
 		if (c != null)
-			for (Enumeration e = legendDataHash.keys (); e.hasMoreElements ();) 
+			for (Enumeration e = legendDataHash.keys(); e.hasMoreElements();) 
 			{
 				int key = (Integer) e.nextElement();
 				List<DataPoint> legendData = legendDataHash.get(key);
-				if (!legendData.isEmpty()) {
+				if (!legendData.isEmpty()) 
+				{
 					Collections.sort(legendData, c);
 					legendDataHash.put(key, legendData);
 				}

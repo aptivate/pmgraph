@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.Hashtable;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.xml.sax.SAXException;
@@ -13,7 +12,6 @@ import org.xml.sax.SAXException;
 import com.meterware.httpunit.FormControl;
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HTMLElement;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -25,50 +23,22 @@ import com.meterware.httpunit.WebTable;
  * @author franciscor and pablob
  * 
  */
-public class TestMultiSubnets extends TestCase 
+public class TestMultiSubnets extends PmGraphTestBase
 {
+	public TestMultiSubnets() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException, IOException {
+		super();
+	}
+
 	final long HOUR = 60 * 60 * 1000;
 	final long DAY = 24 * HOUR;
 	
 	private static final int SIZE_HEADS = 1;
 	
-	public void testTimeSpanResults()
-	{
-		long[] TimePeriods = {DAY, 30 * DAY - HOUR};
-		long[] results = {HOUR, HOUR};
-		int resolution;
-		for(int i = 0; i < TimePeriods.length; i++)
-		{
-			long time = TimePeriods[i];
-			resolution = Configuration.getResolution(true, time);
-			assertEquals(results[i], resolution);
-			resolution = Configuration.getResolution(false, time);
-			assertEquals(60000, resolution);
-		}
-	}
-	
-	// ---------------------------------------------------
-	
-	public void testFindTable() throws IOException
-	{
-		long[] timePeriods = {DAY - HOUR, DAY, 30L * DAY - HOUR};
-		String[] tables = {"acct_v6", "acct_v6_long", "acct_v6_long"};
-		String table;
-		for(int i = 0; i < timePeriods.length; i++)
-		{
-			long time = timePeriods[i];
-			table = Configuration.findTable(time);
-			assertEquals(tables[i], table);
-		}
-	}
-	
-	// ------------------------------------------------------
-	
 	public void testCheckSubnet() throws InstantiationException, IllegalAccessException, 
 	        ClassNotFoundException, SQLException, IOException, SAXException
 	{
 		TestUtils theTestUtils = new TestUtils();
-		WebResponse response = initConversation (theTestUtils);  
+		WebResponse response = loadUrl(theTestUtils);  
 		String subnet1 = "10.0.156.";
 		String subnet2 = "10.21.21.";
 		
@@ -92,12 +62,11 @@ public class TestMultiSubnets extends TestCase
 	
 	public void testCompareSubnets() throws InstantiationException, IllegalAccessException, 
     ClassNotFoundException, SQLException, IOException, SAXException
-    {
-		String currentSubnets = Configuration.getLocalSubnet();
-		String[] vectSubnets = currentSubnets.split(" ");
+    {		
+		String[] vectSubnets = Configuration.getLocalSubnet();
 		
 		TestUtils theTestUtils = new TestUtils();
-		WebResponse response = initConversation (theTestUtils);
+		WebResponse response = loadUrl(theTestUtils);
 		WebTable table = response.getTableWithID("TableLocalSubnets");
 		int numSubnet = table.getRowCount() - SIZE_HEADS;
         assertEquals(numSubnet, vectSubnets.length);
@@ -114,10 +83,9 @@ public class TestMultiSubnets extends TestCase
 	
 	public void testAddSubnet() throws InstantiationException, IllegalAccessException, 
             ClassNotFoundException, SQLException, IOException, SAXException
-	{
-		testCompareSubnets();
+	{		
 		TestUtils theTestUtils = new TestUtils();
-		WebResponse response = initConversation (theTestUtils);
+		WebResponse response = loadUrl (theTestUtils);
 		WebForm configurationForm = response.getFormWithID("config");
 		WebTable table = response.getTableWithID("TableLocalSubnets");
 		int oldNumSubnets = table.getRowCount() - SIZE_HEADS;
@@ -126,10 +94,10 @@ public class TestMultiSubnets extends TestCase
 		configurationForm.submit();
 		
 		theTestUtils = new TestUtils();
-		response = initConversation (theTestUtils);
+		response = loadUrl (theTestUtils);
 		table = response.getTableWithID("TableLocalSubnets");
 		int numSubnets = table.getRowCount() - SIZE_HEADS;
-		assertTrue((numSubnets > oldNumSubnets));
+		assertTrue(numSubnets > oldNumSubnets);
      	assertEquals(table.getCellAsText(numSubnets,0), newSubnet);
      	
      	configurationForm = response.getFormWithID("config");
@@ -137,33 +105,20 @@ public class TestMultiSubnets extends TestCase
 		aux.toggle();
 		configurationForm.submit();	
 		
-		response = initConversation (theTestUtils);
+		response = loadUrl (theTestUtils);
 		table = response.getTableWithID("TableLocalSubnets");
 		numSubnets = table.getRowCount() - SIZE_HEADS;
-		assertTrue((numSubnets == oldNumSubnets));
+		assertTrue(numSubnets == oldNumSubnets);
 	}
 
-	// -----------------------------------------------------------------
-	
-	
-	private WebResponse initConversation (TestUtils theTestUtils) throws IOException, SAXException
-	{
-		WebConversation wc = new WebConversation();
-	    WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp");
-	    WebResponse response = wc.getResponse(request);
-	    return response;
-	}
-	
-	// ------------------------------------------------------------------
+	// -----------------------------------------------------------------		
 	
 
 	public void testFormatSubnet() throws InstantiationException, IllegalAccessException, 
 	ClassNotFoundException, SQLException, IOException, SAXException
 	{	
-		TestUtils theTestUtils = new TestUtils();
-		WebConversation wc = new WebConversation();
-		WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp");
-		WebResponse response = wc.getResponse(request);
+		TestUtils theTestUtils = new TestUtils();		
+		WebResponse response = loadUrl (theTestUtils);
 		WebForm configurationForm = response.getFormWithID("config");
 		
 		int i = Integer.parseInt(configurationForm.getParameterValue("numSubnets"));
@@ -172,30 +127,74 @@ public class TestMultiSubnets extends TestCase
 		String Url[] = new String[3];
         for (int j = 0; j < 3; j++)
             Url[j] = theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet="+addSubnet[j]+"&selectSubnet=10.0.156.&numSubnets="+i+"&Go=Save+configuration";				       	      
-	    request = new GetMethodWebRequest(Url[2]);
-	    response = wc.getResponse(request);
+	    WebRequest request = new GetMethodWebRequest(Url[2]);
+	    response = m_conversation.getResponse(request);
 	    HTMLElement result = response.getElementWithID("unsuccessResult");
-	    String resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
+	    String resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
 	    assertTrue(resultString.equals("Incorrect new subnet format. Please try again as follows: 0-255.0-255.0-255."));
 	       
 	    request = new GetMethodWebRequest(Url[1]);
-	    response = wc.getResponse(request);
+	    response = m_conversation.getResponse(request);
 	    result = response.getElementWithID("unsuccessResult");
-	    resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
+	    resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
 	    assertTrue(resultString.equals("Incorrect new subnet format. Please try again as follows: 0-255.0-255.0-255."));
 	       
 	    request = new GetMethodWebRequest(Url[0]);
-	    response = wc.getResponse(request);
+	    response = m_conversation.getResponse(request);
 	    result = response.getElementWithID("successResult");
-	    resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
+	    resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
 	    assertTrue(resultString.equals("Update Done"));
 	       
 	    Hashtable<String,Integer> delSubnet = new Hashtable<String,Integer>();
 	    delSubnet.put("LocalSubnet"+(i + 1),(i + 1));
-	    Configuration.delSubnetConf(delSubnet);
+	    Configuration.delSubnetConf(delSubnet);	    	    	   
 	} 		
 	
     // ------------------------------------------------------------------
+	
+	public void testFormatSubnetZeros() throws InstantiationException, IllegalAccessException, 
+	ClassNotFoundException, SQLException, IOException, SAXException
+	{	
+		TestUtils theTestUtils = new TestUtils();		
+		WebResponse response = loadUrl (theTestUtils);
+		WebForm configurationForm = response.getFormWithID("config");
+		WebTable table = response.getTableWithID("TableLocalSubnets");
+		int oldNumSubnets = table.getRowCount() - SIZE_HEADS;
+		String newSubnet = "99.99.99.";		
+		configurationForm.setParameter("newSubnet", newSubnet);
+		configurationForm.submit();		
+		String newSubnet2 = "000.015.255.";
+		configurationForm.setParameter("newSubnet", newSubnet2);
+		configurationForm.submit();		
+		
+		theTestUtils = new TestUtils();
+		response = loadUrl (theTestUtils);
+		table = response.getTableWithID("TableLocalSubnets");
+		int numSubnets = table.getRowCount() - SIZE_HEADS;
+		assertTrue(numSubnets > oldNumSubnets);
+     	assertEquals(table.getCellAsText((numSubnets-1),0), newSubnet);
+     	assertEquals(table.getCellAsText(numSubnets,0), "0.15.255.");
+     	
+     	WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet=099.099.099.&selectSubnet=10.0.156.&numSubnets="+numSubnets+"&Go=Save+configuration");
+	    response = m_conversation.getResponse(request);
+	    HTMLElement result = response.getElementWithID("unsuccessResult");
+	    String resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
+	    assertTrue(resultString.equals("The new subnet is already in the configure file"));
+									     
+     	configurationForm = response.getFormWithID("config");
+	    FormControl aux = configurationForm.getControlWithID("delSubnet"+numSubnets);
+		aux.toggle();
+		aux = configurationForm.getControlWithID("delSubnet"+(numSubnets-1));
+		aux.toggle();
+		configurationForm.submit();	
+		
+		response = loadUrl (theTestUtils);
+		table = response.getTableWithID("TableLocalSubnets");
+		numSubnets = table.getRowCount() - SIZE_HEADS;
+		assertTrue(numSubnets == oldNumSubnets);
+	}	
+	
+	// ------------------------------------------------------------------
 	
 	public static Test suite()
 	{

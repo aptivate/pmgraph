@@ -17,7 +17,6 @@
 <%@ page pageEncoding="utf-8" language="java"
 	contentType="text/html; charset=utf-8"%>
 <%
-	//List<DataPoint> results = new ArrayList<DataPoint>();
 	Hashtable<Integer,List<DataPoint>> resultsHash = new Hashtable<Integer,List<DataPoint>>();
 	
 	ArrayList<ArrayList<LegendElement>> headers = new ArrayList<ArrayList<LegendElement>>();
@@ -52,7 +51,6 @@
 	try {
 		LegendData legendData = new LegendData();
 		resultsHash = legendData.getLegendData(sortBy, order, pageUrl.getParams(), Configuration.needsLongGraph(start, end));
-		//Hashtable<Integer,List<DataPoint>> resultsHash2 = legendData.getLegendData(sortBy, order, pageUrl.getParams(), Configuration.needsLongGraph(start, end));
 		
 	} catch (	ConfigurationException e)
 	{
@@ -67,7 +65,7 @@
 	// We pass the results from the database to View to format and populate the table 
 	//LegendTable table = View.getLegendTable(pageUrl, results);
 	boolean buildHeaders = true;
-	for (Enumeration e = resultsHash.keys (); e.hasMoreElements ();) 
+	for (Enumeration e = resultsHash.keys(); e.hasMoreElements();) 
 	{
 		int key = (Integer) e.nextElement();
 		List<DataPoint> results = resultsHash.get(key);

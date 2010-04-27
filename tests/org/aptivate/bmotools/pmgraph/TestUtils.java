@@ -1,14 +1,12 @@
 package org.aptivate.bmotools.pmgraph;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -225,22 +223,7 @@ class TestUtils
 		m_logger.debug(sql.toString());
 		sqlStatement.executeUpdate();
 		sqlStatement.close();
-	}
-	
-	
-	public void mostrarBaseDatos() throws SQLException, IOException
-	{
-		String theTableName;
-		StringBuffer sql; 
-		sql = new StringBuffer("SELECT * FROM acct_v6");
-		PreparedStatement sqlStatement = m_conn.prepareStatement("SELECT * FROM acct_v6");
-		//sqlStatement.setInt(1,0);
-		ResultSet rs = sqlStatement.executeQuery();
-		m_logger.info("empieza la tabla -----------");
-       while(rs.next())
-    	   m_logger.info(rs.getString(2) +  " jajajjajaja"  + rs.getString(3) + " " + rs.getString(4));  
-       rs.close();
-	}
+	}		
 	
 	void ClearTable() throws SQLException
 	{

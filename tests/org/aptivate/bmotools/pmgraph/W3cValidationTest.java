@@ -3,18 +3,14 @@ package org.aptivate.bmotools.pmgraph;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Hashtable;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
-import com.meterware.httpunit.HTMLElement;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -28,7 +24,7 @@ import com.nutrun.xhtml.validator.XhtmlValidator;
  * 
  * 
  */
-public class W3cValidationTest extends TestCase
+public class W3cValidationTest extends PmGraphTestBase
 {
 
 	private static Logger m_logger = Logger.getLogger(W3cValidationTest.class
@@ -94,60 +90,59 @@ public class W3cValidationTest extends TestCase
 	{
 
 		TestUtils testUtils = new TestUtils();
-
-		WebConversation wc = new WebConversation();
+		
 		// Main page
 		WebRequest request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
 						+ "index.jsp?report=totals&start=0&end=300000&limitResult=15");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 		w3cValidator(response);
 
 		// Port View.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
 						+ "index.jsp?report=totals&start=0&end=300000&view=LOCAL_PORT");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		w3cValidator(response);
 
 		// Specific IP View.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
 						+ "index.jsp?report=totals&start=0&end=300000&ip=10.0.156.110&view=LOCAL_PORT");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		w3cValidator(response);
 
 		// Specific Port.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
 						+ "index.jsp?report=totals&start=0&end=300000&port=90&view=LOCAL_IP");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		w3cValidator(response);
 
 		// Limitting results ip view.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
 						+ "index.jsp?report=totals&start=0&end=300000&limitResult=2&view=LOCAL_IP");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		w3cValidator(response);
 		
 		// Configuration page.
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
 						+ "configure.jsp");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		w3cValidator(response);
 												
 		// Configuration page after adding a new subnet
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph() + "configure.jsp");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		WebForm configurationForm = response.getFormWithID("config");		
 		int i = Integer.parseInt(configurationForm.getParameterValue("numSubnets"));
 		
 		request = new GetMethodWebRequest(
 				testUtils.getUrlPmgraph()
 						+ "configure.jsp?newSubnet=10.1A.123.&selectSubnet=10.0.156.&numSubnets="+i+"&Go=Save+configuration");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		w3cValidator(response);		
 	}
 

@@ -3,8 +3,6 @@ package org.aptivate.bmotools.pmgraph;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import junit.framework.TestCase;
-
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.WebTable;
@@ -16,7 +14,7 @@ import com.meterware.httpunit.WebTable;
  * @author Noe A. Rodriguez Gonzalez.
  * 
  */
-abstract class LegendTestBase extends TestCase
+abstract class LegendTestBase extends PmGraphTestBase
 {
 	protected TestUtils m_testUtils;
 

@@ -59,7 +59,7 @@ public class QueryBuilderTest extends TestCase
 		setQueries(false);
 	}
 	
-	public void setQueries(boolean isLong) throws IOException
+	private void setQueries(boolean isLong) throws IOException
 	{
 		String shortDate = "1970-01-01 01:05:00";
 		String longDate = "1970-01-06 01:00:00";
@@ -452,18 +452,23 @@ public class QueryBuilderTest extends TestCase
 		return query;
 	}
 	
-	public void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException, ParseException
+	private void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException, ParseException
 	{
 		List<View> views = View.getAvailableViews(requestParams);
 		HashMap<String, Map<String, String>> theQueries;
 		HashMap<String, Map<String, String>> theLegendQueries;
+		
 		if(isLong)
 		{
+			longQueries = new HashMap<String, Map<String, String>>();
+			longLegendQueries = new HashMap<String, Map<String, String>>();			
 			theQueries = longQueries;
 			theLegendQueries = longLegendQueries;
 		}
 		else
 		{
+			queries = new HashMap<String, Map<String, String>>();
+			legendQueries = new HashMap<String, Map<String, String>>();	
 			theQueries = queries;
 			theLegendQueries = legendQueries;
 		}
@@ -474,9 +479,9 @@ public class QueryBuilderTest extends TestCase
 		{
 			String sql;
 			requestParams.setView(view);
-			m_queryBuilder.buildQuery(requestParams, true, isLong);//.toString().replaceAll( ".*: ", "");
+			m_queryBuilder.buildQuery(requestParams, true, isLong);
 			sql = m_queryBuilder.getQuery().replaceAll( ".*: ", "");
-			//assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
+			assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
 			if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
 			{
 				String modifiedQuery = alterQuery(theQueries.get(stringParams).get(view.toString()));
@@ -499,6 +504,62 @@ public class QueryBuilderTest extends TestCase
 			}
 		}
 	}
+	
+	/*
+	 * method that tests the QueryBuilder in different cases
+	 * 
+	 * @throws SQLException
+	 * @throws IOException
+	 *
+	public void testQueryBuilder2() throws SQLException, IOException, ParseException, Exception
+	{
+		m_queryBuilder = new QueryBuilder();			
+		Map<String, Object> params = new HashMap<String, Object>();
+
+		int i = 0;
+		RequestParams requestParams = new RequestParams(params);
+		requestParams.setStart(0);
+		requestParams.setEnd(300000);
+		
+		RequestParams longRequestParams = new RequestParams(params);
+		longRequestParams.setStart(0);
+		longRequestParams.setEnd(5 * 24 * 60 * 60 * 1000);
+		
+		// check without parameters.
+		checkQuery(requestParams, false);
+		checkQuery(longRequestParams, true);
+		for (String param : m_params)
+		{
+			params.clear();
+			params.put(param, m_paramsValues.get(param));
+			// just set the parameter to a value that is not null
+			checkQuery(requestParams,false);
+			checkQuery(longRequestParams, true);
+			int limit = m_params.size() - i;
+			// check all possible groups.
+			for (int j = 1; j < limit; j++)
+			{ // number of elements in the group
+
+				for (int k = i + 1; k < m_params.size() - (j - 1); k++)
+				{ // possible starts to make group of size j
+
+					for (int l = 0; l < j; l++)
+					{ // create the group, adding the parameter value to it
+						params.put(m_params.get(k + l), m_paramsValues.get(m_params.get(k + l)));
+						
+					}
+					checkQuery(requestParams, false);
+					checkQuery(longRequestParams, true);
+
+					// restart the parameters
+					params.clear();
+					params.put(param, m_paramsValues.get(param));
+				}
+			}
+			i++;
+		}
+
+	}*/
 	
 	public static Test suite()
 	{

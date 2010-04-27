@@ -124,7 +124,8 @@ public enum View {
 		ArrayList<ArrayList<LegendElement>> headers = legend.getHeaders();
 		ArrayList<ArrayList<LegendElement>> rows = legend.getRows();
 		
-		if (buildHeaders) {
+		if (buildHeaders) 
+		{
 		//fill the header 
 		ArrayList<LegendElement> firstRowHeader = new ArrayList<LegendElement>();
 		ArrayList<LegendElement> secondRowHeader = new ArrayList<LegendElement>();

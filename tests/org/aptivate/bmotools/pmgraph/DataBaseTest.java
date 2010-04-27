@@ -28,10 +28,6 @@ public class DataBaseTest extends TestCase
 		RequestParams requestParams = new RequestParams(0, 300000, View.LOCAL_IP, 10);
 		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, false);
 		Hashtable<Integer,List<DataPoint>> thrptResults2 = dataAccess.getThroughput(requestParams, false, false);
-		Enumeration aux = thrptResults.keys();
-		int pepe = (Integer)aux.nextElement();
-		List<DataPoint> resultPerIP2 = thrptResults.get(pepe);
-		
 		for (Enumeration e = thrptResults.keys (); e.hasMoreElements ();)
 		{
 			int key = (Integer) e.nextElement();
