@@ -270,7 +270,7 @@ public class QueryBuilder
 	List<PreparedStatement> buildQuery(RequestParams requestParams, boolean isChart, boolean isLong) throws SQLException,
 			IOException
 	{
-		
+		m_selectSubnet.clear();
 		List<PreparedStatement> listStatement = new ArrayList<PreparedStatement>();
 		String SelectSubnet = RequestParams.getSelectSubnetIndex();
 		if (SelectSubnet != null) {
@@ -289,8 +289,7 @@ public class QueryBuilder
 				this.m_selectSubnet.add(localSubnets[i]);			
 		}
 		
-		for (int i = 0; i < this.m_selectSubnet.size(); i++) {
-			
+		for (int i = 0; i < m_selectSubnet.size(); i++) {			
 			this.m_localSubnet = this.m_selectSubnet.get(i);
 			StringBuffer sql = new StringBuffer("SELECT ");
 			sql.append(buildSelect(requestParams, isChart));

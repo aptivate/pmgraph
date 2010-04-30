@@ -48,7 +48,7 @@ public class RequestParams
 	
 	private static String m_addSubnet;
 	
-	private int m_numSubnets;
+	private static int m_numSubnets;
 	
 	private Hashtable<String,Integer> m_delSubnets;
 
@@ -322,7 +322,7 @@ public class RequestParams
 		return m_delSubnets;
 	}
 	
-	public int getNumSubnets()
+	public static int getNumSubnets()
 	{
 		return m_numSubnets;
 	}
@@ -495,9 +495,11 @@ public class RequestParams
 			m_selectSubnetIndex = subnetIndex;
 									
 		m_addSubnet = request.getParameter("newSubnet");				
-					
-		if (request.getParameter("numSubnets") != null) {
-			m_numSubnets = Integer.parseInt(request.getParameter("numSubnets"));
+		
+		String numSubnets = request.getParameter("numSubnets");
+		
+		if (numSubnets != null) {
+			m_numSubnets = Integer.parseInt(numSubnets);
 			Hashtable<String,Integer> hashDelSubnets=new Hashtable<String,Integer>();
 	        for (int i = 1; i <= m_numSubnets; i++)
 	        {

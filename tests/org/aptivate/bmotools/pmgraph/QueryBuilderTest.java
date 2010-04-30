@@ -37,12 +37,7 @@ public class QueryBuilderTest extends TestCase
 	private HashMap<String, Map<String, String>> longLegendQueries;	
 
 	public QueryBuilderTest() throws InstantiationException, IllegalAccessException,
-			ClassNotFoundException, SQLException, IOException {
-		super();
-	}		
-	
-	public void testQueryBuilder() throws Exception
-	{
+			ClassNotFoundException, SQLException, IOException, ConfigurationException {
 		m_params = new ArrayList<String>();
 		m_paramsValues = new HashMap<String, Object>();
 		m_params.add("ip");
@@ -55,10 +50,11 @@ public class QueryBuilderTest extends TestCase
 		m_paramsValues.put("remote_port", 10000);
 		
 		m_queryBuilder = new QueryBuilder();
-		setQueries(true);
 		setQueries(false);
-	}
-	
+		setQueries(true);
+		RequestParams.setSelectSubnetIndex("10.0.156.");
+	}			
+		
 	private void setQueries(boolean isLong) throws IOException
 	{
 		String shortDate = "1970-01-01 01:05:00";
@@ -451,6 +447,7 @@ public class QueryBuilderTest extends TestCase
 		query = query.replace("stamp_inserted <= ", "datetime(stamp_inserted) <= ");
 		return query;
 	}
+		
 	
 	private void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException, ParseException
 	{
@@ -459,16 +456,12 @@ public class QueryBuilderTest extends TestCase
 		HashMap<String, Map<String, String>> theLegendQueries;
 		
 		if(isLong)
-		{
-			longQueries = new HashMap<String, Map<String, String>>();
-			longLegendQueries = new HashMap<String, Map<String, String>>();			
+		{					
 			theQueries = longQueries;
 			theLegendQueries = longLegendQueries;
 		}
 		else
 		{
-			queries = new HashMap<String, Map<String, String>>();
-			legendQueries = new HashMap<String, Map<String, String>>();	
 			theQueries = queries;
 			theLegendQueries = legendQueries;
 		}
@@ -491,7 +484,7 @@ public class QueryBuilderTest extends TestCase
 			{
 				assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
 			}
-			m_queryBuilder.buildQuery(requestParams, false, isLong);//.toString().replaceAll( ".*: ", "");
+			m_queryBuilder.buildQuery(requestParams, false, isLong);
 			sql = m_queryBuilder.getQuery();
 			if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
 			{
@@ -510,8 +503,8 @@ public class QueryBuilderTest extends TestCase
 	 * 
 	 * @throws SQLException
 	 * @throws IOException
-	 *
-	public void testQueryBuilder2() throws SQLException, IOException, ParseException, Exception
+	 **/
+	public void testQueryBuilder() throws SQLException, IOException, ParseException, Exception
 	{
 		m_queryBuilder = new QueryBuilder();			
 		Map<String, Object> params = new HashMap<String, Object>();
@@ -535,8 +528,9 @@ public class QueryBuilderTest extends TestCase
 			// just set the parameter to a value that is not null
 			checkQuery(requestParams,false);
 			checkQuery(longRequestParams, true);
+			i = 0;
 			int limit = m_params.size() - i;
-			// check all possible groups.
+			// check all possible groups.															
 			for (int j = 1; j < limit; j++)
 			{ // number of elements in the group
 
@@ -558,8 +552,8 @@ public class QueryBuilderTest extends TestCase
 			}
 			i++;
 		}
-
-	}*/
+		RequestParams.setSelectSubnetIndex("all");
+	}
 	
 	public static Test suite()
 	{

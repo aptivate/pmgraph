@@ -34,7 +34,7 @@ public class AllTests extends PmGraphTestBase
 		suite.addTest(PortsToServiceTest.suite());
 		suite.addTest(ColourTest.suite());
 		suite.addTest(ConfigurationTest.suite());
-		suite.addTest(TestMultiSubnetsLgend.suite());
+		suite.addTest(TestMultiSubnetsLegend.suite());
 		suite.addTest(TestMultiSubnets.suite());		
 		return suite;
 	}

@@ -23,6 +23,7 @@
 	boolean result = false;
 	boolean goodSubnet = true;
 	boolean update = false;
+	boolean oneSubnet = false;
 	
 	//Validate Parameters
 	try
@@ -36,22 +37,34 @@
 	
     if (pageUrl.getParams().getAddSubnet() != null)
     	update = true;
-    
+    	
+    oneSubnet = false;
     if (pageUrl.getParams().getDelSubnets() != null)
-    	if (!pageUrl.getParams().getDelSubnets().isEmpty())
-    		update = true;
+    {
+    	if (!pageUrl.getParams().getDelSubnets().isEmpty()) {
+    		update = true;   	    
+	    	if (pageUrl.getParams().getNumSubnets() == pageUrl.getParams().getDelSubnets().size())
+    			oneSubnet = true;
+    	}
+    }
    
-    if (update) {
+    if (update) 
+    {
     	String newSubnets = pageUrl.getParams().getAddSubnet();
 		goodSubnet = true;
-		if (!newSubnets.equals("")) {
+		if (!newSubnets.equals("")) 
+		{
 			Pattern p = Pattern.compile("(([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\\.){3}$");
 	    	Matcher m = p.matcher(newSubnets);
 			goodSubnet = m.find();
 		}
-		if (goodSubnet) {
-			result = Configuration.updateConf(pageUrl.getParams().getAddSubnet(), pageUrl.getParams().getDelSubnets());
-			wrongSubnet = "";
+		if (goodSubnet) 
+		{
+			if (!oneSubnet) 
+			{
+				result = Configuration.updateConf(pageUrl.getParams().getAddSubnet(), pageUrl.getParams().getDelSubnets());
+				wrongSubnet = "";
+			}
 		}
 		else 
 			wrongSubnet = newSubnets;
@@ -82,13 +95,17 @@
 	    		<div id="unsuccessResult">	    		
     				<%if (!goodSubnet) { %>
     					<p>Incorrect new subnet format. Please try again as follows: 0-255.0-255.0-255.</p>
-    				<%}else {%>
-	    				<p>The new subnet is already in the configure file</p>
-    				<%}%>
+    				<%}else {
+    					if (oneSubnet) {%>
+	    					<p>You can't delete all the subnets</p>
+	    				<%}else {%>
+	    					<p>The new subnet is already in the configure file</p>
+    					<%}
+    				}%>
     			</div>
     	    <%}
     			update = false;
-    		}%>
+    	}%>
 	    <div id="conf_form">	
 			<form id="config" action="">	
 				<fieldset id="configuration">		

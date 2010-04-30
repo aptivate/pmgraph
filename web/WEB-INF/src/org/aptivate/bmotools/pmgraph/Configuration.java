@@ -250,24 +250,24 @@ public class Configuration
 	
 	public static boolean delSubnetConf(Hashtable<String,Integer> hashDelSubnets, Properties tempProps) throws IOException
 	{	
-		boolean delSubnet = false;
+		boolean result = false;				
 		for (Enumeration e = hashDelSubnets.keys (); e.hasMoreElements ();) 
-		{
-			delSubnet = false;
+		{			
 			String key = (String) e.nextElement ();
-		    int value = hashDelSubnets.get (key);
-		    tempProps.remove(key);
-		    int i = value + 1;
-		    while (tempProps.getProperty("LocalSubnet"+i) != null) {
-		    	if ((i-1) == 1)
-		    		tempProps.setProperty("LocalSubnet", tempProps.getProperty("LocalSubnet"+i));
-		    	else
-		    		tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
-		    	i++;
-		    }
-		    tempProps.remove("LocalSubnet"+(i-1));
+			int value = hashDelSubnets.get (key);
+			tempProps.remove(key);
+			int i = value + 1;		    
+			while (tempProps.getProperty("LocalSubnet"+i) != null) {
+				if ((i-1) == 1)
+					tempProps.setProperty("LocalSubnet", tempProps.getProperty("LocalSubnet"+i));
+				else
+					tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
+				i++;
+			}
+			tempProps.remove("LocalSubnet"+(i-1));
 		}
-		return delSubnet;
+		result = true;		
+		return result;
 	}
 	
 	public static boolean delSubnetConf(Hashtable<String,Integer> hashDelSubnets) throws IOException
@@ -276,26 +276,26 @@ public class Configuration
 		boolean result = false;
 		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
-		
+			
 		for (Enumeration e = hashDelSubnets.keys (); e.hasMoreElements ();) 
 		{
 			String key = (String) e.nextElement ();
-		    int value = hashDelSubnets.get (key);
-		    tempProps.remove(key);
-		    int i = value + 1;
-		    while (tempProps.getProperty("LocalSubnet"+i) != null) {
-		    	if ((i-1) == 1)
-		    		tempProps.setProperty("LocalSubnet", tempProps.getProperty("LocalSubnet"+i));
-		    	else
-		    		tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
-		    	i++;
-		    }
-		    tempProps.remove("LocalSubnet"+(i-1));
+			int value = hashDelSubnets.get (key);
+			tempProps.remove(key);
+			int i = value + 1;
+			while (tempProps.getProperty("LocalSubnet"+i) != null) {
+				if ((i-1) == 1)
+					tempProps.setProperty("LocalSubnet", tempProps.getProperty("LocalSubnet"+i));
+				else
+					tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
+				i++;
+			}
+			tempProps.remove("LocalSubnet"+(i-1));
 		}
 		s_properties = tempProps;
 		tempProps.storeToXML(out, "");
 		out.close();
-		result = true;			
+		result = true;		
 		return result;
 	}
 	

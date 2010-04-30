@@ -27,8 +27,8 @@ import org.apache.log4j.Logger;
  */
 class DataAccess
 {
-	private Logger m_logger = Logger.getLogger(DataAccess.class.getName());
-
+	private Logger m_logger = Logger.getLogger(DataAccess.class.getName());				
+	
 	/**
 	 * Form and execute the database query
 	 * 
