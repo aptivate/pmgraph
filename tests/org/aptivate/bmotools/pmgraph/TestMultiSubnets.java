@@ -2,7 +2,6 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Hashtable;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -121,12 +120,12 @@ public class TestMultiSubnets extends PmGraphTestBase
 		WebResponse response = loadUrl (theTestUtils);
 		WebForm configurationForm = response.getFormWithID("config");
 		
-		int i = Integer.parseInt(configurationForm.getParameterValue("numSubnets"));
+		int numSubnets = Integer.parseInt(configurationForm.getParameterValue("numSubnets"));
 		String addSubnet[] = {"10.40.255.", "10.1A.123.", "1001.1.3"};
 		
 		String Url[] = new String[3];
-        for (int j = 0; j < 3; j++)
-            Url[j] = theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet="+addSubnet[j]+"&selectSubnet=10.0.156.&numSubnets="+i+"&Go=Save+configuration";				       	      
+        for (int i = 0; i < 3; i++)
+            Url[i] = theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet="+addSubnet[i]+"&selectSubnet=10.0.156.&numSubnets="+numSubnets+"&Go=Save+configuration";				       	      
 	    WebRequest request = new GetMethodWebRequest(Url[2]);
 	    response = m_conversation.getResponse(request);
 	    HTMLElement result = response.getElementWithID("unsuccessResult");
@@ -145,9 +144,10 @@ public class TestMultiSubnets extends PmGraphTestBase
 	    resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
 	    assertTrue(resultString.equals("Update Done"));
 	       
-	    Hashtable<String,Integer> delSubnet = new Hashtable<String,Integer>();
-	    delSubnet.put("LocalSubnet"+(i + 1),(i + 1));
-	    Configuration.delSubnetConf(delSubnet);	    	    	   
+	    configurationForm = response.getFormWithID("config");
+	    FormControl aux = configurationForm.getControlWithID("delSubnet"+numSubnets);
+		aux.toggle();
+		configurationForm.submit();		    	   
 	} 		
 	
     // ------------------------------------------------------------------
@@ -193,6 +193,31 @@ public class TestMultiSubnets extends PmGraphTestBase
 		numSubnets = table.getRowCount() - SIZE_HEADS;
 		assertTrue(numSubnets == oldNumSubnets);
 	}	
+	
+	//------------------------------------------------------------------
+	
+	public void testDeleteAllSubnets() throws InstantiationException, IllegalAccessException, 
+	ClassNotFoundException, SQLException, IOException, SAXException
+	{
+		TestUtils theTestUtils = new TestUtils();		
+		WebResponse response = loadUrl (theTestUtils);
+		WebForm configurationForm = response.getFormWithID("config");
+		
+		int numSubnets = Integer.parseInt(configurationForm.getParameterValue("numSubnets"));
+		String aux = "?";
+		for (int i = 1; i <= numSubnets; i++)
+			aux += "delSubnet"+i+"=delSubnet"+i+"&";
+		aux +="numSubnets="+numSubnets+"&newSubnet=&Go=Save+configuration";			
+		WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp"+aux);
+	    response = m_conversation.getResponse(request);
+		
+		configurationForm = response.getFormWithID("config");
+		int newNumSubnets = Integer.parseInt(configurationForm.getParameterValue("numSubnets"));
+		assertEquals(numSubnets, newNumSubnets);		
+	    HTMLElement result = response.getElementWithID("unsuccessResult");
+	    String resultString = result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
+	    assertTrue(resultString.equals("You can't delete all the subnets"));
+	}
 	
 	// ------------------------------------------------------------------
 	

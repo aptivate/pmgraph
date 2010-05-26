@@ -28,8 +28,9 @@ abstract class PmGraphTestBase extends TestCase
 	    return response;
 	}
 	
-	public void TearDown() 
+	public void tearDown() throws Exception 
 	{
+		super.tearDown();
 		m_conversation = null;
 	}
 }

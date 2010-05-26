@@ -139,29 +139,29 @@ public class QueryBuilder
 
 		sql.append("SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, ");
 
-		m_listData.add(this.m_localSubnet + "%");
+		m_listData.add(m_localSubnet + "%");
 		sql.append("SUM(CASE WHEN ip_src LIKE ? THEN bytes ELSE 0 END) as uploaded, ");
-		m_listData.add(this.m_localSubnet + "%");
+		m_listData.add(m_localSubnet + "%");
 
 		switch (requestParams.getView())
 		{
 		case LOCAL_PORT:
 			sql.append("ip_proto, "); // id of the used protocol udp/tcp/icmp
 			sql.append("(CASE WHEN ip_src LIKE ? THEN src_port ELSE dst_port END) AS port ");
-			m_listData.add(this.m_localSubnet + "%");
+			m_listData.add(m_localSubnet + "%");
 			break;
 		case LOCAL_IP:
 			sql.append("(CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) AS local_ip ");
-			m_listData.add(this.m_localSubnet + "%");
+			m_listData.add(m_localSubnet + "%");
 			break;
 		case REMOTE_PORT:
 			sql.append("ip_proto, "); // id of the used protocol udp/tcp/icmp
 			sql.append("(CASE WHEN ip_src LIKE ? THEN dst_port ELSE src_port END) AS remote_port ");
-			m_listData.add(this.m_localSubnet + "%");
+			m_listData.add(m_localSubnet + "%");
 			break;
 		case REMOTE_IP: // Show Remote IP
 			sql.append("(CASE WHEN ip_src LIKE ? THEN ip_dst ELSE ip_src END) AS remote_ip ");
-			m_listData.add(this.m_localSubnet + "%");
+			m_listData.add(m_localSubnet + "%");
 			break;
 
 		}
@@ -172,7 +172,7 @@ public class QueryBuilder
 	{
 		StringBuffer where = new StringBuffer();
 		String comparator = " LIKE ";
-		String ip = this.m_localSubnet + "%";
+		String ip = m_localSubnet + "%";
 
 		if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
 		{
@@ -190,7 +190,7 @@ public class QueryBuilder
 			comparator = " = ";
 			ip = requestParams.getIp();
 			where.append("AND (CASE WHEN ip_src LIKE ? THEN ip_src ELSE ip_dst END) = ? ");
-			m_listData.add(this.m_localSubnet + "%");
+			m_listData.add(m_localSubnet + "%");
 			m_listData.add(requestParams.getIp());
 		}
 		if (requestParams.getPort() != null)
@@ -203,7 +203,7 @@ public class QueryBuilder
 		if (requestParams.getRemoteIp() != null)
 		{ // for an specific local IP
 			where.append("AND (CASE WHEN ip_src LIKE ? THEN ip_dst ELSE ip_src END) = ? ");
-			m_listData.add(this.m_localSubnet + "%");
+			m_listData.add(m_localSubnet + "%");
 			m_listData.add(requestParams.getRemoteIp());
 		}
 		if (requestParams.getRemotePort() != null)
@@ -215,9 +215,9 @@ public class QueryBuilder
 		}
 		where.append("AND ((NOT (ip_src LIKE ?) AND ip_dst " + comparator
 				+ " ?) OR (NOT (ip_dst LIKE ?) AND ip_src " + comparator + " ?)) ");
-		m_listData.add(this.m_localSubnet + "%");
+		m_listData.add(m_localSubnet + "%");
 		m_listData.add(ip);
-		m_listData.add(this.m_localSubnet + "%");
+		m_listData.add(m_localSubnet + "%");
 		m_listData.add(ip);
 		return (where.toString());
 	}
@@ -277,20 +277,20 @@ public class QueryBuilder
 			if (SelectSubnet.equals("all")) {
 				String[] localSubnets = Configuration.getLocalSubnet();
 				for (int i = 0; i < localSubnets.length; i++)
-					this.m_selectSubnet.add(localSubnets[i]);
+					m_selectSubnet.add(localSubnets[i]);
 			}
 			else
-				this.m_selectSubnet.add(SelectSubnet);
+				m_selectSubnet.add(SelectSubnet);
 		}
 		else { // All is the default option
 			RequestParams.setSelectSubnetIndex("all");
 			String[] localSubnets = Configuration.getLocalSubnet();
 			for (int i = 0; i < localSubnets.length; i++)
-				this.m_selectSubnet.add(localSubnets[i]);			
+				m_selectSubnet.add(localSubnets[i]);			
 		}
 		
 		for (int i = 0; i < m_selectSubnet.size(); i++) {			
-			this.m_localSubnet = this.m_selectSubnet.get(i);
+			m_localSubnet = m_selectSubnet.get(i);
 			StringBuffer sql = new StringBuffer("SELECT ");
 			sql.append(buildSelect(requestParams, isChart));
 			if(isLong)

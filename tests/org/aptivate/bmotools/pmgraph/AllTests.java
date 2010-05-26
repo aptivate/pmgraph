@@ -37,11 +37,5 @@ public class AllTests extends PmGraphTestBase
 		suite.addTest(TestMultiSubnetsLegend.suite());
 		suite.addTest(TestMultiSubnets.suite());		
 		return suite;
-	}
-	
-	public void TearDown()
-	{
-		TearDown();
-	}
-	
+	}	
 }

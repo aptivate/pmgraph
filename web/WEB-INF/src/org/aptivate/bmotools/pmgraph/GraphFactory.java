@@ -49,21 +49,6 @@ import org.jfree.data.xy.XYSeries;
  */
 public class GraphFactory
 {
-	
-	class ItemInfoMap extends HashMap<DataPoint,float []> implements Map<DataPoint,float[]>
-	{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		public float[] put(DataPoint key, float[] value) {
-			return super.put(key, value);
-		}
-		public float[] get(DataPoint key) {
-			return super.get(key);
-		}
-	}	
-	
 	private Logger m_logger = Logger.getLogger(GraphFactory.class.getName());
 
 	/**
@@ -312,11 +297,7 @@ public class GraphFactory
 
 				for (Enumeration e = upDownSeriesHash.keys(); e.hasMoreElements();) 
 				{					
-					Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>) e.nextElement();
-					/*Map<DataPoint, float[]> upSeries = Collections.checkedMap(Collections
-							.synchronizedMap(new HashMap<DataPoint, float[]>()), DataPoint.class,
-							float[].class);*/
-							
+					Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>) e.nextElement();												
 					Map<DataPoint, float[]> downSeries = upDownSeriesHash.get(upSeries);
 
 					// We created a series for this port so it should be within the top
@@ -358,17 +339,7 @@ public class GraphFactory
 		// introduce it in the dataset of the chart.
 		for (Enumeration e = upDownSeriesHash.keys(); e.hasMoreElements();) 
 		{
-			//Map<DataPoint, float[]> upSeries = new HashMap<DataPoint, float[]>();
-			Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>)e.nextElement();
-			//ItemInfoMap upSeries = (ItemInfoMap)e.nextElement();	
-			/*Map<DataPoint, float[]> upSeries = Collections.checkedMap(Collections
-			.synchronizedMap(new HashMap<DataPoint, float[]>()), DataPoint.class,
-			float[].class);*/			
-			// upSeries = new Hashtable<DataPoint, float[]>();
-			//upSeries.putAll((Map<? extends DataPoint, ? extends float[]>) e.nextElement());
-			
-			//HashMap<DataPoint, float[]> upSeries = new HashMap<DataPoint, float[]>();
-			//upSeries.putAll((Map<? extends DataPoint, ? extends float[]>) e.nextElement());		
+			Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>)e.nextElement();				
 			Map<DataPoint, float[]> downSeries = upDownSeriesHash.get(upSeries);
 			series2DataSet(dataset, downSeries, renderer, roundedStart, "<down>",
 					requestParams, resolution);
@@ -496,8 +467,6 @@ public class GraphFactory
 			m_logger.debug("Execution Time creating chart : " + endTime
 					+ " millisec");
 		}
-		thrptResultsSort = null;
-		thrptResults = null;
 		return chart;
 	}
 }

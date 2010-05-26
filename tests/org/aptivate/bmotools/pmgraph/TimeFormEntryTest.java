@@ -96,8 +96,12 @@ public class TimeFormEntryTest extends PmGraphTestBase
 				.getButtonWithID("Go"));
 		assertNotNull("Check if there is text box fromDate.", response
 				.getElementWithID("fromDate"));
+		assertNotNull("Check if there is text box fromDate.", response
+				.getElementWithID("fDate"));
 		assertNotNull("Check if there is text box toDate.", response
 				.getElementWithID("toDate"));
+		assertNotNull("Check if there is text box fromDate.", response
+				.getElementWithID("tDate"));
 		assertNotNull("Check if there is text box fromTime.", response
 				.getElementWithID("fromTime"));
 		assertNotNull("Check if there is text box toTime.", response

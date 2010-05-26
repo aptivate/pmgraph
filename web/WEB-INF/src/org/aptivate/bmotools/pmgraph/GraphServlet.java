@@ -33,7 +33,6 @@ public class GraphServlet extends HttpServlet //implements SingleThreadModel
 
 	private static Logger m_logger = Logger.getLogger(GraphServlet.class
 			.getName());
-	//private int serviceCounter = 0;
 	/**
 	 * Creates a GraphBuilder object which queries the database and returns
 	 * graphs (using the JFreeChart library) showing logged traffic to the
@@ -48,7 +47,6 @@ public class GraphServlet extends HttpServlet //implements SingleThreadModel
 		{
 			JFreeChart chart = null;
 			// Get the parameters for graph building from the request string
-			// TODO make these conditionals...
 			String graphType = request.getParameter("graph");
 			Integer width = Integer.valueOf(request.getParameter("width"));
 			Integer height = Integer.valueOf(request.getParameter("height"));

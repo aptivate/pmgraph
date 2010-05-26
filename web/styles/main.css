@@ -99,6 +99,21 @@ td {
 	float: right;
 	clear: right;
 	margin-bottom: 10px;
+	margin-right: 0.5em;
+}
+
+#fDate{
+	width:1.2em;
+	height:0.9em;
+	border:0em;
+	margin-right:0.2em;
+}
+
+#tDate{
+	width:1.2em;
+	height:0.9em;
+	border:0em;
+	margin-right:0.5em;
 }
 
 #container {
@@ -201,15 +216,16 @@ td {
 	margin-left: 9em;	
 }
 
-#configuration{
+#config{
 	height: 18em;
-	width: 48.5em;	
-	}
+	width: 100%;	
+}
 
 #conf_form {
 	float: left;
 	clear: left;
 	margin-top: 1em;
+	width: 100%;	
 }
 
 .change {
@@ -249,8 +265,7 @@ input {
 	overflow: hidden;	
 	height: 1.2em;
 }
-.error_panel {
-	
+.error_panel {	
 	background-color: #f86c6c;
 	width:  80%;
 	border: solid red 2px;
