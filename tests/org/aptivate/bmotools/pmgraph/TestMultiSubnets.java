@@ -145,9 +145,9 @@ public class TestMultiSubnets extends PmGraphTestBase
 	    assertTrue(resultString.equals("Update Done"));
 	       
 	    configurationForm = response.getFormWithID("config");
-	    FormControl aux = configurationForm.getControlWithID("delSubnet"+numSubnets);
+	    FormControl aux = configurationForm.getControlWithID("delSubnet"+ (numSubnets + 1));
 		aux.toggle();
-		configurationForm.submit();		    	   
+		configurationForm.submit();			
 	} 		
 	
     // ------------------------------------------------------------------
