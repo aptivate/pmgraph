@@ -335,15 +335,7 @@
 						</select>
 						</td>					
 					</tr>
-					<tr>						
-						<td>Dynamic Update: </td> 
-						<td class="align_left	">																
-						<input type="checkbox" title="Click to enable/disable dynamic update" id="dynamic" name="dynamic" value="false" onclick="check(this.checked);" />						
-						</td>	
-						<td  colspan="2" class="align_left"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>					
-					</tr>		
-					
-					<tr>
+						<tr>
 						<td>Select Subnet </td>   
 						<td class="align_left">
 						<select id="selectSubnetIndex"  name="selectSubnetIndex" >
@@ -353,26 +345,27 @@
 							if ((selectSubnet != null) && (selectSubnet.equals("all"))) {
 							%>
 								<option selected="selected" value="all">all</option>
-							<% } else %>
+							<% } else { %>
 								<option value="all">all</option>
-							<% 
-							if ((selectSubnet != null) && (selectSubnet.equals("--"))) {
-							%>
-								<option selected="selected" value="--">--</option>
-							<% } else %>
-								<option value="--">--</option>
-							<%
+							<% }						
 							for (int i = 0; i < vectSubnets.length; i++) {  
 								String subnet = vectSubnets[i]; 
 								if ((selectSubnet != null) && (selectSubnet.equals(vectSubnets[i]))) {
 								 %>
 									<option selected="selected" value="<%=subnet%>"><%=subnet%></option>		
-								<% } else %>
+								<% } else { %>
 									<option value="<%=subnet%>"><%=subnet%></option>	
-				 	 	<%} %>
+				 	 	<%} }%>
 						</select>
 						</td>	
 					</tr>
+					<tr>						
+						<td>Dynamic Update: </td> 
+						<td class="align_left	">																
+						<input type="checkbox" title="Click to enable/disable dynamic update" id="dynamic" name="dynamic" value="false" onclick="check(this.checked);" />						
+						</td>	
+						<td  colspan="2" class="align_left"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>					
+					</tr>											
 				</table>   																		
 				</form>																			
 	            </div>   

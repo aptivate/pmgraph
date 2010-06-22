@@ -1,7 +1,11 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.awt.Color;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -11,6 +15,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,7 +129,7 @@ public class GraphFactory
 	 * @return List of DataPoint with the top results set by the user or by default
 	 */
 	
-	private Hashtable<Integer, List<DataPoint>> getTopResults(Hashtable<Integer,List<DataPoint>> thrptResults,
+	Hashtable<Integer, List<DataPoint>> getTopResults(Hashtable<Integer,List<DataPoint>> thrptResults,
 			RequestParams requestParams)
 	{
 		
@@ -135,7 +140,7 @@ public class GraphFactory
 		// For each Ip or port, create an entry in a data series list in which 
 		//the total points are summed
 		
-		int cont = 1;
+		int cont = 0;
 		for (Enumeration enumListResult = thrptResults.keys(); enumListResult.hasMoreElements();) 
 		{
 			int key = (Integer) enumListResult.nextElement();
@@ -171,7 +176,7 @@ public class GraphFactory
 			mulSubnetTotal.put(cont, seriesTotals);
 			cont++;
 		}
-		cont = 1;
+		cont = 0;
 		for (Enumeration enumListResult = mulSubnetTotal.keys(); enumListResult.hasMoreElements();)
 		{
 			int key = (Integer) enumListResult.nextElement();
@@ -212,7 +217,7 @@ public class GraphFactory
 	private JFreeChart fillGraph(Hashtable<Integer,List<DataPoint>> thrptResults,
 			RequestParams requestParams, boolean isLong) {
 		
-		Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> upDownSeriesHash = new Hashtable<Map<DataPoint, float[]>, Map<DataPoint, float[]>>();
+		Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> upDownSeriesHash = new Hashtable<Map<DataPoint, float[]>, Map<DataPoint, float[]>>();		
 			
 		long roundedStart;    //Rounded to minutes
 		long roundedEnd;
@@ -223,11 +228,8 @@ public class GraphFactory
 
 		int resolution = Configuration.getResolution(isLong, theEnd - theStart);
 		roundedStart = requestParams.getRoundedStartTime(resolution);
-		roundedEnd = requestParams.getRoundedEndTime(resolution);
+		roundedEnd = requestParams.getRoundedEndTime(resolution);			
 		
-		int timeUnits = (int) ((roundedEnd - roundedStart) / resolution);
-		float[] otherUp = new float[timeUnits + 1];
-		float[] otherDown = new float[timeUnits + 1];
 
 		DefaultTableXYDataset dataset = new DefaultTableXYDataset();
 		JFreeChart chart = createStackedXYGraph(title, dataset, roundedStart, roundedEnd,
@@ -241,6 +243,8 @@ public class GraphFactory
 		long initTime = System.currentTimeMillis();
 		
 		Hashtable<Integer, List<DataPoint>> topIdsHash = getTopResults(thrptResults, requestParams);
+		
+		upDownSeriesHash = getGraph(thrptResults, topIdsHash, roundedStart,	roundedEnd, resolution, requestParams.getResultLimit(), isLong);
 
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Time spent in sorting: " + endTime + " millisecond");
@@ -249,26 +253,84 @@ public class GraphFactory
 		initTime = System.currentTimeMillis();
 		m_logger.debug("Number of rows in result set = " + thrptResults.size());
 
-		for (Enumeration e = topIdsHash.keys(); e.hasMoreElements();) 
-		{			
-			int key = 1;
-			List<DataPoint> topIds = topIdsHash.get(key);
+
+		// Once the data that should be in the graph is created lets go to
+		// introduce it in the dataset of the chart.
+		for (Enumeration e = upDownSeriesHash.keys(); e.hasMoreElements();) 
+		{
+			Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>)e.nextElement();				
+			Map<DataPoint, float[]> downSeries = upDownSeriesHash.get(upSeries);
+			series2DataSet(dataset, downSeries, renderer, roundedStart, "<down>",
+					requestParams, resolution);
+			series2DataSet(dataset, upSeries, renderer, roundedStart, "<up>",
+					requestParams, resolution);
+
+			endTime = System.currentTimeMillis() - initTime;
+			m_logger.debug("Data inserted in chart Time : " + endTime + " millisec");
+		}
+		return chart;
+	}
+
+	
+	Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> getGraph (Hashtable<Integer,List<DataPoint>> thrptResults, Hashtable<Integer, List<DataPoint>> topIdsHash, long roundedStart,
+	long roundedEnd, int resolution, int resultLimit, boolean isLong) {
+		
+		Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> upDownSeriesHash = new Hashtable<Map<DataPoint, float[]>, Map<DataPoint, float[]>>();
+		int timeUnits = (int) ((roundedEnd - roundedStart) / resolution);
+		
+		for (Enumeration e = thrptResults.keys(); e.hasMoreElements();) 
+		{	
 			e.nextElement();
-			key++;
+			boolean othersSet = false;
 			Map<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
 			Map<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
+			int key = 0;
+			List<DataPoint> topIds = topIdsHash.get(key);
+			List<DataPoint> others = thrptResults.get(key);
+			List<DataPoint> aux = new ArrayList<DataPoint>();
 			
 			for (DataPoint topId : topIds) // Is in the Top X results.
 			{
 				float upSeriesElement[] = new float[timeUnits + 1];
 				float downSeriesElement[] = new float[timeUnits + 1];
 				upSeries.put(topId, upSeriesElement);
-				downSeries.put(topId, downSeriesElement);
-
+				downSeries.put(topId, downSeriesElement);				
+				for (int i = 0; i < others.size(); i++)
+				{
+					DataPoint other = others.get(i);				
+					if (topId.getId().toString().equals(other.getId().toString()))
+						aux.add(other);
+				}									
 			}
-			upDownSeriesHash.put(upSeries, downSeries);
+			if(aux.size() < others.size())
+			{				
+				if (!othersSet)
+				{
+					for(DataPoint other : others)
+					{
+						float otherUp[] = new float[timeUnits + 1];
+						float otherDown[] = new float[timeUnits + 1];					
+						if (other instanceof IpDataPoint) {
+							upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
+								otherUp);
+							downSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
+								otherDown);
+						} else {
+							upSeries.put(
+								new PortDataPoint(PortDataPoint.OTHER_PORT),
+								otherUp);
+							downSeries.put(new PortDataPoint(
+								PortDataPoint.OTHER_PORT), otherDown);
+						}
+					}
+					othersSet = true;
+				}
+			}
+			key++;
+			upDownSeriesHash.put(upSeries, downSeries);			
 		}
-
+		
+		
 		for (Enumeration enumListResult = thrptResults.keys(); enumListResult.hasMoreElements();) 
 		{
 			int key = (Integer) enumListResult.nextElement();
@@ -294,63 +356,51 @@ public class GraphFactory
 
 				// check if the ip already has its own series if not we create one
 				// for it
-
 				for (Enumeration e = upDownSeriesHash.keys(); e.hasMoreElements();) 
-				{					
-					Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>) e.nextElement();												
+				{		
+					e.nextElement();
+					Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>)upDownSeriesHash.keys().nextElement();												
 					Map<DataPoint, float[]> downSeries = upDownSeriesHash.get(upSeries);
 
 					// We created a series for this port so it should be within the top
 					// results
-					// update the values of the series
-					if (upSeries.containsKey(seriesId)) {
+					// update the values of the series	
+					if (upSeries.containsKey(seriesId))
+					{
 						float[] dSeries = downSeries.get(seriesId);
 						float[] uSeries = upSeries.get(seriesId);
 						dSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = downloaded;
-						uSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = 0 - uploaded;
-					} 
-					else { // the port belongs to the group other - just stack
-						// values
-
-						otherDown[((int) ((inserted.getTime() - roundedStart) / resolution))] += downloaded;
-						otherUp[((int) ((inserted.getTime() - roundedStart) / resolution))] += 0 - uploaded;
-
-						if (!(upSeries.size() == requestParams.getResultLimit() + 1)) {
-							if (thrptResult instanceof IpDataPoint) {
-								upSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
-										otherUp);
-								downSeries.put(new IpDataPoint(IpDataPoint.OTHER_IP),
-										otherDown);
-							} 
-							else {
-								upSeries.put(
-										new PortDataPoint(PortDataPoint.OTHER_PORT),
-										otherUp);
-								downSeries.put(new PortDataPoint(
-										PortDataPoint.OTHER_PORT), otherDown);
-							}
+						uSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] = 0 - uploaded;					 				
+						
+					}
+					else 
+					{			
+						float[] dSeries;
+						float[] uSeries;
+						if (thrptResult instanceof IpDataPoint) {
+							IpDataPoint aux = new IpDataPoint(IpDataPoint.OTHER_IP);
+							dSeries = downSeries.get(aux);
+							uSeries = upSeries.get(aux);							
+						} else {
+							PortDataPoint aux = new PortDataPoint(PortDataPoint.OTHER_PORT);
+							dSeries = downSeries.get(aux);
+							uSeries = upSeries.get(aux);
 						}
+						dSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] += downloaded;
+						uSeries[((int) ((inserted.getTime() - roundedStart) / resolution))] += 0 - uploaded;												
 					}
 					upDownSeriesHash.put(upSeries, downSeries);
 				}
 			}				
 		}
-		// Once the data that should be in the graph is created lets go to
-		// introduce it in the dataset of the chart.
-		for (Enumeration e = upDownSeriesHash.keys(); e.hasMoreElements();) 
-		{
-			Map<DataPoint, float[]> upSeries = (Map<DataPoint, float[]>)e.nextElement();				
-			Map<DataPoint, float[]> downSeries = upDownSeriesHash.get(upSeries);
-			series2DataSet(dataset, downSeries, renderer, roundedStart, "<down>",
-					requestParams, resolution);
-			series2DataSet(dataset, upSeries, renderer, roundedStart, "<up>",
-					requestParams, resolution);
-
-			endTime = System.currentTimeMillis() - initTime;
-			m_logger.debug("Data inserted in chart Time : " + endTime + " millisec");
-		}
-		return chart;
+		
+		
+		
+		return upDownSeriesHash;
 	}
+	
+	
+	
 	
 	/**
 	 * A method which creates the chart with the default options for the stacked
@@ -455,7 +505,7 @@ public class GraphFactory
 		{
 			int key = (Integer) enumListResult.nextElement();
 			List<DataPoint> listResults = thrptResults.get(key);
-			Collections.sort(listResults, new BytesTotalComparator(true));
+			Collections.sort(listResults, new BytesTotalComparator(true));				
 			thrptResultsSort.put(key, listResults);
 		}
 

@@ -541,7 +541,7 @@ public class GraphsTest extends GraphTestBase
 		Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> upDownSeriesHash = new Hashtable<Map<DataPoint, float[]>, Map<DataPoint, float[]>>();		
 		upDownSeriesHash = graphFactory.getGraph(thrptResults, topIdsHash, roundedStart, roundedEnd, resolution, 1, isLong);
 		
-		// If upDownSeriesHash.size > 1 then we'll have duplicate date in the graph
+		// If upDownSeriesHash.size > 1 then we'll have duplicate data in the graph
 		assertTrue(upDownSeriesHash.size() == 1);
 	}
 	

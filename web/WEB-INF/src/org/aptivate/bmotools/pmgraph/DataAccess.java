@@ -59,12 +59,12 @@ class DataAccess
 		
 		//access the database		
 		List<ResultSet> listDataResults = new ArrayList<ResultSet>();
-		
+				
 		Iterator iter = listStatement.iterator();
 		while (iter.hasNext())
 		{
 			PreparedStatement statement = (PreparedStatement) iter.next();
-			ResultSet dataResults = statement.executeQuery();
+			ResultSet dataResults = statement.executeQuery();						
 			listDataResults.add(dataResults);
 		}
 		
@@ -80,13 +80,14 @@ class DataAccess
 		int i = 0;
 		while (iter.hasNext())
 		{
-			ResultSet dataResults = (ResultSet) iter.next();
-			List<DataPoint> dataPoints = new ArrayList<DataPoint>();
-			while (dataResults.next())
+			ResultSet dataResults = (ResultSet) iter.next();		
+			List<DataPoint> dataPoints = new ArrayList<DataPoint>();			
+			while (dataResults.next())				
 				dataPoints.add(dataPointCreate(requestParams, dataResults, isChart));
-			if (!dataPoints.isEmpty())
+			if (!dataPoints.isEmpty()) {
 				hashDataPoints.put(i, dataPoints);
-			i++;
+				i++;
+			}
 			dataResults.close();
 		}
 		
