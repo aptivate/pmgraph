@@ -2,12 +2,24 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.xy.DefaultTableXYDataset;
+
+import com.meterware.httpunit.GetMethodWebRequest;
+import com.meterware.httpunit.WebRequest;
 
 /**
  * Test the graph for the different options: one/two/three parameter/s already
@@ -20,6 +32,7 @@ import org.jfree.chart.JFreeChart;
 public class GraphsTest extends GraphTestBase
 {
 	private static Logger m_logger = Logger.getLogger(GraphsTest.class.getName());
+	private long timeInMinutes = (System.currentTimeMillis() / 60000);
 
 	public GraphsTest() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException {
@@ -503,6 +516,33 @@ public class GraphsTest extends GraphTestBase
 		requestParams.setPort(10000);
 		requestParams.setRemoteIp("4.2.2.3");
 		checkGraphThreeParameter(requestParams);
+	}
+	
+	public void testGraphDuplicateValues() throws Exception
+	{					
+		TestUtils testUtils = new TestUtils();
+		testUtils.CreateTable();
+		testUtils.InsertSampleData();
+		testUtils.InsertLongSampleData();
+		DataAccess dataAccess = new DataAccess();
+		RequestParams requestParams = new RequestParams(0, 300000, View.LOCAL_IP, 5);
+		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, false);
+		GraphFactory graphFactory = new GraphFactory();		
+		Hashtable<Integer, List<DataPoint>> topIdsHash = graphFactory.getTopResults(thrptResults, requestParams);
+
+		long roundedStart;    
+		long roundedEnd;
+		long theStart = requestParams.getStartTime();
+		long theEnd = requestParams.getEndTime();
+		boolean isLong = Configuration.needsLongGraph(theStart, theEnd);
+		int resolution = Configuration.getResolution(isLong, theEnd - theStart);
+		roundedStart = requestParams.getRoundedStartTime(resolution);
+		roundedEnd = requestParams.getRoundedEndTime(resolution);
+		Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> upDownSeriesHash = new Hashtable<Map<DataPoint, float[]>, Map<DataPoint, float[]>>();		
+		upDownSeriesHash = graphFactory.getGraph(thrptResults, topIdsHash, roundedStart, roundedEnd, resolution, 1, isLong);
+		
+		// If upDownSeriesHash.size > 1 then we'll have duplicate date in the graph
+		assertTrue(upDownSeriesHash.size() == 1);
 	}
 	
 	private Object[] setValues(RequestParams requestParams)
