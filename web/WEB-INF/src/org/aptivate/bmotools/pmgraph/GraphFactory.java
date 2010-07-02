@@ -295,7 +295,7 @@ public class GraphFactory
 						aux.add(other);
 				}									
 			}
-			if(aux.size() < others.size())
+			if((aux.size() < others.size()) || (aux.size() > others.size()) )
 			{				
 				if (!othersSet)
 				{
