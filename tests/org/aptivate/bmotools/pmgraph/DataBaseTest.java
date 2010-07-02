@@ -18,13 +18,14 @@ public class DataBaseTest extends TestCase
 
 	public void testDataAccesss() throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException, IOException, SQLException, ConfigurationException
-	{
+	{		
 		TestUtils testUtils = new TestUtils();
 		testUtils.CreateTable();
 		testUtils.InsertSampleData();
 		testUtils.InsertLongSampleData();
 		DataAccess dataAccess = new DataAccess();
 
+		RequestParams.setSelectSubnetIndex("all");
 		RequestParams requestParams = new RequestParams(0, 300000, View.LOCAL_IP, 10);
 		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, false);
 		Hashtable<Integer,List<DataPoint>> thrptResults2 = dataAccess.getThroughput(requestParams, false, false);

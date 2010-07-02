@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -25,7 +28,7 @@ import org.apache.log4j.Logger;
  * now all sorting is doing using Collection.sort.
  * 
  */
-class DataAccess
+public class DataAccess
 {
 	private Logger m_logger = Logger.getLogger(DataAccess.class.getName());				
 	
@@ -53,14 +56,58 @@ class DataAccess
 		
 		long initTime = System.currentTimeMillis();
 		
-		List<PreparedStatement> listStatement = new ArrayList<PreparedStatement>();
-		listStatement = queryBuilder.buildQuery(requestParams, isChart, isLong);
-		m_logger.debug(queryBuilder.getQuery());
+		String group = RequestParams.getSelectGroupIndex();		
+		String subnet = RequestParams.getSelectSubnetIndex();
+		List<PreparedStatement> listStatementSubnets = new ArrayList<PreparedStatement>();
+		List<PreparedStatement> listStatementGroups = new ArrayList<PreparedStatement>();
+		if ((subnet != null) && (subnet.equals("all")))	
+		{
+			listStatementSubnets = queryBuilder.buildQuery(requestParams, isChart, isLong);
+			RequestParams.setSelectSubnetIndex(null);
+		}
+		else
+		{
+			if (group == null)
+			{
+				RequestParams.setSelectGroupIndex("all");
+				group = "all";
+			}		
+			if (group.equals("all"))
+			{
+				RequestParams.setSelectSubnetIndex("all");
+				listStatementSubnets = queryBuilder.buildQuery(requestParams, isChart, isLong);														
+				listStatementGroups = queryBuilder.buildQueryGroupInformation(requestParams, isChart, isLong);				
+			}
+			else 
+			{
+				Pattern p = Pattern.compile("(([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\\.){3}$");
+				Matcher m = p.matcher(group);		    	
+				// 	Subnet
+				if (m.find())
+				{
+					RequestParams.setSelectSubnetIndex(group);
+					listStatementSubnets = queryBuilder.buildQuery(requestParams, isChart, isLong);					
+				}
+				// 	Group
+				else
+				{
+					listStatementGroups = queryBuilder.buildQueryGroupInformation(requestParams, isChart, isLong);					
+				}				
+			}
+		}										
+		//m_logger.debug(queryBuilder.getQuery());
 		
 		//access the database		
-		List<ResultSet> listDataResults = new ArrayList<ResultSet>();
-				
-		Iterator iter = listStatement.iterator();
+		List<ResultSet> listDataResults = new ArrayList<ResultSet>();				
+		Iterator iter = listStatementSubnets.iterator();
+		while (iter.hasNext())
+		{
+			PreparedStatement statement = (PreparedStatement) iter.next();
+			ResultSet dataResults = statement.executeQuery();						
+			listDataResults.add(dataResults);
+		}
+		
+		iter = listStatementGroups.iterator();
 		while (iter.hasNext())
 		{
 			PreparedStatement statement = (PreparedStatement) iter.next();
@@ -97,6 +144,49 @@ class DataAccess
 				+ " ms");
 		
 		return hashDataPoints;
+	}
+		
+	
+	/**
+	 * Form and execute the database query to get all DataBase's content
+	 * @param requestParams  Parameters from the request
+	 * @param isChart        Set if this request is for the chart (not the legend)
+	 * @param isLong		 Set if this request needs data sampled over a long time period
+	 * @return a list of the data points
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 * @throws IOException
+	 * @throws ConfigurationException
+	 */
+	public List<String> getThroughputAll(RequestParams requestParams, boolean isChart, boolean isLong)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException, SQLException, IOException,
+			ConfigurationException
+	{
+		QueryBuilder queryBuilder;
+		queryBuilder = new QueryBuilder();
+		
+		long initTime = System.currentTimeMillis();
+		
+		PreparedStatement statement = queryBuilder.buildQueryAll(requestParams, isChart, isLong);
+		m_logger.debug(queryBuilder.getQuery());
+		
+		//access the database		
+		ResultSet dataResults = statement.executeQuery();
+		List<String> dataIps = new ArrayList<String>();			
+		while (dataResults.next())					
+			dataIps.add(dataResults.getString("ip_src"));					
+		
+		long endTime = System.currentTimeMillis() - initTime;
+		m_logger.debug("Execution Time in mysql query: " + endTime + " ms");
+		initTime = System.currentTimeMillis();
+
+		queryBuilder.releaseConnection();
+		endTime = System.currentTimeMillis() - initTime;
+		m_logger.debug("Creating array of results for query: " + endTime + " ms");		
+		return dataIps;
 	}
 
 	private DataPoint dataPointCreate(RequestParams requestParams,

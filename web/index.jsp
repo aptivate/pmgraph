@@ -335,30 +335,38 @@
 						</select>
 						</td>					
 					</tr>
-						<tr>
-						<td>Select Subnet </td>   
+					<tr>
+						<td>Select Group / Subnet  </td>   
 						<td class="align_left">
-						<select id="selectSubnetIndex"  name="selectSubnetIndex" >
+						<select id="selectGroupIndex"  name="selectGroupIndex" >
 						<% 
+							List<String> Groups = Configuration.getGroups();
 							String [] vectSubnets = Configuration.getLocalSubnet();
-							String selectSubnet = pageUrl.getParams().getSelectSubnetIndex();
-							if ((selectSubnet != null) && (selectSubnet.equals("all"))) {
+							String selectGroup = pageUrl.getParams().getSelectGroupIndex();						
+							if ((selectGroup != null) && (selectGroup.equals("all"))) {
 							%>
 								<option selected="selected" value="all">all</option>
-							<% } else { %>
+							<% } else {%>
 								<option value="all">all</option>
-							<% }						
-							for (int i = 0; i < vectSubnets.length; i++) {  
+							<% }							
+							for (String currentGroup: Groups) {  
+								if ((selectGroup != null) && (selectGroup.equals(currentGroup))) {
+								 %>
+									<option selected="selected" value="<%=currentGroup%>"><%=currentGroup%></option>		
+								<% } else {%>
+									<option value="<%=currentGroup%>"><%=currentGroup%></option>	
+				 	 	<%} }
+				 	 		for (int i = 0; i < vectSubnets.length; i++) {  
 								String subnet = vectSubnets[i]; 
-								if ((selectSubnet != null) && (selectSubnet.equals(vectSubnets[i]))) {
+								if ((selectGroup != null) && (selectGroup.equals(vectSubnets[i]))) {
 								 %>
 									<option selected="selected" value="<%=subnet%>"><%=subnet%></option>		
 								<% } else { %>
 									<option value="<%=subnet%>"><%=subnet%></option>	
-				 	 	<%} }%>
+				 	 	<%} }%>				 	 	
 						</select>
 						</td>	
-					</tr>
+					</tr>					
 					<tr>						
 						<td>Dynamic Update: </td> 
 						<td class="align_left	">																

@@ -48,7 +48,14 @@ td {
 
 #conf_header {
 	width: 780px;
-	height: 780px;
+	height: 600px;
+	background-image: url('../images/header-background.png');
+	background-repeat: repeat-x;
+}
+
+#conf_header2 {
+	width: 780px;
+	height: 600px;
 	background-image: url('../images/header-background.png');
 	background-repeat: repeat-x;
 }
@@ -201,23 +208,78 @@ td {
 }
 
 #scrolltable {
-    margin-top: 1.5em;
+    margin-top: 4.5em;
 	overflow:auto;
-    padding-right: 0.005em; padding-left: 8em; padding-bottom: 0.05em;
+    padding-right: 0.005em; padding-left: 0em; padding-bottom: 0.05em;
     scrollbar-arrow-color : #999999; scrollbar-face-color : #666666;
     scrollbar-track-color :#3333333 ; position: absolute;
-    left: 100; top: 10; width: 50%; height:10.66em
+    left: 100; top: 10; width: 32%; height:15.25em
+}
+
+#scrolltable2 {
+    margin-top: 4.5em;
+	overflow:auto;
+    padding-right: 0.005em; padding-left: 0em; padding-bottom: 0.05em;
+    scrollbar-arrow-color : #999999; scrollbar-face-color : #666666;
+    scrollbar-track-color :#3333333 ; position: absolute;
+    left: 100; top: 10; width: 32%; height:15.25em
+}
+
+#scrolltableGroups {
+    margin-top: 0.5em;
+	overflow:auto;
+    padding-right: 0.005em; padding-left: 0em; padding-bottom: 0.05em;
+    scrollbar-arrow-color : #999999; scrollbar-face-color : #666666;
+    scrollbar-track-color :#3333333 ; position: absolute;
+    left: 100; top: 10; width: 30%; height:22.2em
+}
+
+#scrolltableGroups2 {
+    margin-top: 0.5em;
+	overflow:auto;
+    padding-right: 0.005em; padding-left: 0em; padding-bottom: 0.05em;
+    scrollbar-arrow-color : #999999; scrollbar-face-color : #666666;
+    scrollbar-track-color :#3333333 ; position: absolute;
+    left: 100; top: 10; width: 30%; height:22.2em
 }
 
 #uoptions {
 	float: left;
 	clear: left;
-	margin-top: 13em;	
-	margin-left: 9em;	
+	margin-top: 0.5em;	
+	margin-left: 1.5em;	
+}
+
+#uoptions2 {
+	float: left;
+	clear: left;
+	margin-top: 0.5em;	
+	margin-left: 1.5em;	
+}
+
+#Back {
+	float: left;
+	clear: left;
+	margin-top: 0em;	
+	margin-left: 21em;	
+}
+
+#Back2 {
+	float: left;
+	clear: left;
+	margin-top: 9.5em;	
+	margin-left: 21.5em;	
+}
+
+#saveConf {
+	float: left;
+	clear: left;
+	margin-top: 0em;	
+	margin-left: 17.5em;	
 }
 
 #config{
-	height: 18em;
+	height: 19em;
 	width: 100%;	
 }
 
@@ -226,6 +288,48 @@ td {
 	clear: left;
 	margin-top: 1em;
 	width: 100%;	
+}
+
+#configurationSubnets{
+	height: 23.5em;
+	width: 22em;	
+	margin-top: 0.5em;	
+	margin-left: 1em;	
+}
+
+#configurationGroups{
+	height: 23.5em;
+	width: 22em;	
+	margin-top: -23.8em;	
+	margin-left: 24em;		
+}
+
+#configuration{
+	height: 27.8em;
+	width: 47em;	
+	margin-top: 0.2em;	
+	margin-left: 0.7em;		
+}
+
+#configuration2{
+	height: 28.8em;
+	width: 47em;	
+	margin-top: 0.2em;	
+	margin-left: 0.7em;		
+}
+
+#actConfigGroups{
+	height: 24em;
+	width: 45%;	
+	margin-top: 1em;	
+	margin-left: 1em;		
+}
+
+#addConfigGroups{
+	height: 24em;
+	width: 45%;	
+	margin-top: -24.25em;	
+	margin-left: 24.5em;		
 }
 
 .change {
@@ -243,6 +347,14 @@ td {
 
 .center {
 	text-align: center;
+}
+
+.empty {
+	border: 0em;
+}
+
+.tableIps {
+	margin-top: 0em;
 }
 
 .align_right {

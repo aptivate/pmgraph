@@ -1,11 +1,7 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.awt.Color;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -15,7 +11,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -276,15 +271,13 @@ public class GraphFactory
 	long roundedEnd, int resolution, int resultLimit, boolean isLong) {
 		
 		Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> upDownSeriesHash = new Hashtable<Map<DataPoint, float[]>, Map<DataPoint, float[]>>();
-		int timeUnits = (int) ((roundedEnd - roundedStart) / resolution);
-		
+		int timeUnits = (int) ((roundedEnd - roundedStart) / resolution);		
 		for (Enumeration e = thrptResults.keys(); e.hasMoreElements();) 
-		{	
-			e.nextElement();
+		{				
+			int key = (Integer) e.nextElement();
 			boolean othersSet = false;
 			Map<DataPoint, float[]> downSeries = new LinkedHashMap<DataPoint, float[]>();
-			Map<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();
-			int key = 0;
+			Map<DataPoint, float[]> upSeries = new LinkedHashMap<DataPoint, float[]>();			
 			List<DataPoint> topIds = topIdsHash.get(key);
 			List<DataPoint> others = thrptResults.get(key);
 			List<DataPoint> aux = new ArrayList<DataPoint>();
@@ -494,9 +487,8 @@ public class GraphFactory
 	{
 		boolean isLong = Configuration.longGraphIsAllowed() &&  Configuration.needsLongGraph(requestParams.getFromDateAndTime().getTime(), requestParams.getToDateAndTime().getTime());
 
-		DataAccess dataAccess = new DataAccess();		
-		
-		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, isLong);
+		DataAccess dataAccess = new DataAccess();						
+		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, isLong);				
 		Hashtable<Integer,List<DataPoint>> thrptResultsSort = new Hashtable<Integer, List<DataPoint>>();;
 		m_logger.debug("Start creating chart.");
 		long initTime = System.currentTimeMillis();

@@ -1,9 +1,12 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.xml.sax.SAXException;
 
 /**
  * This class creates the different URLs using the parameters on the screen
@@ -33,9 +36,8 @@ public class UrlBuilder
 		return m_params;
 	}
 
-	public void setParameters(HttpServletRequest request) throws PageUrlException, IOException
+	public void setParameters(HttpServletRequest request) throws PageUrlException, IOException, SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException, ConfigurationException, SAXException
 	{
-
 		m_params.setParameters(request);
 	}
 

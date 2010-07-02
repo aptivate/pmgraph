@@ -41,6 +41,7 @@ public class TestMultiSubnets extends PmGraphTestBase
 		String subnet1 = "10.0.156.";
 		String subnet2 = "10.21.21.";
 		
+		
 		boolean isSubnet1 = false;
 		boolean isSubnet2 = false;
 	    WebTable table = response.getTableWithID("TableLocalSubnets");
@@ -84,7 +85,9 @@ public class TestMultiSubnets extends PmGraphTestBase
             ClassNotFoundException, SQLException, IOException, SAXException
 	{		
 		TestUtils theTestUtils = new TestUtils();
-		WebResponse response = loadUrl (theTestUtils);
+		WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp");
+		WebResponse response = m_conversation.getResponse(request);
+		
 		WebForm configurationForm = response.getFormWithID("config");
 		WebTable table = response.getTableWithID("TableLocalSubnets");
 		int oldNumSubnets = table.getRowCount() - SIZE_HEADS;
@@ -125,7 +128,7 @@ public class TestMultiSubnets extends PmGraphTestBase
 		
 		String Url[] = new String[3];
         for (int i = 0; i < 3; i++)
-            Url[i] = theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet="+addSubnet[i]+"&selectSubnet=10.0.156.&numSubnets="+numSubnets+"&Go=Save+configuration";				       	      
+            Url[i] = theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet="+addSubnet[i]+"&numSubnets="+numSubnets;				       	      
 	    WebRequest request = new GetMethodWebRequest(Url[2]);
 	    response = m_conversation.getResponse(request);
 	    HTMLElement result = response.getElementWithID("unsuccessResult");
@@ -175,7 +178,7 @@ public class TestMultiSubnets extends PmGraphTestBase
      	assertEquals(table.getCellAsText((numSubnets-1),0), newSubnet);
      	assertEquals(table.getCellAsText(numSubnets,0), "0.15.255.");
      	
-     	WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet=099.099.099.&selectSubnet=10.0.156.&numSubnets="+numSubnets+"&Go=Save+configuration");
+     	WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet=099.099.099.&numSubnets="+numSubnets);
 	    response = m_conversation.getResponse(request);
 	    HTMLElement result = response.getElementWithID("unsuccessResult");
 	    String resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
@@ -207,7 +210,7 @@ public class TestMultiSubnets extends PmGraphTestBase
 		String aux = "?";
 		for (int i = 1; i <= numSubnets; i++)
 			aux += "delSubnet"+i+"=delSubnet"+i+"&";
-		aux +="numSubnets="+numSubnets+"&newSubnet=&Go=Save+configuration";			
+		aux +="numSubnets="+numSubnets;			
 		WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp"+aux);
 	    response = m_conversation.getResponse(request);
 		

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-
 import org.apache.log4j.Logger;
 
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
@@ -272,7 +271,7 @@ public class QueryBuilder
 	{
 		m_selectSubnet.clear();
 		List<PreparedStatement> listStatement = new ArrayList<PreparedStatement>();
-		String SelectSubnet = RequestParams.getSelectSubnetIndex();
+		String SelectSubnet = RequestParams.getSelectSubnetIndex();		
 		if (SelectSubnet != null) {
 			if (SelectSubnet.equals("all")) {
 				String[] localSubnets = Configuration.getLocalSubnet();
@@ -315,6 +314,121 @@ public class QueryBuilder
 		}	
 		return (listStatement);
 	}
+	
+	/**
+	 * Build the sql query, to get all DataBase's content,
+	 * from its component parts
+	 * 
+	 * @param requestParams
+	 * @param isChart
+	 * @param isLong
+	 * @return PreparedStatement: an object that represents a precompiled SQL
+	 *         statement.
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	PreparedStatement buildQueryAll(RequestParams requestParams, boolean isChart, boolean isLong) throws SQLException,
+			IOException
+	{								
+		StringBuffer sql = new StringBuffer("SELECT DISTINCT ip_src ");		
+		if(isLong)
+		{
+			sql.append("FROM " + Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
+		}
+		else
+		{
+			sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
+		}
+		
+		if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			sql.append("WHERE datetime(stamp_inserted) >= ? AND datetime(stamp_inserted) <= ? ");
+		}
+		else
+		{
+			sql.append("WHERE stamp_inserted >= ? AND stamp_inserted <= ? ");
+		}
+		long resolution = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
+		m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
+		m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));
+		m_query = new StringBuffer(sql.toString());
+		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
+				ResultSet.TYPE_FORWARD_ONLY,
+				ResultSet.CONCUR_READ_ONLY,
+				ResultSet.CLOSE_CURSORS_AT_COMMIT);
+		setQueryParams(ipStatement);
+		return (ipStatement);
+	}
+	
+	/**
+	 * Build the sql query, to get the groups information requered. 
+	 * 
+	 * @param requestParams
+	 * @param isChart
+	 * @param isLong
+	 * @return PreparedStatement: an object that represents a precompiled SQL
+	 *         statement.
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	List<PreparedStatement> buildQueryGroupInformation(RequestParams requestParams, boolean isChart, boolean isLong) throws SQLException,
+			IOException
+	{						
+		List<PreparedStatement> listStatement = new ArrayList<PreparedStatement>();
+		List<String> groups = new ArrayList<String> ();
+		String group = RequestParams.getSelectGroupIndex();		
+		if (group.equals("all"))
+			 groups = Configuration.getGroups();
+		else
+			groups.add(group);				
+				
+		for (String currentGroup: groups)
+		{
+			List<String> ipsGroup = Configuration.getIpsGroup(currentGroup);
+			if (!ipsGroup.isEmpty())
+			{
+				m_localSubnet = "%";
+				StringBuffer sql = new StringBuffer("SELECT ");			
+				sql.append(buildSelect(requestParams, isChart));
+				String table;
+				if (isLong)
+					table = Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime());			
+				else
+					table = Configuration.getResultDatabaseTable();
+				sql.append("FROM " + table + " "); 						
+				sql.append("WHERE (");
+				for (int i = 0; i < ipsGroup.size(); i++)
+				{
+					sql.append("(ip_src like '"+ipsGroup.get(i)+"') ");
+					if (i < ipsGroup.size() - 1)
+						sql.append("OR ");
+					else
+						sql.append(") ");
+				}
+				if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
+				{
+					sql.append("AND datetime(stamp_inserted) >= ? AND datetime(stamp_inserted) <= ? ");
+				}
+				else
+				{
+					sql.append("AND stamp_inserted >= ? AND stamp_inserted <= ? ");
+				}
+				long resolution = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
+				m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
+				m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));					
+				sql.append("group by ip_src");
+				m_query = new StringBuffer(sql.toString());
+				PreparedStatement newStatement = m_conn.prepareStatement(sql.toString(),
+					ResultSet.TYPE_FORWARD_ONLY,
+					ResultSet.CONCUR_READ_ONLY,
+					ResultSet.CLOSE_CURSORS_AT_COMMIT);
+				setQueryParams(newStatement);
+				listStatement.add(newStatement);
+			}
+		}
+		return (listStatement);	
+	}
+	
 
 	/**
 	 * Get the contents of a query (for testing and debugging purposes).

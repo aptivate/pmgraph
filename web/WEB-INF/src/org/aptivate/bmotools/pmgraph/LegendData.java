@@ -233,11 +233,8 @@ public class LegendData
 			RequestParams requestParams, boolean isLong) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, ConfigurationException
-	{
-
-		Hashtable<Integer,List<DataPoint>> ipResults = dataAccess.getThroughput(requestParams,
-				false, isLong);
-		
+	{				
+		Hashtable<Integer,List<DataPoint>> ipResults = dataAccess.getThroughput(requestParams, false, isLong);				
 		for (Enumeration enumListResult = ipResults.keys (); enumListResult.hasMoreElements ();) 
 		{
 			int key = (Integer) enumListResult.nextElement();

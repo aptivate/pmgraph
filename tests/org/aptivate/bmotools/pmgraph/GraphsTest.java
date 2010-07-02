@@ -2,24 +2,15 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.apache.log4j.Logger;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.data.xy.DefaultTableXYDataset;
-
-import com.meterware.httpunit.GetMethodWebRequest;
-import com.meterware.httpunit.WebRequest;
 
 /**
  * Test the graph for the different options: one/two/three parameter/s already
@@ -32,8 +23,6 @@ import com.meterware.httpunit.WebRequest;
 public class GraphsTest extends GraphTestBase
 {
 	private static Logger m_logger = Logger.getLogger(GraphsTest.class.getName());
-	private long timeInMinutes = (System.currentTimeMillis() / 60000);
-
 	public GraphsTest() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException {
 		super();

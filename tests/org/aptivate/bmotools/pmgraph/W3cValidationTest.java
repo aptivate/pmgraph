@@ -57,7 +57,7 @@ public class W3cValidationTest extends PmGraphTestBase
 
 		XhtmlValidator validator = new XhtmlValidator();
 		String docText = response.getText();
-
+System.out.println(docText);
 		if (!validator.isValid(new ByteArrayInputStream(docText.getBytes())))
 			;
 		String errors[] = validator.getErrors();
@@ -144,6 +144,13 @@ public class W3cValidationTest extends PmGraphTestBase
 						+ "configure.jsp?newSubnet=10.1A.123.&selectSubnet=10.0.156.&numSubnets="+i+"&Go=Save+configuration");
 		response = m_conversation.getResponse(request);
 		w3cValidator(response);		
+		
+		// Configuration groups page.
+		request = new GetMethodWebRequest(
+				testUtils.getUrlPmgraph()
+						+ "/include/groups.jsp?");
+		response = m_conversation.getResponse(request);
+		w3cValidator(response);				
 	}
 
 	public static Test suite()

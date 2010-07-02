@@ -15,7 +15,7 @@ public class AllTests extends PmGraphTestBase
 	}		
 
 	public static Test suite() throws IOException
-	{
+	{		
 		TestSuite suite = new TestSuite("pmGraph Unit Tests");
        	suite.addTest(DataBaseTest.suite());
 		suite.addTest(ButtonsTest.suite());
@@ -35,7 +35,8 @@ public class AllTests extends PmGraphTestBase
 		suite.addTest(ColourTest.suite());
 		suite.addTest(ConfigurationTest.suite());
 		suite.addTest(TestMultiSubnetsLegend.suite());
-		suite.addTest(TestMultiSubnets.suite());		
+		suite.addTest(TestMultiSubnets.suite());
+		suite.addTest(TestGroups.suite());
 		return suite;
 	}	
 }

@@ -2,7 +2,6 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
