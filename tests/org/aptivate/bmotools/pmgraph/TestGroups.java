@@ -121,8 +121,21 @@ public class TestGroups extends PmGraphTestBase
 			assertTrue(table.getRowCount() - SIZE_HEADS -1 == nIpsGroup.size());
 		if (nIpsGroup.size() > 0)
 		{
+			String[] subnets = Configuration.getLocalSubnet();
 			for (int i = 1; i < table.getRowCount(); i++)
-				assertTrue(table.getCellAsText(i, 0).equals(nIpsGroup.get(i-1)));
+			{
+				String cellText = table.getCellAsText(i, 0);
+				boolean found = false;
+				for(int j = 0; j < subnets.length; j++)
+				{
+					if(cellText.startsWith(subnets[i]))
+					{
+						found = true;
+					}
+				}
+				assertTrue(found);
+				assertTrue(cellText.equals(nIpsGroup.get(i-1)));
+			}
 		}
 		
 		// Check "adding a new IP"
