@@ -177,7 +177,7 @@ public class DataAccess
 		ResultSet dataResults = statement.executeQuery();
 		List<String> dataIps = new ArrayList<String>();			
 		while (dataResults.next())					
-			dataIps.add(dataResults.getString("ip_src"));					
+			dataIps.add(dataResults.getString("ip_local"));					
 		
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Execution Time in mysql query: " + endTime + " ms");

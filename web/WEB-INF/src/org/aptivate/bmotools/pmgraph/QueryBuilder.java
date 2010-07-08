@@ -167,23 +167,43 @@ public class QueryBuilder
 		return (sql.toString());
 	}
 
+	private String buildFrom(RequestParams requestParams, boolean isLong) throws IOException
+	{
+		StringBuilder sql = new StringBuilder();
+		if(isLong)
+		{
+			sql.append("FROM " + Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
+		}
+		else
+		{
+			sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
+		}
+		return sql.toString();
+	}
+	
+	private String buildWhereTime(RequestParams requestParams, boolean isLong) throws IOException
+	{
+		String sql;
+		if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			sql= "WHERE datetime(stamp_inserted) >= ? AND datetime(stamp_inserted) <= ? ";
+		}
+		else
+		{
+			sql= "WHERE stamp_inserted >= ? AND stamp_inserted <= ? ";
+		}
+		long resolution = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
+		m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
+		m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));
+		return sql;
+	}
+	
 	private String buildWhere(RequestParams requestParams, boolean isLong) throws IOException
 	{
 		StringBuffer where = new StringBuffer();
 		String comparator = " LIKE ";
 		String ip = m_localSubnet + "%";
-
-		if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
-		{
-			where.append("WHERE datetime(stamp_inserted) >= ? AND datetime(stamp_inserted) <= ? ");
-		}
-		else
-		{
-			where.append("WHERE stamp_inserted >= ? AND stamp_inserted <= ? ");
-		}
-		long resolution = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
-		m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
-		m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));
+		where.append(buildWhereTime(requestParams, isLong));
 		if (requestParams.getIp() != null)
 		{ // for a specific local IP
 			comparator = " = ";
@@ -292,14 +312,7 @@ public class QueryBuilder
 			m_localSubnet = m_selectSubnet.get(i);
 			StringBuffer sql = new StringBuffer("SELECT ");
 			sql.append(buildSelect(requestParams, isChart));
-			if(isLong)
-			{
-				sql.append("FROM " + Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
-			}
-			else
-			{
-				sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
-			}
+			sql.append(buildFrom(requestParams, isLong));
 			sql.append(buildWhere(requestParams, isLong));
 			sql.append(buildGroupBy(requestParams, isChart));
 		
@@ -330,27 +343,20 @@ public class QueryBuilder
 	PreparedStatement buildQueryAll(RequestParams requestParams, boolean isChart, boolean isLong) throws SQLException,
 			IOException
 	{								
-		StringBuffer sql = new StringBuffer("SELECT DISTINCT ip_src ");		
-		if(isLong)
+		StringBuffer sql = new StringBuffer("SELECT DISTINCT ip_src AS ip_local ");
+		sql.append(buildFrom(requestParams, isLong));
+		sql.append(buildWhereTime(requestParams, isLong));
+		sql.append("AND ");
+		String[] localSubnets = Configuration.getLocalSubnet();
+		boolean firstTime=true;
+		for (String localSubnet: localSubnets)
 		{
-			sql.append("FROM " + Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime()) + " ");
+			if(!firstTime)
+				sql.append("OR ");
+			firstTime = false;
+			sql.append("ip_src LIKE ? ");
+			m_listData.add(localSubnet+"%");
 		}
-		else
-		{
-			sql.append("FROM " + Configuration.getResultDatabaseTable() + " ");
-		}
-		
-		if(Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
-		{
-			sql.append("WHERE datetime(stamp_inserted) >= ? AND datetime(stamp_inserted) <= ? ");
-		}
-		else
-		{
-			sql.append("WHERE stamp_inserted >= ? AND stamp_inserted <= ? ");
-		}
-		long resolution = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
-		m_listData.add(new Timestamp(requestParams.getRoundedStartTime(resolution)));
-		m_listData.add(new Timestamp(requestParams.getRoundedEndTime(resolution)));
 		m_query = new StringBuffer(sql.toString());
 		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
 				ResultSet.TYPE_FORWARD_ONLY,
@@ -390,12 +396,7 @@ public class QueryBuilder
 				m_localSubnet = "%";
 				StringBuffer sql = new StringBuffer("SELECT ");			
 				sql.append(buildSelect(requestParams, isChart));
-				String table;
-				if (isLong)
-					table = Configuration.findTable(requestParams.getEndTime() - requestParams.getStartTime());			
-				else
-					table = Configuration.getResultDatabaseTable();
-				sql.append("FROM " + table + " "); 						
+				sql.append(buildFrom(requestParams, isLong));						
 				sql.append("WHERE (");
 				for (int i = 0; i < ipsGroup.size(); i++)
 				{
