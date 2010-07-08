@@ -226,6 +226,12 @@
     	     		      				<table id="TableIps<%=i%>" class="tableIps">               		          
     	     		      					<%
     	     		      						List<String> IpsGroup = Configuration.getIpsGroup(currentGroup);
+    	     		      						if(IpsGroup.size() == 0)
+    	     		      						{%>
+	    	     		      							<tr>
+	    	     		      								<td></td>
+	    	     		      							</tr>
+    	     		      						<%}
 	    	     		      					for (String currentIp: IpsGroup)
     		     		      					{
     		     		      					%>
