@@ -343,19 +343,27 @@ public class QueryBuilder
 	PreparedStatement buildQueryAll(RequestParams requestParams, boolean isChart, boolean isLong) throws SQLException,
 			IOException
 	{								
-		StringBuffer sql = new StringBuffer("SELECT DISTINCT ip_src AS ip_local ");
-		sql.append(buildFrom(requestParams, isLong));
-		sql.append(buildWhereTime(requestParams, isLong));
-		sql.append("AND ");
-		String[] localSubnets = Configuration.getLocalSubnet();
-		boolean firstTime=true;
-		for (String localSubnet: localSubnets)
+		StringBuffer sql = new StringBuffer();
+		boolean firstUnion = true;
+		for(String column : new String[]{"ip_src", "ip_dst"})
 		{
-			if(!firstTime)
-				sql.append("OR ");
-			firstTime = false;
-			sql.append("ip_src LIKE ? ");
-			m_listData.add(localSubnet+"%");
+			if(!firstUnion)
+				sql.append("UNION ");
+			firstUnion=false;
+			sql.append("SELECT DISTINCT "+column+" AS ip_local ");
+			sql.append(buildFrom(requestParams, isLong));
+			sql.append(buildWhereTime(requestParams, isLong));
+			sql.append("AND ");
+			String[] localSubnets = Configuration.getLocalSubnet();
+			boolean firstTime=true;
+			for (String localSubnet: localSubnets)
+			{
+				if(!firstTime)
+					sql.append("OR ");
+				firstTime = false;
+				sql.append(column+" LIKE ? ");
+				m_listData.add(localSubnet+"%");
+			}
 		}
 		m_query = new StringBuffer(sql.toString());
 		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
