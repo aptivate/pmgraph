@@ -194,7 +194,7 @@ public class Configuration
 			result = addSubnetConf(newSubnet, tempProps);
 		}
 		s_properties = tempProps;
-		tempProps.storeToXML(out, "");
+		tempProps.storeToXML(out, null);
 		out.close();
 		return result;
 	}
@@ -228,7 +228,7 @@ public class Configuration
 				addIpGroupConf(hashAddIpGroup,tempProps);
 		}
 		s_properties = tempProps;
-		tempProps.storeToXML(out, "");
+		tempProps.storeToXML(out, null);
 		out.close();
 		return result;		
 	}	
@@ -279,7 +279,7 @@ public class Configuration
 			result = true;	
 		}
 		s_properties = tempProps;
-		tempProps.storeToXML(out, "");
+		tempProps.storeToXML(out, null);
 		out.close();
 		return result;
 	}
@@ -329,7 +329,7 @@ public class Configuration
 			tempProps.remove("LocalSubnet"+(i-1));
 		}
 		s_properties = tempProps;
-		tempProps.storeToXML(out, "");
+		tempProps.storeToXML(out, null);
 		out.close();
 		result = true;		
 		return result;
@@ -427,7 +427,6 @@ public class Configuration
 	
 	public static List<String> getNIpsGroup(List<String> IpGroup, List<String> Ips) throws IOException
 	{
-		readConfiguration();
 		List<String> nIpsGroup = new ArrayList<String>();
 		for (String currentIp : Ips) {
 			if (!IpGroup.contains(currentIp))
@@ -461,7 +460,7 @@ public class Configuration
 				tempProps.put("G-"+Group+"."+i, newIp);
 		}
 		s_properties = tempProps;
-		tempProps.storeToXML(out, "");
+		tempProps.storeToXML(out, null);
 		out.close();
 		return (!insert);
 	}
@@ -513,7 +512,7 @@ public class Configuration
 			}
 		}
 		s_properties = tempProps;
-		tempProps.storeToXML(out, "");
+		tempProps.storeToXML(out, null);
 		out.close();
 		result = true;			
 		return result;
@@ -559,7 +558,7 @@ public class Configuration
 			i++;			
 		}	
 		s_properties = tempProps;
-		tempProps.storeToXML(out, "");
+		tempProps.storeToXML(out, null);
 		out.close();	
 		return delete;
 	}

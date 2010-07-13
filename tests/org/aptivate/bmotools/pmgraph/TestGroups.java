@@ -79,8 +79,7 @@ public class TestGroups extends PmGraphTestBase
 	    assertTrue(oldNumGroups == newNumGroups);	    	    	    
 	}	
 	
-	//---------------------------------------------------------------
-		
+	//---------------------------------------------------------------	
 	public void testCheckIpGroup() throws Exception
 	{		
 		boolean deleteGroup = false;
@@ -98,21 +97,33 @@ public class TestGroups extends PmGraphTestBase
 	    WebResponse response = m_conversation.getResponse(request);
 		List<String> IpsGroup = Configuration.getIpsGroup(group);
 		WebTable table = response.getTableWithID("IpsGroup");
+		
 		if (IpsGroup.size() > 0)
+		{
 			assertTrue(table.getRowCount() - SIZE_HEADS == IpsGroup.size());
+		}
 		else
+		{
 			assertTrue(table.getRowCount() - SIZE_HEADS -1 == IpsGroup.size());
+		}
+		
 		if (IpsGroup.size() > 0)
 		{
 			for (int i = 1; i < table.getRowCount(); i++)
+			{
 				assertTrue(table.getCellAsText(i, 0).equals(IpsGroup.get(i-1)));
+			}
 		}
 		
 		// Check the rest of Ips
-		String[] Ips = {"224.0.0.255", "10.0.156.10", "224.0.0.251", "10.0.156.1", "10.0.223.15", "10.1.223.8"};
+		String[] Ips = { "10.0.156.10",  "10.0.156.1" };
 		List<String> allIps = new ArrayList<String>();
+		
 		for (int i = 0; i < Ips.length; i++)
-			allIps.add(Ips[i]);		
+		{
+			allIps.add(Ips[i]);
+		}
+		
 		List<String> nIpsGroup = Configuration.getNIpsGroup(IpsGroup, allIps);
 		table = response.getTableWithID("nIpsGroup");
 		if (nIpsGroup.size() > 0)
@@ -128,7 +139,7 @@ public class TestGroups extends PmGraphTestBase
 				boolean found = false;
 				for(int j = 0; j < subnets.length; j++)
 				{
-					if(cellText.startsWith(subnets[i]))
+					if(cellText.startsWith(subnets[j]))
 					{
 						found = true;
 					}
