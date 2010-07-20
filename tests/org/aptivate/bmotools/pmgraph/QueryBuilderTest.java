@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -54,7 +56,179 @@ public class QueryBuilderTest extends TestCase
 		setQueries(true);
 		RequestParams.setSelectSubnetIndex("10.0.156.");
 	}			
+	
+	private String GenerateQuery(RequestParams params, boolean isChart) throws IOException
+	{
+		String shortDate = "1970-01-01 01:05:00";
+		String longDate = "1970-01-06 01:00:00";
+		String date;
+		String table;
+		StringBuffer query = new StringBuffer("SELECT ");
+		String viewName = params.getView().toString().toLowerCase();
 		
+		if(Configuration.needsLongGraph(params.getStartTime(), 
+				params.getEndTime()) && Configuration.longGraphIsAllowed())
+		{
+			date = longDate;
+			table = Configuration.getResultDatabaseLongTable();
+		}
+		else
+		{
+			date = shortDate;
+			table = Configuration.getResultDatabaseTable();
+		}
+		
+		if(isChart)
+		{
+			query.append("stamp_inserted, ");
+		}
+		query.append("SUM(CASE WHEN down THEN bytes ELSE 0 END) AS " + 
+				"downloaded, SUM(CASE WHEN up THEN bytes ELSE 0 END) AS " + 
+				"uploaded, ");
+		query.append(viewName);
+		if(viewName.endsWith("port"))
+		{
+			query.append(", ip_proto");
+		}
+		query.append(" FROM (SELECT stamp_inserted, CASE WHEN up THEN ip_dst " +
+			"ELSE ip_src END AS remote_ip, CASE WHEN down THEN ip_dst ELSE " +
+			"ip_src END AS local_ip, CASE WHEN up THEN dst_port ELSE " + 
+			"src_port END AS remote_port, CASE WHEN down THEN dst_port ELSE " + 
+			"src_port END AS local_port, bytes, up, down FROM (SELECT " +
+			"stamp_inserted, ip_src, ip_dst, src_port, dst_port, bytes, " + 
+			"(ip_src LIKE '");
+		String[] subnets = Configuration.getLocalSubnet();
+		boolean firstSubnet = true;
+		StringBuffer dstSubnets =  new StringBuffer(); 
+		for(String subnet : subnets)
+		{
+			if(firstSubnet)
+			{
+				query.append(subnet + "%'");
+				firstSubnet = false;
+				dstSubnets.append(subnet + "%'");
+			}
+			else
+			{
+				query.append("OR ip_src LIKE '" + subnet + "%'");
+				dstSubnets.append("OR ip_dst LIKE '" + subnet + "%'");
+			}
+		}
+		query.append(") AS up, (ip_dst LIKE '" + dstSubnets.toString() + ") " +  
+				"AS down");
+		query.append(" FROM " + table + " WHERE stamp_inserted >= '1970-01-01" + 
+				" 01:00:00' AND stamp_inserted <= '" + date +  "') AS t1" +
+				" WHERE up != down) AS t2");
+		
+		boolean hasLocalIp = params.getIp() != null;
+		boolean hasRemoteIp = params.getRemoteIp() != null;
+		boolean hasLocalPort = params.getPort() != null;
+		boolean hasRemotePort = params.getRemotePort() != null;
+		boolean allowGroupsOrSubnets = 
+			RequestParams.getSelectGroupIndex() != null && !hasLocalIp;
+		// A separate where clause is needed to select data on the basis of a 
+		// request for a specific IP or port. If no IP or port has been 
+		// requested we don't want to include the where clause at all.
+		boolean needsWhere = hasLocalIp || hasRemoteIp || hasLocalPort ||
+			hasRemotePort || allowGroupsOrSubnets;
+		
+		if(needsWhere)
+		{
+			query.append(" WHERE");
+			boolean previousCondition = false;
+			if(hasLocalIp)
+			{
+				query.append(" local_ip = '" + params.getIp()+ "'");
+				previousCondition = true;
+			}
+			if(hasLocalPort)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				query.append(" local_port = " + params.getPort());
+				previousCondition = true;
+			}
+			if(hasRemoteIp)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				query.append(" remote_ip = '" + params.getRemoteIp() + "'");
+				previousCondition = true;
+			}
+			if(hasRemotePort)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				query.append(" remote_port = " + params.getRemotePort());
+			}
+		}
+		
+		// If a specific local ip has been selected then using groups or subnets
+		// makes no sense. Otherwise they should be included.
+		if(allowGroupsOrSubnets)
+		{
+			String selectedGroup = RequestParams.getSelectGroupIndex();
+			if(selectedGroup != null)
+			{
+				Pattern p = Pattern.compile("(([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\\.){3}$");
+				Matcher m = p.matcher(selectedGroup);		    	
+				if(needsWhere)
+				{
+					query.append(" AND ");
+				}
+				else
+				{
+					query.append(" WHERE ");
+				}
+				// If a subnet is selected
+				if(m.find())
+				{
+					query.append("local_ip LIKE '" + selectedGroup + "%'");
+				}
+				// If its a group then make it look for all the ips
+				else
+				{
+					boolean firstIp = true;
+					List<String> ips = Configuration.getIpsGroup(selectedGroup);
+					for(String ip : ips)
+					{
+						if(!firstIp)
+						{
+							query.append(" OR ");
+						}
+						else
+						{
+							firstIp = false;
+						}
+						query.append("local_ip = " + ip);
+					}
+				}
+			}
+		}
+		
+		query.append(" GROUP BY ");
+		
+		if(isChart)
+		{
+			query.append("stamp_inserted, ");
+		}
+		
+		query.append(viewName);
+		
+		if(viewName.contains("port"))
+		{
+			query.append(", ip_proto");
+		}
+		
+		return query.toString();
+	}
+	
 	private void setQueries(boolean isLong) throws IOException
 	{
 		String shortDate = "1970-01-01 01:05:00";
@@ -468,10 +642,12 @@ public class QueryBuilderTest extends TestCase
 
 		String stringParams = requestParams.getParams().keySet().toString()
 				.replaceAll( "[\\],\\[]", "");
+		
 		for (View view : views)
 		{
 			String sql;
 			requestParams.setView(view);
+			
 			m_queryBuilder.buildQuery(requestParams, true, isLong);
 			sql = m_queryBuilder.getQuery().replaceAll( ".*: ", "");
 			assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
@@ -529,7 +705,7 @@ public class QueryBuilderTest extends TestCase
 			checkQuery(requestParams,false);
 			checkQuery(longRequestParams, true);
 			i = 0;
-			int limit = m_params.size() - i;
+			int limit = m_params.size();
 			// check all possible groups.															
 			for (int j = 1; j < limit; j++)
 			{ // number of elements in the group
@@ -540,7 +716,6 @@ public class QueryBuilderTest extends TestCase
 					for (int l = 0; l < j; l++)
 					{ // create the group, adding the parameter value to it
 						params.put(m_params.get(k + l), m_paramsValues.get(m_params.get(k + l)));
-						
 					}
 					checkQuery(requestParams, false);
 					checkQuery(longRequestParams, true);
