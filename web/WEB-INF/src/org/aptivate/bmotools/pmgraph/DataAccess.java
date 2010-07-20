@@ -80,7 +80,7 @@ public class DataAccess
 			}
 			else 
 			{
-				Pattern p = Pattern.compile("(([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\\.){3}$");
+				Pattern p = Pattern.compile("^(([1-9]?[0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}$");
 				Matcher m = p.matcher(group);		    	
 				// 	Subnet
 				if (m.find())
@@ -208,5 +208,4 @@ public class DataAccess
 			return new IpDataPoint(rs, rs.getString("remote_ip"), isChart);
 		}
 	}
-
 }

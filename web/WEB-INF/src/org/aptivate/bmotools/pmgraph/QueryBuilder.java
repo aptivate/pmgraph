@@ -134,7 +134,9 @@ public class QueryBuilder
 
 		// time stamp is not needed in legend
 		if (isChart)
+		{
 			sql.append(" " + TIME_STAMP + ", ");
+		}
 
 		sql.append("SUM(CASE WHEN ip_dst LIKE ? THEN bytes ELSE 0 END) as downloaded, ");
 
@@ -392,9 +394,13 @@ public class QueryBuilder
 		List<String> groups = new ArrayList<String> ();
 		String group = RequestParams.getSelectGroupIndex();		
 		if (group.equals("all"))
+		{
 			 groups = Configuration.getGroups();
+		}
 		else
-			groups.add(group);				
+		{
+			groups.add(group);
+		}
 				
 		for (String currentGroup: groups)
 		{

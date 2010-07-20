@@ -145,7 +145,8 @@ class TestUtils
 			m_logger.debug(DELETE_VERY_LONG_TABLE);
 			sqlStatement.executeUpdate();
 			sqlStatement.close();
-		} catch (SQLException e)
+		} 
+		catch (SQLException e)
 		{
 			/* don't care if it fails, table may not exist */
 			m_logger.error(e.getMessage(), e);

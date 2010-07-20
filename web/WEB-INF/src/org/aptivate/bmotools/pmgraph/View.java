@@ -148,7 +148,7 @@ public enum View {
 
 			break;
 		case REMOTE_IP:
-			firstRowHeader.add(new LegendElement("Remote Port", null, null, false, true));
+			firstRowHeader.add(new LegendElement("Remote IP", null, null, false, true));
 			firstRowHeader.add(new LegendElement("Host Name", null, null, false, true));
 
 			break;

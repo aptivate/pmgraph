@@ -176,7 +176,7 @@ public class QueryBuilderTest extends TestCase
 			String selectedGroup = RequestParams.getSelectGroupIndex();
 			if(selectedGroup != null)
 			{
-				Pattern p = Pattern.compile("(([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\\.){3}$");
+				Pattern p = Pattern.compile("^(([1-9]?[0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}$");
 				Matcher m = p.matcher(selectedGroup);		    	
 				if(needsWhere)
 				{
@@ -189,11 +189,12 @@ public class QueryBuilderTest extends TestCase
 				// If a subnet is selected
 				if(m.find())
 				{
-					query.append("local_ip LIKE '" + selectedGroup + "%'");
+					query.append("(local_ip LIKE '" + selectedGroup + "%')");
 				}
 				// If its a group then make it look for all the ips
 				else
 				{
+					query.append("(");
 					boolean firstIp = true;
 					List<String> ips = Configuration.getIpsGroup(selectedGroup);
 					for(String ip : ips)
@@ -208,6 +209,7 @@ public class QueryBuilderTest extends TestCase
 						}
 						query.append("local_ip = " + ip);
 					}
+					query.append(")");
 				}
 			}
 		}
@@ -226,7 +228,12 @@ public class QueryBuilderTest extends TestCase
 			query.append(", ip_proto");
 		}
 		
-		return query.toString();
+		String sql = query.toString();
+		if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			sql = alterQuery(sql);
+		} 
+		return sql;
 	}
 	
 	private void setQueries(boolean isLong) throws IOException
@@ -648,29 +655,15 @@ public class QueryBuilderTest extends TestCase
 			String sql;
 			requestParams.setView(view);
 			
+			String expected = GenerateQuery(requestParams, true);
 			m_queryBuilder.buildQuery(requestParams, true, isLong);
 			sql = m_queryBuilder.getQuery().replaceAll( ".*: ", "");
-			assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
-			if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
-			{
-				String modifiedQuery = alterQuery(theQueries.get(stringParams).get(view.toString()));
-				assertEquals(modifiedQuery, sql);
-			}
-			else
-			{
-				assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
-			}
+			assertEquals(expected, sql);
+			
+			expected = GenerateQuery(requestParams, false);
 			m_queryBuilder.buildQuery(requestParams, false, isLong);
 			sql = m_queryBuilder.getQuery();
-			if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
-			{
-				String modifiedQuery = alterQuery(theLegendQueries.get(stringParams).get(view.toString()));
-				assertEquals(modifiedQuery, sql);
-			}
-			else
-			{
-				assertEquals(theLegendQueries.get(stringParams).get(view.toString()), sql);
-			}
+			assertEquals(expected, sql);
 		}
 	}
 	

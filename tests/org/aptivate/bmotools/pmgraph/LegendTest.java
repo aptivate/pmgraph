@@ -48,17 +48,17 @@ public class LegendTest extends LegendTestBase
 		for (int i = 0; i < 100; i++)
 		{
 			// Set the values
-			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
+			testUtils.insertNewRow(250000, new Timestamp((timeInMinutes - 5) * 60000),
 					"224.0.0.255", "10.0.156.10", false);
 			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
 					"10.0.156.10", "224.0.0.255", false);
 
-			testUtils.insertNewRow(100000, new Timestamp((timeInMinutes - 5) * 60000),
+			testUtils.insertNewRow(200000, new Timestamp((timeInMinutes - 5) * 60000),
 					"224.0.0.251", "10.0.156.1", false);
 			testUtils.insertNewRow(100000, new Timestamp((timeInMinutes - 5) * 60000),
 					"10.0.156.1", "224.0.0.251", false);
 
-			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
+			testUtils.insertNewRow(250000, new Timestamp((timeInMinutes - 5) * 60000),
 					"10.0.156.110", "10.0.156.120", false);
 			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
 					"10.0.156.120", "10.0.156.110", false);
@@ -74,7 +74,7 @@ public class LegendTest extends LegendTestBase
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
 		long uploaded[] = { 47, 9 };
-		long downloaded[] = { 47, 9 };
+		long downloaded[] = { 23, 19 };
 		String ips[] = { "10.0.156.10", "10.0.156.1" };
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ips, View.LOCAL_IP);
 

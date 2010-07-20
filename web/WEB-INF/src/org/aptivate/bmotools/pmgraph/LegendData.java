@@ -96,27 +96,39 @@ public class LegendData
 			if (QueryBuilder.UPLOADED.equalsIgnoreCase(sortby))
 			{
 				if ("DESC".equalsIgnoreCase(order))
+				{
 					return (new UploadComparator(true));
+				}
 				else
+				{
 					return (new UploadComparator(false));
+				}
 			} 
 			else
 			{
 				if (QueryBuilder.BYTES.equalsIgnoreCase(sortby))
 				{
 					if ("DESC".equalsIgnoreCase(order))
+					{
 						return (new BytesTotalComparator(true));
+					}
 					else
+					{
 						return (new BytesTotalComparator(false));
+					}
 				} 
 				else
 				{
 					if (QueryBuilder.DOWNLOADED.equalsIgnoreCase(sortby))
 					{
 						if ("DESC".equalsIgnoreCase(order))
+						{
 							return (new DownloadComparator(true));
+						}
 						else
+						{
 							return (new DownloadComparator(false));
+						}
 					}
 				}
 			}
