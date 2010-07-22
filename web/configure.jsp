@@ -71,7 +71,7 @@
 		{
 			if (!oneSubnet) 
 			{
-				result = Configuration.updateConf(pageUrl.getParams().getAddSubnet(), pageUrl.getParams().getDelSubnets());
+				result = Configuration.updateConf(pageUrl.getParams());
 				wrongSubnet = "";
 			}
 		}

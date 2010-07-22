@@ -180,8 +180,10 @@ public class Configuration
 		return Integer.valueOf(s_properties.getProperty("ResultLimit"));
 	}
 	
-	public static boolean updateConf(String newSubnet, Hashtable<String,Integer> hashDelSubnets) throws IOException
+	public static boolean updateConf(RequestParams requestParams) throws IOException
 	{	
+		String newSubnet = requestParams.getAddSubnet();
+		Hashtable<String, Integer> hashDelSubnets = requestParams.getDelSubnets();
 		readConfiguration();
 		boolean result = true;        
 		Properties tempProps = (Properties)s_properties.clone();
@@ -190,7 +192,7 @@ public class Configuration
 			delSubnetConf(hashDelSubnets, tempProps);
 		if ((newSubnet != null) && (!newSubnet.equals(""))) 
 		{ 
-			newSubnet = RequestParams.setAddSubnet(newSubnet);
+			newSubnet = requestParams.setAddSubnet(newSubnet);
 			result = addSubnetConf(newSubnet, tempProps);
 		}
 		s_properties = tempProps;

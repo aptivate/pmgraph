@@ -49,17 +49,17 @@ public class RequestParams
 	
 	private String m_localSubnet;
 	
-	private static String m_selectSubnetIndex;
+	private String m_selectSubnetIndex;
 	
-	private static String m_addSubnet;
+	private String m_addSubnet;
 	
 	private String m_selectIp;
 	
-	private static int m_numSubnets;
+	private int m_numSubnets;
 	
 	private int m_numIps;
 	
-	private static String m_selectGroupIndex;
+	private String m_selectGroupIndex;
 
 	private String m_IpFilter;
 	
@@ -144,7 +144,7 @@ public class RequestParams
 		m_localSubnet = localSubnet;
 	}	
 	
-	static void setSelectSubnetIndex(String subnet)
+	void setSelectSubnetIndex(String subnet)
 	{
 		m_selectSubnetIndex = subnet;
 	}
@@ -154,7 +154,7 @@ public class RequestParams
 		m_selectIp = ip;
 	}
 	
-	public static void setSelectGroupIndex(String subnet)
+	public void setSelectGroupIndex(String subnet)
 	{
 		m_selectGroupIndex = subnet;
 	}
@@ -204,7 +204,7 @@ public class RequestParams
 	}
 	
 
-	static String setAddSubnet(String newSubnet)
+	String setAddSubnet(String newSubnet)
 	{
 		Pattern p = Pattern.compile("0[0-9][0-9]?");    	        			
 		String [] aux = newSubnet.split("\\.");
@@ -380,7 +380,7 @@ public class RequestParams
 		return m_localSubnet;
 	}
 	
-	public static String getSelectSubnetIndex()
+	public String getSelectSubnetIndex()
 	{
 		return m_selectSubnetIndex;
 	}
@@ -390,7 +390,7 @@ public class RequestParams
 		return m_selectIp;
 	}
 	
-	public static String getSelectGroupIndex()
+	public String getSelectGroupIndex()
 	{
 		return m_selectGroupIndex;
 	}
@@ -410,7 +410,7 @@ public class RequestParams
 		return m_addIpGroup;
 	}		
 	
-	public static int getNumSubnets()
+	public int getNumSubnets()
 	{
 		return m_numSubnets;
 	}

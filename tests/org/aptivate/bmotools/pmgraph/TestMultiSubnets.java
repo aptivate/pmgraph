@@ -168,33 +168,35 @@ public class TestMultiSubnets extends PmGraphTestBase
 		configurationForm.submit();		
 		String newSubnet2 = "000.015.255.";
 		configurationForm.setParameter("newSubnet", newSubnet2);
-		configurationForm.submit();		
-		
+		response = configurationForm.submit();
+		HTMLElement result = response.getElementWithID("unsuccessResult");
+	    String resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
+	    assertEquals("Incorrect new subnet format. Please try again as follows: 0-255.0-255.0-255.", resultString);
+	    
 		theTestUtils = new TestUtils();
 		response = loadUrl (theTestUtils);
 		table = response.getTableWithID("TableLocalSubnets");
 		int numSubnets = table.getRowCount() - SIZE_HEADS;
 		assertTrue(numSubnets > oldNumSubnets);
-     	assertEquals(table.getCellAsText((numSubnets-1),0), newSubnet);
-     	assertEquals(table.getCellAsText(numSubnets,0), "0.15.255.");
+     	assertEquals(newSubnet, table.getCellAsText((numSubnets),0));
+     	//assertEquals(table., "0.15.255.");
      	
      	WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp?newSubnet=099.099.099.&numSubnets="+numSubnets);
 	    response = m_conversation.getResponse(request);
-	    HTMLElement result = response.getElementWithID("unsuccessResult");
-	    String resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
-	    assertTrue(resultString.equals("The new subnet is already in the configure file"));
-									     
+	    result = response.getElementWithID("unsuccessResult");
+	    resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
+	    assertEquals("Incorrect new subnet format. Please try again as follows: 0-255.0-255.0-255.", resultString);
+		
+	    response = loadUrl (theTestUtils);
      	configurationForm = response.getFormWithID("config");
 	    FormControl aux = configurationForm.getControlWithID("delSubnet"+numSubnets);
-		aux.toggle();
-		aux = configurationForm.getControlWithID("delSubnet"+(numSubnets-1));
 		aux.toggle();
 		configurationForm.submit();	
 		
 		response = loadUrl (theTestUtils);
 		table = response.getTableWithID("TableLocalSubnets");
 		numSubnets = table.getRowCount() - SIZE_HEADS;
-		assertTrue(numSubnets == oldNumSubnets);
+		assertEquals(oldNumSubnets, numSubnets);
 	}	
 	
 	//------------------------------------------------------------------

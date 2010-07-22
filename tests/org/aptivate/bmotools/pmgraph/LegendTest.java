@@ -188,8 +188,6 @@ public class LegendTest extends LegendTestBase
 	 */
 	public void testSorter() throws Exception
 	{
-
-		RequestParams.setSelectSubnetIndex("all");
 		TestUtils testUtils = new TestUtils();
 		testUtils.CreateTable();
 
@@ -222,7 +220,6 @@ public class LegendTest extends LegendTestBase
 
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
 
-		RequestParams.setSelectSubnetIndex("all");
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15");
 		response = m_conversation.getResponse(request);
@@ -242,7 +239,6 @@ public class LegendTest extends LegendTestBase
 
 		}
 
-		RequestParams.setSelectSubnetIndex("all");
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15");
 		response = m_conversation.getResponse(request);

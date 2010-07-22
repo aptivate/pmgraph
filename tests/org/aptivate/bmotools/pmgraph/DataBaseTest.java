@@ -25,8 +25,8 @@ public class DataBaseTest extends TestCase
 		testUtils.InsertLongSampleData();
 		DataAccess dataAccess = new DataAccess();
 
-		RequestParams.setSelectSubnetIndex("all");
 		RequestParams requestParams = new RequestParams(0, 300000, View.LOCAL_IP, 10);
+		requestParams.setSelectSubnetIndex("all");
 		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, false);
 		Hashtable<Integer,List<DataPoint>> thrptResults2 = dataAccess.getThroughput(requestParams, false, false);
 		for (Enumeration e = thrptResults.keys (); e.hasMoreElements ();)
