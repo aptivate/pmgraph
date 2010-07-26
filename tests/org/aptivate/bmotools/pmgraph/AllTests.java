@@ -37,6 +37,7 @@ public class AllTests extends PmGraphTestBase
 		suite.addTest(TestMultiSubnetsLegend.suite());
 		suite.addTest(TestMultiSubnets.suite());
 		suite.addTest(TestGroups.suite());
+		suite.addTest(UrlBuilderTest.suite());
 		return suite;
 	}	
 }

@@ -27,7 +27,8 @@ public class UrlBuilder
 
 	RequestParams m_params;
 
-	public UrlBuilder() {
+	public UrlBuilder() 
+	{
 		m_params = new RequestParams();
 	}
 
@@ -56,7 +57,9 @@ public class UrlBuilder
 		String separator = "&amp;";
 
 		if (jspInclude)
+		{
 			separator = "&";
+		}
 
 		// key are the keys for the hashMap
 		for (String key : m_params.m_reqParams.keySet())
@@ -68,8 +71,10 @@ public class UrlBuilder
 		}
 
 		if (m_params.getView() != null)
+		{
 			newUrl += separator + "view=" + m_params.getView();
-
+		}
+		
 		return newUrl;
 
 	}
@@ -80,13 +85,19 @@ public class UrlBuilder
 		String separator = "&amp;";
 
 		if (jspInclude)
+		{
 			separator = "&";
+		}
 
 		if (m_params.getOrder() != null)
+		{
 			newUrl += separator + "order=" + m_params.getOrder();
+		}
 
 		if (m_params.getSortBy() != null)
+		{
 			newUrl += separator + "sortBy=" + m_params.getSortBy();
+		}
 
 		return newUrl;
 
@@ -116,6 +127,8 @@ public class UrlBuilder
 				+ "&amp;resultLimit=" + m_params.getResultLimit();
 
 		newURL += buildIpPortViewParameters(false);
+		newURL += addGroupsToURL();
+		
 		return newURL;
 	}
 
@@ -129,8 +142,9 @@ public class UrlBuilder
 		String newURL = m_indexURL + "?start=" + m_params.getStartTime() + "&amp;end="
 				+ m_params.getEndTime() + "&amp;resultLimit=" + m_params.getResultLimit()
 				+ "&amp;dynamic=" + m_params.getDynamic();
-		newURL += buildIpPortViewParameters(false);
 		newURL += buildSortParameters(false);
+		newURL += buildIpPortViewParameters(false);
+		newURL += addGroupsToURL();
 		return newURL;
 	}
 
@@ -140,6 +154,7 @@ public class UrlBuilder
 				+ m_params.getResultLimit() + "&amp;dynamic=" + dynamicFlag;
 		newURL += buildSortParameters(false);
 		newURL += buildIpPortViewParameters(false);
+		newURL += addGroupsToURL();
 		return newURL;
 	}
 
@@ -149,6 +164,7 @@ public class UrlBuilder
 				+ m_params.getResultLimit() + "&amp;dynamic=" + m_params.getDynamic();
 		newURL += buildSortParameters(false);
 		newURL += buildIpPortViewParameters(false);
+		newURL += addGroupsToURL();
 		return newURL;
 	}
 
@@ -159,7 +175,8 @@ public class UrlBuilder
 		{
 			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end + "&amp;dynamic="
 					+ dynamicFlag;
-		} else
+		} 
+		else
 		{
 			newURL = m_indexURL + "?start=" + start + "&amp;end=" + end + "&amp;resultLimit="
 					+ m_params.getResultLimit() + "&amp;dynamic=" + dynamicFlag;
@@ -186,6 +203,7 @@ public class UrlBuilder
 				+ "&amp;resultLimit=" + m_params.getResultLimit() + "&amp;dynamic="
 				+ m_params.getDynamic();
 		newURL += buildIpPortViewParameters(false);
+		newURL += addGroupsToURL();
 		return newURL;
 	}
 
@@ -292,6 +310,16 @@ public class UrlBuilder
 		}
 
 		return getIndexURL(newZoomOutStart, newZoomOutEnd);
+	}
+	
+	private String addGroupsToURL()
+	{
+		if(m_params.getSelectGroupIndex() != null)
+		{
+			return "&amp;selectGroupIndex=" + m_params.getSelectGroupIndex();
+		}
+		
+		return "";
 	}
 
 	/**

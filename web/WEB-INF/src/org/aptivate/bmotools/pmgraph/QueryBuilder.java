@@ -12,8 +12,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-
 import org.apache.log4j.Logger;
 
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
@@ -29,7 +27,7 @@ public class QueryBuilder
 {
 	private Logger m_logger = Logger.getLogger(QueryBuilder.class.getName());
 
-	private String m_localSubnet; // used in the list of the DB data
+	//private String m_localSubnet; // used in the list of the DB data
 	
 	private Connection m_conn;
 
@@ -284,9 +282,12 @@ public class QueryBuilder
 		String group = requestParams.getSelectGroupIndex(); 
 		if(group != null)
 		{
-			buildAnd();
-			m_sql.append("(");
 			List<String> ips = Configuration.getIpsGroup(group);
+			if(ips.size() > 0)
+			{
+				buildAnd();
+				m_sql.append("(");
+			}
 			boolean firstTime = true;
 			for(String ip : ips)
 			{
@@ -296,7 +297,10 @@ public class QueryBuilder
 				m_sql.append("local_ip = ?");
 				m_listData.add(ip);
 			}
-			m_sql.append(") ");
+			if(ips.size() > 0)
+			{
+				m_sql.append(") ");
+			}
 		}
 	}
 

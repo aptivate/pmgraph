@@ -30,14 +30,6 @@ public class QueryBuilderTest extends TestCase
 
 	private QueryBuilder m_queryBuilder;
 
-	private HashMap<String, Map<String, String>> queries;
-
-	private HashMap<String, Map<String, String>> legendQueries;
-	
-	private HashMap<String, Map<String, String>> longQueries;
-	
-	private HashMap<String, Map<String, String>> longLegendQueries;	
-
 	public QueryBuilderTest() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException, ConfigurationException {
 		m_params = new ArrayList<String>();
@@ -253,22 +245,6 @@ public class QueryBuilderTest extends TestCase
 	private void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException, ParseException
 	{
 		List<View> views = View.getAvailableViews(requestParams);
-		HashMap<String, Map<String, String>> theQueries;
-		HashMap<String, Map<String, String>> theLegendQueries;
-		
-		if(isLong)
-		{					
-			theQueries = longQueries;
-			theLegendQueries = longLegendQueries;
-		}
-		else
-		{
-			theQueries = queries;
-			theLegendQueries = legendQueries;
-		}
-
-		String stringParams = requestParams.getParams().keySet().toString()
-				.replaceAll( "[\\],\\[]", "");
 		
 		for (View view : views)
 		{

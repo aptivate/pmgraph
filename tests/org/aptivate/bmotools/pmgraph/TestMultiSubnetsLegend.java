@@ -89,27 +89,11 @@ public class TestMultiSubnetsLegend extends LegendTestBase
 	    Button submitButton = form.getButtonWithID("save_conf3");
 	    submitButton.click();
 	    
-    	try
-		{
-			Thread.sleep(7500);
-		}
-		catch (InterruptedException e)
-		{
-		}
-
-	    // Load main page and get the legend table
+        // Load main page and get the legend table
 		request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph());
 	    response = m_conversation.getResponse(request);
 	    WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 	    
-	    for(int i = 0; i < table.getRowCount(); i++)
-	    {
-	    	for (int j = 0; j < table.getColumnCount(); j++)
-	    	{
-	    		System.out.print("|" + table.getCellAsText(i, j));
-	    	}
-	    	System.out.println("|");
-	    }
 	    long uploaded[] = { 47, 9, 47, 9 };
 		long downloaded[] = { 23, 19, 23, 19 };
 		String ips[] = { "10.0.156.10", "10.0.156.1", "10.0.156.10", "10.0.156.1" };
