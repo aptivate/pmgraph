@@ -93,12 +93,12 @@
 					<p><input type="submit" value="Update configuration" id="save_conf3" name="Go" /></p>
 				</div>
 					<fieldset class="actConfigGroups">	
-					<legend>Actual Ips</legend>	
+					<legend>Actual IPs</legend>	
 						<div class="scrolltableGroups"> 				
     	         		<table id="IpsGroup" class="table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
         	         		<thead>
             	   		     	<tr>
-               			          	<th>Ips</th>
+               			          	<th>IPs</th>
             	    	         	<th>Delete</th>
             	        	 	</tr>
 	            	    	</thead>
@@ -130,12 +130,12 @@
            				</div>           	
            			</fieldset>
            			<fieldset class="addConfigGroups">	
-					<legend>Add Ips</legend>	
+					<legend>Add IPs</legend>	
 						<div class="scrolltableGroups">
 						<table id="nIpsGroup" class="table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
         	         		<thead>
             	   		     	<tr>
-               			          	<th>Ips</th>
+               			          	<th>IPs</th>
             	    	         	<th>Add</th>
             	        	 	</tr>
 	            	    	</thead>

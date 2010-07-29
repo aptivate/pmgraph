@@ -9,11 +9,13 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -340,126 +342,127 @@ public class Configuration
 	public static List<String> getGroups() throws IOException
 	{
 		readConfiguration();				
-		String [] allContent = s_properties.stringPropertyNames().toString().split(",");
-		List<String> Groups= new ArrayList<String>();
-		Pattern p = Pattern.compile("G-");
+		Set<String> allContent = s_properties.stringPropertyNames();
+		List<String> groups = new ArrayList<String>();
+		Pattern p = Pattern.compile("G(\\d+)?-");
 		Matcher m;
 		String newGroup;
-		for (int i = 0; i < allContent.length; i++) 
+		for (String name : allContent) 
 		{	
-			if (!allContent[i].trim().equals("G-null"))
+			if (!name.trim().equals("G-null"))
 			{
-				m = p.matcher(allContent[i]);
-				if (m.find()) {
-					if (i == (allContent.length - 1))
-						newGroup = ((String) allContent[i].subSequence(3, allContent[i].length() - 1)).replace("."," ").split(" ")[0];						
-					else
-						newGroup = ((String) allContent[i].subSequence(3, allContent[i].length())).replace("."," ").split(" ")[0];
-					if (!Groups.contains(newGroup))
-						Groups.add(newGroup);
+				m = p.matcher(name);
+				if (m.find()) 
+				{
+					newGroup = name.substring(name.indexOf("-") + 1);
+
+					if (!groups.contains(newGroup))
+						groups.add(newGroup);
 				}
 			}
-		}				
-		return (Groups);
+		}			
+		Collections.sort(groups);
+		return (groups);
 	}
 	
-	public static List<String> getIpsGroup(String Group) throws IOException
+	public static List<String> getIpsGroup(String group) throws IOException
 	{		
 		readConfiguration();
 		int i = 1;
 		List<String> IpsGroup = new ArrayList<String>();		
-		while (s_properties.getProperty("G-"+Group+"."+i) != null)
+		while (s_properties.getProperty("G" + i + "-" + group) != null)
 		{
-			IpsGroup.add(s_properties.getProperty("G-"+Group+"."+i));				 																	
+			IpsGroup.add(s_properties.getProperty("G" + i + "-" + group));				 																	
 			i++;						
-		}		
+		}
+		Collections.sort(IpsGroup, new IpComparator());
 		return (IpsGroup);
 	}	
 	
 	
-	public static List<String> getGroupsIp(String Ip, List<String> Groups) throws IOException
+	public static List<String> getGroupsIp(String ip, List<String> groups) throws IOException
 	{
 		readConfiguration();
-		List<String> GroupsIp = new ArrayList<String>();
-		for (String currentGroup : Groups) {		
+		List<String> groupsIp = new ArrayList<String>();
+		for (String currentGroup : groups) {		
 			int i = 1;
 			boolean find = false;
-			while ((s_properties.getProperty("G-"+currentGroup+"."+i) != null) && (!find))
+			while ((s_properties.getProperty("G" + i + "-" + currentGroup) != null) && (!find))
 			{
-				if (s_properties.getProperty("G-"+currentGroup+"."+i).equals(Ip)) 
+				if (s_properties.getProperty("G" + i + "-" + currentGroup).equals(ip)) 
 				{
-					GroupsIp.add(currentGroup);
+					groupsIp.add(currentGroup);
 					find = true;
 				}
 				i++;			
 			}	
 		}		
-		return (GroupsIp);
+		return (groupsIp);
 	}	
 	
-	public static List<String> getGroupsIp(String Ip, List<String> Groups, Properties tempProps) throws IOException
+	public static List<String> getGroupsIp(String ip, List<String> groups, Properties tempProps) throws IOException
 	{		
-		List<String> GroupsIp = new ArrayList<String>();
-		for (String currentGroup : Groups) {		
+		List<String> groupsIp = new ArrayList<String>();
+		for (String currentGroup : groups) {		
 			int i = 1;
 			boolean find = false;
-			while ((tempProps.getProperty("G-"+currentGroup+"."+i) != null) && (!find))
+			while ((tempProps.getProperty("G" + i + "-" + currentGroup) != null) && (!find))
 			{
-				if (tempProps.getProperty("G-"+currentGroup+"."+i).equals(Ip)) 
+				if (tempProps.getProperty("G" + i + "-" + currentGroup).equals(ip)) 
 				{
-					GroupsIp.add(currentGroup);
+					groupsIp.add(currentGroup);
 					find = true;
 				}
 				i++;			
 			}	
 		}		
-		return (GroupsIp);
+		return (groupsIp);
 	}	
 	
-	public static List<String> getGroupsNIp(List<String> Groups, List<String> GroupsIp) throws IOException
+	public static List<String> getGroupsNIp(List<String> groups, List<String> groupsIp) throws IOException
 	{
 		readConfiguration();
-		List<String> GroupsNIp = new ArrayList<String>();
-		for (String currentGroup : Groups) {
-			if (!GroupsIp.contains(currentGroup))
-				GroupsNIp.add(currentGroup);
+		List<String> groupsNIp = new ArrayList<String>();
+		for (String currentGroup : groups) {
+			if (!groupsIp.contains(currentGroup))
+				groupsNIp.add(currentGroup);
 		}	
-		return (GroupsNIp);
+		return (groupsNIp);
 	}
 	
-	public static List<String> getNIpsGroup(List<String> IpGroup, List<String> Ips) throws IOException
+	public static List<String> getNIpsGroup(List<String> ipGroup, List<String> ips) throws IOException
 	{
 		List<String> nIpsGroup = new ArrayList<String>();
-		for (String currentIp : Ips) {
-			if (!IpGroup.contains(currentIp))
+		for (String currentIp : ips) {
+			if (!ipGroup.contains(currentIp))
 				nIpsGroup.add(currentIp);
 		}	
 		return (nIpsGroup);
 	}
 	
-	public static boolean addIpGroupConf(String Group, String newIp) throws IOException
+	public static boolean addIpGroupConf(String group, String newIp) throws IOException
 	{	
 		readConfiguration();	
 		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
 		int i=1;
 		boolean insert = false;
-		if (tempProps.getProperty("G-"+Group) != null)
+		if (tempProps.getProperty("G-"+group) != null)
 		{
-			tempProps.remove("G-"+Group);
-			tempProps.put("G-"+Group+"."+i, newIp);
+			tempProps.remove("G-"+group);
+			tempProps.put("G" + i + "-" + group, newIp);
 		}
 		else
 		{
-			while((tempProps.getProperty("G-"+Group+"."+i) != null) && (!insert))
+			while((tempProps.getProperty("G" + i + "-" + group) != null) && (!insert))
 			{
-				if (tempProps.getProperty("G-"+Group+"."+i).equals(newIp))
+				if (tempProps.getProperty("G" + i + "-" + group).equals(newIp))
 					insert = true;
 				else
 					i++;
 			}		
 			if (!insert) 
-				tempProps.put("G-"+Group+"."+i, newIp);
+				tempProps.put("G" + i + "-" + group, newIp);
 		}
 		s_properties = tempProps;
 		tempProps.storeToXML(out, null);
@@ -473,46 +476,37 @@ public class Configuration
 		for (Enumeration e = hashAddIpGroup.keys (); e.hasMoreElements ();)
 		{
 			String newIp = (String) e.nextElement ();
-			String Group = hashAddIpGroup.get (newIp);
+			String group = hashAddIpGroup.get (newIp);
 			int i=1;
 			insert = false;
-			if (tempProps.getProperty("G-"+Group) != null)
+			if (tempProps.getProperty("G-"+group) != null)
 			{
-				tempProps.remove("G-"+Group);
-				tempProps.put("G-"+Group+"."+i, newIp);
+				tempProps.remove("G-"+group);
+				tempProps.put("G" + i + "-" + group, newIp);
 			}
 			else
 			{
-				while((tempProps.getProperty("G-"+Group+"."+i) != null) && (!insert))
+				while((tempProps.getProperty("G" + i + "-" + group) != null) && (!insert))
 				{
-					if (tempProps.getProperty("G-"+Group+"."+i).equals(newIp))
+					if (tempProps.getProperty("G" + i + "-" + group).equals(newIp))
 						insert = true;
 					else
 						i++;
 				}		
 				if (!insert) 
-					tempProps.put("G-"+Group+"."+i, newIp);		
+					tempProps.put("G" + i + "-" + group, newIp);		
 			}
 		}
 		return (!insert);	
 	}
 	
-	public static boolean delGroup(String Group) throws IOException
+	public static boolean delGroup(String group) throws IOException
 	{	
 		readConfiguration();
 		boolean result = false;
 		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
-		if (tempProps.getProperty("G-"+Group) != null)
-			tempProps.remove("G-"+Group);
-		else {
-			int i = 1;
-			while (tempProps.getProperty("G-"+Group+"."+i) != null)
-			{
-				tempProps.remove("G-"+Group+"."+i);
-				i++;			
-			}
-		}
+		delGroup(group, tempProps);
 		s_properties = tempProps;
 		tempProps.storeToXML(out, null);
 		out.close();
@@ -520,16 +514,19 @@ public class Configuration
 		return result;
 	}
 	
-	public static boolean delGroup(String Group, Properties tempProps) throws IOException
+	public static boolean delGroup(String group, Properties tempProps) throws IOException
 	{	
 		boolean result = false;				
-		if (tempProps.getProperty("G-"+Group) != null)
-			tempProps.remove("G-"+Group);
-		else {
+		if (tempProps.getProperty("G-"+group) != null)
+		{
+			tempProps.remove("G-"+group);
+		}
+		else 
+		{
 			int i = 1;
-			while (tempProps.getProperty("G-"+Group+"."+i) != null)
+			while (tempProps.getProperty("G" + i + "-" + group) != null)
 			{
-				tempProps.remove("G-"+Group+"."+i);
+				tempProps.remove("G" + i + "-" + group);
 				i++;			
 			}
 		}
@@ -537,25 +534,25 @@ public class Configuration
 		return result;
 	}
 	
-	public static boolean delIpGroup(String Group, String delIp) throws IOException
+	public static boolean delIpGroup(String group, String delIp) throws IOException
 	{	
 		readConfiguration();
 		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
 		int i = 1;
 		boolean delete = false;
-		while ((tempProps.getProperty("G-"+Group+"."+i) != null) && (!delete))
+		while ((tempProps.getProperty("G" + i + "-" + group) != null) && (!delete))
 		{
-			if (tempProps.getProperty("G-"+Group+"."+i).equals(delIp)) 
+			if (tempProps.getProperty("G" + i + "-" + group).equals(delIp)) 
 			{
-				tempProps.remove("G-"+Group+"."+i);				
+				tempProps.remove("G" + i + "-" + group);				
 				delete = true;
 				int j = i + 1;
-				while (tempProps.getProperty("G-"+Group+"."+j) != null) {					
-					tempProps.setProperty("G-"+Group+"."+(j-1), tempProps.getProperty("G-"+Group+"."+j));
+				while (tempProps.getProperty("G" + j + "-" + group) != null) {					
+					tempProps.setProperty("G" + (j-1) + "-" + group, tempProps.getProperty("G" + j + "-" + group));
 					j++;
 				}
-				tempProps.remove("G-"+Group+"."+(j-1));
+				tempProps.remove("G" + (j-1) + "-" + group);
 			}
 			i++;			
 		}	
@@ -571,33 +568,36 @@ public class Configuration
 		for (Enumeration e = hashDelIpGroup.keys (); e.hasMoreElements ();) 
 		{
 			String delIp = (String) e.nextElement ();
-			String Group = hashDelIpGroup.get (delIp);
+			String group = hashDelIpGroup.get (delIp);
 			List<String> groupsIp = new ArrayList<String>();			
-			if (Group.equals("allIpGroup"))
+			if (group.equals("allIpGroup"))
 				groupsIp = Configuration.getGroupsIp(delIp, Groups, tempProps);
 			else						
-				groupsIp.add(Group);			
+				groupsIp.add(group);			
 			for (String currentGroup : groupsIp)
 			{
 				int i = 1;
 				delete = false;
-				while ((tempProps.getProperty("G-"+currentGroup+"."+i) != null) && (!delete))
+				while ((tempProps.getProperty("G" + i + "-" + currentGroup) != null) && (!delete))
 				{
-					if (tempProps.getProperty("G-"+currentGroup+"."+i).equals(delIp)) 
+					if (tempProps.getProperty("G" + i + "-" + currentGroup).equals(delIp)) 
 					{
-						tempProps.remove("G-"+currentGroup+"."+i);						
+						tempProps.remove("G" + i + "-" + currentGroup);						
 						delete = true;
 						int j = i + 1;
-						if (tempProps.getProperty("G-"+currentGroup+"."+j) != null)
+						if (tempProps.getProperty("G" + i + "-" + currentGroup) != null)
 						{
-							while (tempProps.getProperty("G-"+currentGroup+"."+j) != null) {					
-								tempProps.setProperty("G-"+currentGroup+"."+(j-1), tempProps.getProperty("G-"+currentGroup+"."+j));
+							while (tempProps.getProperty("G" + j + "-" + currentGroup) != null) {					
+								tempProps.setProperty("G" + (j-1) + "-" + currentGroup, 
+										tempProps.getProperty("G" + j + "-" + currentGroup));
 								j++;
 							}
-							tempProps.remove("G-"+currentGroup+"."+(j-1));
+							tempProps.remove("G" + (j-1) + "-" + currentGroup);
 						}
 						else if (i == 1)
+						{
 							tempProps.put("G-"+currentGroup, "0.0.0.0");
+						}
 					}
 					i++;			
 				}
@@ -611,7 +611,8 @@ public class Configuration
 	    // use a second Scanner to parse the content of each line 
 	    Scanner scanner = new Scanner(aLine);
 	    scanner.useDelimiter("\n");
-	    if ( scanner.hasNext() ){
+	    if ( scanner.hasNext() )
+	    {
 	      String name = scanner.next();
 	      if(name.contains("pcap_filter"))
 	      {	   
@@ -623,7 +624,8 @@ public class Configuration
 	      contents.append("\n");
 		  
 	    }
-	    else {	    	
+	    else
+	    {	    	
 	    	contents.append("\n");
 	    }	    	    
 	    //(no need for finally here, since String is source)
@@ -637,24 +639,29 @@ public class Configuration
 		    File fFile = new File(pmacctPath);
 		    Scanner scanner = new Scanner(fFile);
 		    StringBuilder contents = new StringBuilder();
-		    try {
+		    try 
+		    {
 		      //first use a Scanner to get each line
-		      while ( scanner.hasNextLine() ){
+		      while ( scanner.hasNextLine() )
+		      {
 		        processLine( scanner.nextLine(), localSubnet, oldSubnet, contents );
 		      }
 		    }
-		    finally {
+		    finally 
+		    {
 		      //ensure the underlying stream is always closed
 		      scanner.close();
 		    }
 		    
 		    // use buffering
 		    Writer output = new BufferedWriter(new FileWriter(pmacctPath));
-		    try {
+		    try 
+		    {
 		      //FileWriter always assumes default encoding is OK!
 		      output.write( contents.toString() );
 		    }
-		    finally {
+		    finally 
+		    {
 		      output.close();
 		    }		    
 	}	 
