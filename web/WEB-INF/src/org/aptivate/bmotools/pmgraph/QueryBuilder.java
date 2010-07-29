@@ -277,7 +277,7 @@ public class QueryBuilder
 		{
 			buildAnd();
 			m_sql.append("local_ip LIKE ? ");
-			m_listData.add(subnet);
+			m_listData.add(subnet + "%");
 		}
 		String group = requestParams.getSelectGroupIndex(); 
 		if(group != null)
@@ -389,9 +389,11 @@ public class QueryBuilder
 		for(String column : new String[]{"ip_src", "ip_dst"})
 		{
 			if(!firstUnion)
+			{
 				sql.append("UNION ");
+			}
 			firstUnion=false;
-			sql.append("SELECT DISTINCT "+column+" AS ip_local ");
+			sql.append("(SELECT DISTINCT "+column+" AS ip_local ");
 			sql.append(buildFrom(requestParams, isLong));
 			sql.append(buildWhereTime(requestParams, isLong));
 			sql.append("AND ");
@@ -399,12 +401,16 @@ public class QueryBuilder
 			for (String localSubnet: m_localSubnets)
 			{
 				if(!firstTime)
+				{
 					sql.append("OR ");
+				}
 				firstTime = false;
 				sql.append(column+" LIKE ? ");
 				m_listData.add(localSubnet+"%");
 			}
+			sql.append(")");
 		}
+		sql.append(" ORDER BY ip_local");
 		m_query = new StringBuffer(sql.toString());
 		PreparedStatement ipStatement = m_conn.prepareStatement(sql.toString(),
 				ResultSet.TYPE_FORWARD_ONLY,

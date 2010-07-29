@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -31,6 +33,25 @@ public class DataAccess
 {
 	private Logger m_logger = Logger.getLogger(DataAccess.class.getName());				
 	
+	private class IpComparator implements Comparator<String>
+	{
+		public int compare(String arg0, String arg1)
+		{
+			String[] ip1 = arg0.split("\\.");
+			String[] ip2 = arg1.split("\\.");
+			for(int i = 0; i < ip1.length; i++)
+			{
+				Integer ip1Part = new Integer(ip1[i]);
+				Integer ip2Part = new Integer(ip2[i]);
+				int comp = ip1Part.compareTo(ip2Part);
+				if(comp!=0)
+				{
+					return comp;
+				}
+			}
+			return 0;
+		}	
+	}
 	/**
 	 * Form and execute the database query
 	 * 
@@ -137,9 +158,12 @@ public class DataAccess
 		//access the database		
 		ResultSet dataResults = statement.executeQuery();
 		List<String> dataIps = new ArrayList<String>();			
-		while (dataResults.next())					
-			dataIps.add(dataResults.getString("ip_local"));					
+		while (dataResults.next())
+		{
+			dataIps.add(dataResults.getString("ip_local"));
+		}
 		
+		Collections.sort(dataIps, new IpComparator());
 		long endTime = System.currentTimeMillis() - initTime;
 		m_logger.debug("Execution Time in mysql query: " + endTime + " ms");
 		initTime = System.currentTimeMillis();

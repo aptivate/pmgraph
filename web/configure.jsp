@@ -97,36 +97,38 @@
    		<link href="styles/main.css" media="screen" type="text/css" rel="stylesheet" />   		   		
    		<script type="text/javascript">
 			function expand(group){
+			    var link = document.getElementById("link." + group);
+			    if (link.innerHTML == '[+]')
+			    {
+					link.innerHTML = '[-]';
+				}
+				else
+				{
+					link.innerHTML = '[+]';
+				}
 				var group = document.getElementById(group);
 				if(group.style.display=='')
 					group.style.display='none';
 				else
 					group.style.display='';
 			}
-			
-			function toggle(a) {
-				if (a.innerHTML == '[+]')
-					a.innerHTML = '[-]'
-				else
-					a.innerHTML = '[+]'
-			}
 		</script>
    </head>
    <body>
-     <div id="conf_container">     	
-     <div id="conf_header">
+     <div class="container">     	
+     <div class="conf_header">
      	<img id="logo" alt="Logo Banner" src="images/logo.png"/> 
-     	<div id="options">	
+     	<div class="options">	
 	     	<a class="change" title="Home" href="<%= response.encodeURL(request.getContextPath() +"/index.jsp") %>">Home</a>      
 	     	<a class="change" title="Help" href="http://www.aptivate.org/Projects.BMOTools.pmGraph.html">Help</a>
 	    </div>	 
 	    <%if (update) { 
     		if (result) {%>
-    	  		<div id="successResult">
+    	  		<div class="successResult" id="successResult">
 	    			<p>Update Done</p>
     			</div>
 	    	<%} else { %>
-	    		<div id="unsuccessResult">	    		
+	    		<div class="unsuccessResult" id="unsuccessResult">	    		
     				<%if (!goodSubnet) { %>
     					<p>Incorrect new subnet format. Please try again as follows: 0-255.0-255.0-255.</p>
     				<%}else {
@@ -143,31 +145,31 @@
     	
     	<%if (updateGroups == true) {    	
     		if (resultGroups) {%>    	
-    			<div id="successResult">
+    			<div class="successResult" id="successResult">
 	    			<p>Update Done</p>
     			</div>
 	    	<%} else { %>
-	    		<div id="unsuccessResult">	    		    			
+	    		<div class="unsuccessResult" id="unsuccessResult">	    		    			
 	    			<p>The new group is already in the configure file</p>
     			</div>
     	    <%}
     			updateGroups = false;
     	}%>    	 
     	
-	      <div id="conf_form">	
+	      <div class="left_float_clear conf_form">	
 			<form id="config" action="">	
-				<fieldset id="configuration">		
+				<fieldset class="configuration">		
 				<legend>Configuration Parameters</legend>
-				<div id="saveConf">
+				<div class="left_float_clear saveConf" id="saveConf">
 				    <p>
         				<label for="save_conf"> </label>
 	          			<input type="submit" value="Update configuration" id="save_conf" name="Go" />         					
           			</p>
          		</div>
-				<fieldset id = "configurationSubnets">	
+				<fieldset class="configurationSubnets">	
 				<legend>Subnets</legend>	
-				<div id="scrolltable">
-             		<table id="TableLocalSubnets" class="scroll_table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
+				<div class="scrolltable">
+             		<table id="TableLocalSubnets" class="scroll_table table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
                  		<thead>
                		     	<tr>
                		          	<th>Local Subnets</th>
@@ -192,17 +194,17 @@
             		</table>
             		<input type="hidden" id="numSubnets"  name="numSubnets" title="numSubnets"  value="<%=subnets.length%>" size="8" />   
            		</div>
-           		<div id="uoptions">
+           		<div class="left_float_clear uoptions">
            			<p>
            				<label for="newSubnet">Add new Subnet</label>
            				<input type="text" id="newSubnet"  name="newSubnet" title="newSubnet"  value="<%=wrongSubnet%>" size="11" />	             	             	             	
            			</p>
            		</div>
            		</fieldset>
-           		<fieldset id = "configurationGroups">	
+           		<fieldset class="configurationGroups">	
 					<legend>Groups</legend>	
-					<div id="scrolltable2">
-    	         		<table id="TableGroups" class="layout_table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
+					<div class="scrolltable">
+    	         		<table id="TableGroups" class="table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
         	         		<thead>
             	   		     	<tr>
                			          	<th>Groups</th>
@@ -220,7 +222,7 @@
     	     			       		%>
     	     			       			<tr>
     	     		    	   			<td class="center"> 
-    	     		       				<p><a href="javascript:expand('<%=currentGroup%>')" onclick="toggle(this)">[+]</a>    	     		       	     		       			    	     		       			
+    	     		       				<p><a id="link.<%=currentGroup%>" href="javascript:expand('<%=currentGroup%>')">[+]</a>    	     		       	     		       			    	     		       			
     	     		       				<a href="<%= response.encodeURL(request.getContextPath() +"/include/groups.jsp?Group=" + currentGroup) %>"> <%=currentGroup%></a> </p>
     	     		       				<div id="<%=currentGroup%>" style="display:none">
     	     		      				<table id="TableIps<%=i%>" class="tableIps">               		          
@@ -257,14 +259,14 @@
         	    		</table>
         	    		<input type="hidden" id="numGroups"  name="numGroups" title="numGroups"  value="<%=Groups.size()%>" size="8" />   
            			</div>
-          			<div id="uoptions2">    	       		
+          			<div class="left_float_clear uoptions">    	       		
            				<p>
            					<label for="addGroup">Add new group</label>
          					<input type="text" id="addGroup"  name="addGroup" title="addGroup"  value="" size="11" />	             	             	             	         					
          				</p>
          			</div>        	
 					</fieldset>					
-					<div id="Back">    	     			           			
+					<div class="left_float_clear Back">    	     			           			
           				<p>
           				  	<a class="left" title="Click here to go to the previous view" href="javascript:history.back(1);">Back</a>                                                          
           				</p>

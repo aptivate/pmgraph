@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -122,13 +120,13 @@ public class QueryBuilderTest extends TestCase
 		boolean hasRemoteIp = params.getRemoteIp() != null;
 		boolean hasLocalPort = params.getPort() != null;
 		boolean hasRemotePort = params.getRemotePort() != null;
-		boolean allowGroupsOrSubnets = 
-			params.getSelectGroupIndex() != null && !hasLocalIp;
+		boolean hasGroupIndex = params.getSelectGroupIndex() != null;
+		boolean hasSubnetIndex = params.getSelectSubnetIndex() != null;
 		// A separate where clause is needed to select data on the basis of a 
 		// request for a specific IP or port. If no IP or port has been 
 		// requested we don't want to include the where clause at all.
 		boolean needsWhere = hasLocalIp || hasRemoteIp || hasLocalPort ||
-			hasRemotePort || allowGroupsOrSubnets;
+			hasRemotePort || hasGroupIndex || hasSubnetIndex;
 		
 		if(needsWhere)
 		{
@@ -165,53 +163,42 @@ public class QueryBuilderTest extends TestCase
 				}
 				query.append(" remote_port = " + params.getRemotePort());
 			}
-		}
-		
-		// If a specific local ip has been selected then using groups or subnets
-		// makes no sense. Otherwise they should be included.
-		if(allowGroupsOrSubnets)
-		{
-			String selectedGroup = params.getSelectGroupIndex();
-			if(selectedGroup != null)
+			if(hasGroupIndex)
 			{
-				Pattern p = Pattern.compile("^(([1-9]?[0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}$");
-				Matcher m = p.matcher(selectedGroup);		    	
-				if(needsWhere)
+				if(previousCondition)
 				{
-					query.append(" AND ");
+					query.append(" AND");
 				}
-				else
-				{
-					query.append(" WHERE ");
-				}
-				// If a subnet is selected
-				if(m.find())
-				{
-					query.append("(local_ip LIKE '" + selectedGroup + "%')");
-				}
+				String selectedGroup = params.getSelectGroupIndex();
 				// If its a group then make it look for all the ips
-				else
+				query.append(" (");
+				boolean firstIp = true;
+				List<String> ips = Configuration.getIpsGroup(selectedGroup);
+				for(String ip : ips)
 				{
-					query.append("(");
-					boolean firstIp = true;
-					List<String> ips = Configuration.getIpsGroup(selectedGroup);
-					for(String ip : ips)
+					if(!firstIp)
 					{
-						if(!firstIp)
-						{
-							query.append(" OR ");
-						}
-						else
-						{
-							firstIp = false;
-						}
-						query.append("local_ip = " + ip);
+						query.append(" OR ");
 					}
-					query.append(")");
+					else
+					{
+						firstIp = false;
+					}
+					query.append("local_ip = " + ip);
 				}
+				query.append(")");
+			}
+			if(hasSubnetIndex)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				query.append(" local_ip LIKE '" + 
+						params.getSelectSubnetIndex() + "%'");
 			}
 		}
-		
+			
 		query.append(" GROUP BY ");
 		
 		if(isChart)
@@ -286,6 +273,10 @@ public class QueryBuilderTest extends TestCase
 		// check without parameters.
 		checkQuery(requestParams, false);
 		checkQuery(longRequestParams, true);
+		requestParams.setSelectSubnetIndex("10.0.156.");
+		checkQuery(requestParams, false);
+		checkQuery(longRequestParams, true);
+		requestParams.setSelectSubnetIndex(null);
 		for (String param : m_params)
 		{
 			params.clear();

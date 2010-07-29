@@ -190,7 +190,7 @@
     <% } else { %>
     	<body>
     <% } %>
-        <div id="container">
+        <div class="container">
             <div id="header">
                 <img id="logo" alt="Logo Banner" src="images/logo.png" />                
             <div id="date_form">
@@ -240,7 +240,7 @@
 						//]]>
 					</script>
 
-            	<table class="layout_table" id="date_table">
+            	<table class="table" id="date_table">
 					<tr>
 						<th> </th>   
 						<th class="th_class">From</th>
@@ -248,8 +248,8 @@
 					</tr>				
 					<tr>
 						<td>Date (dd/mm/yyyy)</td>   
-			   			<td class="align_right"> <input type="text" id="fromDate" name="fromDate" value="<%=pageUrl.getParams().getFromDateAsString()%>" size="8" />  <input type="button" id="fDate" style="background: url('./images/img.gif') no-repeat" onclick="CalendarSetup('fromDate','fDate')"/></td>			   			
-            		    <td> <input type="text" id="toDate"   name="toDate" value="<%=pageUrl.getParams().getToDateAsString()%>"  size="8" /> <input type="button" id="tDate" style="background: url('./images/img.gif') no-repeat" onclick="CalendarSetup('toDate','tDate')"/></td>            		    
+			   			<td class="align_right"> <input type="text" id="fromDate" name="fromDate" value="<%=pageUrl.getParams().getFromDateAsString()%>" size="8" />  <input type="button" class="fDate" id="fDate" style="background: url('./images/img.gif') no-repeat" onclick="CalendarSetup('fromDate','fDate')"/></td>			   			
+            		    <td> <input type="text" id="toDate"   name="toDate" value="<%=pageUrl.getParams().getToDateAsString()%>"  size="8" /> <input type="button" class="tDate" id="tDate" style="background: url('./images/img.gif') no-repeat" onclick="CalendarSetup('toDate','tDate')"/></td>            		    
 				    </tr>
 					<tr>
 						<td>Time (hh:mm:ss)</td>  
@@ -377,7 +377,7 @@
 				</table>   																		
 				</form>																			
 	            </div>   
-	            <div id="more_options">				
+	            <div class="more_options">				
 					<a class="change" title="Conf" href="<%= response.encodeURL(request.getContextPath() +"/configure.jsp") %>">Configure</a>
 					<a class="change" title="Help" href="http://www.aptivate.org/Projects.BMOTools.pmGraph.html" target="_blank">Help</a>	
 				</div>      

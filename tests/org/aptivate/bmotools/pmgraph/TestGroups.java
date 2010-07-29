@@ -116,7 +116,7 @@ public class TestGroups extends PmGraphTestBase
 		}
 		
 		// Check the rest of Ips
-		String[] Ips = { "10.0.156.10",  "10.0.156.1" };
+		String[] Ips = { "10.0.156.1", "10.0.156.10" };
 		List<String> allIps = new ArrayList<String>();
 		
 		for (int i = 0; i < Ips.length; i++)

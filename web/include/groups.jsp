@@ -71,31 +71,31 @@
    		<link href="../styles/main.css" media="screen" type="text/css" rel="stylesheet" />   		   		   		
    </head>
    <body>
-     <div id="conf_container">     	
-     <div id="conf_header2">
+     <div class="container">     	
+     <div class="conf_header">
      	<img id="logo" alt="Logo Banner" src="../images/logo.png"/> 
-     	<div id="options">	
+     	<div class="options">	
 	     	<a class="change" title="Home" href="<%= response.encodeURL(request.getContextPath() +"/index.jsp") %>">Home</a>      
 	     	<a class="change" title="Help" href="http://www.aptivate.org/Projects.BMOTools.pmGraph.html">Help</a>
 	    </div>	 
     	
     	<%if (updateGroups == true) {%>
-	    		<div id="successResult">			    		
+	    		<div class="successResult" id="successResult">			    		
   					<p>Update Done</p>
     			</div>
 		<%}updateGroups = false;%>	      
     	
-	    <div id="conf_form">	
+	    <div class="left_float_clear conf_form">	
 			<form id="config" action="" method="post">	
-				<fieldset id="configuration2">		
+				<fieldset class="configuration2">		
 				<legend>Configuration Group "<%=group%>"</legend>
 				<div id="saveConf2">
 					<p><input type="submit" value="Update configuration" id="save_conf3" name="Go" /></p>
 				</div>
-					<fieldset id = "actConfigGroups">	
+					<fieldset class="actConfigGroups">	
 					<legend>Actual Ips</legend>	
-						<div id="scrolltableGroups"> 				
-    	         		<table id="IpsGroup" class="layout_table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
+						<div class="scrolltableGroups"> 				
+    	         		<table id="IpsGroup" class="table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
         	         		<thead>
             	   		     	<tr>
                			          	<th>Ips</th>
@@ -129,10 +129,10 @@
         	    		</table>    		
            				</div>           	
            			</fieldset>
-           			<fieldset id = "addConfigGroups">	
+           			<fieldset class="addConfigGroups">	
 					<legend>Add Ips</legend>	
-						<div id="scrolltableGroups2">
-						<table id="nIpsGroup" class="layout_table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
+						<div class="scrolltableGroups">
+						<table id="nIpsGroup" class="table" width="80%" border="1" cellpadding="0" cellspacing="0">               		          
         	         		<thead>
             	   		     	<tr>
                			          	<th>Ips</th>
@@ -169,7 +169,7 @@
 					<input type="hidden" id="Group"  name="Group" title="Group"  value="<%=group%>" size="8" />				  
 				</fieldset>        
 			</form>  
-			<div id="Back2"> 			
+			<div class="left_float_clear Back2"> 			
         	<p><a class="left" title="Click here to go to the previous view" href="javascript:history.back(1);">Back</a></p>                                                          
         	</div>
     	</div>     	    	        	    	

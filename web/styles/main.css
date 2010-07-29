@@ -46,14 +46,7 @@ td {
 	background-repeat: repeat-x;
 }
 
-#conf_header {
-	width: 780px;
-	height: 600px;
-	background-image: url('../images/header-background.png');
-	background-repeat: repeat-x;
-}
-
-#conf_header2 {
+.conf_header {
 	width: 780px;
 	height: 600px;
 	background-image: url('../images/header-background.png');
@@ -65,41 +58,36 @@ td {
 	float: left;
 }
 
-#more_options {
+.options, .more_options {
 	float: left;
 	clear: left;
-	margin-top: 0.2em;	
 	margin-left: 1.5em;
 }
 
-#options {
-	float: left;
-	clear: left;
-	margin-top: 0.5em;	
-	margin-left: 1.5em;	
+.more_options {
+	margin-top: 0.2em;	
 }
 
-#successResult {
+.options {
+	margin-top: 0.5em;
+}
+
+.successResult, .unsuccessResult {
 	float: left;
 	clear: center;
-	margin-left: 2em;				
-	background-color: #99CC99;
+	margin-left: 2em;
 	background-repeat: repeat-x;
 	border-color: gray;
     border-width: 0.05em;
     border-style: groove;
 }
 
-#unsuccessResult {
-	float: left;
-	clear: center;
-	margin-left: 2em;	
-	background-color: #CC6666; 
-	background-repeat: repeat-x;
-	border-color: gray;
-    border-width: 0.05em;
-    border-style: groove;
-	
+.successResult {	
+	background-color: #99CC99; 
+}
+
+.unsuccessResult {	
+	background-color: #CC6666; 	
 }
 
 #date_form {
@@ -109,29 +97,21 @@ td {
 	margin-right: 0.5em;
 }
 
-#fDate{
+.fDate, .tDate {
 	width:1.2em;
 	height:0.9em;
 	border:0em;
+}
+
+.fDate {
 	margin-right:0.2em;
 }
 
-#tDate{
-	width:1.2em;
-	height:0.9em;
-	border:0em;
+.tDate {
 	margin-right:0.5em;
 }
 
-#container {
-	width: 780px;
-	margin: 0 auto;
-	background-color: #99bb99;
-	border: solid 1px #666666;
-	border-top: 0px;
-}
-
-#conf_container {
+.container {
 	width: 780px;
 	margin: 0 auto;
 	background-color: #99bb99;
@@ -150,14 +130,6 @@ td {
 	margin-bottom: 0;
 	position: relative;
 	z-index: 1;
-}
-
-#graph {
-	
-}
-
-#controls {
-	
 }
 
 #controlscenter {
@@ -183,12 +155,7 @@ td {
 	text-align: center;
 }
 
-.layout_table {
-	margin: 0px auto;
-	padding: 0px 0px 0px 0px;
-}
-
-.scroll_table {
+.table {
 	margin: 0px auto;
 	padding: 0px 0px 0px 0px;
 }
@@ -207,7 +174,7 @@ td {
 	padding-right: 10px;
 }
 
-#scrolltable {
+.scrolltable {
     margin-top: 4.5em;
 	overflow:auto;
     padding-right: 0.005em; padding-left: 0em; padding-bottom: 0.05em;
@@ -216,16 +183,7 @@ td {
     left: 100; top: 10; width: 32%; height:15.25em
 }
 
-#scrolltable2 {
-    margin-top: 4.5em;
-	overflow:auto;
-    padding-right: 0.005em; padding-left: 0em; padding-bottom: 0.05em;
-    scrollbar-arrow-color : #999999; scrollbar-face-color : #666666;
-    scrollbar-track-color :#3333333 ; position: absolute;
-    left: 100; top: 10; width: 32%; height:15.25em
-}
-
-#scrolltableGroups {
+.scrolltableGroups {
     margin-top: 0.5em;
 	overflow:auto;
     padding-right: 0.005em; padding-left: 0em; padding-bottom: 0.05em;
@@ -234,100 +192,81 @@ td {
     left: 100; top: 10; width: 30%; height:22.2em
 }
 
-#scrolltableGroups2 {
-    margin-top: 0.5em;
-	overflow:auto;
-    padding-right: 0.005em; padding-left: 0em; padding-bottom: 0.05em;
-    scrollbar-arrow-color : #999999; scrollbar-face-color : #666666;
-    scrollbar-track-color :#3333333 ; position: absolute;
-    left: 100; top: 10; width: 30%; height:22.2em
-}
-
-#uoptions {
+.left_float_clear {
 	float: left;
 	clear: left;
+}
+
+.uoptions {
 	margin-top: 0.5em;	
 	margin-left: 1.5em;	
 }
 
-#uoptions2 {
-	float: left;
-	clear: left;
-	margin-top: 0.5em;	
-	margin-left: 1.5em;	
-}
-
-#Back {
-	float: left;
-	clear: left;
+.Back {
 	margin-top: 0em;	
-	margin-left: 21em;	
+	margin-left: 21em;
 }
 
-#Back2 {
-	float: left;
-	clear: left;
+.Back2 {
 	margin-top: 9.5em;	
 	margin-left: 21.5em;	
 }
 
-#saveConf {
-	float: left;
-	clear: left;
+.saveConf {
 	margin-top: 0em;	
 	margin-left: 17.5em;	
 }
 
-#config{
+#config {
 	height: 19em;
 	width: 100%;	
 }
 
-#conf_form {
-	float: left;
-	clear: left;
+.conf_form {
 	margin-top: 1em;
 	width: 100%;	
 }
 
-#configurationSubnets{
+.configurationSubnets, .configurationGroups {
 	height: 23.5em;
-	width: 22em;	
+	width: 22em;
+}
+
+.configurationSubnets {
 	margin-top: 0.5em;	
 	margin-left: 1em;	
 }
 
-#configurationGroups{
-	height: 23.5em;
-	width: 22em;	
+.configurationGroups {	
 	margin-top: -23.8em;	
 	margin-left: 24em;		
 }
 
-#configuration{
-	height: 27.8em;
+.configuration, .configuration2 {
 	width: 47em;	
 	margin-top: 0.2em;	
-	margin-left: 0.7em;		
+	margin-left: 0.7em;	
 }
 
-#configuration2{
-	height: 28.8em;
-	width: 47em;	
-	margin-top: 0.2em;	
-	margin-left: 0.7em;		
+.configuration {
+	height: 27.8em;	
 }
 
-#actConfigGroups{
+.configuration2 {
+	height: 28.8em;	
+}
+
+.actConfigGroups, .addConfigGroups {
 	height: 24em;
 	width: 45%;	
+}
+
+.actConfigGroups {	
 	margin-top: 1em;	
 	margin-left: 1em;		
 }
 
-#addConfigGroups{
-	height: 24em;
-	width: 45%;	
+.addConfigGroups {
 	margin-top: -24.25em;	
 	margin-left: 24.5em;		
 }
@@ -367,16 +306,20 @@ td {
 	padding-bottom: 5px;
 	padding-right: 20px;
 }
+
 select {
 	text-transform: capitalize;
 }
+
 input {
 	text-align: right;
 }
+
 .text_overflow {
 	overflow: hidden;	
 	height: 1.2em;
 }
+
 .error_panel {	
 	background-color: #f86c6c;
 	width:  80%;
