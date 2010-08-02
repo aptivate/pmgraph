@@ -585,7 +585,7 @@ public class Configuration
 						tempProps.remove("G" + i + "-" + currentGroup);						
 						delete = true;
 						int j = i + 1;
-						if (tempProps.getProperty("G" + i + "-" + currentGroup) != null)
+						if (tempProps.getProperty("G" + j + "-" + currentGroup) != null)
 						{
 							while (tempProps.getProperty("G" + j + "-" + currentGroup) != null) {					
 								tempProps.setProperty("G" + (j-1) + "-" + currentGroup, 

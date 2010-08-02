@@ -1,7 +1,10 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -42,6 +45,31 @@ public class ConfigurationTest extends TestCase
 			table = Configuration.findTable(time);
 			assertEquals(tables[i], table);
 		}
+	}
+	
+	public void testDeleteIpsFromGroups() throws IOException
+	{
+		Properties props = new Properties();
+		InputStream stream = DataAccess.class.getResourceAsStream(Configuration.CONFIGURATION_FILE);
+		props.loadFromXML(stream);
+		Hashtable<String, String> ipsForGroup = new Hashtable<String, String>();
+		ArrayList<String> groups = new ArrayList<String>();
+		ipsForGroup.put("10.0.1.1", "Test");
+		ipsForGroup.put("10.0.1.2", "Test");
+		ipsForGroup.put("10.0.1.3", "Test");
+		Configuration.updateGroups("Test", null, null, groups, null);
+		groups.add("Test");
+		Configuration.addIpGroupConf(ipsForGroup, props);
+		Configuration.delIpGroup(ipsForGroup, groups, props);
+		for(Object propKey : props.keySet())
+		{
+			String key = propKey.toString();
+			boolean hasGroup = key.contains("G1-Test") || 
+				key.contains("G2-Test") || key.contains("G3-Test");
+			assertTrue("Group Test still contains IP: " + props.getProperty(key),
+					!hasGroup);
+		}
+		Configuration.delGroup("Test");
 	}
 	
 	public static Test suite()
