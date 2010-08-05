@@ -460,6 +460,32 @@ class TestUtils
 		insertRow("10.0.156.130", "4.2.2.4", 443, 10000, 150 * 128 * 60, t3, false);
 		insertRow("4.2.2.4", "10.0.156.130", 4000, 443, 75 * 128 * 60, t3, "udp", false);
 	}
+	
+	/*
+	 * This method updates the protocols inserted for port sample data from
+	 * a protocol to a new protocol. It's main use is testing nonstandard 
+	 * protocols such as "ip".
+	 */
+	void updatePortSampleDataProtocol(String newProto, String oldProto, boolean isLong) throws SQLException
+	{
+		String theTableName;
+		String sql; 
+		if(isLong)
+		{
+			theTableName = LONG_TABLE_NAME;
+		}
+		else
+		{
+			theTableName = TABLE_NAME;
+		}
+		
+		sql = "UPDATE " + theTableName + " SET ip_proto = '" + newProto + 
+			"' WHERE ip_proto = '" + oldProto + "'";
+		m_logger.debug(sql);
+		PreparedStatement sqlStatement = m_conn.prepareStatement(sql);
+		sqlStatement.executeUpdate();
+		sqlStatement.close();
+	}
 
 	String getUrlPmgraph()
 	{

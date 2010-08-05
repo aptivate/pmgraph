@@ -212,6 +212,7 @@ public class LegendTestPortView extends PmGraphTestBase
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
 
 	}
+	
 
 	/**
 	 * Check if the limit results works when the view is a port view.
@@ -251,6 +252,36 @@ public class LegendTestPortView extends PmGraphTestBase
 		long averageDownloaded[] = {260, 170};
 		long averageUploaded[] = {160, 430};
 
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
+	}
+	
+	/**
+	 * This method tests the data results with the ip_proto values changed from
+	 * "udp" to "ip"
+	 * @throws SQLException 
+	 * @throws SAXException 
+	 * @throws IOException 
+	 *
+	 */
+	public void testLegendWithNonStandardProtocol() throws SQLException, IOException, SAXException
+	{
+		WebRequest request = new GetMethodWebRequest(
+				m_testUtils.getUrlPmgraph()
+						+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15&dynamic=false&view=LOCAL_PORT");
+		WebResponse response = m_conversation.getResponse(request);
+		
+		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
+
+		long[] uploaded = new long[] {9375, 6750, 6000, 0};
+		long[] downloaded = new long[] { 1687, 4125, 9750, 562 };
+		
+		String[] ports = new String[] { "80", "443", "110", "443" };
+		String[] portName = new String[] {"http","https", "pop3", "https" };
+		String[] services = new String[] {"tcp", "tcp", "tcp", "udp"};
+		
+		long[] averageDownloaded= new long[] {45, 110,260, 15};
+		long[] averageUploaded = new long[] {250, 180, 160, 0};
+		m_testUtils.updatePortSampleDataProtocol("ip", "udp", false);
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
 	}
 
