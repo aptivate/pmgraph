@@ -195,7 +195,8 @@ public enum View {
 						legendPoint.getProtocol());
 				//add color to the row
 				entry.add(new LegendElement(legendPoint.getColorAsHexadecimal()));
-				if (legendPoint.getProtocol() == Protocol.icmp)
+				if (legendPoint.getProtocol() == Protocol.icmp || 
+						legendPoint.getProtocol() == Protocol.other)
 				{
 					entry.add(new LegendElement("n/a"));
 				} else
@@ -205,11 +206,8 @@ public enum View {
 							pageUrl.getLinkUrl(legendPoint.getId()), null));
 				}
 				// add protocol
-				if (legendPoint.getProtocol() != null)
-					entry.add(new LegendElement(legendPoint.getProtocol().toString()));
-				else
-					entry.add(new LegendElement(""));
-
+				entry.add(new LegendElement(legendPoint.getProtocolName()));
+				
 				entry.add(new LegendElement(portName));
 				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded(), time)));
 				entry.add(new LegendElement(getTotalThroughput(result.getUploaded(), time)));

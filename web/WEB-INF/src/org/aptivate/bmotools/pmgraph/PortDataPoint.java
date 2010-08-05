@@ -11,6 +11,8 @@ public class PortDataPoint extends DataPoint
 	private Integer m_port;
 
 	private Protocol m_protocol;
+	
+	private String m_protocolName;
 
 	public static final int OTHER_PORT = -1;
 
@@ -18,20 +20,33 @@ public class PortDataPoint extends DataPoint
 			boolean isChart) throws SQLException, IOException {
 		super(rs, isChart);
 		m_port = port;
-		m_protocol = Protocol.valueOf(protocol);
+		m_protocol = Protocol.fromString(protocol);
+		m_protocolName = protocol;
 	}
-
+	
 	public PortDataPoint(PortDataPoint portDataPoint) {
 		// call the parent constructor
 		super(portDataPoint);
 		m_port = portDataPoint.m_port;
 		m_protocol = portDataPoint.m_protocol;
+		m_protocolName = portDataPoint.m_protocolName;
 	}
 
 	public PortDataPoint(Integer port) {
 		super();
 		m_port = port;
 		m_protocol = null;
+		m_protocolName = "";
+	}
+	
+	public String getProtocolName()
+	{
+		return m_protocolName;
+	}
+	
+	public void setProtocolName(String name)
+	{
+		m_protocolName = name;
 	}
 
 	public Integer getPort()

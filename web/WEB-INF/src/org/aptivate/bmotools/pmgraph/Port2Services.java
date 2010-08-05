@@ -529,8 +529,10 @@ public class Port2Services
 				service = m_udpPort2serviceMap.get(portNumber);
 				break;
 			case icmp:
+			default:
 				// ICMP protocol does not use ports, it is in the IP level and
 				// so ports are not relevant.
+				// Other protocols aren't mapped.
 				break;
 			}
 		}
