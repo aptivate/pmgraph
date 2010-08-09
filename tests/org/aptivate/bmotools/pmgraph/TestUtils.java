@@ -480,7 +480,7 @@ class TestUtils
 		}
 		
 		sql = "UPDATE " + theTableName + " SET ip_proto = '" + newProto + 
-			"' WHERE ip_proto = '" + oldProto + "'";
+			"', stamp_inserted = acct_v6.stamp_inserted WHERE ip_proto = '" + oldProto + "'";
 		m_logger.debug(sql);
 		PreparedStatement sqlStatement = m_conn.prepareStatement(sql);
 		sqlStatement.executeUpdate();

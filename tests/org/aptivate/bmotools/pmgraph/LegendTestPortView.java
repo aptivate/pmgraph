@@ -261,9 +261,12 @@ public class LegendTestPortView extends PmGraphTestBase
 	 * @throws SQLException 
 	 * @throws SAXException 
 	 * @throws IOException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 *
 	 */
-	public void testLegendWithNonStandardProtocol() throws SQLException, IOException, SAXException
+	public void testLegendWithNonStandardProtocol() throws SQLException, IOException, SAXException, InstantiationException, IllegalAccessException, ClassNotFoundException
 	{
 		WebRequest request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
@@ -276,12 +279,16 @@ public class LegendTestPortView extends PmGraphTestBase
 		long[] downloaded = new long[] { 1687, 4125, 9750, 562 };
 		
 		String[] ports = new String[] { "80", "443", "110", "443" };
-		String[] portName = new String[] {"http","https", "pop3", "https" };
-		String[] services = new String[] {"tcp", "tcp", "tcp", "udp"};
+		String[] portName = new String[] {"http","https", "pop3", "" };
+		String[] services = new String[] {"tcp", "tcp", "tcp", "ip"};
 		
 		long[] averageDownloaded= new long[] {45, 110,260, 15};
 		long[] averageUploaded = new long[] {250, 180, 160, 0};
 		m_testUtils.updatePortSampleDataProtocol("ip", "udp", false);
+		
+		response = m_conversation.getResponse(request);
+		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
+
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
 	}
 

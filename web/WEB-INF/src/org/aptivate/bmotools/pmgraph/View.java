@@ -195,8 +195,7 @@ public enum View {
 						legendPoint.getProtocol());
 				//add color to the row
 				entry.add(new LegendElement(legendPoint.getColorAsHexadecimal()));
-				if (legendPoint.getProtocol() == Protocol.icmp || 
-						legendPoint.getProtocol() == Protocol.other)
+				if (legendPoint.getProtocol() == Protocol.icmp)
 				{
 					entry.add(new LegendElement("n/a"));
 				} else

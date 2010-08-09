@@ -75,7 +75,6 @@ public class PortDataPoint extends DataPoint
 	@Override
 	public String getId()
 	{
-
 		if (m_port != OTHER_PORT)
 			return String.valueOf(m_port);
 		return "Others";
