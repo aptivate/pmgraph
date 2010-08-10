@@ -104,6 +104,15 @@
 			<classpath refid="classpath"/>
         </javac>
 	</target>
+
+<!--
+/*****************************************************
+** Clean: Remove compiled files
+******************************************************/-->
+	<target name="clean">
+		<delete dir="${build.directory}" includeemptydirs="true" />
+		<delete dir="${war.directory}" includeemptydirs="true" />
+	</target>
 	
 <!--
 /*****************************************************

@@ -17,14 +17,14 @@ PASSWD=$RET
 # Create database and user.
 echo Creating Mysql data base...
 mysql -u root -p$PASSWD < /usr/share/pmgraph/conf/pmacct-create-db_v6.mysql
-echo -e \\t* pmacct database create in your mysql server.
-echo -e \\t* pmacct user created with default password = 'secret' you should change this password, if you do so dont forget to change de password in the pmacctd.conf file.
+echo \\t* pmacct database create in your mysql server.
+echo \\t* pmacct user created with default password = 'secret' you should change this password, if you do so dont forget to change de password in the pmacctd.conf file.
 
 
 # Copy default pmacct config file
 echo Configuring pmacct to work with mysql database and use pmacct user...
 test -s /etc/pmacct/pmacctd.conf && mv /etc/pmacct/pmacctd.conf /etc/pmacct/pmacctd.conf.old
-echo -e \\t* Current pmacct config file moved to /etc/pmacct/pmacctd.conf.old.
+echo \\t* Current pmacct config file moved to /etc/pmacct/pmacctd.conf.old.
 cp /usr/share/pmgraph/conf/pmacctd.conf /etc/pmacct/pmacctd.conf
  
 db_get pmgraph/java_security
