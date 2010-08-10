@@ -3,8 +3,8 @@
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
-CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat5.5 | grep Default | sed -e 's/.*: //'`
-. /etc/default/tomcat5.5
+CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat6 | grep Default | sed -e 's/.*: //'`
+. /etc/default/tomcat6
 
 CATALINA_BASE=${CATALINA_BASE:-$CATALINA_DEFAULT_BASE}
 ln -sf /usr/share/pmgraph/pmgraph.war $CATALINA_BASE/webapps/pmgraph.war
@@ -29,18 +29,18 @@ cp /usr/share/pmgraph/conf/pmacctd.conf /etc/pmacct/pmacctd.conf
  
 db_get pmgraph/java_security
 if [ "$RET" = "true" ]; then
-	JAVASECURITY=`grep -B1 TOMCAT5_SECURITY /etc/default/tomcat5.5 | grep -v \# | sed -e 's/.*=//'`
+	JAVASECURITY=`grep -B1 TOMCAT6_SECURITY /etc/default/tomcat6 | grep -v \# | sed -e 's/.*=//'`
 	if [ "$JAVASECURITY" != "no" ]; then
-		echo "TOMCAT5_SECURITY=no" >> /etc/default/tomcat5.5
+		echo "TOMCAT6_SECURITY=no" >> /etc/default/tomcat6
 	fi
 fi
 
 # restart tomcat and pmacct server
-if [ -x "/etc/init.d/tomcat5.5" ]; then
+if [ -x "/etc/init.d/tomcat6" ]; then
         if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                invoke-rc.d tomcat5.5 restart || exit $?
+                invoke-rc.d tomcat6 restart || exit $?
         else
-                /etc/init.d/tomcat5.5 restart || exit $?
+                /etc/init.d/tomcat6 restart || exit $?
         fi
 fi
 
