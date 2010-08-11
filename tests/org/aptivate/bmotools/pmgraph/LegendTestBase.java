@@ -40,10 +40,15 @@ abstract class LegendTestBase extends PmGraphTestBase
 			long uploaded[], String rows[], View view) throws IOException, SAXException
 	{
 		// Check the table data
-		// The data starts in the second row because the first one is for the colours
+		// The data starts in the third row because the first two are the table headers
 		int j = 2;	
 		int i = 0;
-		while (j < table.getRowCount())	{	
+		int totalDownloaded = 0;
+		int totalUploaded = 0;
+		while (j < table.getRowCount() - 1)	
+		{	
+			totalDownloaded += downloaded[i];
+			totalUploaded += uploaded[i];
 			if (table.getCellAsText(j,1).equals(""))
 			{
 				j++;
@@ -71,6 +76,11 @@ abstract class LegendTestBase extends PmGraphTestBase
 			}
 			i++;
 			j++;
+		}
+		if(table.getRowCount() > 0)
+		{
+			assertEquals("Check the total downloaded traffic values", totalDownloaded, Long.parseLong(table.getCellAsText(j, 3)));
+			assertEquals("Check the total downloaded traffic values", totalUploaded, Long.parseLong(table.getCellAsText(j, 4)));
 		}
 	}
 }

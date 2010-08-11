@@ -55,7 +55,7 @@ public class ColourTest extends PmGraphTestBase
 		XYItemRenderer renderer = plot.getRenderer();
 
 		// The two first rows are for the header
-		for (int i = 2; i < legend.getRowCount(); i++)
+		for (int i = 2; i < legend.getRowCount() - 1; i++)
 		{
 			// Get the first cell of each row in html format and get the style
 			// attribute which is the one used to define the colour in the

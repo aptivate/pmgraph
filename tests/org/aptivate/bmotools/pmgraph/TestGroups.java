@@ -104,7 +104,7 @@ public class TestGroups extends PmGraphTestBase
 		}
 		else
 		{
-			assertTrue(table.getRowCount() - SIZE_HEADS -1 == IpsGroup.size());
+			assertTrue(table.getRowCount() - SIZE_HEADS - 1 == IpsGroup.size());
 		}
 		
 		if (IpsGroup.size() > 0)

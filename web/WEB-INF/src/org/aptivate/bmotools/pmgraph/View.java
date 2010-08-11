@@ -90,13 +90,16 @@ public enum View {
 		LegendTable legend = new LegendTable();
 
 		// time in seconds
-		boolean isLong = Configuration.longGraphIsAllowed() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
-		int resolution = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
-		long time = (requestParams.getRoundedEndTime(resolution) - requestParams.getRoundedStartTime(resolution)) / 1000;
+		boolean isLong     = Configuration.longGraphIsAllowed() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
+		int resolution     = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
+		long time          = (requestParams.getRoundedEndTime(resolution) - requestParams.getRoundedStartTime(resolution)) / 1000;
+		long totalUploaded = 0;
+		long totalDownloaded = 0;
 		
-		String arrow = "ASC".equals(pageUrl.getParams().getOrder()) ? " &#8679;" : " &#8681;";
-		String col1 = "Down";
-		String col2 = "Up";
+		String arrow   = "ASC".equals(pageUrl.getParams().getOrder()) ? " &#8679;" : " &#8681;";
+		String col1    = "Down";
+		String col2    = "Up";
+		
 		
 		//The units in the Totals header are displayed according to the time period:
 		//  <10mins 			    KB
@@ -106,82 +109,87 @@ public enum View {
 		if (time / 60 < 10)
 		{
 			col3 = "Totals (KB)";
-		} else
+		} 
+		else
 		{
 			if (time / 60 >= 10 && time / 60 < 14400)
+			{
 				col3 = "Totals (MB)";
+			}
 			else
+			{
 				col3 = "Totals (GB)";
+			}
 		}
 
 		if ("downloaded".equals(pageUrl.getParams().getSortBy()))
+		{
 			col1 = col1 + arrow;
+		}
 		if ("uploaded".equals(pageUrl.getParams().getSortBy()))
+		{
 			col2 = col2 + arrow;
+		}
 		if ("bytes_total".equals(pageUrl.getParams().getSortBy()))
+		{
 			col3 = col3 + arrow;
+		}
 
 		ArrayList<ArrayList<LegendElement>> headers = legend.getHeaders();
 		ArrayList<ArrayList<LegendElement>> rows = legend.getRows();
 		
 		if (buildHeaders) 
 		{
-		//fill the header 
-		ArrayList<LegendElement> firstRowHeader = new ArrayList<LegendElement>();
-		ArrayList<LegendElement> secondRowHeader = new ArrayList<LegendElement>();
+			//fill the header 
+			ArrayList<LegendElement> firstRowHeader = new ArrayList<LegendElement>();
+			ArrayList<LegendElement> secondRowHeader = new ArrayList<LegendElement>();
+			
+			// an empty field in the header for the colour column
+			firstRowHeader.add(0, new LegendElement("", null, null, false, true));
+	
+			switch (requestParams.getView())
+			{
+				case LOCAL_PORT:
+					firstRowHeader.add(new LegendElement("Local Port", null, null, false, true));
+					firstRowHeader.add(new LegendElement("Protocol", null, null, false, true));
+					firstRowHeader.add(new LegendElement("Service", null, null, false, true));
+					break;
+				case REMOTE_PORT:
+					firstRowHeader.add(new LegendElement("Remote Port", null, null, false, true));
+					firstRowHeader.add(new LegendElement("Protocol", null, null, false, true));
+					firstRowHeader.add(new LegendElement("Service", null, null, false, true));
+					break;
+				case REMOTE_IP:
+					firstRowHeader.add(new LegendElement("Remote IP", null, null, false, true));
+					firstRowHeader.add(new LegendElement("Host Name", null, null, false, true));	
+					break;
+				default:
+				case LOCAL_IP:
+					firstRowHeader.add(new LegendElement("Local IP", null, null, false, true));
+					firstRowHeader.add(new LegendElement("Host Name", null, null, false, true));
+					break;
+			}
 		
-		// an empty field in the header for the colour column
-		firstRowHeader.add(0, new LegendElement("", null, null, false, true));
-
-		switch (requestParams.getView())
-		{
-		case LOCAL_PORT:
-			firstRowHeader.add(new LegendElement("Local Port", null, null, false, true));
-			firstRowHeader.add(new LegendElement("Protocol", null, null, false, true));
-			firstRowHeader.add(new LegendElement("Service", null, null, false, true));
-
-			break;
-		case REMOTE_PORT:
-			firstRowHeader.add(new LegendElement("Remote Port", null, null, false, true));
-			firstRowHeader.add(new LegendElement("Protocol", null, null, false, true));
-			firstRowHeader.add(new LegendElement("Service", null, null, false, true));
-
-			break;
-		case REMOTE_IP:
-			firstRowHeader.add(new LegendElement("Remote IP", null, null, false, true));
-			firstRowHeader.add(new LegendElement("Host Name", null, null, false, true));
-
-			break;
-		default:
-		case LOCAL_IP:
-			firstRowHeader.add(new LegendElement("Local IP", null, null, false, true));
-			firstRowHeader.add(new LegendElement("Host Name", null, null, false, true));
-
-			break;
-		}
-		
-		
-		
-		firstRowHeader.add(new LegendElement(col3, pageUrl.getIndexURL("bytes_total"),
-				"bytes_total", true, false));
-		firstRowHeader.add(new LegendElement("Average (kb/s)", null, null, true, false));
-
-		secondRowHeader.add(new LegendElement(col1, pageUrl.getIndexURL("downloaded"),
-				"downloaded"));
-		secondRowHeader
-				.add(new LegendElement(col2, pageUrl.getIndexURL("uploaded"), "uploaded"));
-		secondRowHeader.add(new LegendElement("Down"));
-		secondRowHeader.add(new LegendElement("Up"));
-		
-		headers.add(firstRowHeader);
-		headers.add(secondRowHeader);
+			firstRowHeader.add(new LegendElement(col3, pageUrl.getIndexURL("bytes_total"),
+					"bytes_total", true, false));
+			firstRowHeader.add(new LegendElement("Average (kb/s)", null, null, true, false));
+	
+			secondRowHeader.add(new LegendElement(col1, pageUrl.getIndexURL("downloaded"),
+					"downloaded"));
+			secondRowHeader
+					.add(new LegendElement(col2, pageUrl.getIndexURL("uploaded"), "uploaded"));
+			secondRowHeader.add(new LegendElement("Down"));
+			secondRowHeader.add(new LegendElement("Up"));
+			
+			headers.add(firstRowHeader);
+			headers.add(secondRowHeader);
 
 		}
 		
 		//fill the legend
 		
 		int i = 0;
-
+		ArrayList<LegendElement> entry;
 		switch (requestParams.getView())
 		{
 
@@ -190,7 +198,7 @@ public enum View {
 			for (DataPoint result : legendData)
 			{
 				PortDataPoint legendPoint = (PortDataPoint) result;
-				ArrayList<LegendElement> entry = new ArrayList<LegendElement>();
+				entry = new ArrayList<LegendElement>();
 				String portName = Port2Services.getInstance().getService(legendPoint.getPort(),
 						legendPoint.getProtocol());
 				//add color to the row
@@ -206,15 +214,30 @@ public enum View {
 				}
 				// add protocol
 				entry.add(new LegendElement(legendPoint.getProtocolName()));
-				
 				entry.add(new LegendElement(portName));
-				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded(), time)));
-				entry.add(new LegendElement(getTotalThroughput(result.getUploaded(), time)));
+				String bytesDownloadedString = getTotalThroughput(result.getDownloaded(), time);
+				String bytesUploadedString = getTotalThroughput(result.getUploaded(), time);
+				
+				if(!bytesDownloadedString.equals("&lt;1"))
+				{
+					totalDownloaded += Long.parseLong(bytesDownloadedString);
+				}
+				
+				if(!bytesUploadedString.equals("&lt;1"))
+				{
+					totalUploaded += Long.parseLong(bytesUploadedString);
+				}
+				
+				entry.add(new LegendElement(bytesDownloadedString));
+				entry.add(new LegendElement(bytesUploadedString));
 				entry.add(new LegendElement(getAverage(result.getDownloaded(), time)));
 				entry.add(new LegendElement(getAverage(result.getUploaded(), time)));
 				i++;
 				rows.add(entry);
 			}
+			entry = new ArrayList<LegendElement>();
+			addTotalsRow(entry, true, totalDownloaded, totalUploaded);
+			rows.add(entry);
 			break;
 		default:
 		case LOCAL_IP:
@@ -222,7 +245,7 @@ public enum View {
 			for (DataPoint result : legendData)
 			{
 				IpDataPoint legendPoint = (IpDataPoint) result;
-				ArrayList<LegendElement> entry = new ArrayList<LegendElement>();
+				entry = new ArrayList<LegendElement>();
 
 				entry.add(new LegendElement(legendPoint.getColorAsHexadecimal()));
 
@@ -231,18 +254,60 @@ public enum View {
 
 				HostResolver hostResolver = new HostResolver();
 				String hostName = hostResolver.getHostname(legendPoint.getIp());
+				String bytesDownloadedString = getTotalThroughput(result.getDownloaded(), time);
+				String bytesUploadedString = getTotalThroughput(result.getUploaded(), time);
+				
+				if(!bytesDownloadedString.equals("&lt;1"))
+				{
+					totalDownloaded += Long.parseLong(bytesDownloadedString);
+				}
+				
+				if(!bytesUploadedString.equals("&lt;1"))
+				{
+					totalUploaded += Long.parseLong(bytesUploadedString);
+				}
 
 				entry.add(new LegendElement(hostName));
-				entry.add(new LegendElement(getTotalThroughput(result.getDownloaded(), time)));
-				entry.add(new LegendElement(getTotalThroughput(result.getUploaded(), time)));
+				entry.add(new LegendElement(bytesDownloadedString));
+				entry.add(new LegendElement(bytesUploadedString));
 				entry.add(new LegendElement(getAverage(result.getDownloaded(), time)));
 				entry.add(new LegendElement(getAverage(result.getUploaded(), time)));
 				i++;
 				rows.add(entry);
 			}
+			entry = new ArrayList<LegendElement>();
+			addTotalsRow(entry, false, totalDownloaded, totalUploaded);
+			rows.add(entry);
 			break;
 		}
+		
 		return legend;
+	}
+
+	private static void addTotalsRow(ArrayList<LegendElement> entry, boolean usesPorts, long totalDownloaded, long totalUploaded)
+	{
+		addBlankElement(entry, true);
+		
+		// The ports table has an extra column in and therefore needs an extra entry.
+		if(usesPorts)
+		{
+			addBlankElement(entry, true);
+		}
+		else
+		{
+			addBlankElement(entry, false);
+		}
+		
+		entry.add(new LegendElement("Traffic totals:"));
+		entry.add(new LegendElement(Long.toString(totalDownloaded)));
+		entry.add(new LegendElement(Long.toString(totalUploaded)));
+		addBlankElement(entry, true);
+	}
+	
+	private static void addBlankElement(ArrayList<LegendElement> entry, boolean doubleColumnNeeded) {
+		LegendElement blankElement = new LegendElement("");
+		blankElement.setDoubleColSpan(doubleColumnNeeded);
+		entry.add(blankElement);
 	}
 
 	private static String getAverage(long traffic, long time)
@@ -264,12 +329,17 @@ public enum View {
 		if (time / 60 < 10)
 		{
 			totalThroughput = ((traffic / 1024) != 0) ? (String.valueOf(traffic / 1024)) : "&lt;1";
-		} else
+		} 
+		else
 		{
 			if ((time / 60 >= 10) && (time / 60 < 14400))
-				totalThroughput = ((traffic / (1024*1024)) != 0) ? (String.valueOf(traffic / (1024*1024))) : "&lt;1";
+			{
+				totalThroughput = ((traffic / (1024*1024)) != 0) ? (String.valueOf(traffic / (1024*1024))) : "&lt;1";	
+			}
 			else
+			{
 				totalThroughput = ((traffic / (1024*1024*1024)) != 0) ? (String.valueOf(traffic / (1024*1024*1024))) : "&lt;1";
+			}
 		}
 		return totalThroughput;
 	}

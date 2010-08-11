@@ -62,7 +62,7 @@ public class LegendTestPortView extends PmGraphTestBase
 		// Check the table data
 		String upload, download, averageUpload, averageDownload;
 		// It is i - 2 to avoid the headers in the table
-		for (int i = 2; i < table.getRowCount(); i++)
+		for (int i = 2; i < table.getRowCount() - 1; i++)
 		{
 			int column= 1;
 			assertEquals("Check the IP Or Port Address", ipPort[i - 2], table

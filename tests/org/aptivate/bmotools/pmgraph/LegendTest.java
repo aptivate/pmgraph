@@ -77,7 +77,6 @@ public class LegendTest extends LegendTestBase
 		long downloaded[] = { 23, 19 };
 		String ips[] = { "10.0.156.10", "10.0.156.1" };
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ips, View.LOCAL_IP);
-
 	}
 
 	/**
@@ -117,7 +116,8 @@ public class LegendTest extends LegendTestBase
 			request = new GetMethodWebRequest(urlObj.toString());
 			response = m_conversation.getResponse(request);
 			assertEquals("image/png", response.getContentType());
-		} catch (HttpInternalErrorException e)
+		} 
+		catch (HttpInternalErrorException e)
 		{
 			m_logger.error("Problem with legend.jsp. There is a value too big for integer.");
 			throw (e);
@@ -325,7 +325,7 @@ public class LegendTest extends LegendTestBase
 		if (table != null)
 		{
 			assertEquals("Check the number of rows is limited to default value.", Configuration
-					.getResultLimit(), (Integer) (table.getRowCount() - 3));
+					.getResultLimit(), (Integer) (table.getRowCount() - 4));
 
 			// Columns in the table are Color,Host IP,Host
 			// Name,Downloaded,Uploaded, average downloaded, average uploaded
@@ -353,7 +353,7 @@ public class LegendTest extends LegendTestBase
 		if (table != null)
 		{
 			assertEquals("Check the number of rows is limited to default value.", (Integer) 8,
-					(Integer) (table.getRowCount() - 3));
+					(Integer) (table.getRowCount() - 4));
 
 			// Columns in the table are Color,Host IP,Host
 			// Name,Downloaded,Uploaded
@@ -426,12 +426,19 @@ public class LegendTest extends LegendTestBase
 			String totalThroughput = legend.getCellAsText(0, 3);
 			String expectedLabel = null;
 			if (timePeriod[i] < 10)
+			{
 				expectedLabel = "Totals (KB)";
-			else{
+			}
+			else
+			{
 				if ((timePeriod[i] >= 10) && (timePeriod[i] < 14400))
+				{
 					expectedLabel ="Totals (MB)";
+				}
 				else
+				{
 					expectedLabel = "Totals (GB)";
+				}
 			}
 			
 			assertEquals("Check if the header in the legend matches the units we are using",
@@ -439,7 +446,7 @@ public class LegendTest extends LegendTestBase
 			
 			//Check the values shown are correct
 			long bitsToDivideBy;
-			for (int j = 2; j < legend.getRowCount(); j++)
+			for (int j = 2; j < legend.getRowCount() - 1; j++)
 			{
 				// KB
 				if (timePeriod[i] < 10)

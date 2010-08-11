@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
  */
 public class LegendData
 {
-	private DataAccess dataAccess;
+	private DataAccess m_dataAccess;
 
 	private Logger m_logger = Logger.getLogger(LegendData.class);
 
@@ -222,7 +222,7 @@ public class LegendData
 	public LegendData() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException {
 
-		dataAccess = new DataAccess();
+		m_dataAccess = new DataAccess();
 	}
 
 	/**
@@ -246,7 +246,7 @@ public class LegendData
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, ConfigurationException
 	{				
-		Hashtable<Integer,List<DataPoint>> ipResults = dataAccess.getThroughput(requestParams, false, isLong);				
+		Hashtable<Integer,List<DataPoint>> ipResults = m_dataAccess.getThroughput(requestParams, false, isLong);				
 		for (Enumeration enumListResult = ipResults.keys (); enumListResult.hasMoreElements ();) 
 		{
 			int key = (Integer) enumListResult.nextElement();
