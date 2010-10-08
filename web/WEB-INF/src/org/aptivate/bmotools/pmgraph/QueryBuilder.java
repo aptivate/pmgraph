@@ -131,8 +131,17 @@ public class QueryBuilder
 		m_localSubnets = Configuration.getLocalSubnet();
 	}
 
-	private void buildSelect(RequestParams requestParams, boolean isChart)
+	private void buildSelect(RequestParams requestParams, boolean isChart) throws IOException
 	{
+		String dstPort = "dst_port";
+		String srcPort = "src_port";
+		if(!Configuration.getJdbcDriver().equals("com.mysql.jdbc.Driver") &&
+				!Configuration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			dstPort = "port_dst";
+			srcPort = "port_src";
+		}
+				
 		// time stamp is not needed in legend
 		if (isChart)
 		{
@@ -158,15 +167,17 @@ public class QueryBuilder
 			break;
 		}
 		m_sql.append(" FROM (");
-		m_sql.append("SELECT stamp_inserted, "+
-				"CASE WHEN up THEN ip_dst ELSE ip_src END AS remote_ip, "+
-				"CASE WHEN down THEN ip_dst ELSE ip_src END AS local_ip, "+
-				"CASE WHEN up THEN dst_port ELSE src_port END AS remote_port, "+
-				"CASE WHEN down THEN dst_port ELSE src_port END AS local_port, "+
-				"bytes, up, down");
+		m_sql.append("SELECT stamp_inserted, " +
+				"CASE WHEN up THEN ip_dst ELSE ip_src END AS remote_ip, " +
+				"CASE WHEN down THEN ip_dst ELSE ip_src END AS local_ip, " +
+				"CASE WHEN up THEN " + dstPort + " ELSE " + srcPort + 
+				" END AS remote_port, " +
+				"CASE WHEN down THEN " + dstPort + " ELSE " + srcPort + 
+				" END AS local_port, bytes, up, down");
 		buildIpProto(requestParams);
 		m_sql.append(" FROM (");
-		m_sql.append("SELECT stamp_inserted, ip_src, ip_dst, src_port, dst_port, bytes, ");
+		m_sql.append("SELECT stamp_inserted, ip_src, ip_dst, " + srcPort + 
+				", " + dstPort + ", bytes, ");
 		IsLocal("ip_src");
 		m_sql.append(" AS up, ");
 		IsLocal("ip_dst");

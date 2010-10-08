@@ -214,17 +214,24 @@ public class QueryBuilderTest extends TestCase
 		}
 		
 		String sql = query.toString();
-		if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
-		{
-			sql = alterQuery(sql);
-		} 
+		sql = alterQuery(sql);
+	 
 		return sql;
 	}
 
-	private String alterQuery(String query)
+	private String alterQuery(String query) throws IOException
 	{
-		query = query.replace("stamp_inserted >= ", "datetime(stamp_inserted) >= ");
-		query = query.replace("stamp_inserted <= ", "datetime(stamp_inserted) <= ");
+		if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			query = query.replace("stamp_inserted >= ", "datetime(stamp_inserted) >= ");
+			query = query.replace("stamp_inserted <= ", "datetime(stamp_inserted) <= ");
+		}
+		else if(!TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC")
+				&& TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			query = query.replace("dst_port", "port_dst");
+			query = query.replace("src_port", "port_src");
+		}
 		return query;
 	}
 		
