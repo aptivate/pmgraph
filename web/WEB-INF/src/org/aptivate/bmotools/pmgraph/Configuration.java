@@ -179,7 +179,7 @@ public class Configuration
 	public static Integer getResultLimit() throws IOException
 	{
 		readConfiguration();
-		return Integer.valueOf(s_properties.getProperty("ResultLimit"));
+		return Integer.valueOf(s_properties.getProperty("ResultLimit", "5"));
 	}
 	
 	public static boolean updateConf(RequestParams requestParams) throws IOException
