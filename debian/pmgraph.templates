@@ -1,6 +1,5 @@
-Template: pmgraph/mysql
+Template: pmgraph/mysql-root-password
 Type: password
-Default: secret
 Description: Enter Mysql server root password.
   Mysql root password to create the pmacct database and the pmacct user.
 
