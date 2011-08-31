@@ -242,6 +242,8 @@ public enum View {
 		default:
 		case LOCAL_IP:
 		case REMOTE_IP:
+			HostResolver hostResolver = new HostResolver();
+
 			for (DataPoint result : legendData)
 			{
 				IpDataPoint legendPoint = (IpDataPoint) result;
@@ -252,7 +254,6 @@ public enum View {
 				entry.add(new LegendElement(legendPoint.getId(),
 						pageUrl.getLinkUrl(legendPoint.getId()), null));
 
-				HostResolver hostResolver = new HostResolver();
 				String hostName = hostResolver.getHostname(legendPoint.getIp());
 				String bytesDownloadedString = getTotalThroughput(result.getDownloaded(), time);
 				String bytesUploadedString = getTotalThroughput(result.getUploaded(), time);
