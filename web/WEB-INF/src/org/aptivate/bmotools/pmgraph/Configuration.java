@@ -129,7 +129,7 @@ public class Configuration
 	{
 
 		readConfiguration();
-		return s_properties.getProperty("DHCPAddress");
+		return s_properties.getProperty("DHCPAddress", "");
 	}
 
 	public static String getDHCPName() throws IOException
@@ -181,7 +181,32 @@ public class Configuration
 		readConfiguration();
 		return Integer.valueOf(s_properties.getProperty("ResultLimit", "5"));
 	}
-	
+
+	public static String getMikrotikAddress() throws IOException
+	{
+		readConfiguration();
+		return s_properties.getProperty("MikrotikAddress", "");
+	}
+
+	public static String getMikrotikUser() throws IOException
+	{
+		readConfiguration();
+		return s_properties.getProperty("MikrotikUser", "admin");
+	}
+
+	public static String getMikrotikPass() throws IOException
+	{
+		readConfiguration();
+		return s_properties.getProperty("MikrotikPass", "");
+	}
+
+	public static Integer getMikrotikApiPort() throws IOException
+	{
+		readConfiguration();
+		return Integer.valueOf(s_properties.getProperty("MikrotikApiPort",
+				"8728"));
+	}
+
 	public static boolean updateConf(RequestParams requestParams) throws IOException
 	{	
 		String newSubnet = requestParams.getAddSubnet();
