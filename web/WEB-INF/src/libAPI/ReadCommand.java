@@ -9,8 +9,10 @@ package libAPI;
  * and open the template in the editor.
  */
 
-import java.io.*;
-import java.util.concurrent.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +34,8 @@ public class ReadCommand implements Runnable {
 		this.in = in;
 		this.queue = queue;
 	}
+	
+	private Logger m_Logger = Logger.getLogger(getClass().getName());
 
 	public void run() {
 		byte b = 0;
@@ -65,7 +69,7 @@ public class ReadCommand implements Runnable {
 					lengthWordLen = 4;
 					length = 0;
 				} else {
-					Logger.getLogger(ReadCommand.class.getName()).log(Level.SEVERE,
+					m_Logger.log(Level.SEVERE,
 							"Don't know how to interpret length byte: " + lenFirstByte);
 					break;
 				}
@@ -77,22 +81,50 @@ public class ReadCommand implements Runnable {
 						length |= newByte;
 					}
 				} catch (IOException ex) {
-					Logger.getLogger(ReadCommand.class.getName()).log(Level.SEVERE, null, ex);
+					m_Logger.log(Level.SEVERE, null, ex);
 					return;
 				}
 
 				s += "\n";
 				byte[] dataBytes = new byte[length];
+
 				try {
-					lenFirstByte = in.read(dataBytes, 0, length);
+					for (int offset = 0; offset < length;)
+					{
+						int remaining = length - offset;
+						int read = in.read(dataBytes, offset, remaining);
+						if (read == -1)
+						{
+							m_Logger.severe("Lost connection to Mikrotik, " +
+									"giving up");
+							return;
+						}
+						offset += read;
+					}
 				} catch (IOException ex) {
-					lenFirstByte = 0;
 					ex.printStackTrace();
 					return;
 				}
-				if (lenFirstByte > 0) {
-					s += new String(dataBytes);
+				
+				boolean containsControlChars = false;
+				
+				for (int i = 0; i < dataBytes.length; i++)
+				{
+					if (dataBytes[i] < 32)
+					{
+						containsControlChars = true;
+					}
 				}
+
+				String newData = new String(dataBytes);
+
+				if (containsControlChars)
+				{
+					m_Logger.warning("Mikrotik data contains control " +
+							"characters, probably mis-parsed: " + newData);
+				}
+				
+				s += newData;
 			} else if (b == -1) {
 				System.out.println("Error, it should not happen ever, or connected to wrong port");
 			} else {
