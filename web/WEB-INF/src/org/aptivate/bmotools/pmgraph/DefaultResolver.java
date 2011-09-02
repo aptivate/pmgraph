@@ -241,11 +241,8 @@ public class DefaultResolver extends FakeResolver
 		{
 			InetAddress inetadress = Address.getByAddress(IpAddress);
 			hostName = Address.getHostName(inetadress);
-		}
-		catch (java.lang.Error e)
-		{
-			m_logger.error(ErrorMessages.DNS_ERROR_JAVA_SECURITY);
-			m_logger.error(e);
+			m_logger.debug("Resolved hostname for " + IpAddress + " to " +
+					hostName + " using DNS");
 		}
 		catch (Exception e)
 		{
@@ -272,16 +269,18 @@ public class DefaultResolver extends FakeResolver
 					l.setIPAddress(IpAddress);
 					Lease remote = l.send(Message.OPEN);
 					hostName = remote.getClientHostname();
+					m_logger.debug("Resolved hostname for " + IpAddress + " to " +
+							hostName + " using DHCP OMAPI");
 				}
 				catch (OmapiException e1)
 				{
-					m_logger.info("Failed to resolve hostname using DHCP server", e1);
+					m_logger.info("Failed to resolve hostname using DHCP OMAPI", e1);
 				}
 			}
 			else
 			{
 				m_logger.debug("Failed to resolve " + IpAddress + " using " +
-						"DHCP server: OMAPI is not configured");
+						"DHCP OMAPI: not configured");
 			}
 			
 			if (hostName == null)
@@ -294,6 +293,11 @@ public class DefaultResolver extends FakeResolver
 					{
 						m_logger.debug("Failed to resolve hostname using Mikrotik API: " +
 								"entry not found for " + IpAddress);
+					}
+					else
+					{
+						m_logger.debug("Resolved hostname for " + IpAddress + " to " +
+								hostName + " using Mikrotik API");
 					}
 				}
 				else
