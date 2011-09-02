@@ -10,6 +10,7 @@ import java.util.Map;
 import libAPI.ApiConn;
 
 import org.apache.log4j.Logger;
+import org.aptivate.bmotools.pmgraph.Resolver.FakeResolver;
 import org.talamonso.OMAPI.Connection;
 import org.talamonso.OMAPI.Message;
 import org.talamonso.OMAPI.Exceptions.OmapiConnectionException;
@@ -25,16 +26,21 @@ import org.xbill.DNS.Address;
  * the hostname, if this fails the DHCP server is used.
  * 
  */
-public class HostResolver
+public class DefaultResolver extends FakeResolver
 {
-	private static Logger m_logger = Logger.getLogger(HostResolver.class);
+	public static interface Interface
+	{
+		public String getHostname(String IpAddress);
+	}
+	
+	private static Logger m_logger = Logger.getLogger(DefaultResolver.class);
 
 	private Connection m_OmapiConnection;
 	private ApiConn m_MikrotikApi;
 	private final int HOSTNAME_LENGTH_LIMIT = 40;
 	private Map<String, String> m_MikrotikDhcpCache;
 	
-	public HostResolver() throws IOException
+	public DefaultResolver() throws IOException
 	{
 		this.m_OmapiConnection = null;
 
@@ -302,7 +308,7 @@ public class HostResolver
 		{
 			m_logger.info("Failed to resolve hostname using any " +
 					"available method: " + IpAddress);
-			return "Unknown Host";
+			return super.getHostname(IpAddress);
 		}
 		else
 		{

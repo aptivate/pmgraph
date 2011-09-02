@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.aptivate.bmotools.pmgraph.Resolver.FakeResolver;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
@@ -86,32 +87,61 @@ public class GraphFactory
 		}
 	}
 
+	private Resolver m_CachedResolver;
+	
+	private Resolver getResolver()
+	{
+		if (m_CachedResolver != null)
+		{
+			return m_CachedResolver;
+		}
+		
+		try
+		{
+			m_CachedResolver = new DefaultResolver();
+		}
+		catch (IOException e)
+		{
+			m_logger.warn("Failed to create a HostResolver, " +
+					"DNS lookups disabled", e);
+			m_CachedResolver = new FakeResolver();
+		}
+		
+		return m_CachedResolver;
+	}
+	
 	/**
 	 * Create the chart title based on the request type.
 	 * 
 	 * @param requestParams
 	 */
-	private String chartTitle(RequestParams requestParams)
+	private String getChartTitle(RequestParams requestParams)
 	{
-		String title = "";
+		String title = "Network Throughput";
 
 		if (requestParams.getIp() != null)
 		{
-			title = " For Local Ip = " + requestParams.getIp();
+			title += " for Local IP = " + requestParams.getIp() + " (" + 
+				getResolver().getHostname(requestParams.getIp()) + ")";
 		}
+		
 		if (requestParams.getPort() != null)
 		{
-			title += " For Local Port = " + requestParams.getPort();
+			title += " for Local Port = " + requestParams.getPort();
 		}
+		
 		if (requestParams.getRemoteIp() != null)
 		{
-			title += " For Remote Ip = " + requestParams.getRemoteIp();
+			title += " for Remote IP = " + requestParams.getRemoteIp() + " (" +
+				getResolver().getHostname(requestParams.getRemoteIp()) + ")";
 		}
+		
 		if (requestParams.getRemotePort() != null)
 		{
-			title += " For Remote Port = " + requestParams.getRemotePort();
+			title += " for Remote Port = " + requestParams.getRemotePort();
 		}
-		return "Network Throughput" + title;
+		
+		return title;
 	}
 
 	/**
@@ -219,7 +249,7 @@ public class GraphFactory
 		long theStart = requestParams.getStartTime();	//in milliseconds
 		long theEnd = requestParams.getEndTime();
 
-		String title = chartTitle(requestParams);
+		String title = getChartTitle(requestParams);
 
 		int resolution = Configuration.getResolution(isLong, theEnd - theStart);
 		roundedStart = requestParams.getRoundedStartTime(resolution);

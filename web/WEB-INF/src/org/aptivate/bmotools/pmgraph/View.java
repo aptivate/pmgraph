@@ -242,7 +242,7 @@ public enum View {
 		default:
 		case LOCAL_IP:
 		case REMOTE_IP:
-			HostResolver hostResolver = new HostResolver();
+			DefaultResolver hostResolver = new DefaultResolver();
 
 			for (DataPoint result : legendData)
 			{
