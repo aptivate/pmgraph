@@ -271,10 +271,10 @@
 						colon=":";
 						alignPort = "align_left";
 					%>
-						<td>Selected Ip:port</td>   
+						<td>Selected IP:port</td>   
 					<%} else { %>	
 						<% if (pageUrl.getParams().getIp() != null) { %>
-							<td>Selected Ip</td>   
+							<td>Selected IP</td>   
 						<%} else  {%>
 							<% if (pageUrl.getParams().getPort() != null) { %>
 								<td>Selected Port</td>   
@@ -298,7 +298,7 @@
 						colon=":";
 						alignPort = "align_left";
 					%>
-						<td>Selected Remote Ip:port</td>   
+						<td>Selected Remote IP:port</td>   
 					<%} else { %>	
 						<% if (pageUrl.getParams().getRemoteIp() != null) { %>
 							<td>Selected Remote Ip</td>   
@@ -336,7 +336,7 @@
 						</td>					
 					</tr>
 					<tr>
-						<td>Select Group / Subnet  </td>   
+						<td>Select Group / Subnet</td>   
 						<td class="align_left">
 						<select id="selectGroupIndex"  name="selectGroupIndex" >
 						<% 
