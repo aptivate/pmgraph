@@ -481,6 +481,21 @@ public class GraphFactory
 		xAxis.setMinimumDate(new Date(roundedStart - 1));
 		xAxis.setMaximumDate(new Date(roundedEnd));
 		NumberAxis yAxis = new NumberAxis("Throughput (kb/s)");
+		
+		try
+		{
+			Integer min = Configuration.getFixedScaleMin();
+			if (min != null) yAxis.setLowerBound(min);
+			
+			Integer max = Configuration.getFixedScaleMax();
+			if (max != null) yAxis.setUpperBound(max);
+		}
+		catch (IOException e)
+		{
+			m_logger.warn("Failed to read configuration file, " +
+					"continuing anyway", e);
+		}
+		
 		plot.setRangeAxis(yAxis);
 		plot.setDomainAxis(xAxis);
 		plot.addRangeMarker(new ValueMarker(0));

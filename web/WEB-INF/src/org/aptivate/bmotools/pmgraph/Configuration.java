@@ -182,6 +182,22 @@ public class Configuration
 		return Integer.valueOf(s_properties.getProperty("ResultLimit", "5"));
 	}
 
+	public static Integer getFixedScaleMax() throws IOException
+	{
+		readConfiguration();
+		String value = s_properties.getProperty("MaxPositiveScale");
+		if (value == null) return null;
+		return Integer.valueOf(value);
+	}
+
+	public static Integer getFixedScaleMin() throws IOException
+	{
+		readConfiguration();
+		String value = s_properties.getProperty("MaxNegativeScale");
+		if (value == null) return null;
+		return Integer.valueOf(value);
+	}
+
 	public static String getMikrotikAddress() throws IOException
 	{
 		readConfiguration();
