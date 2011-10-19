@@ -54,7 +54,7 @@ public class QueryBuilderTest extends TestCase
 		String viewName = params.getView().toString().toLowerCase();
 		
 		if(Configuration.needsLongGraph(params.getStartTime(), 
-				params.getEndTime()) && Configuration.longGraphIsAllowed())
+				params.getEndTime()) && Configuration.isLongGraphTableUsable())
 		{
 			date = longDate;
 			table = Configuration.getResultDatabaseLongTable();

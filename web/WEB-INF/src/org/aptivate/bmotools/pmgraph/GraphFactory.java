@@ -530,7 +530,7 @@ public class GraphFactory
 			InstantiationException, IOException, SQLException,
 			NoSuchAlgorithmException, ConfigurationException
 	{
-		boolean isLong = Configuration.longGraphIsAllowed() &&  Configuration.needsLongGraph(requestParams.getFromDateAndTime().getTime(), requestParams.getToDateAndTime().getTime());
+		boolean isLong = Configuration.isLongGraphTableUsable() &&  Configuration.needsLongGraph(requestParams.getFromDateAndTime().getTime(), requestParams.getToDateAndTime().getTime());
 
 		DataAccess dataAccess = new DataAccess();						
 		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, isLong);				

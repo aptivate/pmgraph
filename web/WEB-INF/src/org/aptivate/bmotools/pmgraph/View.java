@@ -90,7 +90,7 @@ public enum View {
 		LegendTable legend = new LegendTable();
 
 		// time in seconds
-		boolean isLong     = Configuration.longGraphIsAllowed() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
+		boolean isLong     = Configuration.isLongGraphTableUsable() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
 		int resolution     = Configuration.getResolution(isLong, requestParams.getEndTime() - requestParams.getStartTime());
 		long time          = (requestParams.getRoundedEndTime(resolution) - requestParams.getRoundedStartTime(resolution)) / 1000;
 		long totalUploaded = 0;

@@ -161,7 +161,7 @@ public class Configuration
 	public static String getTimespansForLongGraph() throws IOException
 	{
 		readConfiguration();
-		return s_properties.getProperty("TimespansForLongGraph");
+		return s_properties.getProperty("TimespansForLongGraph", "0");
 	}
 
 	public static String getJdbcDriver() throws IOException
@@ -849,31 +849,26 @@ public class Configuration
 		}
 		
 		/**
-		 * Check that the displaying of long graphs has been enabled
-		 * @return A boolean saying whether or not long graphs are enabled
+		 * @return true if a separate database table, configured in
+		 * <code>DatabaseLongTable</code>, is supposed to be used at all.
 		 */
-		public static boolean longGraphIsAllowed()
+		public static boolean isLongGraphTableUsable()
 		{
 			try
 			{
 				String[] timeSpans = Configuration.getTimespansForLongGraph().split(",");
-				for(String timeSpan : timeSpans)
+				
+				for (String timeSpan : timeSpans)
 				{
-					long aTimeSpan = 0;
-					try
-					{
-						aTimeSpan = Long.parseLong(timeSpan.trim());
-					}
-					catch(NumberFormatException e)
-					{
-						
-					}
+					long aTimeSpan = Long.parseLong(timeSpan.trim());
+
 					// You can't display a long graph with time periods of less than one day.
-					if(aTimeSpan >= 24)
+					if (aTimeSpan >= 24)
 					{
 						return true;
 					}
 				}
+				
 				return false;
 			}
 			catch(IOException e)
