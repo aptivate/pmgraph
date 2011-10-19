@@ -90,8 +90,7 @@ public class LegendData
 	 */
 	private Comparator<Object> getComparator(String sortby, String order)
 	{
-
-		if (!"".equalsIgnoreCase(sortby))
+		if (sortby != null && !sortby.equalsIgnoreCase(""))
 		{
 			if (QueryBuilder.UPLOADED.equalsIgnoreCase(sortby))
 			{
