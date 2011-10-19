@@ -12,10 +12,13 @@ import libAPI.ApiConn;
 import org.apache.log4j.Logger;
 import org.aptivate.bmotools.pmgraph.Resolver.FakeResolver;
 import org.talamonso.OMAPI.Connection;
+import org.talamonso.OMAPI.ErrorCode;
 import org.talamonso.OMAPI.Message;
+import org.talamonso.OMAPI.Exceptions.OmapiCallException;
 import org.talamonso.OMAPI.Exceptions.OmapiConnectionException;
 import org.talamonso.OMAPI.Exceptions.OmapiException;
 import org.talamonso.OMAPI.Exceptions.OmapiInitException;
+import org.talamonso.OMAPI.Objects.Host;
 import org.talamonso.OMAPI.Objects.Lease;
 import org.xbill.DNS.Address;
 
@@ -220,6 +223,24 @@ public class DefaultResolver extends FakeResolver
 		return text;
 	}
 	
+	public class ResolvedHost
+	{
+		private String hostName;
+		private String method;
+		public ResolvedHost(String hostName, String method)
+		{
+			this.hostName = hostName;
+			this.method = method;
+		}
+		public String hostName()
+		{
+			return this.hostName;
+		}
+		public String method()
+		{
+			return this.method;
+		}
+	};
 	
 	/**
 	 * The DNS server is used to obtain the hostname of a IP, if this
@@ -235,14 +256,28 @@ public class DefaultResolver extends FakeResolver
 	 */
 	public String getHostname(String IpAddress)
 	{
-		String hostName = null;
+		ResolvedHost rh = tryGetHostname(IpAddress);
 
+		if (rh == null)
+		{
+			m_logger.info("Failed to resolve hostname using any " +
+					"available method: " + IpAddress);
+			return super.getHostname(IpAddress);
+		}
+		else
+		{
+			m_logger.info("Resolved hostname for " + IpAddress + " to " +
+					rh.hostName() + " using " + rh.method());
+			return limitString(rh.hostName());
+		}
+	}
+	
+	public ResolvedHost tryGetHostname(String IpAddress)
+	{
 		try
 		{
 			InetAddress inetadress = Address.getByAddress(IpAddress);
-			hostName = Address.getHostName(inetadress);
-			m_logger.debug("Resolved hostname for " + IpAddress + " to " +
-					hostName + " using DNS");
+			return new ResolvedHost(Address.getHostName(inetadress), "DNS");
 		}
 		catch (Exception e)
 		{
@@ -258,68 +293,70 @@ public class DefaultResolver extends FakeResolver
 			{
 				m_logger.warn("Failed to resolve hostname using DNS", e);
 			}
-			
-			// If the DHCP server is available
-			if (this.m_OmapiConnection != null)
+		}
+		
+		/*
+		 * If the DHCP server is available and OMAPI is configured,
+		 * try looking up Host and Lease entries for the IP address.
+		 */
+		if (this.m_OmapiConnection != null)
+		{
+			try
 			{
-				// Lets try using DHCP because we can't get any info with DNS
-				try
+				Lease remote = new Lease(m_OmapiConnection);
+				remote.setIPAddress(IpAddress);
+				remote = remote.send(Message.OPEN);
+				
+				if (remote.getClientHostname() != null && 
+					!remote.getClientHostname().equals(""))
 				{
-					Lease l = new Lease(m_OmapiConnection);
-					l.setIPAddress(IpAddress);
-					Lease remote = l.send(Message.OPEN);
-					hostName = remote.getClientHostname();
-					m_logger.debug("Resolved hostname for " + IpAddress + " to " +
-							hostName + " using DHCP OMAPI");
-				}
-				catch (OmapiException e1)
-				{
-					m_logger.info("Failed to resolve hostname using DHCP OMAPI", e1);
+					return new ResolvedHost(remote.getClientHostname(),
+						"DHCP OMAPI Lease");
 				}
 			}
-			else
+			catch (OmapiException e1)
 			{
-				m_logger.debug("Failed to resolve " + IpAddress + " using " +
-						"DHCP OMAPI: not configured");
-			}
-			
-			if (hostName == null)
-			{
-				if (m_MikrotikApi != null)
+				if (e1 instanceof OmapiCallException &&
+					((OmapiCallException) e1).getErrorCode() == ErrorCode.NOT_FOUND)
 				{
-					hostName = m_MikrotikDhcpCache.get(IpAddress);
-					
-					if (hostName == null)
-					{
-						m_logger.debug("Failed to resolve hostname using Mikrotik API: " +
-								"entry not found for " + IpAddress);
-					}
-					else
-					{
-						m_logger.debug("Resolved hostname for " + IpAddress + " to " +
-								hostName + " using Mikrotik API");
-					}
+					// short version, without stack trace
+					m_logger.info("Failed to resolve hostname from DHCP " +
+						"server using OMAPI leases: not found");
 				}
 				else
 				{
-					m_logger.debug("Failed to resolve hostname using Mikrotik API: " +
-							"not configured");
+					m_logger.info("Failed to resolve hostname from DHCP " +
+						"server using OMAPI leases", e1);
 				}
 			}
 		}
-		
-		if (hostName == null)
+		else
 		{
-			m_logger.info("Failed to resolve hostname using any " +
-					"available method: " + IpAddress);
-			return super.getHostname(IpAddress);
+			m_logger.debug("Failed to resolve " + IpAddress + " using " +
+					"DHCP OMAPI: not configured");
+		}
+		
+		if (m_MikrotikApi != null)
+		{
+			String hostName = m_MikrotikDhcpCache.get(IpAddress);
+			
+			if (hostName == null)
+			{
+				m_logger.debug("Failed to resolve hostname using Mikrotik API: " +
+						"entry not found for " + IpAddress);
+			}
+			else
+			{
+				return new ResolvedHost(hostName, "Mikrotik API");
+			}
 		}
 		else
 		{
-			m_logger.info("Resolved hostname for " + IpAddress + " to " +
-					hostName);
-			return limitString(hostName);
+			m_logger.debug("Failed to resolve hostname using Mikrotik API: " +
+					"not configured");
 		}
+
+		return null;
 	}
 
 	protected void finalize()
@@ -341,5 +378,4 @@ public class DefaultResolver extends FakeResolver
 			}
 		}
 	}
-
 }
