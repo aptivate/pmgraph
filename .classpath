@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jcommon-1.0.13.jar"/>
-	<classpathentry kind="lib" path="web/WEB-INF/lib/mysql-connector-java-5.1.6-bin.jar"/>
 	<classpathentry kind="lib" path="lib/activation-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/js-1.6R5.jar"/>
 	<classpathentry kind="lib" path="lib/jtidy-4aug2000r7-dev.jar"/>
@@ -21,11 +20,17 @@
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jfreechar1.0.8.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/easymock.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/easymockclassextension.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/mysql-connector-java-5.1.18-bin.jar"/>
 	<classpathentry kind="src" path="web/WEB-INF/src"/>
 	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/postgresql-8.3-604.jdbc4.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/sqlitejdbc-v056.jar"/>
+	<classpathentry kind="var" path="TOMCAT_HOME/lib/servlet-api.jar"/>
+	<classpathentry kind="var" path="TOMCAT_HOME/lib/jasper.jar"/>
+	<classpathentry kind="var" path="TOMCAT_HOME/lib/jsp-api.jar"/>
+	<classpathentry kind="var" path="TOMCAT_HOME/lib/el-api.jar"/>
+	<classpathentry kind="var" path="TOMCAT_HOME/lib/annotations-api.jar"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>
