@@ -1,46 +1,88 @@
 #!/bin/sh -e
 
+# Echo every command run, for debugging:
+# set -x
+
 # Source debconf library.
 . /usr/share/debconf/confmodule
 
-CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat5.5 | grep Default | sed -e 's/.*: //'`
-. /etc/default/tomcat5.5
+CATALINA_DEFAULT_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat6 | grep Default | sed -e 's/.*: //'`
 
-CATALINA_BASE=${CATALINA_BASE:-$CATALINA_DEFAULT_BASE}
-ln -sf /usr/share/pmgraph/pmgraph.war $CATALINA_BASE/webapps/pmgraph.war
+. /etc/default/tomcat6
 
+if [ -z "$CATALINA_BASE" ]; then
+	CATALINA_BASE=`grep -B1 CATALINA_BASE /etc/default/tomcat6 | grep Default | sed -e 's/.*: //'`
+fi
 
-# Check their answer.
-db_get pmgraph/mysql
+if [ -z "$CATALINA_BASE" -a -d /var/lib/tomcat6 ]; then
+	CATALINA_BASE=/var/lib/tomcat6
+fi
+
+if [ -z "$CATALINA_BASE" ]; then
+	echo "Could not work out where to install Tomcat web applications!" >&2
+	exit 2
+fi
+
+if [ ! -d "$CATALINA_BASE" ]; then
+	echo "$CATALINA_BASE is not a directory, don't know where to install pmgraph.war!" >&2
+	exit 2
+fi
+
+WEBAPPS_DIR=$CATALINA_BASE/webapps
+
+if [ ! -d "$WEBAPPS_DIR" ]; then
+	echo "$WEBAPPS_DIR is not a directory, don't know where to install pmgraph.war!" >&2
+	exit 2
+fi
+
+ln -sf /usr/share/pmgraph/pmgraph.war $WEBAPPS_DIR/pmgraph.war
+
+# Retrieve the database password entered by the user
+db_get pmgraph/mysql-root-password
 PASSWD=$RET
+# forget it again, to keep database safe and make reinstallation easier
+db_reset pmgraph/mysql-root-password
+
+PASSWORD_OPTION=''
+if [ -n "$PASSWD" ]; then
+	PASSWORD_OPTION="-p$PASSWD"
+fi
 
 # Create database and user.
 echo Creating Mysql data base...
-mysql -u root -p$PASSWD < /usr/share/pmgraph/conf/pmacct-create-db_v6.mysql
-echo -e \\t* pmacct database create in your mysql server.
-echo -e \\t* pmacct user created with default password = 'secret' you should change this password, if you do so dont forget to change de password in the pmacctd.conf file.
+mysql -u root $PASSWORD_OPTION < /usr/share/pmgraph/conf/pmacct-create-db_v6.mysql
 
+cat <<EOF
+* pmacct database created in your mysql server.
+* pmacct user created with default password = 'secret'. You should change
+  this password. If you do so dont forget to change de password in the
+  pmacctd.conf file.
+EOF
 
 # Copy default pmacct config file
 echo Configuring pmacct to work with mysql database and use pmacct user...
-test -s /etc/pmacct/pmacctd.conf && mv /etc/pmacct/pmacctd.conf /etc/pmacct/pmacctd.conf.old
-echo -e \\t* Current pmacct config file moved to /etc/pmacct/pmacctd.conf.old.
+
+if [ -s "/etc/pmacct/pmacctd.conf" ]; then
+	mv /etc/pmacct/pmacctd.conf /etc/pmacct/pmacctd.conf.old
+	echo * Current pmacct config file moved to /etc/pmacct/pmacctd.conf.old.
+fi
+
 cp /usr/share/pmgraph/conf/pmacctd.conf /etc/pmacct/pmacctd.conf
  
 db_get pmgraph/java_security
 if [ "$RET" = "true" ]; then
-	JAVASECURITY=`grep -B1 TOMCAT5_SECURITY /etc/default/tomcat5.5 | grep -v \# | sed -e 's/.*=//'`
+	JAVASECURITY=`grep -B1 TOMCAT6_SECURITY /etc/default/tomcat6 | grep -v \# | sed -e 's/.*=//'`
 	if [ "$JAVASECURITY" != "no" ]; then
-		echo "TOMCAT5_SECURITY=no" >> /etc/default/tomcat5.5
+		echo "TOMCAT6_SECURITY=no" >> /etc/default/tomcat6
 	fi
 fi
 
 # restart tomcat and pmacct server
-if [ -x "/etc/init.d/tomcat5.5" ]; then
+if [ -x "/etc/init.d/tomcat6" ]; then
         if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                invoke-rc.d tomcat5.5 restart || exit $?
+                invoke-rc.d tomcat6 restart || exit $?
         else
-                /etc/init.d/tomcat5.5 restart || exit $?
+                /etc/init.d/tomcat6 restart || exit $?
         fi
 fi
 

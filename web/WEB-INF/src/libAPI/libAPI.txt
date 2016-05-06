@@ -1,0 +1,9 @@
+Downloaded from:
+
+http://wiki.mikrotik.com/wiki/API_in_Java
+
+License:
+
+"Code is provided as is and can be freely used freely. I, as a writer
+of code, am not responsible for anything that may arise from use of
+this code."

@@ -21,6 +21,8 @@ public class LegendElement
 	private boolean m_doubleRowSpan;
 
 	private boolean m_doubleColSpan;
+	
+	private int m_numRows= 0;
 
 	public LegendElement() {
 	}
@@ -30,6 +32,15 @@ public class LegendElement
 		this.m_link = null;
 		this.m_doubleColSpan = false;
 		this.m_doubleRowSpan = false;
+	}
+	
+	public LegendElement(String value, String name, int numRows) {
+		this.m_value = value;
+		this.m_name = name;
+		this.m_link = null;
+		this.m_doubleColSpan = false;
+		this.m_doubleRowSpan = false;
+		this.m_numRows = numRows;
 	}
 
 	public LegendElement(String value, String link, String name) {
@@ -94,6 +105,10 @@ public class LegendElement
 		return m_name;
 	}
 
+	public int getNumRows()
+	{
+		return m_numRows;
+	}
 	public void setName(String name)
 	{
 		this.m_name = name;

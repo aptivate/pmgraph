@@ -9,9 +9,15 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Noe Andres Rodriguez Gonzalez.
@@ -30,7 +36,8 @@ public class Configuration
 	
 	static final String CONFIGURATION_FILE = "/database.properties";
 	private static final long DAY = 86400000;
-	private static Properties s_properties = null;
+	private static Properties s_properties;
+
 
 	/**
 	 * Read the content of the properties file and return it in a Properties
@@ -55,20 +62,28 @@ public class Configuration
 	 * Force a reload of the configuration (testing purposes only).
 	 * @throws IOException 
 	 * 
-	 */
+	*/ 
 	public static void forceConfigReload() throws IOException
 	{
 		s_properties = null;
 		readConfiguration();
 	}
 
-	public static String getLocalSubnet() throws IOException
+	public static String [] getLocalSubnet() throws IOException
 	{
 
 		readConfiguration();
-		return s_properties.getProperty("LocalSubnet");
+		int i = 2;
+		String AllSubnets = s_properties.getProperty("LocalSubnet");
+		String subnet = s_properties.getProperty("LocalSubnet" + i);
+		while (subnet != null)
+		{
+             AllSubnets += " " + subnet; 
+             i++;
+             subnet = s_properties.getProperty("LocalSubnet" + i);
+		}		
+		return (AllSubnets.split(" "));
 	}
-	
 	
 	public static String getBandwidth() throws IOException
 	{
@@ -76,7 +91,11 @@ public class Configuration
 		readConfiguration();
 		return s_properties.getProperty("TotalBandwidth");
 	}
-
+	
+	public static Properties getProperties() throws IOException
+	{
+		return s_properties;
+	}
 	public static String getDatabaseURL() throws IOException
 	{
 
@@ -110,7 +129,7 @@ public class Configuration
 	{
 
 		readConfiguration();
-		return s_properties.getProperty("DHCPAddress");
+		return s_properties.getProperty("DHCPAddress", "");
 	}
 
 	public static String getDHCPName() throws IOException
@@ -142,63 +161,499 @@ public class Configuration
 	public static String getTimespansForLongGraph() throws IOException
 	{
 		readConfiguration();
-		return s_properties.getProperty("TimespansForLongGraph");
+		return s_properties.getProperty("TimespansForLongGraph", "0");
 	}
 
 	public static String getJdbcDriver() throws IOException
 	{
-
 		readConfiguration();
 		return s_properties.getProperty("JdbcDriver");
 	}
 
 	public static Integer getDHCPPort() throws IOException
 	{
-
 		readConfiguration();
 		return Integer.valueOf(s_properties.getProperty("DHCPPort"));
 	}
+	
 	public static Integer getResultLimit() throws IOException
 	{
-
 		readConfiguration();
-		return Integer.valueOf(s_properties.getProperty("ResultLimit"));
+		return Integer.valueOf(s_properties.getProperty("ResultLimit", "5"));
+	}
+
+	public static Integer getFixedScaleMax() throws IOException
+	{
+		readConfiguration();
+		String value = s_properties.getProperty("MaxPositiveScale");
+		if (value == null) return null;
+		return Integer.valueOf(value);
+	}
+
+	public static Integer getFixedScaleMin() throws IOException
+	{
+		readConfiguration();
+		String value = s_properties.getProperty("MaxNegativeScale");
+		if (value == null) return null;
+		return Integer.valueOf(value);
+	}
+
+	public static String getMikrotikAddress() throws IOException
+	{
+		readConfiguration();
+		return s_properties.getProperty("MikrotikAddress", "");
+	}
+
+	public static String getMikrotikUser() throws IOException
+	{
+		readConfiguration();
+		return s_properties.getProperty("MikrotikUser", "admin");
+	}
+
+	public static String getMikrotikPass() throws IOException
+	{
+		readConfiguration();
+		return s_properties.getProperty("MikrotikPass", "");
+	}
+
+	public static Integer getMikrotikApiPort() throws IOException
+	{
+		readConfiguration();
+		return Integer.valueOf(s_properties.getProperty("MikrotikApiPort",
+				"8728"));
+	}
+
+	public static boolean updateConf(RequestParams requestParams) throws IOException
+	{	
+		String newSubnet = requestParams.getAddSubnet();
+		Hashtable<String, Integer> hashDelSubnets = requestParams.getDelSubnets();
+		readConfiguration();
+		boolean result = true;        
+		Properties tempProps = (Properties)s_properties.clone();
+		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());
+		if (hashDelSubnets != null)
+			delSubnetConf(hashDelSubnets, tempProps);
+		if ((newSubnet != null) && (!newSubnet.equals(""))) 
+		{ 
+			newSubnet = requestParams.setAddSubnet(newSubnet);
+			result = addSubnetConf(newSubnet, tempProps);
+		}
+		s_properties = tempProps;
+		tempProps.storeToXML(out, null);
+		out.close();
+		return result;
 	}
 	
-	
-	private static void setConfiguration(String localSubnet) throws IOException
+	public static boolean updateGroups(String addGroup, List<String> delGroups, Hashtable<String,String> hashDelIpGroup, List<String> Groups, Hashtable<String,String> hashAddIpGroup) throws IOException 
 	{
-		// Ensure that s_properties != null
 		readConfiguration();
+		boolean result = true;        
+		Properties tempProps = (Properties)s_properties.clone();
+		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
+		if (delGroups != null)
+		{
+			for (String delG: delGroups)
+				delGroup(delG, tempProps);
+		}
+		if (addGroup != null)
+		{
+			if (!Groups.contains(addGroup))
+				tempProps.put("G-"+addGroup, "0.0.0.0");
+			else
+				result = false;
+		}
+		if (hashDelIpGroup != null)
+		{
+			if (!hashDelIpGroup.isEmpty())
+				delIpGroup(hashDelIpGroup, Groups, tempProps);
+		}
+		if (hashAddIpGroup != null)
+		{
+			if (!hashAddIpGroup.isEmpty())
+				addIpGroupConf(hashAddIpGroup,tempProps);
+		}
+		s_properties = tempProps;
+		tempProps.storeToXML(out, null);
+		out.close();
+		return result;		
+	}	
+	
+	public static boolean addSubnetConf(String newSubnet, Properties tempProps) throws IOException
+	{	
+		int i=2;
+		boolean insert = false;
+		if (tempProps.getProperty("LocalSubnet") != null)
+			if (tempProps.getProperty("LocalSubnet").equals(newSubnet))
+				insert = true;
+		while ((tempProps.getProperty("LocalSubnet"+i) != null) && (!insert))
+		{
+			if (tempProps.getProperty("LocalSubnet"+i).equals(newSubnet))
+				insert = true;
+			else
+				i++;
+		}		
+		if (!insert) 
+			tempProps.put("LocalSubnet"+i, newSubnet);	
+		
+		return(!insert);
+	}
+	
+	public static boolean addSubnetConf(String newSubnet) throws IOException
+	{	
+		readConfiguration();
+		boolean result = false;
 		// Copy to a temporary properties object to prevent error where the configuration file ends up
 		// empty.
 		Properties tempProps = (Properties)s_properties.clone();
 		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
-		tempProps.setProperty("LocalSubnet", localSubnet);
-		tempProps.storeToXML(out, "");
+		int i=2;
+		boolean insert = false;
+		if (tempProps.getProperty("LocalSubnet") != null)
+			if (tempProps.getProperty("LocalSubnet").equals(newSubnet))
+				insert = true;
+		while ((tempProps.getProperty("LocalSubnet"+i) != null) && (!insert))
+		{
+			if (tempProps.getProperty("LocalSubnet"+i).equals(newSubnet))
+				insert = true;
+			else
+				i++;
+		}		
+		if (!insert) 
+		{
+			tempProps.put("LocalSubnet"+i, newSubnet);
+			result = true;	
+		}
+		s_properties = tempProps;
+		tempProps.storeToXML(out, null);
 		out.close();
-		// Force s_properties to be read from file on next reload.
-		s_properties = null;
-	 }	    
+		return result;
+	}
 	
-	
-	
-	public static boolean updateConf(String localSubnet) throws IOException
+	public static boolean delSubnetConf(Hashtable<String,Integer> hashDelSubnets, Properties tempProps) throws IOException
 	{	
+		boolean result = false;				
+		for (Enumeration e = hashDelSubnets.keys (); e.hasMoreElements ();) 
+		{			
+			String key = (String) e.nextElement ();
+			int value = hashDelSubnets.get (key);
+			tempProps.remove(key);
+			int i = value + 1;		    
+			while (tempProps.getProperty("LocalSubnet"+i) != null) {
+				if ((i-1) == 1)
+					tempProps.setProperty("LocalSubnet", tempProps.getProperty("LocalSubnet"+i));
+				else
+					tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
+				i++;
+			}
+			tempProps.remove("LocalSubnet"+(i-1));
+		}
+		result = true;		
+		return result;
+	}
+	
+	public static boolean delSubnetConf(Hashtable<String,Integer> hashDelSubnets) throws IOException
+	{	
+		readConfiguration();
 		boolean result = false;
-		String oldSubnet = getLocalSubnet();	
-		processLineByLine(localSubnet, oldSubnet);
-		setConfiguration(localSubnet);
+		Properties tempProps = (Properties)s_properties.clone();
+		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
+			
+		for (Enumeration e = hashDelSubnets.keys (); e.hasMoreElements ();) 
+		{
+			String key = (String) e.nextElement ();
+			int value = hashDelSubnets.get (key);
+			tempProps.remove(key);
+			int i = value + 1;
+			while (tempProps.getProperty("LocalSubnet"+i) != null) {
+				if ((i-1) == 1)
+					tempProps.setProperty("LocalSubnet", tempProps.getProperty("LocalSubnet"+i));
+				else
+					tempProps.setProperty("LocalSubnet"+(i-1), tempProps.getProperty("LocalSubnet"+i));
+				i++;
+			}
+			tempProps.remove("LocalSubnet"+(i-1));
+		}
+		s_properties = tempProps;
+		tempProps.storeToXML(out, null);
+		out.close();
+		result = true;		
+		return result;
+	}
+	
+	public static List<String> getGroups() throws IOException
+	{
+		readConfiguration();				
+		Set<String> allContent = s_properties.stringPropertyNames();
+		List<String> groups = new ArrayList<String>();
+		Pattern p = Pattern.compile("G(\\d+)?-");
+		Matcher m;
+		String newGroup;
+		for (String name : allContent) 
+		{	
+			if (!name.trim().equals("G-null"))
+			{
+				m = p.matcher(name);
+				if (m.find()) 
+				{
+					newGroup = name.substring(name.indexOf("-") + 1);
+
+					if (!groups.contains(newGroup))
+						groups.add(newGroup);
+				}
+			}
+		}			
+		Collections.sort(groups);
+		return (groups);
+	}
+	
+	public static List<String> getIpsGroup(String group) throws IOException
+	{		
+		readConfiguration();
+		int i = 1;
+		List<String> IpsGroup = new ArrayList<String>();		
+		while (s_properties.getProperty("G" + i + "-" + group) != null)
+		{
+			IpsGroup.add(s_properties.getProperty("G" + i + "-" + group));				 																	
+			i++;						
+		}
+		Collections.sort(IpsGroup, new IpComparator());
+		return (IpsGroup);
+	}	
+	
+	
+	public static List<String> getGroupsIp(String ip, List<String> groups) throws IOException
+	{
+		readConfiguration();
+		List<String> groupsIp = new ArrayList<String>();
+		for (String currentGroup : groups) {		
+			int i = 1;
+			boolean find = false;
+			while ((s_properties.getProperty("G" + i + "-" + currentGroup) != null) && (!find))
+			{
+				if (s_properties.getProperty("G" + i + "-" + currentGroup).equals(ip)) 
+				{
+					groupsIp.add(currentGroup);
+					find = true;
+				}
+				i++;			
+			}	
+		}		
+		return (groupsIp);
+	}	
+	
+	public static List<String> getGroupsIp(String ip, List<String> groups, Properties tempProps) throws IOException
+	{		
+		List<String> groupsIp = new ArrayList<String>();
+		for (String currentGroup : groups) {		
+			int i = 1;
+			boolean find = false;
+			while ((tempProps.getProperty("G" + i + "-" + currentGroup) != null) && (!find))
+			{
+				if (tempProps.getProperty("G" + i + "-" + currentGroup).equals(ip)) 
+				{
+					groupsIp.add(currentGroup);
+					find = true;
+				}
+				i++;			
+			}	
+		}		
+		return (groupsIp);
+	}	
+	
+	public static List<String> getGroupsNIp(List<String> groups, List<String> groupsIp) throws IOException
+	{
+		readConfiguration();
+		List<String> groupsNIp = new ArrayList<String>();
+		for (String currentGroup : groups) {
+			if (!groupsIp.contains(currentGroup))
+				groupsNIp.add(currentGroup);
+		}	
+		return (groupsNIp);
+	}
+	
+	public static List<String> getNIpsGroup(List<String> ipGroup, List<String> ips) throws IOException
+	{
+		List<String> nIpsGroup = new ArrayList<String>();
+		for (String currentIp : ips) {
+			if (!ipGroup.contains(currentIp))
+				nIpsGroup.add(currentIp);
+		}	
+		return (nIpsGroup);
+	}
+	
+	public static boolean addIpGroupConf(String group, String newIp) throws IOException
+	{	
+		readConfiguration();	
+		Properties tempProps = (Properties)s_properties.clone();
+		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
+		int i=1;
+		boolean insert = false;
+		if (tempProps.getProperty("G-"+group) != null)
+		{
+			tempProps.remove("G-"+group);
+			tempProps.put("G" + i + "-" + group, newIp);
+		}
+		else
+		{
+			while((tempProps.getProperty("G" + i + "-" + group) != null) && (!insert))
+			{
+				if (tempProps.getProperty("G" + i + "-" + group).equals(newIp))
+					insert = true;
+				else
+					i++;
+			}		
+			if (!insert) 
+				tempProps.put("G" + i + "-" + group, newIp);
+		}
+		s_properties = tempProps;
+		tempProps.storeToXML(out, null);
+		out.close();
+		return (!insert);
+	}
+	
+	public static boolean addIpGroupConf(Hashtable<String,String> hashAddIpGroup, Properties tempProps) throws IOException
+	{		
+		boolean insert = false;
+		for (Enumeration e = hashAddIpGroup.keys (); e.hasMoreElements ();)
+		{
+			String newIp = (String) e.nextElement ();
+			String group = hashAddIpGroup.get (newIp);
+			int i=1;
+			insert = false;
+			if (tempProps.getProperty("G-"+group) != null)
+			{
+				tempProps.remove("G-"+group);
+				tempProps.put("G" + i + "-" + group, newIp);
+			}
+			else
+			{
+				while((tempProps.getProperty("G" + i + "-" + group) != null) && (!insert))
+				{
+					if (tempProps.getProperty("G" + i + "-" + group).equals(newIp))
+						insert = true;
+					else
+						i++;
+				}		
+				if (!insert) 
+					tempProps.put("G" + i + "-" + group, newIp);		
+			}
+		}
+		return (!insert);	
+	}
+	
+	public static boolean delGroup(String group) throws IOException
+	{	
+		readConfiguration();
+		boolean result = false;
+		Properties tempProps = (Properties)s_properties.clone();
+		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
+		delGroup(group, tempProps);
+		s_properties = tempProps;
+		tempProps.storeToXML(out, null);
+		out.close();
 		result = true;			
 		return result;
 	}
 	
+	public static boolean delGroup(String group, Properties tempProps) throws IOException
+	{	
+		boolean result = false;				
+		if (tempProps.getProperty("G-"+group) != null)
+		{
+			tempProps.remove("G-"+group);
+		}
+		else 
+		{
+			int i = 1;
+			while (tempProps.getProperty("G" + i + "-" + group) != null)
+			{
+				tempProps.remove("G" + i + "-" + group);
+				i++;			
+			}
+		}
+		result = true;			
+		return result;
+	}
+	
+	public static boolean delIpGroup(String group, String delIp) throws IOException
+	{	
+		readConfiguration();
+		Properties tempProps = (Properties)s_properties.clone();
+		FileOutputStream out = new FileOutputStream((DataAccess.class.getResource(CONFIGURATION_FILE)).getPath());		
+		int i = 1;
+		boolean delete = false;
+		while ((tempProps.getProperty("G" + i + "-" + group) != null) && (!delete))
+		{
+			if (tempProps.getProperty("G" + i + "-" + group).equals(delIp)) 
+			{
+				tempProps.remove("G" + i + "-" + group);				
+				delete = true;
+				int j = i + 1;
+				while (tempProps.getProperty("G" + j + "-" + group) != null) {					
+					tempProps.setProperty("G" + (j-1) + "-" + group, tempProps.getProperty("G" + j + "-" + group));
+					j++;
+				}
+				tempProps.remove("G" + (j-1) + "-" + group);
+			}
+			i++;			
+		}	
+		s_properties = tempProps;
+		tempProps.storeToXML(out, null);
+		out.close();	
+		return delete;
+	}
+	
+	public static boolean delIpGroup(Hashtable<String,String> hashDelIpGroup, List<String> Groups, Properties tempProps) throws IOException
+	{			
+		boolean delete = false;		
+		for (Enumeration e = hashDelIpGroup.keys (); e.hasMoreElements ();) 
+		{
+			String delIp = (String) e.nextElement ();
+			String group = hashDelIpGroup.get (delIp);
+			List<String> groupsIp = new ArrayList<String>();			
+			if (group.equals("allIpGroup"))
+				groupsIp = Configuration.getGroupsIp(delIp, Groups, tempProps);
+			else						
+				groupsIp.add(group);			
+			for (String currentGroup : groupsIp)
+			{
+				int i = 1;
+				delete = false;
+				while ((tempProps.getProperty("G" + i + "-" + currentGroup) != null) && (!delete))
+				{
+					if (tempProps.getProperty("G" + i + "-" + currentGroup).equals(delIp)) 
+					{
+						tempProps.remove("G" + i + "-" + currentGroup);						
+						delete = true;
+						int j = i + 1;
+						if (tempProps.getProperty("G" + j + "-" + currentGroup) != null)
+						{
+							while (tempProps.getProperty("G" + j + "-" + currentGroup) != null) {					
+								tempProps.setProperty("G" + (j-1) + "-" + currentGroup, 
+										tempProps.getProperty("G" + j + "-" + currentGroup));
+								j++;
+							}
+							tempProps.remove("G" + (j-1) + "-" + currentGroup);
+						}
+						else if (i == 1)
+						{
+							tempProps.put("G-"+currentGroup, "0.0.0.0");
+						}
+					}
+					i++;			
+				}
+			}
+		}		
+		return delete;
+	}
+	
 	public static void processLine(String aLine, String localSubnet, String oldSubnet, StringBuilder contents) throws IOException
 	{
-	    //use a second Scanner to parse the content of each line 
+	    // use a second Scanner to parse the content of each line 
 	    Scanner scanner = new Scanner(aLine);
 	    scanner.useDelimiter("\n");
-	    if ( scanner.hasNext() ){
+	    if ( scanner.hasNext() )
+	    {
 	      String name = scanner.next();
 	      if(name.contains("pcap_filter"))
 	      {	   
@@ -210,7 +665,8 @@ public class Configuration
 	      contents.append("\n");
 		  
 	    }
-	    else {	    	
+	    else
+	    {	    	
 	    	contents.append("\n");
 	    }	    	    
 	    //(no need for finally here, since String is source)
@@ -224,27 +680,32 @@ public class Configuration
 		    File fFile = new File(pmacctPath);
 		    Scanner scanner = new Scanner(fFile);
 		    StringBuilder contents = new StringBuilder();
-		    try {
+		    try 
+		    {
 		      //first use a Scanner to get each line
-		      while ( scanner.hasNextLine() ){
+		      while ( scanner.hasNextLine() )
+		      {
 		        processLine( scanner.nextLine(), localSubnet, oldSubnet, contents );
 		      }
 		    }
-		    finally {
+		    finally 
+		    {
 		      //ensure the underlying stream is always closed
 		      scanner.close();
 		    }
 		    
-//		  use buffering
+		    // use buffering
 		    Writer output = new BufferedWriter(new FileWriter(pmacctPath));
-		    try {
+		    try 
+		    {
 		      //FileWriter always assumes default encoding is OK!
 		      output.write( contents.toString() );
 		    }
-		    finally {
+		    finally 
+		    {
 		      output.close();
 		    }		    
-		  }	 
+	}	 
 	 
 	 	/**
 		 * Gets the time period for each step on th x-axis of the graph
@@ -388,31 +849,26 @@ public class Configuration
 		}
 		
 		/**
-		 * Check that the displaying of long graphs has been enabled
-		 * @return A boolean saying whether or not long graphs are enabled
+		 * @return true if a separate database table, configured in
+		 * <code>DatabaseLongTable</code>, is supposed to be used at all.
 		 */
-		public static boolean longGraphIsAllowed()
+		public static boolean isLongGraphTableUsable()
 		{
 			try
 			{
 				String[] timeSpans = Configuration.getTimespansForLongGraph().split(",");
-				for(String timeSpan : timeSpans)
+				
+				for (String timeSpan : timeSpans)
 				{
-					long aTimeSpan = 0;
-					try
-					{
-						aTimeSpan = Long.parseLong(timeSpan.trim());
-					}
-					catch(NumberFormatException e)
-					{
-						
-					}
+					long aTimeSpan = Long.parseLong(timeSpan.trim());
+
 					// You can't display a long graph with time periods of less than one day.
-					if(aTimeSpan >= 24)
+					if (aTimeSpan >= 24)
 					{
 						return true;
 					}
 				}
+				
 				return false;
 			}
 			catch(IOException e)

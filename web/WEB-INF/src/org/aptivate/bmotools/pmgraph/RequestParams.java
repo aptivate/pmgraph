@@ -1,14 +1,22 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.xml.sax.SAXException;
 
 /**
  * This class is used to store and access the parameters entered by the user
@@ -40,6 +48,32 @@ public class RequestParams
 	private String m_order;
 	
 	private String m_localSubnet;
+	
+	private String m_selectSubnetIndex;
+	
+	private String m_addSubnet;
+	
+	private String m_selectIp;
+	
+	private int m_numSubnets;
+	
+	private int m_numIps;
+	
+	private String m_selectGroupIndex;
+
+	private String m_IpFilter;
+	
+	private String m_addGroup;
+
+	private String m_group;
+	
+	private Hashtable<String,Integer> m_delSubnets;
+	
+	private Hashtable<String,String> m_delIpGroup;
+	
+	private Hashtable<String,String> m_addIpGroup;
+	
+	private List<String> m_delGroups;
 
 	Map<String, Object> m_reqParams;
 
@@ -108,8 +142,105 @@ public class RequestParams
 	void setSubnet(String localSubnet)
 	{
 		m_localSubnet = localSubnet;
+	}	
+	
+	void setSelectSubnetIndex(String subnet)
+	{
+		m_selectSubnetIndex = subnet;
 	}
+	
+	public void setSelectIp(String ip)
+	{
+		m_selectIp = ip;
+	}
+	
+	public void setSelectGroupIndex(String subnet)
+	{
+		m_selectGroupIndex = subnet;
+	}
+	
+	void setNumIps(int numIps)
+	{
+		m_numIps = numIps;
+	}
+	
+	void setNumSubnet(int subnet)
+	{
+		m_numSubnets = subnet;
+	}
+	void setDelSubnet(Hashtable<String,Integer> delSubnets)
+	{
+		m_delSubnets = delSubnets;
+	}
+	
+	void setDelIpGroup(Hashtable<String,String> delIpGroup)
+	{
+		m_delIpGroup = delIpGroup;
+	}
+	
+	void setAddIpGroup(Hashtable<String,String> addIpGroup)
+	{
+		m_addIpGroup = addIpGroup;
+	}
+	
+	void setIpFilter(String IpFilter)
+	{
+		m_IpFilter = IpFilter;
+	}
+	
+	void setAddGroup(String addGroup)
+	{
+		m_addGroup = addGroup;
+	}
+	
+	void setDelGroups(List<String> delGroups)
+	{
+		m_delGroups = delGroups;
+	}
+	
+	void setGroup(String group)
+	{
+		m_group = group;
+	}
+	
 
+	String setAddSubnet(String newSubnet)
+	{
+		Pattern p = Pattern.compile("0[0-9][0-9]?");    	        			
+		String [] aux = newSubnet.split("\\.");
+		String finalSubnet = "";
+		for (int i = 0; i < aux.length; i++)
+		{
+			Matcher m = p.matcher(aux[i]);
+			if (m.find())
+			{
+				String [] aux2 = aux[i].split("");
+				boolean insert = false;
+				for (int j = 0; (j < aux2.length) && (!insert); j++)
+				{
+					if (aux2[j].equals("0"))  							 
+					{
+						if (j == (aux2.length-1))
+						{
+							finalSubnet += "0.";
+						}
+						else if (!aux2[j+1].equals("0"))
+						{
+							for (int k = j+1; k < aux2.length; k++)
+								finalSubnet += aux2[k];
+							finalSubnet += ".";
+							insert = true;
+						}													
+					}				
+				}
+			}
+			else
+				finalSubnet += aux[i] + ".";
+		}			
+		m_addSubnet = finalSubnet;
+		return finalSubnet;
+	}
+	
 	public String getFromDateAsString()
 	{
 
@@ -248,7 +379,72 @@ public class RequestParams
 	{
 		return m_localSubnet;
 	}
+	
+	public String getSelectSubnetIndex()
+	{
+		return m_selectSubnetIndex;
+	}
+	
+	public String getSelectIp()
+	{
+		return m_selectIp;
+	}
+	
+	public String getSelectGroupIndex()
+	{
+		return m_selectGroupIndex;
+	}
 
+	public Hashtable<String,Integer> getDelSubnets()
+	{
+		return m_delSubnets;
+	}
+	
+	public Hashtable<String,String> getDelIpGroup()
+	{
+		return m_delIpGroup;
+	}
+	
+	public Hashtable<String,String> getAddIpGroup()
+	{
+		return m_addIpGroup;
+	}		
+	
+	public int getNumSubnets()
+	{
+		return m_numSubnets;
+	}
+	
+	public int getNumIps()
+	{
+		return m_numIps;
+	}			
+	
+	public String getAddSubnet()
+	{
+		return m_addSubnet;
+	}
+	
+	public String getIpFilter()
+	{
+		return m_IpFilter;
+	}
+	
+	public String getAddGroup()
+	{
+		return m_addGroup;
+	}
+	
+	public List<String> getDelGroups()
+	{
+		return m_delGroups;
+	}
+	
+	public String getGroup()
+	{
+		return m_group;
+	}
+	
 	public Map<String, Object> getParams()
 	{
 		return m_reqParams;
@@ -403,17 +599,111 @@ public class RequestParams
 	 * 
 	 * @param request
 	 * @throws PageUrlException
+	 * @throws IOException 
 	 */
-	private void setSubnetFromRequest(HttpServletRequest request) throws PageUrlException
-	{
-
-		if (request.getParameter("localSubnet") != null)
-		{
-			m_localSubnet = request.getParameter("localSubnet");
-		} else
-			m_localSubnet = "10.0.156.";
+	private void setSubnetFromRequest(HttpServletRequest request) throws PageUrlException, IOException
+	{		
+		String addSubnet = request.getParameter("newSubnet");
+		m_addSubnet = null;
+		if ((addSubnet != null) && (!addSubnet.equals("")))
+			m_addSubnet = addSubnet;
+		
+		
+		String numSubnets = request.getParameter("numSubnets");
+		m_delSubnets = null;
+		if (numSubnets != null) {
+			m_numSubnets = Integer.parseInt(numSubnets);
+			Hashtable<String,Integer> hashDelSubnets=new Hashtable<String,Integer>();
+	        for (int i = 1; i <= m_numSubnets; i++)
+	        {
+	    	   String currentCheckbox = request.getParameter("delSubnet"+i);
+	           if (currentCheckbox != null)
+	           {
+	        	   if (i == 1)
+	        		   hashDelSubnets.put("LocalSubnet", i);
+	        	   else
+	        		   hashDelSubnets.put("LocalSubnet"+i,i);
+	           }
+	        }
+	        m_delSubnets = hashDelSubnets;
+		}
 	}
 
+	/**
+	 * Set groups's parameters.
+	 * 
+	 * @param request
+	 * @throws PageUrlException
+	 * @throws IOException 
+	 * @throws SQLException 
+	 * @throws ConfigurationException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws SAXException 
+	 */	
+	private void setGroupsFromRequest(HttpServletRequest request) throws PageUrlException, IOException, SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException, ConfigurationException, SAXException
+	{										
+		String groupIndex = request.getParameter("selectGroupIndex");		
+		if (groupIndex != null)		
+			m_selectGroupIndex = groupIndex;			
+				
+		String IpFilter = request.getParameter("IpFilter");
+		m_IpFilter = null;
+		if ((IpFilter != "") && (IpFilter != null))
+			m_IpFilter = IpFilter;
+		
+		String addGroup = request.getParameter("addGroup");
+		m_addGroup = null;
+		if ((addGroup != "") && (addGroup != null))
+			m_addGroup = addGroup;
+	
+		String group = request.getParameter("Group");	
+		if (group != null)
+			m_group = group;
+
+		
+		String numGroups = request.getParameter("numGroups");
+		m_delGroups = null;
+		if (numGroups != null)
+		{
+			int numG = Integer.parseInt(numGroups);
+			List<String> listDelGroups = new ArrayList<String>();
+			for (int i = 1; i <= numG; i++)
+			{
+				String currentCheckbox = request.getParameter("delGroup"+i);
+				if (currentCheckbox != null)
+					listDelGroups.add(request.getParameter("Group"+i));
+			}
+			if (!listDelGroups.isEmpty())
+				m_delGroups = listDelGroups;
+		}
+		
+		
+		String numIps = request.getParameter("numIps");				
+		m_delIpGroup = null;
+		m_addIpGroup = null;		
+				
+		if (numIps != null) 
+		{
+			m_numIps = Integer.parseInt(numIps);
+			Hashtable<String,String> hashDelIpGroup=new Hashtable<String,String>();
+			Hashtable<String,String> hashAddIpGroup=new Hashtable<String,String>();
+	        for (int i = 1; i <= m_numIps; i++)
+	        {
+	    	   String currentCheckbox = request.getParameter("delIp"+i);
+	           if (currentCheckbox != null)	        	   
+	        	   hashDelIpGroup.put(request.getParameter("Ip"+i), group);
+	           
+	           currentCheckbox = request.getParameter("addIp"+i);
+	           if (currentCheckbox != null)	        	   
+	        	   hashAddIpGroup.put(request.getParameter("newIp"+i), group);	           
+	        }
+	        m_delIpGroup = hashDelIpGroup;
+	        m_addIpGroup = hashAddIpGroup;
+		}								
+	}
+	
 	private boolean isValidIP(String ip) throws NumberFormatException
 	{
 		// IP address should have format n.n.n.n where n is in the range 0-255
@@ -640,9 +930,15 @@ public class RequestParams
 	 *            Request object
 	 * @throws PageUrlException
 	 * @throws IOException
+	 * @throws SQLException 
+	 * @throws ConfigurationException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws SAXException 
 	 */
-	public void setParameters(HttpServletRequest request) throws PageUrlException, IOException
-	{
+	public void setParameters(HttpServletRequest request) throws PageUrlException, IOException, SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException, ConfigurationException, SAXException
+	{	
 		PageUrlException exception = null;
 		setSortByFromStartEnd(request);
 
@@ -689,6 +985,17 @@ public class RequestParams
 				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
 		}	
 
+		try
+		{
+			setGroupsFromRequest(request);
+		} catch (PageUrlException e)
+		{
+			if (exception == null)
+				exception = e;
+			else
+				exception = new PageUrlException(exception.getMessage() + " " + e.getMessage());
+		}	
+		
 		try
 		{
 			setViewFromRequest(request);

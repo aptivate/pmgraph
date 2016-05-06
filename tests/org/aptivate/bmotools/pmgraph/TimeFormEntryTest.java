@@ -1,7 +1,6 @@
 package org.aptivate.bmotools.pmgraph;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.joda.time.LocalDate;
@@ -12,7 +11,6 @@ import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.SubmitButton;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -23,7 +21,7 @@ import com.meterware.httpunit.WebResponse;
  * @author noeg
  * 
  */
-public class TimeFormEntryTest extends TestCase
+public class TimeFormEntryTest extends PmGraphTestBase
 {
 
 	private TestUtils m_testUtil;
@@ -38,14 +36,10 @@ public class TimeFormEntryTest extends TestCase
 
 	/* This test tests the SetTime form uses the correct default values*/
 	public void testCheckDefaults() throws Exception
-	{
-		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
-
+	{				
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph());
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 		
 		checkDefaultValuesDisplayed(response);
 	}
@@ -53,15 +47,11 @@ public class TimeFormEntryTest extends TestCase
 	/* This test tests the SetTime form uses the correct default values after invalid entry*/
 	public void testCheckDefaultsAfterError() throws Exception
 	{
-		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
-
 		// Obtain the upload page on web site with invalid date
 		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?toDate=0a/03/2009");
 		
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 		
 		checkDefaultValuesDisplayed(response);
 	}
@@ -93,15 +83,11 @@ public class TimeFormEntryTest extends TestCase
 	
 	/* This test tests the SetTime form */
 	public void testCheckSetTimeForm() throws Exception
-	{
-		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
-
+	{		
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		WebForm theForm = response.getFormWithID("SetDateAndTime");
 
@@ -110,8 +96,12 @@ public class TimeFormEntryTest extends TestCase
 				.getButtonWithID("Go"));
 		assertNotNull("Check if there is text box fromDate.", response
 				.getElementWithID("fromDate"));
+		assertNotNull("Check if there is text box fromDate.", response
+				.getElementWithID("fDate"));
 		assertNotNull("Check if there is text box toDate.", response
 				.getElementWithID("toDate"));
+		assertNotNull("Check if there is text box fromDate.", response
+				.getElementWithID("tDate"));
 		assertNotNull("Check if there is text box fromTime.", response
 				.getElementWithID("fromTime"));
 		assertNotNull("Check if there is text box toTime.", response
@@ -160,7 +150,7 @@ public class TimeFormEntryTest extends TestCase
 		// Load the page press Go button
 		subButton.click();
 
-		assertEquals("Check no alert.", "", wc.popNextAlert());
+		assertEquals("Check no alert.", "", m_conversation.popNextAlert());
 
 		// Check wrong toDate values
 		for (int i = 0; i < noElements; i++)
@@ -169,7 +159,7 @@ public class TimeFormEntryTest extends TestCase
 					toDateArray[i]);
 			subButton.click();
 
-			assertEquals("Check to date format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, wc.popNextAlert());
+			assertEquals("Check to date format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, m_conversation.popNextAlert());
 		}
 		// Restore to valid
 		response.getElementWithID("toDate").setAttribute("value", "03/03/2009");
@@ -180,7 +170,7 @@ public class TimeFormEntryTest extends TestCase
 			response.getElementWithID("fromDate").setAttribute("value", fromDateArray[i]);
 			subButton.click();
 
-			assertEquals("Check from date format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, wc.popNextAlert());
+			assertEquals("Check from date format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, m_conversation.popNextAlert());
 		}
 		// Restore to valid
 		response.getElementWithID("fromDate").setAttribute("value", "02/03/2009");
@@ -191,7 +181,7 @@ public class TimeFormEntryTest extends TestCase
 			response.getElementWithID("toTime").setAttribute("value", toTimeArray[i]);
 			subButton.click();
 
-			assertEquals("Check to time format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, wc.popNextAlert());
+			assertEquals("Check to time format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, m_conversation.popNextAlert());
 		}
 		// Restore to valid
 		response.getElementWithID("toTime").setAttribute("value", "15:54:32");
@@ -202,10 +192,10 @@ public class TimeFormEntryTest extends TestCase
 			response.getElementWithID("fromTime").setAttribute("value", fromTimeArray[i]);
 			subButton.click();
 
-			assertEquals("Check from time format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, wc.popNextAlert());
+			assertEquals("Check from time format alert.", ErrorMessages.DATE_TIME_FORMAT_ERROR, m_conversation.popNextAlert());
 		}
 
-		assertEquals("Check no more alerts.", "", wc.popNextAlert());
+		assertEquals("Check no more alerts.", "", m_conversation.popNextAlert());
 
 		// Restore to valid
 		response.getElementWithID("fromTime").setAttribute("value", "15:54:32");
@@ -214,7 +204,7 @@ public class TimeFormEntryTest extends TestCase
 		response.getElementWithID("toDate").setAttribute("value",
 				dateFormat.print(toDate.plusDays(1)));
 		subButton.click();
-		assertEquals("Date in future.", ErrorMessages.TIME_IN_FUTURE, wc.popNextAlert());
+		assertEquals("Date in future.", ErrorMessages.TIME_IN_FUTURE, m_conversation.popNextAlert());
 
 		// Future time only
 		response.getElementWithID("toDate").setAttribute("value",
@@ -223,7 +213,7 @@ public class TimeFormEntryTest extends TestCase
 				timeFormat.print(currentTime.plusMinutes(1)));
 
 		subButton.click();
-		assertEquals("Time in future.", ErrorMessages.TIME_IN_FUTURE, wc.popNextAlert());
+		assertEquals("Time in future.", ErrorMessages.TIME_IN_FUTURE, m_conversation.popNextAlert());
 
 		// The From Date and Time have to be at least 1 minute before the To
 		// Date and Time
@@ -236,21 +226,17 @@ public class TimeFormEntryTest extends TestCase
 		response.getElementWithID("fromTime").setAttribute("value",
 				timeFormat.print(currentTime));
 		subButton.click();
-		assertEquals("From equals To.", ErrorMessages.TIME_NOT_ENOUGH, wc.popNextAlert());
+		assertEquals("From equals To.", ErrorMessages.TIME_NOT_ENOUGH, m_conversation.popNextAlert());
 	}
 	
 	/* This test tests the time shortcut*/
 	public void testTimeShortcut() throws Exception
 	{
-		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
-
 		// Obtain the upload page on web site
 		//Check the shortcut when the user only enters the hour
 		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?fromDate=01%2F01%2F1970&toDate=01%2F01%2F1970&fromTime=14&toTime=19");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		assertEquals("Check the fromTime initial value.", "14:00:00", response
 				.getElementWithID("fromTime").getAttribute("value"));
@@ -260,7 +246,7 @@ public class TimeFormEntryTest extends TestCase
 		//Check the shortcut when the user enters the hour and minutes in the form
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?fromDate=01%2F01%2F1970&toDate=01%2F01%2F1970&fromTime=14%3A30&toTime=19%3A30");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		assertEquals("Check the fromTime initial value.", "14:30:00", response
 				.getElementWithID("fromTime").getAttribute("value"));
@@ -270,7 +256,7 @@ public class TimeFormEntryTest extends TestCase
 		//when the hour in the form has only one digit
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?fromDate=01%2F01%2F1970&toDate=01%2F01%2F1970&fromTime=1&toTime=3%3A30%3A00");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		assertEquals("Check the fromTime initial value.", "01:00:00", response
 				.getElementWithID("fromTime").getAttribute("value"));
@@ -280,7 +266,7 @@ public class TimeFormEntryTest extends TestCase
 		//when the day part of the date in the form has only one digit
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?fromDate=1%2F01%2F1970&toDate=2%2F01%2F1970&fromTime=14%3A30%3A00&toTime=19%3A30%3A00");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		assertEquals("Check the fromDate initial value.", "01/01/1970", response
 				.getElementWithID("fromDate").getAttribute("value"));

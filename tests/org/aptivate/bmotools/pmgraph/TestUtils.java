@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -49,7 +50,7 @@ class TestUtils
 	
 	final Timestamp vlt4 = new Timestamp(4L * 7L * 24L * 60L * 60L * 1000L);
 
-	private static final String TABLE_NAME = "acct_v6";
+    private static final String TABLE_NAME = "acct_v6";
 	
 	private static final String LONG_TABLE_NAME = "acct_v6_long";
 	
@@ -144,7 +145,8 @@ class TestUtils
 			m_logger.debug(DELETE_VERY_LONG_TABLE);
 			sqlStatement.executeUpdate();
 			sqlStatement.close();
-		} catch (SQLException e)
+		} 
+		catch (SQLException e)
 		{
 			/* don't care if it fails, table may not exist */
 			m_logger.error(e.getMessage(), e);
@@ -222,7 +224,7 @@ class TestUtils
 		m_logger.debug(sql.toString());
 		sqlStatement.executeUpdate();
 		sqlStatement.close();
-	}
+	}		
 	
 	void ClearTable() throws SQLException
 	{
@@ -457,6 +459,32 @@ class TestUtils
 		insertRow("4.2.2.4", "10.0.156.110", 190, 443, 100 * 128 * 60, t3, false);
 		insertRow("10.0.156.130", "4.2.2.4", 443, 10000, 150 * 128 * 60, t3, false);
 		insertRow("4.2.2.4", "10.0.156.130", 4000, 443, 75 * 128 * 60, t3, "udp", false);
+	}
+	
+	/*
+	 * This method updates the protocols inserted for port sample data from
+	 * a protocol to a new protocol. It's main use is testing nonstandard 
+	 * protocols such as "ip".
+	 */
+	void updatePortSampleDataProtocol(String newProto, String oldProto, boolean isLong) throws SQLException
+	{
+		String theTableName;
+		String sql; 
+		if(isLong)
+		{
+			theTableName = LONG_TABLE_NAME;
+		}
+		else
+		{
+			theTableName = TABLE_NAME;
+		}
+		
+		sql = "UPDATE " + theTableName + " SET ip_proto = '" + newProto + 
+			"', stamp_inserted = acct_v6.stamp_inserted WHERE ip_proto = '" + oldProto + "'";
+		m_logger.debug(sql);
+		PreparedStatement sqlStatement = m_conn.prepareStatement(sql);
+		sqlStatement.executeUpdate();
+		sqlStatement.close();
 	}
 
 	String getUrlPmgraph()

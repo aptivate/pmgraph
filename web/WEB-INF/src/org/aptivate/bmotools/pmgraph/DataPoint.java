@@ -21,6 +21,8 @@ import org.apache.log4j.Logger;
 public abstract class DataPoint
 {
 
+	public static final int OTHER_PORT = -1;
+
 	private Timestamp m_time;
 
 	private Long m_downloaded;

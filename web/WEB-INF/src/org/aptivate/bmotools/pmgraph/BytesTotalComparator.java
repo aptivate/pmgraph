@@ -11,7 +11,7 @@ import java.util.Comparator;
  * byteTotal field.
  */
 
-class BytesTotalComparator implements Comparator
+class BytesTotalComparator implements Comparator<Object>
 {
 
 	private boolean m_descending;

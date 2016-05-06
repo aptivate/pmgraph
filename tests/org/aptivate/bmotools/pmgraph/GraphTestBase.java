@@ -54,8 +54,7 @@ abstract class GraphTestBase extends TestCase
 	 */
 	protected void checkChartData(float values[][], String[] rows,
 			JFreeChart chart, boolean isLong)
-	{
-		
+	{	
 		XYPlot plot = (XYPlot) chart.getPlot();
 		assertEquals(PlotOrientation.VERTICAL, plot.getOrientation());
 		Collection markers = plot.getRangeMarkers(Layer.FOREGROUND);
@@ -69,17 +68,19 @@ abstract class GraphTestBase extends TestCase
 				.getDataset();
 		
 		// Check if there are a series for each port for upload and another for
-		// download data.
+		// download data.		
+		int inc = 0;
+		if ((dataset.getSeries(rows.length).getKey().equals("Othersnull<down>")) ||(dataset.getSeries(rows.length).getKey().equals("Others<down>")))
+			inc = 1;
 		for (int n = 0; n < rows.length; n++)
-		{
+		{					
 			assertTrue("missing item " + rows[n],
-					dataset.getSeriesCount() > (n << 1));
-			assertEquals(rows[n] + "<down>", dataset.getSeries(n).getKey());
-			assertEquals(rows[n] + "<up>", dataset.getSeries((rows.length + n))
+					dataset.getSeriesCount() > (n << 1));			
+			assertEquals(rows[n] + "<down>", dataset.getSeries(n).getKey());						
+			assertEquals(rows[n] + "<up>", dataset.getSeries(((rows.length) + n + inc))
 					.getKey());
 		}
-
-		assertEquals(rows.length * 2, dataset.getSeriesCount());
+		
 		Map<String, XYSeries> series = new HashMap<String, XYSeries>();
 
 		// check the number of elements of each series.

@@ -1,11 +1,9 @@
 package org.aptivate.bmotools.pmgraph;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import com.meterware.httpunit.GetMethodWebRequest;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -16,7 +14,7 @@ import com.meterware.httpunit.WebResponse;
  * @author  Anne and Ida
  * 
  */
-public class ResultEntryTest extends TestCase
+public class ResultEntryTest extends PmGraphTestBase
 {
 	private TestUtils m_testUtil;
 
@@ -33,14 +31,10 @@ public class ResultEntryTest extends TestCase
 	{
 		final String defaultResults = "" + Configuration.getResultLimit();
 
-		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
-
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		WebForm theForm = response.getFormWithID("SetDateAndTime");
 
@@ -54,7 +48,7 @@ public class ResultEntryTest extends TestCase
 		response.getElementWithID("resultLimit").setAttribute("value", "6");
 		theForm.submit();
 
-		assertEquals("Check no alert.", "", wc.popNextAlert());
+		assertEquals("Check no alert.", "", m_conversation.popNextAlert());
 
 		// Check non-numeric results values
 		// AC There is an error in HttpUnit v1.7 (fixed in next version but not released) that causes a double 
@@ -62,10 +56,10 @@ public class ResultEntryTest extends TestCase
 		
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000&resultLimit=p");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		
-		assertEquals("Check result alert.", ErrorMessages.RESULT_LIMIT_FORMAT_ERROR, wc.popNextAlert());
-		assertEquals("Check no more alerts.", "", wc.popNextAlert());
+		assertEquals("Check result alert.", ErrorMessages.RESULT_LIMIT_FORMAT_ERROR, m_conversation.popNextAlert());
+		assertEquals("Check no more alerts.", "", m_conversation.popNextAlert());
 		
 		// Should now be set to default value and give no error when submitted
         assertEquals("Check the results default used.", defaultResults, response
@@ -74,16 +68,16 @@ public class ResultEntryTest extends TestCase
         theForm = response.getFormWithID("SetDateAndTime");
         response = theForm.submit();
         
-        assertEquals("Check no alert.", "", wc.popNextAlert());
+        assertEquals("Check no alert.", "", m_conversation.popNextAlert());
     
 		// Check negative results value
         request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000&resultLimit=-6");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		
-		assertEquals("Check -ve result alert.", ErrorMessages.RESULT_LIMIT_FORMAT_ERROR, wc.popNextAlert());
+		assertEquals("Check -ve result alert.", ErrorMessages.RESULT_LIMIT_FORMAT_ERROR, m_conversation.popNextAlert());
 		
-    	assertEquals("Check no more alerts.", "", wc.popNextAlert());
+    	assertEquals("Check no more alerts.", "", m_conversation.popNextAlert());
 
 	}
 

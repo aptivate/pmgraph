@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jfree.chart.JFreeChart;
@@ -14,7 +13,6 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.TableCell;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 import com.meterware.httpunit.WebTable;
@@ -25,7 +23,7 @@ import com.meterware.httpunit.WebTable;
  * @author blancab
  * 
  */
-public class ColourTest extends TestCase
+public class ColourTest extends PmGraphTestBase
 {
 	private TestUtils m_testUtil;
 
@@ -41,12 +39,10 @@ public class ColourTest extends TestCase
 	public void testColourGraphAndLegend() throws Exception
 	{
 		// Open a graph page and get the tab
-		// Create a conversation
-		WebConversation wc = new WebConversation();
 		// Obtain the upload page on the website
 		WebRequest request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 		// Get the table data from the page
 		WebTable legend = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 		
@@ -59,7 +55,7 @@ public class ColourTest extends TestCase
 		XYItemRenderer renderer = plot.getRenderer();
 
 		// The two first rows are for the header
-		for (int i = 2; i < legend.getRowCount(); i++)
+		for (int i = 2; i < legend.getRowCount() - 1; i++)
 		{
 			// Get the first cell of each row in html format and get the style
 			// attribute which is the one used to define the colour in the
@@ -97,10 +93,10 @@ public class ColourTest extends TestCase
 		XYPlot plot = (XYPlot) chart.getPlot();
 		XYItemRenderer renderer = plot.getRenderer();
 		
-		// we use half of the series because we only need to check either the uploaded or downloaded part
-		String colour[] = new String[plot.getSeriesCount() / 2];
+		// we use quarter of the series because we only need to check either the uploaded or downloaded part
+		String colour[] = new String[plot.getSeriesCount() / 4];
 		boolean repeated = false;
-		for (int i = 0; i < (plot.getSeriesCount() / 2); i++)
+		for (int i = 0; i < (plot.getSeriesCount() / 4); i++)
 		{
 			Color singleColour = (Color) renderer.getSeriesPaint(i);
 			String singleHexColour = Integer.toHexString(singleColour.getRGB() & 0x00ffffff);

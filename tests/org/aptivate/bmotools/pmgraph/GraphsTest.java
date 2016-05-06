@@ -2,6 +2,9 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -20,7 +23,6 @@ import org.jfree.chart.JFreeChart;
 public class GraphsTest extends GraphTestBase
 {
 	private static Logger m_logger = Logger.getLogger(GraphsTest.class.getName());
-
 	public GraphsTest() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException {
 		super();
@@ -36,7 +38,7 @@ public class GraphsTest extends GraphTestBase
 	
 	public void setData(RequestParams requestParams) throws Exception
 	{
-		if(Configuration.longGraphIsAllowed() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime()))
+		if(Configuration.isLongGraphTableUsable() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime()))
 		{
 			if(requestParams.getStartTime() >= m_testUtils.vlt1.getTime())
 			{
@@ -505,6 +507,32 @@ public class GraphsTest extends GraphTestBase
 		checkGraphThreeParameter(requestParams);
 	}
 	
+	public void testGraphDuplicateValues() throws Exception
+	{					
+		TestUtils testUtils = new TestUtils();
+		testUtils.CreateTable();
+		testUtils.InsertSampleData();
+		testUtils.InsertLongSampleData();
+		DataAccess dataAccess = new DataAccess();
+		RequestParams requestParams = new RequestParams(0, 300000, View.LOCAL_IP, 5);
+		Hashtable<Integer,List<DataPoint>> thrptResults = dataAccess.getThroughput(requestParams, true, false);
+		GraphFactory graphFactory = new GraphFactory();		
+		Hashtable<Integer, List<DataPoint>> topIdsHash = graphFactory.getTopResults(thrptResults, requestParams);
+
+		long roundedStart;    
+		long roundedEnd;
+		long theStart = requestParams.getStartTime();
+		long theEnd = requestParams.getEndTime();
+		boolean isLong = Configuration.needsLongGraph(theStart, theEnd);
+		int resolution = Configuration.getResolution(isLong, theEnd - theStart);
+		roundedStart = requestParams.getRoundedStartTime(resolution);
+		roundedEnd = requestParams.getRoundedEndTime(resolution);
+		Hashtable <Map<DataPoint, float[]>, Map<DataPoint, float[]>> upDownSeriesHash = new Hashtable<Map<DataPoint, float[]>, Map<DataPoint, float[]>>();		
+		upDownSeriesHash = graphFactory.getGraph(thrptResults, topIdsHash, roundedStart, roundedEnd, resolution, 1, isLong);
+		// If upDownSeriesHash.size > 1 then we'll have duplicate data in the graph
+		assertTrue(upDownSeriesHash.size() == 1);
+	}
+	
 	private Object[] setValues(RequestParams requestParams)
 	{
 		// This method assigns the correct values to a set of values and retruns the as an object array
@@ -512,7 +540,7 @@ public class GraphsTest extends GraphTestBase
 		
 		// The first value determines whether or not a long value should be used, the second one used for adjusting x-axis values, the third one is for determining the length of the x-axis and the fourth determines y-axis values 
 		
-		boolean isLong = Configuration.longGraphIsAllowed() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
+		boolean isLong = Configuration.isLongGraphTableUsable() && Configuration.needsLongGraph(requestParams.getStartTime(), requestParams.getEndTime());
 		values[0] = new Boolean(isLong);
 		if(isLong)
 		{

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 
 import junit.framework.Test;
@@ -14,7 +16,6 @@ import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.HttpInternalErrorException;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -47,38 +48,35 @@ public class LegendTest extends LegendTestBase
 		for (int i = 0; i < 100; i++)
 		{
 			// Set the values
-			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
+			testUtils.insertNewRow(250000, new Timestamp((timeInMinutes - 5) * 60000),
 					"224.0.0.255", "10.0.156.10", false);
 			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
 					"10.0.156.10", "224.0.0.255", false);
 
-			testUtils.insertNewRow(100000, new Timestamp((timeInMinutes - 5) * 60000),
+			testUtils.insertNewRow(200000, new Timestamp((timeInMinutes - 5) * 60000),
 					"224.0.0.251", "10.0.156.1", false);
 			testUtils.insertNewRow(100000, new Timestamp((timeInMinutes - 5) * 60000),
 					"10.0.156.1", "224.0.0.251", false);
 
-			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
+			testUtils.insertNewRow(250000, new Timestamp((timeInMinutes - 5) * 60000),
 					"10.0.156.110", "10.0.156.120", false);
 			testUtils.insertNewRow(500000, new Timestamp((timeInMinutes - 5) * 60000),
 					"10.0.156.120", "10.0.156.110", false);
 		}
 
 		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on the website
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph());
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		// Get the table data from the page
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
 		long uploaded[] = { 47, 9 };
-		long downloaded[] = { 47, 9 };
+		long downloaded[] = { 23, 19 };
 		String ips[] = { "10.0.156.10", "10.0.156.1" };
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ips, View.LOCAL_IP);
-
 	}
 
 	/**
@@ -107,20 +105,19 @@ public class LegendTest extends LegendTestBase
 						"10.0.156.1", "224.0.0.251", false);
 			}
 
-			// Open a graph page
-			// Create a conversation
-			WebConversation wc = new WebConversation();
+			// Open a graph page			
 
 			// Obtain the upload page on web site
 			WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph());
-			WebResponse response = wc.getResponse(request);
+			WebResponse response = m_conversation.getResponse(request);
 			String path = response.getImageWithAltText("Bandwidth Graph").getSource();
 			URL urlObj = new URL(testUtils.getUrlPmgraph());
 			urlObj = new URL(urlObj, path);
 			request = new GetMethodWebRequest(urlObj.toString());
-			response = wc.getResponse(request);
+			response = m_conversation.getResponse(request);
 			assertEquals("image/png", response.getContentType());
-		} catch (HttpInternalErrorException e)
+		} 
+		catch (HttpInternalErrorException e)
 		{
 			m_logger.error("Problem with legend.jsp. There is a value too big for integer.");
 			throw (e);
@@ -161,13 +158,11 @@ public class LegendTest extends LegendTestBase
 		String hostname2 = "ap.int.aidworld.org.";
 		String hostname3 = "Unknown Host";
 		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=15");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		// get the table
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
@@ -193,7 +188,6 @@ public class LegendTest extends LegendTestBase
 	 */
 	public void testSorter() throws Exception
 	{
-
 		TestUtils testUtils = new TestUtils();
 		testUtils.CreateTable();
 
@@ -212,13 +206,11 @@ public class LegendTest extends LegendTestBase
 		}
 
 		// Open a graph page
-		// Create a conversation
-		WebConversation wc = new WebConversation();
 
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=15");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		WebLink link = response.getLinkWithName("downloaded");
 
@@ -230,7 +222,7 @@ public class LegendTest extends LegendTestBase
 
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		link = response.getLinkWithName("downloaded");
 		sortLink = "index.jsp?start=0&end=300000&sortBy=downloaded&order=DESC&resultLimit=15&dynamic=false&view=LOCAL_IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
@@ -249,7 +241,7 @@ public class LegendTest extends LegendTestBase
 
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		link = response.getLinkWithName("uploaded");
 		sortLink = "index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&dynamic=false&view=LOCAL_IP";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
@@ -289,14 +281,11 @@ public class LegendTest extends LegendTestBase
 		testUtils.InsertLongSampleData();
 
 		// check the default limit of result
-
-		// Create a conversation
-		WebConversation wc = new WebConversation();
-
+		
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		// get the table
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
@@ -306,7 +295,7 @@ public class LegendTest extends LegendTestBase
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=345600000");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		// get the table
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
@@ -316,7 +305,7 @@ public class LegendTest extends LegendTestBase
 		// Check a result limit defined by the user
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=8");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		// get the table
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
@@ -324,7 +313,7 @@ public class LegendTest extends LegendTestBase
 		
 		request = new GetMethodWebRequest(testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=345600000&resultLimit=8");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		// get the table
 		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
@@ -336,7 +325,7 @@ public class LegendTest extends LegendTestBase
 		if (table != null)
 		{
 			assertEquals("Check the number of rows is limited to default value.", Configuration
-					.getResultLimit(), (Integer) (table.getRowCount() - 3));
+					.getResultLimit(), (Integer) (table.getRowCount() - 4));
 
 			// Columns in the table are Color,Host IP,Host
 			// Name,Downloaded,Uploaded, average downloaded, average uploaded
@@ -364,7 +353,7 @@ public class LegendTest extends LegendTestBase
 		if (table != null)
 		{
 			assertEquals("Check the number of rows is limited to default value.", (Integer) 8,
-					(Integer) (table.getRowCount() - 3));
+					(Integer) (table.getRowCount() - 4));
 
 			// Columns in the table are Color,Host IP,Host
 			// Name,Downloaded,Uploaded
@@ -400,12 +389,11 @@ public class LegendTest extends LegendTestBase
 	 */
 	public void testLimitResultsSpecificPort() throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException, SQLException, SAXException
-	{
-		WebConversation wc = new WebConversation();
+	{		
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph()
 				+ "index.jsp?report=totals&start=0&end=300000&resultLimit=1&port=110");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 		long uploaded[] = { 4, 0 };
@@ -425,13 +413,12 @@ public class LegendTest extends LegendTestBase
 			LegendData data = new LegendData();
 			RequestParams requestParams = new RequestParams(0, timePeriod[i] * 60000,
 					View.LOCAL_IP, 5);
-			List<DataPoint> throughput = data.getLegendData(requestParams.getSortBy(),
-					requestParams.getOrder(), requestParams, false);
-			String addUrl = "?start=0&end=" + (timePeriod[i] * 60000);
-			WebConversation wc = new WebConversation();
+			Hashtable<Integer,List<DataPoint>> resultsHash = data.getLegendData(requestParams.getSortBy(),
+							requestParams.getOrder(), requestParams, false);
+			String addUrl = "?start=0&end=" + (timePeriod[i] * 60000);			
 			// Obtain the upload page on web site
 			WebRequest request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + addUrl);
-			WebResponse response = wc.getResponse(request);
+			WebResponse response = m_conversation.getResponse(request);
 
 			WebTable legend = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 			
@@ -439,12 +426,19 @@ public class LegendTest extends LegendTestBase
 			String totalThroughput = legend.getCellAsText(0, 3);
 			String expectedLabel = null;
 			if (timePeriod[i] < 10)
+			{
 				expectedLabel = "Totals (KB)";
-			else{
+			}
+			else
+			{
 				if ((timePeriod[i] >= 10) && (timePeriod[i] < 14400))
+				{
 					expectedLabel ="Totals (MB)";
+				}
 				else
+				{
 					expectedLabel = "Totals (GB)";
+				}
 			}
 			
 			assertEquals("Check if the header in the legend matches the units we are using",
@@ -452,7 +446,7 @@ public class LegendTest extends LegendTestBase
 			
 			//Check the values shown are correct
 			long bitsToDivideBy;
-			for (int j = 2; j < legend.getRowCount(); j++)
+			for (int j = 2; j < legend.getRowCount() - 1; j++)
 			{
 				// KB
 				if (timePeriod[i] < 10)
@@ -465,20 +459,25 @@ public class LegendTest extends LegendTestBase
 					else
 						bitsToDivideBy = 1024*1024*1024;
 				}
-
-				String databaseValueDown = String.valueOf(throughput.get(j-2).getDownloaded()/bitsToDivideBy);
-				//if the result is zero change it for "<1" as in the legend
-				if (databaseValueDown.equals("0"))
-					databaseValueDown = "<1";
-				String databaseValueUp = String.valueOf(throughput.get(j-2).getUploaded()/bitsToDivideBy);
-				if (databaseValueUp.equals("0"))
-					databaseValueUp = "<1";
-				assertEquals(
+				for (Enumeration e = resultsHash.keys (); e.hasMoreElements ();) 
+				{
+					int key = (Integer) e.nextElement();
+					List<DataPoint> throughput = resultsHash.get(key);
+					
+					String databaseValueDown = String.valueOf(throughput.get(j-2).getDownloaded()/bitsToDivideBy);
+					//if the result is zero change it for "<1" as in the legend
+					if (databaseValueDown.equals("0"))
+						databaseValueDown = "<1";
+					String databaseValueUp = String.valueOf(throughput.get(j-2).getUploaded()/bitsToDivideBy);
+					if (databaseValueUp.equals("0"))
+						databaseValueUp = "<1";
+					assertEquals(
 						"Check if the downloaded throughput in the legend matches the units we are using",
-						legend.getCellAsText(j, 3), databaseValueDown);
-				assertEquals(
+							legend.getCellAsText(j, 3), databaseValueDown);
+					assertEquals(
 						"Check if the uploaded throughput in the legend matches the units we are using",
-						legend.getCellAsText(j, 4), databaseValueUp );
+							legend.getCellAsText(j, 4), databaseValueUp );
+				}
 			}
 		}
 	}

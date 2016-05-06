@@ -1,18 +1,16 @@
 package org.aptivate.bmotools.pmgraph;
 
+import java.util.Date;
+
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import com.meterware.httpunit.GetMethodWebRequest;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
 
-import java.util.Date;
-
-public class ButtonsTest extends TestCase
+public class ButtonsTest extends PmGraphTestBase
 {
 	private TestUtils m_testUtil;
 
@@ -26,20 +24,17 @@ public class ButtonsTest extends TestCase
 
 	/* This test tests the next button */
 	public void testCheckNextButton() throws Exception
-	{
-		WebConversation wc;
+	{		
 		WebRequest request;
 		WebResponse response;
 		String nextURL;
 		WebLink link;
 		nextURL = "index.jsp?start=150000&end=300000&resultLimit=15&dynamic=false&view=LOCAL_IP";
-		
-		// Create a conversation
-		wc = new WebConversation();
+				
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=75000&end=225000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		// Find the "next" link
 		link = response.getLinkWithName("next");
@@ -48,7 +43,7 @@ public class ButtonsTest extends TestCase
 		// Load the page after press the Next Button
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=150000&end=300000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		
 		nextURL = "index.jsp?start=225000&end=375000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 		// Find the "next" link
@@ -57,7 +52,7 @@ public class ButtonsTest extends TestCase
 
 		// Obtain the current page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph());
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		// Find the "next" link
 		link = response.getLinkWithName("current");
@@ -65,8 +60,7 @@ public class ButtonsTest extends TestCase
 	}
 	
 	public void testCheckButtonsKeepSorting() throws Exception
-	{
-		WebConversation wc;
+	{		
 		WebRequest request;
 		WebResponse response;
 		String nextURL;
@@ -76,12 +70,10 @@ public class ButtonsTest extends TestCase
 		String zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=5&dynamic=false&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
 		String zoomInURL = "index.jsp?start=75000&end=225000&resultLimit=5&dynamic=false&order=DESC&sortBy=uploaded&view=LOCAL_PORT";
 		
-		// Create a conversation
-		wc = new WebConversation();
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000&resultLimit=5&dynamic=false&order=DESC&sortBy=uploaded&view=LOCAL_PORT");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		// Find the "next" link
 		link = response.getLinkWithName("next");
@@ -93,7 +85,7 @@ public class ButtonsTest extends TestCase
 		// Find the Zoom- link
 		link = response.getLinkWithName("zoomOut");
 		assertEquals("Compare the zoom- link.", zoomURL, link.getURLString());
-//		 Check thar there isn't the Zoom+ link in the page
+		// Check that there isn't the Zoom+ link in the page
 		link = response.getLinkWithName("zoomIn");
 		assertEquals("Compare the zoom- link.", zoomInURL, link.getURLString());
 
@@ -101,20 +93,16 @@ public class ButtonsTest extends TestCase
 
 	/* This test tests the prev button */
 	public void testCheckPrevButton() throws Exception
-	{
-		WebConversation wc;
+	{		
 		WebRequest request;
 		WebResponse response;
 		String prevURL;
 		WebLink link;
 
-		// Create a conversation
-		wc = new WebConversation();
-
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=150000&end=450000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		prevURL = "index.jsp?start=0&end=300000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
@@ -125,7 +113,7 @@ public class ButtonsTest extends TestCase
 		// Load the page after press the Prev Button
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		prevURL = "index.jsp?start=-150000&end=150000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
@@ -136,20 +124,16 @@ public class ButtonsTest extends TestCase
 
 	/* This test tests the zoom- button */
 	public void testCheckZoomOutButton() throws Exception
-	{
-		WebConversation wc;
+	{		
 		WebRequest request;
 		WebResponse response;
 		String zoomURL;
 		WebLink link;
 
-		// Create a conversation
-		wc = new WebConversation();
-
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
@@ -160,7 +144,7 @@ public class ButtonsTest extends TestCase
 		// Load the page after press the Zoom- Button
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=-150000&end=450000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		zoomURL = "index.jsp?start=-450000&end=750000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
@@ -174,7 +158,7 @@ public class ButtonsTest extends TestCase
 	    long zoomAmount = (toDateAndTime - fromDateAndTime) / 2;
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=" + fromDateAndTime + "&end=" + toDateAndTime + "&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		long now = new Date().getTime();
 		long newStart = now - (toDateAndTime - fromDateAndTime) - 2 * zoomAmount;
 		link = response.getLinkWithName("zoomOut");
@@ -188,20 +172,16 @@ public class ButtonsTest extends TestCase
 
 	/* This test tests the zoom+ button */
 	public void testCheckZoomInButton() throws Exception
-	{
-		WebConversation wc;
+	{		
 		WebRequest request;
 		WebResponse response;
 		String zoomURL;
 		WebLink link;
 
-		// Create a conversation
-		wc = new WebConversation();
-
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=-450000&end=750000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		zoomURL = "index.jsp?start=-150000&end=450000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
 		// Find the Zoom+ link
@@ -211,7 +191,7 @@ public class ButtonsTest extends TestCase
 		// Load the page after press the Zoom+ Button
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=-150000&end=450000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		zoomURL = "index.jsp?start=0&end=300000&resultLimit=15&dynamic=false&view=LOCAL_IP";
 
@@ -222,13 +202,13 @@ public class ButtonsTest extends TestCase
 		// Load the page after press the Zoom+ Button
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=300000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		/* Test if the Zoom+ Button Disappear */
 		// Obtain the upload page on web site
 		request = new GetMethodWebRequest(m_testUtil.getUrlPmgraph()
 				+ "?start=0&end=84000&resultLimit=15");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		// Check thar there isn't the Zoom+ link in the page
 		link = response.getLinkWithName("zoomIn");

@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.GetMethodWebRequest;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebLink;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -22,7 +20,7 @@ import com.meterware.httpunit.WebTable;
  * @author Noe Andres Rodriguez Gonzalez
  * 
  */
-public class LegendTestPortView extends TestCase
+public class LegendTestPortView extends PmGraphTestBase
 {
 	protected TestUtils m_testUtils;
 	final long bitsConversion = 1024*8;
@@ -64,7 +62,7 @@ public class LegendTestPortView extends TestCase
 		// Check the table data
 		String upload, download, averageUpload, averageDownload;
 		// It is i - 2 to avoid the headers in the table
-		for (int i = 2; i < table.getRowCount(); i++)
+		for (int i = 2; i < table.getRowCount() - 1; i++)
 		{
 			int column= 1;
 			assertEquals("Check the IP Or Port Address", ipPort[i - 2], table
@@ -116,12 +114,11 @@ public class LegendTestPortView extends TestCase
 	/* This test tests the legend table in the pmGraph page */
 	public void testLegendPortView() throws Exception
 	{
-		// port graph
-		WebConversation wc = new WebConversation();
+		// port graph		
 		WebRequest request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
 						+ "index.jsp?report=totals&start=0&end=300000&resultLimit=15&view=LOCAL_PORT");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		// Get the table data from the page
 		WebTable table = (WebTable) response
@@ -153,13 +150,12 @@ public class LegendTestPortView extends TestCase
 	 * @throws Exception
 	 */
 	public void testSorterPortView() throws Exception
-	{
-		WebConversation wc = new WebConversation();
+	{		
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
 						+ "index.jsp?report=totals&start=0&end=300000&resultLimit=15&dynamic=false&view=LOCAL_PORT");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 		WebLink link = response.getLinkWithName("downloaded");
 		// the default is 'sort by download DESC', the sortLink is opposite to
 		// the DESC
@@ -169,7 +165,7 @@ public class LegendTestPortView extends TestCase
 		request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
 						+ "index.jsp?start=0&end=300000&sortBy=downloaded&order=ASC&resultLimit=15&dynamic=false&view=LOCAL_PORT");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 
 		// Get the table data from the page
 		WebTable table = (WebTable) response
@@ -196,7 +192,7 @@ public class LegendTestPortView extends TestCase
 		request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
 						+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15&dynamic=false&view=LOCAL_PORT");
-		response = wc.getResponse(request);
+		response = m_conversation.getResponse(request);
 		link = response.getLinkWithName("uploaded");
 		sortLink = "index.jsp?start=0&end=300000&sortBy=uploaded&order=ASC&resultLimit=15&dynamic=false&view=LOCAL_PORT";
 		assertEquals("Compare the sort link.", sortLink, link.getURLString());
@@ -216,6 +212,7 @@ public class LegendTestPortView extends TestCase
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
 
 	}
+	
 
 	/**
 	 * Check if the limit results works when the view is a port view.
@@ -230,13 +227,12 @@ public class LegendTestPortView extends TestCase
 	public void testLimitResults() throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, SAXException
-	{
-		WebConversation wc = new WebConversation();
+	{		
 		// Obtain the upload page on web site
 		WebRequest request = new GetMethodWebRequest(
 				m_testUtils.getUrlPmgraph()
 						+ "index.jsp?report=totals&start=0&end=300000&resultLimit=1&view=LOCAL_PORT");
-		WebResponse response = wc.getResponse(request);
+		WebResponse response = m_conversation.getResponse(request);
 
 		WebTable table = (WebTable) response
 				.getElementWithID(TestUtils.LEGEND_TBL);
@@ -255,6 +251,43 @@ public class LegendTestPortView extends TestCase
 		
 		long averageDownloaded[] = {260, 170};
 		long averageUploaded[] = {160, 430};
+
+		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
+	}
+	
+	/**
+	 * This method tests the data results with the ip_proto values changed from
+	 * "udp" to "ip"
+	 * @throws SQLException 
+	 * @throws SAXException 
+	 * @throws IOException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 *
+	 */
+	public void testLegendWithNonStandardProtocol() throws SQLException, IOException, SAXException, InstantiationException, IllegalAccessException, ClassNotFoundException
+	{
+		WebRequest request = new GetMethodWebRequest(
+				m_testUtils.getUrlPmgraph()
+						+ "index.jsp?start=0&end=300000&sortBy=uploaded&order=DESC&resultLimit=15&dynamic=false&view=LOCAL_PORT");
+		WebResponse response = m_conversation.getResponse(request);
+		
+		WebTable table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
+
+		long[] uploaded = new long[] {9375, 6750, 6000, 0};
+		long[] downloaded = new long[] { 1687, 4125, 9750, 562 };
+		
+		String[] ports = new String[] { "80", "443", "110", "443" };
+		String[] portName = new String[] {"http","https", "pop3", "" };
+		String[] services = new String[] {"tcp", "tcp", "tcp", "ip"};
+		
+		long[] averageDownloaded= new long[] {45, 110,260, 15};
+		long[] averageUploaded = new long[] {250, 180, 160, 0};
+		m_testUtils.updatePortSampleDataProtocol("ip", "udp", false);
+		
+		response = m_conversation.getResponse(request);
+		table = (WebTable) response.getElementWithID(TestUtils.LEGEND_TBL);
 
 		checkUploadDownloadLegendTable(table, downloaded, uploaded, ports, portName, services, averageDownloaded, averageUploaded);
 	}

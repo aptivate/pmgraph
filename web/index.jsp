@@ -52,14 +52,28 @@
     
     //dynamic parameter
     boolean dynamicFlag=pageUrl.getParams().getDynamic(); 
-      
+    
+   
 %>
-
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <head>
         <title>pmGraph</title>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-        <link rel="Stylesheet" href="styles/main.css" type="text/css" />
+        <link rel="Stylesheet" href="styles/main.css" type="text/css" />        
+  		<link rel="stylesheet" type="text/css" media="all" href="styles/calendar-green.css" title="win2k-cold-1" />
+		<script type="text/javascript" src="jsFiles/calendar.js"></script>
+		<script type="text/javascript" src="jsFiles/calendar-en.js"></script>
+		<script type="text/javascript" src="jsFiles/calendar-setup.js"></script>	
+		<script type="text/javascript">
+			function CalendarSetup(valInput, valButton)
+			{
+				Calendar.setup({
+    				inputField:  valInput,     
+				    ifFormat:    "%d/%m/%Y",     
+				    button:      valButton
+				});   
+			}
+		</script>	        
         <% if (dynamicFlag) { %>
         <script type="text/javascript">
         	//called everytime "dynamic update" feature is chosen, and page gets reloaded
@@ -167,7 +181,7 @@
 			}
 		// ]]>	
         </script>
-        <% } %>
+        <% } %>    
     </head>
     <% if (errorMsg != null) { %>
     	<body onload="onLoad();">   
@@ -176,7 +190,7 @@
     <% } else { %>
     	<body>
     <% } %>
-        <div id="container">
+        <div class="container">
             <div id="header">
                 <img id="logo" alt="Logo Banner" src="images/logo.png" />                
             <div id="date_form">
@@ -222,16 +236,11 @@
 							{	
 								alert(message);
 							}
-						}   
-						
-						function uncheck()
-						{							
-							alert();	
-							document.getElementById( 'dynamic' ).value = "false";														
-						}   
+						}   	
 						//]]>
 					</script>
-            	<table class="layout_table" id="date_table">
+
+            	<table class="table" id="date_table">
 					<tr>
 						<th> </th>   
 						<th class="th_class">From</th>
@@ -239,18 +248,18 @@
 					</tr>				
 					<tr>
 						<td>Date (dd/mm/yyyy)</td>   
-			   			<td class="align_right"> <input type="text" id="fromDate" name="fromDate" value="<%=pageUrl.getParams().getFromDateAsString()%>" size="8" /> </td>
-            		    <td> <input type="text" id="toDate"   name="toDate" value="<%=pageUrl.getParams().getToDateAsString()%>"  size="8" /> </td>
+			   			<td class="align_right"> <input type="text" id="fromDate" name="fromDate" value="<%=pageUrl.getParams().getFromDateAsString()%>" size="8" />  <input type="button" class="fDate" id="fDate" style="background: url('./images/img.gif') no-repeat" onclick="CalendarSetup('fromDate','fDate')"/></td>			   			
+            		    <td> <input type="text" id="toDate"   name="toDate" value="<%=pageUrl.getParams().getToDateAsString()%>"  size="8" /> <input type="button" class="tDate" id="tDate" style="background: url('./images/img.gif') no-repeat" onclick="CalendarSetup('toDate','tDate')"/></td>            		    
 				    </tr>
 					<tr>
 						<td>Time (hh:mm:ss)</td>  
-						<td class="align_right"> <input type="text" id="fromTime" name="fromTime" value="<%=pageUrl.getParams().getFromTimeAsString()%>" size="8" /> </td>
+						<td class="align_left"> <input type="text" id="fromTime" name="fromTime" value="<%=pageUrl.getParams().getFromTimeAsString()%>" size="8" /> </td>
 						<td> <input type="text" id="toTime"   name="toTime"   value="<%=pageUrl.getParams().getToTimeAsString()%>" size="8" /> </td>	     
 					</tr>
 					<tr>  
 						<td>Show Top </td>   
-						<td class="align_right">
-						<input type="text" id="resultLimit"  name="resultLimit" title="Limits the number of results that will be shown"  value="<%=pageUrl.getParams().getResultLimit()%>" size="3" /></td><td> Results</td>
+						<td class="align_left">
+						<input type="text" id="resultLimit"  name="resultLimit" title="Limits the number of results that will be shown"  value="<%=pageUrl.getParams().getResultLimit()%>" size="3" /> Results </td> 	
 					</tr>
 					<% //If a specific IP or port has been chosen, add a row/s showing the selected IP and/or port.
 					// Local%>
@@ -262,10 +271,10 @@
 						colon=":";
 						alignPort = "align_left";
 					%>
-						<td>Selected Ip:port</td>   
+						<td>Selected IP:port</td>   
 					<%} else { %>	
 						<% if (pageUrl.getParams().getIp() != null) { %>
-							<td>Selected Ip</td>   
+							<td>Selected IP</td>   
 						<%} else  {%>
 							<% if (pageUrl.getParams().getPort() != null) { %>
 								<td>Selected Port</td>   
@@ -289,7 +298,7 @@
 						colon=":";
 						alignPort = "align_left";
 					%>
-						<td>Selected Remote Ip:port</td>   
+						<td>Selected Remote IP:port</td>   
 					<%} else { %>	
 						<% if (pageUrl.getParams().getRemoteIp() != null) { %>
 							<td>Selected Remote Ip</td>   
@@ -312,7 +321,7 @@
 						
 					<tr>  
 						<td>View </td>   
-						<td class="align_right">
+						<td class="align_left">
 						<select id="view"  name="view" >
 							<% List<View> views = View.getAvailableViews(pageUrl.getParams());
 							for (View view : views) {  // for each view available
@@ -325,27 +334,55 @@
 							<% } %>
 						</select>
 						</td>					
-						
 					</tr>
-					
+					<tr>
+						<td>Select Group / Subnet</td>   
+						<td class="align_left">
+						<select id="selectGroupIndex"  name="selectGroupIndex" >
+						<% 
+							List<String> Groups = Configuration.getGroups();
+							String [] vectSubnets = Configuration.getLocalSubnet();
+							String selectGroup = pageUrl.getParams().getSelectGroupIndex();						
+							if ((selectGroup != null) && (selectGroup.equals("all"))) {
+							%>
+								<option selected="selected" value="all">all</option>
+							<% } else {%>
+								<option value="all">all</option>
+							<% }							
+							for (String currentGroup: Groups) {  
+								if ((selectGroup != null) && (selectGroup.equals(currentGroup))) {
+								 %>
+									<option selected="selected" value="<%=currentGroup%>"><%=currentGroup%></option>		
+								<% } else {%>
+									<option value="<%=currentGroup%>"><%=currentGroup%></option>	
+				 	 	<%} }
+				 	 		for (int i = 0; i < vectSubnets.length; i++) {  
+								String subnet = vectSubnets[i]; 
+								if ((selectGroup != null) && (selectGroup.equals(vectSubnets[i]))) {
+								 %>
+									<option selected="selected" value="<%=subnet%>"><%=subnet%></option>		
+								<% } else { %>
+									<option value="<%=subnet%>"><%=subnet%></option>	
+				 	 	<%} }%>				 	 	
+						</select>
+						</td>	
+					</tr>					
 					<tr>						
 						<td>Dynamic Update: </td> 
-						<td class="align_right">																
+						<td class="align_left	">																
 						<input type="checkbox" title="Click to enable/disable dynamic update" id="dynamic" name="dynamic" value="false" onclick="check(this.checked);" />						
 						</td>	
-						<td  colspan="2" class="center"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>					
-					</tr>				
-																	
-
-				</table>   
-				</form>
+						<td  colspan="2" class="align_left"><input type="submit" value="Draw Graph" id="Go" name="Go" /> </td>					
+					</tr>											
+				</table>   																		
+				</form>																			
 	            </div>   
-	            <div id="more_options">				
+	            <div class="more_options">				
 					<a class="change" title="Conf" href="<%= response.encodeURL(request.getContextPath() +"/configure.jsp") %>">Configure</a>
-					<a class="change" title="Help" href="http://www.aptivate.org/Projects.BMOTools.pmGraph.html" target="_blank">Help</a>
+					<a class="change" title="Help" href="http://www.aptivate.org/Projects.BMOTools.pmGraph.html" target="_blank">Help</a>	
 				</div>      
             </div>
-            <div style="clear:both;"></div>            
+            <div style="clear:both;"></div>            	
             <div id="main">
                 <!-- Include the graph (Graph parameter controls not yet functional) -->
                 <div id="graph">
@@ -382,7 +419,6 @@
                     <%}%>
                 </div>  
                 <div id="legend">
-                <% // include the legend (the error below is a known bug of the WTP plugin. Ignore)  %>
                     <jsp:include page="<%=pageUrl.getLegendURL()%>" />
                 </div>
             </div>
@@ -390,7 +426,7 @@
  				<a class="left" title="Click here to go to the previous view" href="javascript:history.back(1);">Back</a> 	 				 				
  			    <a class="align_right" title="Click here to go to the default view keeping the time selected" href="<%=pageUrl.getIndexURL(startTime, endTime, true, false)%>">Reset</a>			
  			</div> 			
-            <!-- <div id="footer"></div> -->
-        </div>
-    </body>
+            <!-- <div id="footer"></div> -->            
+        </div>    	
+    </body>    	
 </html>

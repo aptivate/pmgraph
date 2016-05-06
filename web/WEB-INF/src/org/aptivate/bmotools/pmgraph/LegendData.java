@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -21,11 +23,11 @@ import org.apache.log4j.Logger;
  */
 public class LegendData
 {
-	private DataAccess dataAccess;
+	private DataAccess m_dataAccess;
 
 	private Logger m_logger = Logger.getLogger(LegendData.class);
 
-	private class UploadComparator implements Comparator
+	private class UploadComparator implements Comparator<Object>
 	{
 
 		private boolean m_descending;
@@ -52,7 +54,7 @@ public class LegendData
 		}
 	}
 
-	private class DownloadComparator implements Comparator
+	private class DownloadComparator implements Comparator<Object>
 	{
 
 		private boolean m_descending;
@@ -86,33 +88,46 @@ public class LegendData
 	 * @param order
 	 * @return A comparator to be used to sort the results list
 	 */
-	private Comparator getComparator(String sortby, String order)
+	private Comparator<Object> getComparator(String sortby, String order)
 	{
-
-		if (!"".equalsIgnoreCase(sortby))
+		if (sortby != null && !sortby.equalsIgnoreCase(""))
 		{
 			if (QueryBuilder.UPLOADED.equalsIgnoreCase(sortby))
 			{
 				if ("DESC".equalsIgnoreCase(order))
+				{
 					return (new UploadComparator(true));
+				}
 				else
+				{
 					return (new UploadComparator(false));
-			} else
+				}
+			} 
+			else
 			{
 				if (QueryBuilder.BYTES.equalsIgnoreCase(sortby))
 				{
 					if ("DESC".equalsIgnoreCase(order))
+					{
 						return (new BytesTotalComparator(true));
+					}
 					else
+					{
 						return (new BytesTotalComparator(false));
-				} else
+					}
+				} 
+				else
 				{
 					if (QueryBuilder.DOWNLOADED.equalsIgnoreCase(sortby))
 					{
 						if ("DESC".equalsIgnoreCase(order))
+						{
 							return (new DownloadComparator(true));
+						}
 						else
+						{
 							return (new DownloadComparator(false));
+						}
 					}
 				}
 			}
@@ -133,59 +148,80 @@ public class LegendData
 	 *         the user and sorted properly.
 	 * @throws SQLException
 	 */
-	private List<DataPoint> limitList(List<DataPoint> dataList, String sortBy,
+	private Hashtable<Integer,List<DataPoint>> limitList(Hashtable<Integer,List<DataPoint>> dataHash, String sortBy,
 			String order, RequestParams requestParams) throws SQLException
 	{
-		List<DataPoint> legendData = new ArrayList<DataPoint>();
 		DataPoint others = null;
-		int i = 0;
-		for (DataPoint portResult : dataList)
+		Hashtable<Integer,List<DataPoint>> legendDataHash = new Hashtable<Integer,List<DataPoint>>();
+		int cont = 1;
+		for (Enumeration e = dataHash.keys(); e.hasMoreElements();) 
 		{
-			if (i < requestParams.getResultLimit())
+			int key = (Integer) e.nextElement();
+			List<DataPoint> dataList = dataHash.get(key);
+			
+			List<DataPoint> legendData = new ArrayList<DataPoint>();
+			int i = 0;
+			for (DataPoint portResult : dataList)
 			{
-				legendData.add(portResult);
-			} else
-			{
-				if (i == requestParams.getResultLimit())
+				if (i < requestParams.getResultLimit())
 				{
-					switch (requestParams.getView())
+					legendData.add(portResult);
+				} 
+				else
+				{
+					if (i == requestParams.getResultLimit())
 					{
-					case LOCAL_PORT:
-					case REMOTE_PORT:
-						others = new PortDataPoint(PortDataPoint.OTHER_PORT);
-						break;
-					default:
-					case LOCAL_IP:
-					case REMOTE_IP:
-						// Ip view
-						others = new IpDataPoint(IpDataPoint.OTHER_IP);
-						break;
+						switch (requestParams.getView())
+						{
+							case LOCAL_PORT:
+							case REMOTE_PORT:
+								others = new PortDataPoint(PortDataPoint.OTHER_PORT);
+								break;
+							default:
+							case LOCAL_IP:
+							case REMOTE_IP:
+								// Ip view
+								others = new IpDataPoint(IpDataPoint.OTHER_IP);
+								break;
+						}
+
 					}
+					m_logger.debug("Legend view: " + requestParams.getView());
+					m_logger.debug("other: " + others);
 
-				}
-				m_logger.debug("Legend view: " + requestParams.getView());
-				m_logger.debug("other: " + others);
-
-				others.addToUploaded(portResult.getUploaded());
-				others.addToDownloaded(portResult.getDownloaded());
+					others.addToUploaded(portResult.getUploaded());
+					others.addToDownloaded(portResult.getDownloaded());
+				}	
+				i++;
 			}
-			i++;
+			if (others != null)
+				legendData.add(others);
+			if (!legendData.isEmpty()) {
+				legendDataHash.put(cont, legendData);
+				cont++;
+			}
 		}
-		if (others != null)
-			legendData.add(others);
 		// once the results that are going to be shown are selected, sort them
 		// according to what the user has requested.
-		Comparator c = getComparator(sortBy, order);
+		Comparator<Object> c = getComparator(sortBy, order);
 		if (c != null)
-			Collections.sort(legendData, c);
-
-		return legendData;
+			for (Enumeration e = legendDataHash.keys(); e.hasMoreElements();) 
+			{
+				int key = (Integer) e.nextElement();
+				List<DataPoint> legendData = legendDataHash.get(key);
+				if (!legendData.isEmpty()) 
+				{
+					Collections.sort(legendData, c);
+					legendDataHash.put(key, legendData);
+				}
+			}
+		return legendDataHash;
 	}
 
 	public LegendData() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException {
 
-		dataAccess = new DataAccess();
+		m_dataAccess = new DataAccess();
 	}
 
 	/**
@@ -203,17 +239,23 @@ public class LegendData
 	 * @throws SQLException
 	 * @throws ConfigurationException
 	 */
-	public List<DataPoint> getLegendData(String sortBy, String order,
+	
+	public Hashtable<Integer,List<DataPoint>> getLegendData(String sortBy, String order,
 			RequestParams requestParams, boolean isLong) throws ClassNotFoundException,
 			IllegalAccessException, InstantiationException, IOException,
 			SQLException, ConfigurationException
-	{
+	{				
+		Hashtable<Integer,List<DataPoint>> ipResults = m_dataAccess.getThroughput(requestParams, false, isLong);				
+		for (Enumeration enumListResult = ipResults.keys (); enumListResult.hasMoreElements ();) 
+		{
+			int key = (Integer) enumListResult.nextElement();
+			List<DataPoint> listResults = ipResults.get(key);
+			if (!listResults.isEmpty()) {
+				Collections.sort(listResults, new BytesTotalComparator(true));
+				ipResults.put(key, listResults);
+			}
+		}
 
-		List<DataPoint> ipResults = dataAccess.getThroughput(requestParams,
-				false, isLong);
-		// always sort using Bytes total to maintain the same order as in the graph
-		Collections.sort(ipResults, new BytesTotalComparator(true));
-
-		return limitList(ipResults, sortBy, order, requestParams);
+		return (limitList(ipResults, sortBy, order, requestParams));
 	}
 }

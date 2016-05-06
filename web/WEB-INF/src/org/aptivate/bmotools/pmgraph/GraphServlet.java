@@ -27,13 +27,12 @@ import org.jfree.chart.JFreeChart;
  * Added log4java logging
  * 
  */
-public class GraphServlet extends HttpServlet
+public class GraphServlet extends HttpServlet //implements SingleThreadModel
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Logger m_logger = Logger.getLogger(GraphServlet.class
 			.getName());
-
 	/**
 	 * Creates a GraphBuilder object which queries the database and returns
 	 * graphs (using the JFreeChart library) showing logged traffic to the
@@ -48,7 +47,6 @@ public class GraphServlet extends HttpServlet
 		{
 			JFreeChart chart = null;
 			// Get the parameters for graph building from the request string
-			// TODO make these conditionals...
 			String graphType = request.getParameter("graph");
 			Integer width = Integer.valueOf(request.getParameter("width"));
 			Integer height = Integer.valueOf(request.getParameter("height"));

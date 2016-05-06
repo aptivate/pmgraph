@@ -8,5 +8,18 @@ package org.aptivate.bmotools.pmgraph;
  */
 public enum Protocol {
 	// Show IPs or show ports in graph
-	tcp, icmp, udp;
+	tcp, icmp, udp, other;
+	
+	public static Protocol fromString(String protocol)
+	{
+		if(protocol.equals("tcp") || protocol.equals("udp") || 
+				protocol.equals("icmp"))
+		{
+			return Protocol.valueOf(protocol);
+		}
+		else
+		{
+			return other;
+		}
+	}
 }

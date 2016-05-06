@@ -1,19 +1,18 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.xml.sax.SAXException;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.SubmitButton;
-import com.meterware.httpunit.WebConversation;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebRequest;
 import com.meterware.httpunit.WebResponse;
@@ -24,11 +23,9 @@ import com.meterware.httpunit.WebResponse;
  *
  */
 
-public class ErrorMessageTest extends TestCase {
+public class ErrorMessageTest extends PmGraphTestBase {
 
 	private TestUtils m_testUtils;
-
-	WebConversation m_wc;
 
 	WebRequest m_request;
 
@@ -39,13 +36,18 @@ public class ErrorMessageTest extends TestCase {
 	SubmitButton m_subButton;
 
 	public ErrorMessageTest() throws Exception {
+		super();
 		m_testUtils = new TestUtils();
 		m_testUtils.CreateTable();
 		m_testUtils.InsertSampleData();
-		m_wc = new WebConversation();
+		try {
+			//This is necessary to ensure that the value in pmacctd.conf is reset correctly
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+		}
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph()
 				+ "?start=0&end=300000");
-		m_response = m_wc.getResponse(m_request);
+		m_response = m_conversation.getResponse(m_request);
 		m_theForm = m_response.getFormWithID("SetDateAndTime");
 		m_subButton = m_theForm.getSubmitButton("Go");
 				
@@ -57,10 +59,9 @@ public class ErrorMessageTest extends TestCase {
 	public void testTimeFormatErrorMessage() throws IOException, SAXException {
 	
 		m_response.getElementWithID("fromDate").setAttribute("value", "02/0p/2009");
-		m_subButton.click();
-
+		m_subButton.click();			
 		assertEquals("Check from date format alert.",
-					ErrorMessages.DATE_TIME_FORMAT_ERROR, m_wc.popNextAlert());
+					ErrorMessages.DATE_TIME_FORMAT_ERROR, m_conversation.popNextAlert());
 		
 	}
 
@@ -82,7 +83,7 @@ public class ErrorMessageTest extends TestCase {
 				timeFormat.print(currentTime.plusMinutes(1)));
 
 		m_subButton.click();
-		assertEquals("Time in future.", ErrorMessages.TIME_IN_FUTURE, m_wc.popNextAlert());
+		assertEquals("Time in future.", ErrorMessages.TIME_IN_FUTURE, m_conversation.popNextAlert());
 
 	}
 
@@ -96,7 +97,7 @@ public class ErrorMessageTest extends TestCase {
 		m_response.getElementWithID("toTime").setAttribute("value", "01:00:58");
 
 		m_subButton.click();
-		assertEquals("Test Short Span", ErrorMessages.TIME_NOT_ENOUGH, m_wc.popNextAlert());
+		assertEquals("Test Short Span", ErrorMessages.TIME_NOT_ENOUGH, m_conversation.popNextAlert());
 
 	}
 	
@@ -108,9 +109,9 @@ public class ErrorMessageTest extends TestCase {
 		
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph()
 				+ "?start=gdg&end=300000");
-		m_response = m_wc.getResponse(m_request);
+		m_response = m_conversation.getResponse(m_request);
 		
-		assertEquals("Test Start and End", ErrorMessages.START_END_FORMAT_ERROR , m_wc.popNextAlert());
+		assertEquals("Test Start and End", ErrorMessages.START_END_FORMAT_ERROR , m_conversation.popNextAlert());
 	}
 	
 	/**
@@ -125,7 +126,7 @@ public class ErrorMessageTest extends TestCase {
 		m_response.getElementWithID("resultLimit").setAttribute("value", "N");
 		m_subButton.click();
 
-		assertEquals("Test Short Span", ErrorMessages.RESULT_LIMIT_FORMAT_ERROR, m_wc.popNextAlert());
+		assertEquals("Test Short Span", ErrorMessages.RESULT_LIMIT_FORMAT_ERROR, m_conversation.popNextAlert());
 	}
 
 	/**
@@ -136,20 +137,20 @@ public class ErrorMessageTest extends TestCase {
 	public void testPortNumberErrorMessage() throws Exception{
 		//test wrong port number
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?port=9p");
-		m_response = m_wc.getResponse(m_request);
-		assertEquals("test wrong port Number", ErrorMessages.PORT_FORMAT_ERROR, m_wc.popNextAlert());
+		m_response = m_conversation.getResponse(m_request);
+		assertEquals("test wrong port Number", ErrorMessages.PORT_FORMAT_ERROR, m_conversation.popNextAlert());
 		
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?port=-9");
-		m_response = m_wc.getResponse(m_request);
-		assertEquals("test wrong port Number", ErrorMessages.NEGATIVE_PORT_NUMBER, m_wc.popNextAlert());
+		m_response = m_conversation.getResponse(m_request);
+		assertEquals("test wrong port Number", ErrorMessages.NEGATIVE_PORT_NUMBER, m_conversation.popNextAlert());
 		
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?port=99999");
-		m_response = m_wc.getResponse(m_request);
-		assertEquals("test wrong port Number", ErrorMessages.PORT_NUMBER_TOO_BIG, m_wc.popNextAlert());
+		m_response = m_conversation.getResponse(m_request);
+		assertEquals("test wrong port Number", ErrorMessages.PORT_NUMBER_TOO_BIG, m_conversation.popNextAlert());
 		
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?port=Others");
-		m_response = m_wc.getResponse(m_request);
-		assertEquals("test wrong port Number", "", m_wc.popNextAlert());
+		m_response = m_conversation.getResponse(m_request);
+		assertEquals("test wrong port Number", "", m_conversation.popNextAlert());
 	}
 	
 	/**
@@ -160,11 +161,11 @@ public class ErrorMessageTest extends TestCase {
 	public void testIPErrorMessage() throws Exception{
 		//test wrong port number
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?ip=3.3.y.9");
-		m_response = m_wc.getResponse(m_request);
-		assertEquals("test wrong port Number", ErrorMessages.IP_FORMAT_ERROR, m_wc.popNextAlert());
+		m_response = m_conversation.getResponse(m_request);
+		assertEquals("test wrong port Number", ErrorMessages.IP_FORMAT_ERROR, m_conversation.popNextAlert());
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?ip=Others");
-		m_response = m_wc.getResponse(m_request);
-		assertEquals("test wrong port Number", "", m_wc.popNextAlert());		
+		m_response = m_conversation.getResponse(m_request);
+		assertEquals("test wrong port Number", "", m_conversation.popNextAlert());		
 	}
 
 	/**
@@ -174,8 +175,8 @@ public class ErrorMessageTest extends TestCase {
 	public void testViewErrorMessage() throws Exception{
 		//test for wrong view parameter
 		m_request = new GetMethodWebRequest(m_testUtils.getUrlPmgraph() + "?view=XXXX");
-		m_response = m_wc.getResponse(m_request);
-		assertEquals("test wrong port Number", ErrorMessages.VIEW_FORMAT_ERROR, m_wc.popNextAlert());
+		m_response = m_conversation.getResponse(m_request);
+		assertEquals("test wrong port Number", ErrorMessages.VIEW_FORMAT_ERROR, m_conversation.popNextAlert());
 	}
 	
 	public static Test suite()

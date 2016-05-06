@@ -1,13 +1,10 @@
 package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
-import java.sql.SQLException;
-
-import org.xml.sax.SAXException;
-
-import com.meterware.httpunit.*;
-
-
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Properties;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -49,42 +46,30 @@ public class ConfigurationTest extends TestCase
 			assertEquals(tables[i], table);
 		}
 	}
-
-	public void testUpdateConfiguration() throws InstantiationException, IllegalAccessException, 
-			ClassNotFoundException, SQLException, IOException, SAXException
-	{
-		TestUtils theTestUtils = new TestUtils();
-		WebConversation wc = new WebConversation();
-		WebRequest request = new GetMethodWebRequest(theTestUtils.getUrlPmgraph() + "configure.jsp");
-		String oldSubnet = Configuration.getLocalSubnet();
-		String newSubnet = "0.123.255.";
-		WebResponse response = wc.getResponse(request);
-		replaceSubnet(response, newSubnet);
-		assertTrue(Configuration.getLocalSubnet().equals(newSubnet));
-		try {
-			//This is necessary to ensure that the value in pmacctd.conf is reset correctly
-			Thread.sleep(11000);
-		} catch (InterruptedException e) {
-		}
-		// Ensure there are no problems caused by tomcat reloading.
-		wc = new WebConversation();
-		response = wc.getResource(request);
-		replaceSubnet(response, oldSubnet);
-		assertTrue(Configuration.getLocalSubnet().equals(oldSubnet));
-	}
 	
-	private void replaceSubnet(WebResponse response, String newSubnet) throws IOException, SAXException
+	public void testDeleteIpsFromGroups() throws IOException
 	{
-		WebForm configurationForm = response.getFormWithID("config");
-		String currentSubnet = configurationForm.getParameterValue("localSubnet");
-		assertTrue(currentSubnet.equals(Configuration.getLocalSubnet()));
-		configurationForm.setParameter("localSubnet", newSubnet);
-		WebResponse formResult = configurationForm.submit();
-		HTMLElement result = formResult.getElementWithID("result");
-		String resultString =  result.getNode().getFirstChild().getNextSibling().getFirstChild().getNodeValue();
-		assertTrue(resultString.equals(" Update Done "));
-		// Update the client side configuration.
-		Configuration.forceConfigReload();
+		Properties props = new Properties();
+		InputStream stream = DataAccess.class.getResourceAsStream(Configuration.CONFIGURATION_FILE);
+		props.loadFromXML(stream);
+		Hashtable<String, String> ipsForGroup = new Hashtable<String, String>();
+		ArrayList<String> groups = new ArrayList<String>();
+		ipsForGroup.put("10.0.1.1", "Test");
+		ipsForGroup.put("10.0.1.2", "Test");
+		ipsForGroup.put("10.0.1.3", "Test");
+		Configuration.updateGroups("Test", null, null, groups, null);
+		groups.add("Test");
+		Configuration.addIpGroupConf(ipsForGroup, props);
+		Configuration.delIpGroup(ipsForGroup, groups, props);
+		for(Object propKey : props.keySet())
+		{
+			String key = propKey.toString();
+			boolean hasGroup = key.contains("G1-Test") || 
+				key.contains("G2-Test") || key.contains("G3-Test");
+			assertTrue("Group Test still contains IP: " + props.getProperty(key),
+					!hasGroup);
+		}
+		Configuration.delGroup("Test");
 	}
 	
 	public static Test suite()

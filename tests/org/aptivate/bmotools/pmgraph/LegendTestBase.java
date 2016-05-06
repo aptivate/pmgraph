@@ -3,8 +3,6 @@ package org.aptivate.bmotools.pmgraph;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import junit.framework.TestCase;
-
 import org.xml.sax.SAXException;
 
 import com.meterware.httpunit.WebTable;
@@ -16,7 +14,7 @@ import com.meterware.httpunit.WebTable;
  * @author Noe A. Rodriguez Gonzalez.
  * 
  */
-abstract class LegendTestBase extends TestCase
+abstract class LegendTestBase extends PmGraphTestBase
 {
 	protected TestUtils m_testUtils;
 
@@ -42,31 +40,47 @@ abstract class LegendTestBase extends TestCase
 			long uploaded[], String rows[], View view) throws IOException, SAXException
 	{
 		// Check the table data
-		// The data starts in the second row because the first one is for the colours
-		for (int i = 2; i < table.getRowCount(); i++)
-		{
-			assertEquals("Check the IP Or Port Address", rows[i - 2], table.getCellAsText(i, 1));
+		// The data starts in the third row because the first two are the table headers
+		int j = 2;	
+		int i = 0;
+		int totalDownloaded = 0;
+		int totalUploaded = 0;
+		while (j < table.getRowCount() - 1)	
+		{	
+			totalDownloaded += downloaded[i];
+			totalUploaded += uploaded[i];
+			if (table.getCellAsText(j,1).equals(""))
+			{
+				j++;
+			}
+			assertEquals("Check the IP Or Port Address", rows[i], table.getCellAsText(j, 1));
 			switch (view)
 			{
-			default:
-			case LOCAL_IP:
-				// Columns in the table are Colour, Host IP, Host Name,
-				// Downloaded, Uploaded, avg downloaded, avg uploaded
-				assertEquals("Check the Downloaded Value", String.valueOf(downloaded[i - 2]), 
-						table.getCellAsText(i, 3));
-				assertEquals("Check the Uploaded Value", String.valueOf(uploaded[i - 2]), 
-						table.getCellAsText(i, 4));
+				default:
+				case LOCAL_IP:
+					// Columns in the table are Colour, Host IP, Host Name,
+					// Downloaded, Uploaded, avg downloaded, avg uploaded
+					assertEquals("Check the Downloaded Value", String.valueOf(downloaded[i]), 
+							table.getCellAsText(j, 3));
+					assertEquals("Check the Uploaded Value", String.valueOf(uploaded[i]), 
+							table.getCellAsText(j, 4));
 				break;
-			case LOCAL_PORT:
-				// Columns in the table are Colour, port, protocol, service,
-				// Downloaded, Uploaded, average downloaded, average uploaded
-				assertEquals("Check the Downloaded Value", String.valueOf(downloaded[i - 2]), 
-						table.getCellAsText(i, 2));
-				assertEquals("Check the Uploaded Value", String.valueOf(uploaded[i - 2]), 
-						table.getCellAsText(i, 3));
+				case LOCAL_PORT:
+					// Columns in the table are Colour, port, protocol, service,
+					// Downloaded, Uploaded, average downloaded, average uploaded
+					assertEquals("Check the Downloaded Value", String.valueOf(downloaded[i]), 
+							table.getCellAsText(j, 2));
+					assertEquals("Check the Uploaded Value", String.valueOf(uploaded[i]), 
+							table.getCellAsText(j, 3));
 				break;
 			}
+			i++;
+			j++;
+		}
+		if(table.getRowCount() > 0)
+		{
+			assertEquals("Check the total downloaded traffic values", totalDownloaded, Long.parseLong(table.getCellAsText(j, 3)));
+			assertEquals("Check the total downloaded traffic values", totalUploaded, Long.parseLong(table.getCellAsText(j, 4)));
 		}
 	}
-
 }

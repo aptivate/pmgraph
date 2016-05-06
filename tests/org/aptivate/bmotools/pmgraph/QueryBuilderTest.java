@@ -2,11 +2,12 @@ package org.aptivate.bmotools.pmgraph;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.text.ParseException;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -19,21 +20,13 @@ import junit.framework.TestSuite;
  * 
  */
 public class QueryBuilderTest extends TestCase
-{
+{	
 	
 	private List<String> m_params;
 
 	private Map<String, Object> m_paramsValues;
 
 	private QueryBuilder m_queryBuilder;
-
-	private HashMap<String, Map<String, String>> queries;
-
-	private HashMap<String, Map<String, String>> legendQueries;
-	
-	private HashMap<String, Map<String, String>> longQueries;
-	
-	private HashMap<String, Map<String, String>> longLegendQueries;
 
 	public QueryBuilderTest() throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException, SQLException, IOException, ConfigurationException {
@@ -47,461 +40,232 @@ public class QueryBuilderTest extends TestCase
 		m_paramsValues.put("remote_ip", "4.2.2.2");
 		m_params.add("remote_port");
 		m_paramsValues.put("remote_port", 10000);
-
+		
 		m_queryBuilder = new QueryBuilder();
-		setQueries(false);
-		setQueries(true);
-	}
+	}			
 	
-	private void setQueries(boolean isLong) throws IOException
+	private String GenerateQuery(RequestParams params, boolean isChart) throws IOException
 	{
 		String shortDate = "1970-01-01 01:05:00";
 		String longDate = "1970-01-06 01:00:00";
 		String date;
 		String table;
-		HashMap<String, Map<String, String>> theQueries;
-		HashMap<String, Map<String, String>> theLegendQueries;
+		StringBuffer query = new StringBuffer("SELECT ");
+		String viewName = params.getView().toString().toLowerCase();
 		
-		if(isLong)
+		if(Configuration.needsLongGraph(params.getStartTime(), 
+				params.getEndTime()) && Configuration.isLongGraphTableUsable())
 		{
-			longQueries = new HashMap<String, Map<String, String>>();
-			longLegendQueries = new HashMap<String, Map<String, String>>();
-			table = Configuration.getResultDatabaseLongTable();
 			date = longDate;
-			theQueries = longQueries;
-			theLegendQueries = longLegendQueries;
+			table = Configuration.getResultDatabaseLongTable();
 		}
 		else
 		{
-			queries = new HashMap<String, Map<String, String>>();
-			legendQueries = new HashMap<String, Map<String, String>>();
-			table = Configuration.getResultDatabaseTable();
 			date = shortDate;
-			theQueries = queries;
-			theLegendQueries = legendQueries;
+			table = Configuration.getResultDatabaseTable();
 		}
-
-		HashMap<String, String> views = new HashMap<String, String>();
-		HashMap<String, String> legendViews = new HashMap<String, String>();
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {} LOCAL_IP
-		views.put( "LOCAL_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  local_ip");
-		legendViews.put( "LOCAL_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  local_ip");
-		// {} LOCAL_PORT
-		views.put( "LOCAL_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  port, ip_proto");
-		legendViews.put("LOCAL_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  port, ip_proto");
-		// {} REMOTE_IP
-		views.put( "REMOTE_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  remote_ip");
-		legendViews.put( "REMOTE_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  remote_ip");
-		// {} REMOTE_PORT
-		views.put( "REMOTE_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  remote_port, ip_proto");
-		legendViews.put( "REMOTE_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  remote_port, ip_proto");
-		theQueries.put("", views);
-		theLegendQueries.put("", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {ip=10.0.156.120} LOCAL_PORT
-		views.put( "LOCAL_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  port, ip_proto");
-		legendViews.put( "LOCAL_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  port, ip_proto");
-		// {ip=10.0.156.120} REMOTE_IP
-		views.put( "REMOTE_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  remote_ip");
-		legendViews.put( "REMOTE_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  remote_ip");
-		// {ip=10.0.156.120} REMOTE_PORT
-		views.put( "REMOTE_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  remote_port, ip_proto");
-		legendViews.put( "REMOTE_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  remote_port, ip_proto");
-		theQueries.put("ip", views);
-		theLegendQueries.put("ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {port=90, ip=10.0.156.120} REMOTE_IP
-		views.put( "REMOTE_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  remote_ip");
-		legendViews.put( "REMOTE_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  remote_ip");
-		// {port=90, ip=10.0.156.120} REMOTE_PORT
-		views.put( "REMOTE_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  remote_port, ip_proto");
-		legendViews.put( "REMOTE_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  remote_port, ip_proto");
-		theQueries.put("port ip", views);
-		theLegendQueries.put("port ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {remote_ip=4.2.2.2, ip=10.0.156.120} LOCAL_PORT
-		views.put( "LOCAL_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  port, ip_proto");
-		legendViews.put( "LOCAL_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  port, ip_proto");
-		// {remote_ip=4.2.2.2, ip=10.0.156.120} REMOTE_PORT
-		views.put( "REMOTE_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  remote_port, ip_proto");
-		legendViews.put( "REMOTE_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  remote_port, ip_proto");
-		theQueries.put("remote_ip ip", views);
-		theLegendQueries.put("remote_ip ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {remote_port=10000, ip=10.0.156.120} LOCAL_PORT
-		views.put( "LOCAL_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  port, ip_proto");
-		legendViews.put( "LOCAL_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  port, ip_proto");
-		// {remote_port=10000, ip=10.0.156.120} REMOTE_IP
-		views.put( "REMOTE_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  remote_ip");
-		legendViews.put( "REMOTE_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  remote_ip");
-		theQueries.put("remote_port ip", views);
-		theLegendQueries.put("remote_port ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {port=90, remote_ip=4.2.2.2, ip=10.0.156.120} REMOTE_PORT
-		views.put( "REMOTE_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  remote_port, ip_proto");
-		legendViews.put( "REMOTE_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  remote_port, ip_proto");
-		theQueries.put("port remote_ip ip", views);
-		theLegendQueries.put("port remote_ip ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {remote_ip=4.2.2.2, remote_port=10000, ip=10.0.156.120} LOCAL_PORT
-		views.put( "LOCAL_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  stamp_inserted,  port, ip_proto");
-		legendViews.put( "LOCAL_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) = '10.0.156.120' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND (CASE WHEN ip_src  =  '10.0.156.120' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  =  '10.0.156.120') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  =  '10.0.156.120'))  group by  port, ip_proto");
-		theQueries.put("remote_ip remote_port ip", views);
-		theLegendQueries.put("remote_ip remote_port ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		theQueries.put("port remote_ip remote_port ip", views);
-		theLegendQueries.put("port remote_ip remote_port ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {port=90} LOCAL_IP
-		views.put( "LOCAL_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  local_ip");
-		legendViews.put( "LOCAL_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  local_ip");
-		// {port=90} REMOTE_IP
-		views.put( "REMOTE_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  remote_ip");
-		legendViews.put( "REMOTE_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  remote_ip");
-		// {port=90} REMOTE_PORT
-		views.put( "REMOTE_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  remote_port, ip_proto");
-		legendViews.put( "REMOTE_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  remote_port, ip_proto");
-		theQueries.put("port", views);
-		theLegendQueries.put("port", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {port=90, remote_ip=4.2.2.2} LOCAL_IP
-		views.put( "LOCAL_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  local_ip");
-		legendViews.put( "LOCAL_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  local_ip");
-		// {port=90, remote_ip=4.2.2.2} REMOTE_PORT
-		views.put( "REMOTE_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  remote_port, ip_proto");
-		legendViews.put( "REMOTE_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  remote_port, ip_proto");
-		theQueries.put("port remote_ip", views);
-		theLegendQueries.put("port remote_ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {port=90, remote_port=10000} LOCAL_IP
-		views.put( "LOCAL_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  local_ip");
-		legendViews.put( "LOCAL_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  local_ip");
-		// {port=90, remote_port=10000} REMOTE_IP
-		views.put( "REMOTE_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  remote_ip");
-		legendViews.put( "REMOTE_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  remote_ip");
-		theQueries.put("port remote_port", views);
-		theLegendQueries.put("port remote_port", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {port=90, remote_ip=4.2.2.2, remote_port=10000} LOCAL_IP
-		views.put( "LOCAL_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  local_ip");
-		legendViews.put( "LOCAL_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN src_port ELSE dst_port END) = 90 AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  local_ip");
-		theQueries.put("port remote_ip remote_port", views);
-		theLegendQueries.put("port remote_ip remote_port", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {remote_ip=4.2.2.2} LOCAL_IP
-		views.put( "LOCAL_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  local_ip");
-		legendViews.put( "LOCAL_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  local_ip");
-		// {remote_ip=4.2.2.2} LOCAL_PORT
-		views.put( "LOCAL_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  port, ip_proto");
-		legendViews.put( "LOCAL_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  port, ip_proto");
-		// {remote_ip=4.2.2.2} REMOTE_PORT
-		views.put( "REMOTE_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  remote_port, ip_proto");
-		legendViews.put( "REMOTE_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN dst_port ELSE src_port END) AS remote_port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  remote_port, ip_proto");
-		theQueries.put("remote_ip", views);
-		theLegendQueries.put("remote_ip", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {remote_ip=4.2.2.2, remote_port=10000} LOCAL_IP
-		views.put( "LOCAL_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  local_ip");
-		legendViews.put( "LOCAL_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  local_ip");
-		// {remote_ip=4.2.2.2, remote_port=10000} LOCAL_PORT
-		views.put( "LOCAL_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  port, ip_proto");
-		legendViews.put( "LOCAL_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) = '4.2.2.2' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  port, ip_proto");
-		theQueries.put("remote_ip remote_port", views);
-		theLegendQueries.put("remote_ip remote_port", legendViews);
-
-		views = new HashMap<String, String>();
-		legendViews = new HashMap<String, String>();
-		// {remote_port=10000} LOCAL_IP
-		views.put( "LOCAL_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  local_ip");
-		legendViews.put( "LOCAL_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_src ELSE ip_dst END) AS local_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  local_ip");
-		// {remote_port=10000} LOCAL_PORT
-		views.put( "LOCAL_PORT",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  port, ip_proto");
-		legendViews.put( "LOCAL_PORT",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, ip_proto, (CASE WHEN ip_src LIKE '10.0.156.%' THEN src_port ELSE dst_port END) AS port FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  port, ip_proto");
-		// {remote_port=10000} REMOTE_IP
-		views.put( "REMOTE_IP",
-						"SELECT  stamp_inserted, SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  stamp_inserted,  remote_ip");
-		legendViews.put( "REMOTE_IP",
-						"SELECT SUM(CASE WHEN ip_dst LIKE '10.0.156.%' THEN bytes ELSE 0 END) as downloaded, SUM(CASE WHEN ip_src LIKE '10.0.156.%' THEN bytes ELSE 0 END) as uploaded, (CASE WHEN ip_src LIKE '10.0.156.%' THEN ip_dst ELSE ip_src END) AS remote_ip FROM "
-								+ table
-								+ " WHERE stamp_inserted >= '1970-01-01 01:00:00' AND stamp_inserted <= '" + date + "' AND (CASE WHEN ip_src  LIKE  '10.0.156.%' THEN dst_port ELSE src_port END) = 10000 AND ((NOT (ip_src LIKE '10.0.156.%') AND ip_dst  LIKE  '10.0.156.%') OR (NOT (ip_dst LIKE '10.0.156.%') AND ip_src  LIKE  '10.0.156.%'))  group by  remote_ip");
-		theQueries.put("remote_port", views);
-		theLegendQueries.put("remote_port", legendViews);
-
+		
+		if(isChart)
+		{
+			query.append("stamp_inserted, ");
+		}
+		query.append("SUM(CASE WHEN down THEN bytes ELSE 0 END) AS " + 
+				"downloaded, SUM(CASE WHEN up THEN bytes ELSE 0 END) AS " + 
+				"uploaded, ");
+		query.append(viewName);
+		if(viewName.endsWith("port"))
+		{
+			query.append(", ip_proto");
+		}
+		query.append(" FROM (SELECT stamp_inserted, CASE WHEN up THEN ip_dst " +
+			"ELSE ip_src END AS remote_ip, CASE WHEN down THEN ip_dst ELSE " +
+			"ip_src END AS local_ip, CASE WHEN up THEN dst_port ELSE " + 
+			"src_port END AS remote_port, CASE WHEN down THEN dst_port ELSE " + 
+			"src_port END AS local_port, bytes, up, down");
+		if(viewName.contains("port"))
+		{
+			query.append(", ip_proto");
+		}	
+		query.append(" FROM (SELECT " +
+			"stamp_inserted, ip_src, ip_dst, src_port, dst_port, bytes, " + 
+			"(ip_src LIKE '");
+		String[] subnets = Configuration.getLocalSubnet();
+		boolean firstSubnet = true;
+		StringBuffer dstSubnets =  new StringBuffer(); 
+		for(String subnet : subnets)
+		{
+			if(firstSubnet)
+			{
+				query.append(subnet + "%'");
+				firstSubnet = false;
+				dstSubnets.append(subnet + "%'");
+			}
+			else
+			{
+				query.append(" OR ip_src LIKE '" + subnet + "%'");
+				dstSubnets.append(" OR ip_dst LIKE '" + subnet + "%'");
+			}
+		}
+		query.append(") AS up, (ip_dst LIKE '" + dstSubnets.toString() + ") " +  
+				"AS down");
+		if(viewName.contains("port"))
+		{
+			query.append(", ip_proto");
+		}	
+		query.append(" FROM " + table + " WHERE stamp_inserted >= '1970-01-01" + 
+				" 01:00:00' AND stamp_inserted <= '" + date +  "' ) AS t1" +
+				" WHERE up != down) AS t2");
+		
+		boolean hasLocalIp = params.getIp() != null;
+		boolean hasRemoteIp = params.getRemoteIp() != null;
+		boolean hasLocalPort = params.getPort() != null;
+		boolean hasRemotePort = params.getRemotePort() != null;
+		boolean hasGroupIndex = params.getSelectGroupIndex() != null;
+		boolean hasSubnetIndex = params.getSelectSubnetIndex() != null;
+		// A separate where clause is needed to select data on the basis of a 
+		// request for a specific IP or port. If no IP or port has been 
+		// requested we don't want to include the where clause at all.
+		boolean needsWhere = hasLocalIp || hasRemoteIp || hasLocalPort ||
+			hasRemotePort || hasGroupIndex || hasSubnetIndex;
+		
+		if(needsWhere)
+		{
+			query.append(" WHERE");
+			boolean previousCondition = false;
+			if(hasLocalIp)
+			{
+				query.append(" local_ip = '" + params.getIp()+ "'");
+				previousCondition = true;
+			}
+			if(hasLocalPort)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				query.append(" local_port = " + params.getPort());
+				previousCondition = true;
+			}
+			if(hasRemoteIp)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				query.append(" remote_ip = '" + params.getRemoteIp() + "'");
+				previousCondition = true;
+			}
+			if(hasRemotePort)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				query.append(" remote_port = " + params.getRemotePort());
+			}
+			if(hasGroupIndex)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				String selectedGroup = params.getSelectGroupIndex();
+				// If its a group then make it look for all the ips
+				query.append(" (");
+				boolean firstIp = true;
+				List<String> ips = Configuration.getIpsGroup(selectedGroup);
+				for(String ip : ips)
+				{
+					if(!firstIp)
+					{
+						query.append(" OR ");
+					}
+					else
+					{
+						firstIp = false;
+					}
+					query.append("local_ip = " + ip);
+				}
+				query.append(")");
+			}
+			if(hasSubnetIndex)
+			{
+				if(previousCondition)
+				{
+					query.append(" AND");
+				}
+				query.append(" local_ip LIKE '" + 
+						params.getSelectSubnetIndex() + "%'");
+			}
+		}
+			
+		query.append(" GROUP BY ");
+		
+		if(isChart)
+		{
+			query.append("stamp_inserted, ");
+		}
+		
+		query.append(viewName);
+		
+		if(viewName.contains("port"))
+		{
+			query.append(", ip_proto");
+		}
+		
+		String sql = query.toString();
+		sql = alterQuery(sql);
+	 
+		return sql;
 	}
 
-	private String alterQuery(String query)
+	private String alterQuery(String query) throws IOException
 	{
-		query = query.replace("stamp_inserted >= ", "datetime(stamp_inserted) >= ");
-		query = query.replace("stamp_inserted <= ", "datetime(stamp_inserted) <= ");
+		if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			query = query.replace("stamp_inserted >= ", "datetime(stamp_inserted) >= ");
+			query = query.replace("stamp_inserted <= ", "datetime(stamp_inserted) <= ");
+		}
+		else if(!TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC")
+				&& TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
+		{
+			query = query.replace("dst_port", "port_dst");
+			query = query.replace("src_port", "port_src");
+		}
 		return query;
 	}
+		
 	
 	private void checkQuery(RequestParams requestParams, boolean isLong) throws SQLException, IOException, ParseException
 	{
 		List<View> views = View.getAvailableViews(requestParams);
-		HashMap<String, Map<String, String>> theQueries;
-		HashMap<String, Map<String, String>> theLegendQueries;
-		if(isLong)
-		{
-			theQueries = longQueries;
-			theLegendQueries = longLegendQueries;
-		}
-		else
-		{
-			theQueries = queries;
-			theLegendQueries = legendQueries;
-		}
-
-		String stringParams = requestParams.getParams().keySet().toString()
-				.replaceAll( "[\\],\\[]", "");
+		
 		for (View view : views)
 		{
 			String sql;
 			requestParams.setView(view);
-			m_queryBuilder.buildQuery(requestParams, true, isLong);//.toString().replaceAll( ".*: ", "");
+			
+			String expected = GenerateQuery(requestParams, true);
+			m_queryBuilder.buildQuery(requestParams, true, isLong);
 			sql = m_queryBuilder.getQuery().replaceAll( ".*: ", "");
-			//assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
-			if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
-			{
-				String modifiedQuery = alterQuery(theQueries.get(stringParams).get(view.toString()));
-				assertEquals(modifiedQuery, sql);
-			}
-			else
-			{
-				assertEquals(theQueries.get(stringParams).get(view.toString()), sql);
-			}
-			m_queryBuilder.buildQuery(requestParams, false, isLong);//.toString().replaceAll( ".*: ", "");
+			assertEquals(expected, sql);
+			
+			expected = GenerateQuery(requestParams, false);
+			m_queryBuilder.buildQuery(requestParams, false, isLong);
 			sql = m_queryBuilder.getQuery();
-			if(TestConfiguration.getJdbcDriver().equals("org.sqlite.JDBC"))
-			{
-				String modifiedQuery = alterQuery(theLegendQueries.get(stringParams).get(view.toString()));
-				assertEquals(modifiedQuery, sql);
-			}
-			else
-			{
-				assertEquals(theLegendQueries.get(stringParams).get(view.toString()), sql);
-			}
+			assertEquals(expected, sql);
 		}
 	}
-
-	/**
+	
+	/*
 	 * method that tests the QueryBuilder in different cases
 	 * 
 	 * @throws SQLException
 	 * @throws IOException
-	 */
-	public void testQueryBuilder() throws SQLException, IOException, ParseException
+	 **/
+	public void testQueryBuilder() throws SQLException, IOException, ParseException, Exception
 	{
+		m_queryBuilder = new QueryBuilder();			
 		Map<String, Object> params = new HashMap<String, Object>();
 
 		int i = 0;
@@ -516,6 +280,10 @@ public class QueryBuilderTest extends TestCase
 		// check without parameters.
 		checkQuery(requestParams, false);
 		checkQuery(longRequestParams, true);
+		requestParams.setSelectSubnetIndex("10.0.156.");
+		checkQuery(requestParams, false);
+		checkQuery(longRequestParams, true);
+		requestParams.setSelectSubnetIndex(null);
 		for (String param : m_params)
 		{
 			params.clear();
@@ -523,8 +291,9 @@ public class QueryBuilderTest extends TestCase
 			// just set the parameter to a value that is not null
 			checkQuery(requestParams,false);
 			checkQuery(longRequestParams, true);
-			int limit = m_params.size() - i;
-			// check all possible groups.
+			i = 0;
+			int limit = m_params.size();
+			// check all possible groups.															
 			for (int j = 1; j < limit; j++)
 			{ // number of elements in the group
 
@@ -534,7 +303,6 @@ public class QueryBuilderTest extends TestCase
 					for (int l = 0; l < j; l++)
 					{ // create the group, adding the parameter value to it
 						params.put(m_params.get(k + l), m_paramsValues.get(m_params.get(k + l)));
-						
 					}
 					checkQuery(requestParams, false);
 					checkQuery(longRequestParams, true);
@@ -546,11 +314,12 @@ public class QueryBuilderTest extends TestCase
 			}
 			i++;
 		}
-
+		requestParams.setSelectSubnetIndex("all");
 	}
-
+	
 	public static Test suite()
 	{
 		return new TestSuite(QueryBuilderTest.class);
 	}
+
 }
